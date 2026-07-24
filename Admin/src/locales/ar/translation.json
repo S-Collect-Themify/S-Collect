@@ -1209,7 +1209,96 @@
     }
   },
   "adminSettings": {
-    "title": "الإعدادات",
-    "description": "ضبط حساب الأدمن وتفضيلات التطبيق."
+    "title": "إعدادات المنصة",
+    "description": "ضبط حساب الأدمن وتفضيلات التطبيق.",
+    "platformName": "اسم المنصة",
+    "platformLogo": "شعار المنصة",
+    "noLogoUploaded": "لم يتم رفع شعار",
+    "uploadLogo": "رفع الشعار",
+    "changeLogo": "تغيير الشعار",
+    "logoDimensionsHint": "PNG, SVG, WEBP — الحد الأقصى 2 ميجابايت",
+    "logoErrorSize": "حجم الملف يتجاوز الحد الأقصى 2 ميجابايت",
+    "currency": "العملة",
+    "defaultLanguage": "اللغة الافتراضية",
+    "saveSettings": "حفظ الإعدادات",
+    "backToSettings": "العودة للإعدادات",
+    "currencies": {
+      "sar": "SAR - ريال سعودي",
+      "usd": "USD - دولار أمريكي",
+      "aed": "AED - درهم إماراتي",
+      "kwd": "KWD - دينار كويتي"
+    },
+    "languages": {
+      "arabic": "العربية",
+      "english": "English"
+    },
+    "errors": {
+      "nameRequired": "اسم المنصة مطلوب"
+    },
+    "adminAccounts": {
+      "title": "حسابات الأدمن",
+      "description": "إدارة حسابات وصلاحيات مسؤولي المنصة",
+      "button": "إدارة المسؤولين"
+    },
+    "bannersCard": {
+      "title": "الإعلانات البانريّة",
+      "description": "إدارة بنرات الصفحة الرئيسية والعروض الترويجية",
+      "button": "إدارة البانرات"
+    },
+    "shippingCard": {
+      "title": "إدارة الشحن",
+      "description": "إدارة مناطق الشحن واستعراض أسعار الموردين",
+      "button": "إدارة الشحن"
+    }
+  },
+  "banners": {
+    "title": "الإعلانات البانريّة",
+    "addNewBanner": "إضافة بنر جديد",
+    "noBanners": "لم يتم إضافة بنرات حتى الآن.",
+    "edit": "تعديل البانر",
+    "delete": "حذف البانر",
+    "table": {
+      "name": "الاسم",
+      "redirectLink": "رابط التوجيه",
+      "role": "الحالة",
+      "dateAdded": "تاريخ الإضافة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "add": {
+      "title": "إضافة بنر جديد"
+    },
+    "edit": {
+      "title": "تعديل البانر"
+    },
+    "breadcrumb": {
+      "settings": "الإعدادات",
+      "banners": "البانرات",
+      "addNewBanner": "إضافة بنر جديد",
+      "editBanner": "تعديل البانر"
+    },
+    "form": {
+      "bannerImage": "صورة البانر",
+      "uploadBannerImage": "رفع صورة البانر",
+      "removeImage": "إزالة الصورة",
+      "redirectLinkUrl": "رابط التوجيه (URL)",
+      "bannerStatus": "حالة البانر",
+      "bannerStatusHint": "البانرات النشطة تظهر على الصفحة الرئيسية للمنصة فوراً.",
+      "cancel": "إلغاء",
+      "saveBanner": "حفظ البانر",
+      "saveChanges": "حفظ التغييرات",
+      "errors": {
+        "urlRequired": "رابط التوجيه مطلوب"
+      }
+    },
+    "deleteModal": {
+      "title": "حذف البانر؟",
+      "message": "هل أنت متأكد من حذف هذا البانر؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirm": "حذف البانر"
+    }
   }
 }

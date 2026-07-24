@@ -1213,7 +1213,96 @@
     }
   },
   "adminSettings": {
-    "title": "Settings",
-    "description": "Configure admin account and application preferences."
+    "title": "Platform Settings",
+    "description": "Configure admin account and application preferences.",
+    "platformName": "Platform Name",
+    "platformLogo": "Platform Logo",
+    "noLogoUploaded": "No Logo Uploaded",
+    "uploadLogo": "Upload Logo",
+    "changeLogo": "Upload Logo",
+    "logoDimensionsHint": "PNG, SVG, WEBP — Max 2MB",
+    "logoErrorSize": "File size exceeds 2MB limit",
+    "currency": "Currency",
+    "defaultLanguage": "Default Language",
+    "saveSettings": "Save Settings",
+    "backToSettings": "Back to Settings",
+    "currencies": {
+      "sar": "SAR - Saudi Riyal",
+      "usd": "USD - US Dollar",
+      "aed": "AED - UAE Dirham",
+      "kwd": "KWD - Kuwaiti Dinar"
+    },
+    "languages": {
+      "arabic": "Arabic",
+      "english": "English"
+    },
+    "errors": {
+      "nameRequired": "Platform name is required"
+    },
+    "adminAccounts": {
+      "title": "Admin Accounts",
+      "description": "Manage platform admin accounts and permissions",
+      "button": "Manage Admins"
+    },
+    "bannersCard": {
+      "title": "Banners",
+      "description": "Manage homepage banners and promotional slots",
+      "button": "Manage Banners"
+    },
+    "shippingCard": {
+      "title": "Shipping Management",
+      "description": "Manage shipping zones and view vendor rates",
+      "button": "Manage Shipping"
+    }
+  },
+  "banners": {
+    "title": "Banners",
+    "addNewBanner": "Add New Banner",
+    "noBanners": "No banners added yet.",
+    "edit": "Edit Banner",
+    "delete": "Delete Banner",
+    "table": {
+      "name": "Name",
+      "redirectLink": "Redirect Link",
+      "role": "Role",
+      "dateAdded": "Date Added",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "add": {
+      "title": "Add New Banner"
+    },
+    "edit": {
+      "title": "Edit Banner"
+    },
+    "breadcrumb": {
+      "settings": "Settings",
+      "banners": "Banners",
+      "addNewBanner": "Add New Banner",
+      "editBanner": "Edit Banner"
+    },
+    "form": {
+      "bannerImage": "Banner Image",
+      "uploadBannerImage": "Upload Banner Image",
+      "removeImage": "Remove Image",
+      "redirectLinkUrl": "Redirect Link URL",
+      "bannerStatus": "Banner Status",
+      "bannerStatusHint": "Active banners will display on platform home page instantly.",
+      "cancel": "Cancel",
+      "saveBanner": "Save Banner",
+      "saveChanges": "Save Changes",
+      "errors": {
+        "urlRequired": "Redirect link URL is required"
+      }
+    },
+    "deleteModal": {
+      "title": "Delete Banner?",
+      "message": "Are you sure you want to delete this banner? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete Banner"
+    }
   }
 }
