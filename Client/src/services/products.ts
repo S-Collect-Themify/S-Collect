@@ -1,4 +1,5 @@
 import { api } from './api';
+import axios from 'axios';
 
 export const getAllProducts = async () => {
   const { data } = await api.get('/vendor/products');
@@ -43,21 +44,21 @@ export const setProductThumbnail = async (
       `/vendor/products/${productId}/images/${imageId}/thumbnail`
     );
     return data;
-  } catch (err: any) {
-    const status = err?.response?.status;
+  } catch (err: unknown) {
+    const status = axios.isAxiosError(err) ? err.response?.status : undefined;
     if (status === 404 || status === 405) {
       try {
         const { data } = await api.put(
           `/vendor/products/${productId}/images/${imageId}/thumbnail`
         );
         return data;
-      } catch (putErr: any) {
+      } catch (putErr: unknown) {
         try {
           const { data } = await api.post(
             `/vendor/products/${productId}/images/${imageId}/thumbnail`
           );
           return data;
-        } catch (postErr: any) {
+        } catch (postErr: unknown) {
           console.error(
             'All thumbnail methods failed (PATCH, PUT, POST):',
             postErr

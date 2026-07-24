@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { verifyPhone } from '../services/auth';
+import { getErrorMessage } from '../types/api';
 
 export const useVerifyPhone = () => {
   const verifyMutation = useMutation({
@@ -10,10 +11,8 @@ export const useVerifyPhone = () => {
           throw new Error(response.message || 'Verification failed');
         }
         return response;
-      } catch (error: any) {
-        const message =
-          error?.response?.data?.message || error.message || 'Verification failed';
-        throw new Error(message);
+      } catch (error: unknown) {
+        throw new Error(getErrorMessage(error, 'Verification failed'));
       }
     },
   });

@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateProductFull, setProductThumbnail } from '../../services/products';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import type { ApiAxiosError, ValidationErrorItem } from '../../types/api';
+import axios from 'axios';
 
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
@@ -37,22 +39,24 @@ export const useUpdateProduct = () => {
           : 'Product updated successfully!'
       );
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Update product API error:', error);
-      const responseData = error?.response?.data;
+      const isAx = axios.isAxiosError(error);
+      const axiosError = isAx ? (error as ApiAxiosError) : null;
+      const responseData = axiosError?.response?.data;
       const apiError = responseData?.error || responseData;
       let detailsMsg = '';
 
       if (apiError && typeof apiError === 'object') {
         const details = apiError.validation || apiError.details || apiError.errors;
         if (Array.isArray(details)) {
-          detailsMsg = details.map((d: any) => `${d.field || d.property}: ${d.issue || d.message}`).join(', ');
+          detailsMsg = details.map((d: ValidationErrorItem) => `${d.field || d.property || 'field'}: ${d.issue || d.message || 'invalid'}`).join(', ');
         } else if (details && typeof details === 'object') {
           detailsMsg = Object.entries(details).map(([k, v]) => `${k}: ${v}`).join(', ');
         }
       }
 
-      const mainMsg = apiError?.message || responseData?.message || detailsMsg || error.message || '';
+      const mainMsg = (typeof apiError === 'object' ? apiError?.message : null) || responseData?.message || detailsMsg || (error instanceof Error ? error.message : '');
       const fallbackMsg = isRtl
         ? 'فشل تحديث المنتج. يرجى التحقق من المدخلات.'
         : 'Failed to update product. Please verify inputs.';

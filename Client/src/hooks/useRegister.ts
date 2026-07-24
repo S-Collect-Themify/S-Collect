@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import type { UseFormSetError } from 'react-hook-form';
+import axios from 'axios';
 import { applyVendorOnboarding } from '../services/auth';
+import type { ApiAxiosError, ValidationErrorItem } from '../types/api';
 
 export interface RegisterFormData {
   firstName: string;
@@ -17,7 +20,7 @@ export interface RegisterFormData {
   confirmPassword: string;
 }
 
-export const useRegister = (setError: any) => {
+export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
@@ -37,21 +40,24 @@ export const useRegister = (setError: any) => {
           commercialRegisterNumber: values.website,
         });
         return data;
-      } catch (error: any) {
-        const responseData = error?.response?.data;
+      } catch (error: unknown) {
+        const isAx = axios.isAxiosError(error);
+        const axiosError = isAx ? (error as ApiAxiosError) : null;
+        const responseData = axiosError?.response?.data;
         
         // 1. Try to find the API error object (handling response format with data/error/meta)
         const apiError = responseData?.error || responseData;
         
         // 2. Try to find field-specific errors
-        let fieldErrors: any = null;
+        let fieldErrors: unknown = null;
         if (apiError && typeof apiError === 'object') {
-          fieldErrors = apiError.details || apiError.errors || apiError.validation || apiError;
+          const obj = apiError as Record<string, any>;
+          fieldErrors = obj.details || obj.errors || obj.validation || apiError;
         }
 
         // If it resolved to the top level response wrapper itself, drill down into .error
-        if (fieldErrors && (fieldErrors.hasOwnProperty('data') || fieldErrors.hasOwnProperty('error'))) {
-          const innerError = fieldErrors.error;
+        if (fieldErrors && typeof fieldErrors === 'object' && ('data' in fieldErrors || 'error' in fieldErrors)) {
+          const innerError = (fieldErrors as Record<string, any>).error;
           if (innerError && typeof innerError === 'object') {
             fieldErrors = innerError.details || innerError.errors || innerError.validation || innerError;
           }
@@ -61,7 +67,7 @@ export const useRegister = (setError: any) => {
 
         if (fieldErrors && typeof fieldErrors === 'object') {
           if (Array.isArray(fieldErrors)) {
-            fieldErrors.forEach((err: any) => {
+            fieldErrors.forEach((err: ValidationErrorItem) => {
               const key = err.field || err.property || err.param;
               const msg = err.message || err.msg || err.error;
               if (key && msg) {

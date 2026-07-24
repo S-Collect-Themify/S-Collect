@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
+import { getErrorMessage } from '../types/api';
 
 export interface LoginFormValues {
   email: string;
@@ -20,12 +21,8 @@ export const useLogin = () => {
           throw new Error(response.message || 'Login failed');
         }
         return response;
-      } catch (error: any) {
-        const responseData = error?.response?.data;
-        const apiError = responseData?.error || responseData;
-        const message =
-          apiError?.message || error.message || 'Login failed';
-        throw new Error(message);
+      } catch (error: unknown) {
+        throw new Error(getErrorMessage(error, 'Login failed'));
       }
     },
     onSuccess: (data) => {

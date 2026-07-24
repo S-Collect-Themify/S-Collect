@@ -113,7 +113,7 @@ const Categories = () => {
 
       <CategoryHeader />
     </div>
-    <div className={`flex-1 overflow-y-auto pt-6 sidebar-page-container transition-all ${selectedIds.size > 0 ? 'pb-28' : 'pb-6'}`}>
+    <div className={`flex-1 overflow-y-auto pt-6 sidebar-page-container transition-all ${selectedIds.size > 0 ? 'pb-20' : 'pb-6'}`}>
       {/* Page Header */}
 
       {/* Search & Filters */}

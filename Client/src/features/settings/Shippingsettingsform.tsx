@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, Info, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export interface ShippingSettingsValues {
@@ -19,6 +19,7 @@ export interface ShippingSettingsFormProps {
   isConfigured?: boolean;
   isPending?: boolean;
   onSave?: (values: ShippingSettingsValues) => void | Promise<void>;
+  onReset?: () => void;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -49,12 +50,13 @@ export const SAUDI_REGIONS: Region[] = [
 ];
 
 export default function ShippingSettingsForm({
-  regions = SAUDI_REGIONS,
+  regions = [],
   defaultValues,
   currency = "SAR",
   isConfigured = false,
   isPending = false,
   onSave,
+  onReset,
 }: ShippingSettingsFormProps) {
   const { t } = useTranslation();
 
@@ -66,6 +68,7 @@ export default function ShippingSettingsForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isValid },
   } = useForm<ShippingSettingsValues>({
     values: values,
@@ -74,6 +77,11 @@ export default function ShippingSettingsForm({
 
   const onSubmit = (data: ShippingSettingsValues) => {
     onSave?.(data);
+  };
+
+  const handleReset = () => {
+    reset(values);
+    onReset?.();
   };
 
   return (
@@ -133,41 +141,43 @@ export default function ShippingSettingsForm({
       </div>
 
       {/* Regional shipping */}
-      <div className="mt-3 md:mt-6">
-        <p className="text-sm font-semibold text-gray-900">
-          {t("settings.shippingForm.regionalShipping")}
-        </p>
-        <div className="mt-2 overflow-hidden rounded-xl border border-gray-200">
-          {regions.map((region, i) => (
-            <div
-              key={region.id}
-              className={`flex items-center justify-between px-4 py-2.5 ${i % 2 === 1 ? "bg-gray-50" : "bg-white"
-                } ${i !== 0 ? "border-t border-gray-100" : ""}`}
-            >
-              <span className="text-sm text-gray-700">
-                {t(`settings.shippingForm.regions.${region.id}`, { defaultValue: region.label })}
-              </span>
-              <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <span className="border-r border-gray-200 px-2 py-1.5 text-xs text-gray-400">
-                  {currency}
+      {regions.length > 0 && (
+        <div className="mt-3 md:mt-6">
+          <p className="text-sm font-semibold text-gray-900">
+            {t("settings.shippingForm.regionalShipping")}
+          </p>
+          <div className="mt-2 overflow-hidden rounded-xl border border-gray-200">
+            {regions.map((region, i) => (
+              <div
+                key={region.id}
+                className={`flex items-center justify-between px-4 py-2.5 ${i % 2 === 1 ? "bg-gray-50" : "bg-white"
+                  } ${i !== 0 ? "border-t border-gray-100" : ""}`}
+              >
+                <span className="text-sm text-gray-700">
+                  {t(`settings.shippingForm.regions.${region.id}`, { defaultValue: region.label })}
                 </span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  disabled={isPending}
-                  placeholder="0.00"
-                  {...register(`regionalRates.${region.id}` as const, {
-                    valueAsNumber: true,
-                    min: 0,
-                  })}
-                  className="w-20 px-2 py-1.5 text-right text-xs placeholder:text-gray-300 focus:outline-none disabled:bg-gray-100"
-                />
+                <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+                  <span className="border-r border-gray-200 px-2 py-1.5 text-xs text-gray-400">
+                    {currency}
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    disabled={isPending}
+                    placeholder="0.00"
+                    {...register(`regionalRates.${region.id}` as const, {
+                      valueAsNumber: true,
+                      min: 0,
+                    })}
+                    className="w-20 px-2 py-1.5 text-right text-xs placeholder:text-gray-300 focus:outline-none disabled:bg-gray-100"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Info banner */}
       <div className="mt-3 md:mt-6 flex gap-2.5 rounded-xl border border-indigo-200 bg-indigo-50 p-3.5">
@@ -178,7 +188,17 @@ export default function ShippingSettingsForm({
       </div>
 
       {/* Actions */}
-      <div className="mt-3 md:mt-6 flex justify-end">
+      <div className="mt-3 md:mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={handleReset}
+          disabled={isPending}
+          className="flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          <RotateCcw size={15} />
+          {t("settings.shippingForm.reset", { defaultValue: "Reset" })}
+        </button>
+
         <button
           type="submit"
           disabled={!isValid || isPending}

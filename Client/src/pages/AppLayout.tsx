@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Sidebar from '../components/ui/Sidebar.js';
 import Header from '../components/ui/Header.js';
 import { getVendorOnboardingStatus } from '../services/auth';
@@ -24,8 +25,8 @@ const AppLayout = () => {
         const data = await getVendorOnboardingStatus();
         setStatus(data.status);
         setRejectionReason(data.rejectionReason);
-      } catch (err: any) {
-        if (err?.response?.status === 401) {
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
           navigate('/login?state=expired');

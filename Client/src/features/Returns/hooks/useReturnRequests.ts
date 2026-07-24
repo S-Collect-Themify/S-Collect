@@ -5,6 +5,7 @@ import { getVendorSubOrders, updateVendorSubOrderStatus } from '../../../service
 import type { ReturnItem } from '../types';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { getErrorMessage } from '../../../types/api';
 
 export function useReturnRequests() {
   const { t } = useTranslation();
@@ -177,8 +178,8 @@ export function useReturnRequests() {
       toast.success(t('returnsPage.updateSuccess', { defaultValue: 'Status updated successfully!' }));
       queryClient.invalidateQueries({ queryKey: ['return-requests'] });
     },
-    onError: (err: any) => {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to update return status.';
+    onError: (err: unknown) => {
+      const msg = getErrorMessage(err, 'Failed to update return status.');
       toast.error(msg);
     },
   });

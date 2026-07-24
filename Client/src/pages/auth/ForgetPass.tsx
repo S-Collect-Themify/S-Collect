@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { changePassword, forgotPassword, resetPassword } from '../../services/auth';
+import { getErrorMessage } from '../../types/api';
 import toast from 'react-hot-toast';
 
 interface ForgetPassFormValues {
@@ -81,8 +82,8 @@ const ForgetPass = () => {
         toast.success(isRtl ? 'تم تحديث كلمة المرور بنجاح' : 'Password updated successfully');
         navigate('/');
       }
-    } catch (err: any) {
-      const message = err?.response?.data?.message || err.message || (isRtl ? 'فشلت العملية. يرجى المحاولة مرة أخرى.' : 'Operation failed. Please try again.');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, isRtl ? 'فشلت العملية. يرجى المحاولة مرة أخرى.' : 'Operation failed. Please try again.');
       setError(message);
     } finally {
       setLoading(false);

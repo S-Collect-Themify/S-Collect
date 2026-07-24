@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { getErrorMessage } from '../../../types/api';
 import { ITEMS_PER_PAGE, type ProductRow } from '../types';
 import { getStatus } from '../utils';
 import type { FilterKey } from '../constants';
@@ -218,12 +219,10 @@ export function useInventory() {
       pendingChanges.current = {};
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       console.error('Failed to save stock changes:', err);
       toast.error(
-        err?.response?.data?.message ||
-        err?.message ||
-        t('inventoryPage.saveFailed', 'Failed to save changes.')
+        getErrorMessage(err, t('inventoryPage.saveFailed', 'Failed to save changes.'))
       );
     },
   });

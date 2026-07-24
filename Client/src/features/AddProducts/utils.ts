@@ -1,4 +1,4 @@
-import type { ProductFormData } from './types';
+import type { ProductFormData, RawProductResponse, ProductOptionValue } from './types';
 
 export const urlToFile = async (
   url: string,
@@ -9,17 +9,47 @@ export const urlToFile = async (
   return new File([blob], filename, { type: blob.type || 'image/jpeg' });
 };
 
+/**
+ * Pure utility function to extract product thumbnail URL from API response or fallback File object.
+ */
+export const getProductThumbnail = (
+  response: unknown,
+  fallbackImageFile?: File
+): string | undefined => {
+  if (response && typeof response === 'object') {
+    const resObj = response as Record<string, unknown>;
+    if (Array.isArray(resObj.images)) {
+      const thumbnailImg = resObj.images.find(
+        (img) => img && typeof img === 'object' && 'isThumbnail' in img && Boolean(img.isThumbnail)
+      ) as { url?: string } | undefined;
+
+      if (thumbnailImg?.url) return thumbnailImg.url;
+      const firstImg = resObj.images[0] as { url?: string } | undefined;
+      if (firstImg?.url) return firstImg.url;
+    }
+    if (typeof resObj.thumbnailUrl === 'string') {
+      return resObj.thumbnailUrl;
+    }
+  }
+
+  if (fallbackImageFile) {
+    return URL.createObjectURL(fallbackImageFile);
+  }
+
+  return undefined;
+};
+
 export const mapProductToFormData = async (
-  product: any
+  product: unknown
 ): Promise<ProductFormData> => {
   // Unwrap if the response is in a { success: boolean, data: T } envelope
-  const raw =
+  const raw: RawProductResponse =
     product &&
     typeof product === 'object' &&
     'success' in product &&
     'data' in product
-      ? product.data
-      : product;
+      ? (product as { data: RawProductResponse }).data
+      : (product as RawProductResponse) || {};
 
   const sizes: string[] = [];
   const colors: string[] = [];
@@ -28,13 +58,15 @@ export const mapProductToFormData = async (
     for (const option of raw.options) {
       const optionName = (option.name || '').toLowerCase();
       if (optionName === 'size' || optionName === 'المقاس') {
-        option.values?.forEach((v: any) =>
-          sizes.push(v.value || v.valueAr || '')
-        );
+        option.values?.forEach((v: ProductOptionValue) => {
+          const val = v.value || v.valueAr || '';
+          if (val) sizes.push(val);
+        });
       } else if (optionName === 'color' || optionName === 'اللون') {
-        option.values?.forEach((v: any) =>
-          colors.push(v.value || v.valueAr || '')
-        );
+        option.values?.forEach((v: ProductOptionValue) => {
+          const val = v.value || v.valueAr || '';
+          if (val) colors.push(val);
+        });
       }
     }
   }
@@ -44,13 +76,13 @@ export const mapProductToFormData = async (
   let quantity = 0;
   if (Array.isArray(raw.variants)) {
     quantity = raw.variants.reduce(
-      (sum: number, v: any) => sum + (v.stock ?? 0),
+      (sum: number, v) => sum + (v.stock ?? 0),
       0
     );
   }
 
   const imageUrls: string[] = (raw.images || [])
-    .map((img: any) => img.url)
+    .map((img) => img.url || '')
     .filter(Boolean);
   const images: File[] = await Promise.all(
     imageUrls.map((url: string, i: number) =>

@@ -30,6 +30,8 @@ import Transactions from './pages/Transactions.js';
 import Categories from './pages/Categories.js';
 import Products from './pages/Products.js';
 import Reviews from './pages/Reviews.js';
+import Vouchers from './pages/Vouchers.js';
+import CreateVoucher from './pages/CreateVoucher.js';
 import Buyers from './pages/Buyers.js';
 import BuyerDetails from './pages/BuyerDetails.js';
 import AdminSettings from './pages/AdminSettings.js';
@@ -70,6 +72,9 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/products" element={<Products />} />
           <Route path="/reviews" element={<Reviews />} />
+          <Route path="/vouchers" element={<Vouchers />} />
+          <Route path="/vouchers/create" element={<CreateVoucher />} />
+          <Route path="/vouchers/edit/:id" element={<CreateVoucher />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
           <Route path="/buyers" element={<Buyers />} />

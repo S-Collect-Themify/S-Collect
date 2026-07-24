@@ -1,7 +1,4 @@
-import { useEffect, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { FormProvider } from 'react-hook-form';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
@@ -11,13 +8,7 @@ import TagInput from '../features/AddProducts/TagInput';
 import PricingFields from '../features/AddProducts/PricingFields';
 import SuccessPopup from '../features/AddProducts/SuccessPopup';
 import MobileAddProduct from '../features/AddProducts/mobile/MobileAddProduct';
-import { mapFormToMultipartFormData, mapProductToFormData } from '../features/AddProducts/utils';
-import type { ProductFormData } from '../features/AddProducts/types';
-import { useBreakpoint } from '../hooks/useBreakpoint';
-import { useCategories } from '../hooks/useCategories';
-import { useCreateProduct } from '../features/AddProducts/useCreateProduct';
-import { useUpdateProduct } from '../features/AddProducts/useUpdateProduct';
-import { useProduct } from '../features/AddProducts/useProduct';
+import { useAddProductPage } from '../features/AddProducts/useAddProductPage';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 
@@ -39,108 +30,28 @@ const itemVariants: Variants = {
 };
 
 const AddProduct = () => {
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
-  const navigate = useNavigate();
-  const { productId } = useParams<{ productId: string }>();
-  const isEdit = !!productId;
-
-  const { isMobile } = useBreakpoint();
-  const { categories: categoriesList } = useCategories();
-  const { mutate: createProduct, isPending: isCreatePending } = useCreateProduct();
-  const { mutate: updateProduct, isPending: isUpdatePending } = useUpdateProduct();
-  const { data: productData, isLoading: isProductLoading } = useProduct(productId);
-
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [showReview, setShowReview] = useState(false);
-  const [createdThumbnail, setCreatedThumbnail] = useState<string | undefined>(undefined);
-
-  const methods = useForm<ProductFormData>({
-    defaultValues: {
-      nameAr: '',
-      nameEn: '',
-      description: '',
-      basePrice: '',
-      comparePrice: '',
-      sku: '',
-      images: [],
-      categoryId: '',
-      enabled: true,
-      quantity: 0,
-      categories: [],
-      sizes: [],
-      colors: [],
-    },
-  });
-
-  // Populate form when product data is fetched in edit mode
-  useEffect(() => {
-    if (isEdit && productData) {
-      mapProductToFormData(productData).then((formData) => {
-        methods.reset(formData);
-      });
-    }
-  }, [isEdit, productData, methods]);
-
-  const enabled = methods.watch('enabled') ?? true;
-  const quantity = methods.watch('quantity') ?? 0;
-  const sizes = methods.watch('sizes') ?? [];
-  const colors = methods.watch('colors') ?? [];
-
-  // Derive categories dynamically from the selected categoryId
-  const categoryId = methods.watch('categoryId') ?? '';
-  const selectedCategory = Array.isArray(categoriesList) ? categoriesList.find((c) => c.id === categoryId) : undefined;
-  const categories = selectedCategory ? [isArabic ? selectedCategory.nameAr : selectedCategory.name] : [];
-
-  const makeAdder = (fieldName: 'categories' | 'sizes' | 'colors') => (value: string) => {
-    const prev = methods.getValues(fieldName) || [];
-    methods.setValue(fieldName, [...prev, value]);
-  };
-
-  const makeRemover = (fieldName: 'categories' | 'sizes' | 'colors') => (index: number) => {
-    const prev = methods.getValues(fieldName) || [];
-    methods.setValue(fieldName, prev.filter((_, i) => i !== index));
-  };
-
-  const onSubmit = (data: ProductFormData) => {
-    console.log('Form data submitted for review:', data);
-    const multipartData = mapFormToMultipartFormData(data);
-    console.log('Prepared multipart/form-data:');
-    console.log('- name:', multipartData.get('name'));
-    console.log('- nameAr:', multipartData.get('nameAr'));
-    console.log('- categoryId:', multipartData.get('categoryId'));
-    setShowReview(true);
-  };
-
-  const isPending = isCreatePending || isUpdatePending;
-
-  const handlePublish = async () => {
-    const data = methods.getValues();
-    const multipartData = mapFormToMultipartFormData(data);
-
-    const onSuccess = (response: any) => {
-      const thumbnail = response?.images?.find((img: any) => img.isThumbnail)?.url || response?.images?.[0]?.url || response?.thumbnailUrl;
-      if (thumbnail) {
-        setCreatedThumbnail(thumbnail);
-      } else {
-        const firstImageFile = data.images?.[0];
-        if (firstImageFile) {
-          setCreatedThumbnail(URL.createObjectURL(firstImageFile));
-        }
-      }
-      setShowReview(false);
-      setIsSuccess(true);
-    };
-
-    if (isEdit && productId) {
-      updateProduct(
-        { productId, formData: multipartData },
-        { onSuccess }
-      );
-    } else {
-      createProduct(multipartData, { onSuccess });
-    }
-  };
+  const {
+    t,
+    isEdit,
+    productId,
+    isMobile,
+    isProductLoading,
+    methods,
+    step,
+    setStep,
+    isPending,
+    createdThumbnail,
+    enabled,
+    quantity,
+    sizes,
+    colors,
+    categories,
+    makeAdder,
+    makeRemover,
+    onSubmit,
+    handlePublish,
+    handleCloseSuccess,
+  } = useAddProductPage();
 
   if (isMobile) {
     return <MobileAddProduct productId={productId} />;
@@ -154,7 +65,7 @@ const AddProduct = () => {
     );
   }
 
-  if (showReview) {
+  if (step === 'review') {
     return (
       <ReviewPage
         formData={methods.getValues()}
@@ -162,7 +73,7 @@ const AddProduct = () => {
         sizes={sizes}
         colors={colors}
         quantity={quantity}
-        onPrevious={() => setShowReview(false)}
+        onPrevious={() => setStep('form')}
         onPublish={handlePublish}
         isPublishing={isPending}
         isEdit={isEdit}
@@ -173,9 +84,7 @@ const AddProduct = () => {
   return (
     <FormProvider {...methods}>
       <>
-        <div
-          className="sidebar-page-container-header"
-        >
+        <div className="sidebar-page-container-header">
           <h1 className="heading-page-title">{t('addProduct.title')}</h1>
         </div>
         <motion.div
@@ -184,9 +93,9 @@ const AddProduct = () => {
           initial="hidden"
           animate="show"
         >
-          <div className="rounded-2xl  shadow-sm py-4 md:shadow-none">
+          <div className="rounded-2xl shadow-sm py-4 md:shadow-none">
             <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_400px] xl:gap-10">
-              {/* Left */}
+              {/* Left Column: Fields */}
               <motion.div variants={itemVariants}>
                 <h5 className="mb-6 font-semibold">
                   {t('addProduct.productInformation')}
@@ -199,7 +108,10 @@ const AddProduct = () => {
                 >
                   <BasicInfoFields />
 
-                  <QuantityInput value={quantity} onChange={(val) => methods.setValue('quantity', val)} />
+                  <QuantityInput
+                    value={quantity}
+                    onChange={(val) => methods.setValue('quantity', val)}
+                  />
 
                   <TagInput
                     label={t('addProduct.sizes')}
@@ -229,20 +141,28 @@ const AddProduct = () => {
                 </form>
               </motion.div>
 
-              {/* Right */}
+              {/* Right Column: Media & Status */}
               <motion.div variants={itemVariants}>
                 <ProductMedia />
                 <div className="mt-8">
-                  <ProductStatus enabled={enabled} setEnabled={(val) => methods.setValue('enabled', val)} />
+                  <ProductStatus
+                    enabled={enabled}
+                    setEnabled={(val) => methods.setValue('enabled', val)}
+                  />
                 </div>
               </motion.div>
             </div>
 
+            {/* Bottom Actions */}
             <motion.div
               variants={itemVariants}
               className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-end sm:gap-4"
             >
-              <button className="rounded-xl border border-red-500 px-6 py-3 text-red-500 transition hover:bg-red-50 cursor-pointer">
+              <button
+                type="button"
+                onClick={() => setStep('form')}
+                className="rounded-xl border border-red-500 px-6 py-3 text-red-500 transition hover:bg-red-50 cursor-pointer"
+              >
                 {t('addProduct.cancel')}
               </button>
               <button
@@ -255,12 +175,9 @@ const AddProduct = () => {
             </motion.div>
           </div>
 
-          {isSuccess && (
+          {step === 'success' && (
             <SuccessPopup
-              onClose={() => {
-                setIsSuccess(false);
-                navigate('/');
-              }}
+              onClose={handleCloseSuccess}
               thumbnailUrl={createdThumbnail}
               isEdit={isEdit}
             />

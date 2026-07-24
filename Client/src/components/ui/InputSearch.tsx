@@ -80,7 +80,6 @@ const InputSearch = () => {
           </div>
         </div>
       )}
-
     </>
   );
 };

@@ -1,17 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronsRight } from 'lucide-react';
 
 import { AccountSettingsForm } from '../features/settings/AccountSettingsForm';
+import { AccountSettingsFormSkeleton } from '../features/settings/skeleton/SettingsSkeletons';
+import { useAccountSettings } from '../features/settings/hooks/useAccountSettings';
 import { SuccessToast } from '../features/settings/shared';
 import type {
   AccountSettingsData,
   PasswordData,
 } from '../features/settings/types';
-import { getVendorOnboardingStatus } from '../services/auth';
-import { useQuery } from '@tanstack/react-query';
 
 interface AccountSettingsPageProps {
   initialAccountSettings?: Partial<AccountSettingsData>;
@@ -33,28 +33,17 @@ export default function AccountSettingsPage({
 }: AccountSettingsPageProps) {
   const { t } = useTranslation();
   const [toast, setToast] = useState<string | null>(null);
+  const { data: fetchedData, isLoading: loading } = useAccountSettings();
 
-  // Fetch using react-query
-  const { data: onboarding, isLoading } = useQuery({
-    queryKey: ['onboardingStatus'],
-    queryFn: getVendorOnboardingStatus,
-    staleTime: 60_000,
-  });
-
-  const accountData = useMemo(() => {
-    return {
-      ...defaultAccountSettings,
-      ...initialAccountSettings,
-      firstName: onboarding?.firstName || '',
-      lastName: onboarding?.lastName || '',
-      email: onboarding?.email || '',
-      phoneNumber: onboarding?.phoneNumber || '',
-    };
-  }, [initialAccountSettings, onboarding]);
+  const accountData: AccountSettingsData = {
+    ...defaultAccountSettings,
+    ...initialAccountSettings,
+    ...fetchedData,
+  };
 
   return (
     <>
-          <div className="border-b border-gray-200 sidebar-page-container-header">
+      <div className="border-b border-gray-200 sidebar-page-container-header">
         <h1 className="heading-page-title">
           {t('settings.accountSettings')}
         </h1>
@@ -68,25 +57,23 @@ export default function AccountSettingsPage({
           </span>
         </nav>
       </div>
-    <div className="settings-page-enter min-h-screen bg-gray-100">
-      {toast && <SuccessToast message={toast} onClose={() => setToast(null)} />}
+      <div className="settings-page-enter min-h-screen bg-gray-100">
+        {toast && <SuccessToast message={toast} onClose={() => setToast(null)} />}
 
-      <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180">
-        {isLoading ? (
-          <div className="p-8 flex items-center justify-center bg-white rounded-xl border border-gray-200">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent"></div>
-          </div>
-        ) : (
-          <AccountSettingsForm
-            initialData={accountData}
-            onSave={onAccountSettingsSave}
-            onSuccess={() =>
-              setToast(t('settings.toast.accountSettingsSaved'))
-            }
-          />
-        )}
+        <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180">
+          {loading ? (
+            <AccountSettingsFormSkeleton />
+          ) : (
+            <AccountSettingsForm
+              initialData={accountData}
+              onSave={onAccountSettingsSave}
+              onSuccess={() =>
+                setToast(t('settings.toast.accountSettingsSaved'))
+              }
+            />
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

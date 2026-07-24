@@ -57,6 +57,8 @@ export const useSubOrder = (id: string | null) => {
 // ────────────────────────────────────────────────────────────────────────────
 // Update (advance status / set tracking number)
 // ────────────────────────────────────────────────────────────────────────────
+import { getErrorMessage } from '../../types/api';
+
 export const useUpdateSubOrder = () => {
   const queryClient = useQueryClient();
 
@@ -70,11 +72,8 @@ export const useUpdateSubOrder = () => {
       queryClient.setQueryData(['sub-orders', updated.id], updated);
       toast.success('Order updated successfully!');
     },
-    onError: (err: any) => {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to update order.';
+    onError: (err: unknown) => {
+      const msg = getErrorMessage(err, 'Failed to update order.');
       toast.error(msg);
     },
   });
