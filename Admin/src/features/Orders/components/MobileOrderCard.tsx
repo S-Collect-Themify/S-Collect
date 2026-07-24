@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StatusBadge } from '../components/OrdersTable';
-import type { TableItem } from '../components/OrdersTable';
+import { StatusBadge } from './OrdersTable';
+import type { TableItem } from '../types';
 
 interface MobileOrderCardProps {
   item: TableItem;

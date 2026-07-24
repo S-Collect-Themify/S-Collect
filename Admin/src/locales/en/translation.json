@@ -106,7 +106,6 @@
       "products": "Products",
       "management": "Management",
       "account": "Account",
-      "receivables": "Receivables",
       "financialReports": "Financial Reports"
     },
     "items": {
@@ -674,25 +673,6 @@
       "previousPage": "Previous page",
       "nextPage": "Next page",
       "showingRange": "Showing {{start}}–{{end}} of {{total}} reviews"
-    }
-  },
-  "receivables": {
-    "title": "Receivables",
-    "description": "Track earnings, commissions, and payment history.",
-    "date": "Date",
-    "referenceNumber": "Reference Number",
-    "amount": "Amount",
-    "status": "Status",
-    "all": "All",
-    "allDates": "All Dates",
-    "showing": "Showing {{start}}–{{end}} of {{total}} transactions",
-    "noTransactions": "No transactions found",
-    "statuses": {
-      "paid": "Paid",
-      "processing": "Processing",
-      "pending": "Pending",
-      "adjusted": "Adjusted",
-      "failed": "Failed"
     }
   },
   "Add Product": "Add Product",

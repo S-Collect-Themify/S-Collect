@@ -1,20 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from './EmptyState';
+import type { TableItem } from '../types';
 
-export interface TableItem {
-  id: string;
-  code: string;
-  customer: string;
-  vendor?: string;
-  orderId?: string;
-  total: number;
-  totalFormatted: string;
-  status: string;
-  subOrdersCount?: number;
-  reason?: string;
-  date: string;
-}
+export type { TableItem };
+
 
 interface OrdersTableProps {
   items: TableItem[];

@@ -2,13 +2,16 @@ import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useBreakpoint } from '../hooks/useBreakpoint';
-import { OrderFilters } from '../features/Orders/components/OrderFilters';
-import { OrdersTable } from '../features/Orders/components/OrdersTable';
-import type { TableItem } from '../features/Orders/components/OrdersTable';
-import { Pagination } from '../features/Orders/components/Pagination';
-import { MobileOrderCard } from '../features/Orders/mobile/MobileOrderCard';
-import { EmptyState } from '../features/Orders/components/EmptyState';
-import { OrdersSkeleton } from '../features/Orders/components/OrdersSkeleton';
+import {
+  OrderFilters,
+  OrdersTable,
+  Pagination,
+  MobileOrderCard,
+  EmptyState,
+  OrdersSkeleton,
+  type TableItem,
+} from '../features/Orders';
+
 
 // ── Mock Data for Orders ──────────────────────────────────────────────────
 const BASE_ORDERS: TableItem[] = [
