@@ -105,7 +105,6 @@
       "products": "المنتجات",
       "management": "الإدارة",
       "account": "الحساب",
-      "receivables": "المستحقات",
       "financialReports": "التقارير المالية"
     },
     "items": {
@@ -670,25 +669,6 @@
       "previousPage": "الصفحة السابقة",
       "nextPage": "الصفحة التالية",
       "showingRange": "عرض {{start}}–{{end}} من {{total}} مراجعة"
-    }
-  },
-  "receivables": {
-    "title": "المستحقات",
-    "description": "تتبع الأرباح والعمولات وسجل الدفع.",
-    "date": "التاريخ",
-    "referenceNumber": "رقم المرجع",
-    "amount": "المبلغ",
-    "status": "الحالة",
-    "all": "الكل",
-    "allDates": "كل التواريخ",
-    "showing": "عرض {{start}}–{{end}} من {{total}} معاملة",
-    "noTransactions": "لا توجد معاملات",
-    "statuses": {
-      "paid": "مدفوع",
-      "processing": "قيد المعالجة",
-      "pending": "قيد الانتظار",
-      "adjusted": "معدّل",
-      "failed": "فشل"
     }
   },
   "Add Product": "إضافة منتج",
