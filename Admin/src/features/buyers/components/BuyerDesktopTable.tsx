@@ -2,14 +2,7 @@ import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Buyer } from '../types/buyers';
-
-function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('');
-}
+import { getInitials } from '../utils/buyerUtils';
 
 interface BuyerDesktopTableProps {
   paginated: Buyer[];
