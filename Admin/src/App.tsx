@@ -31,6 +31,7 @@ import Categories from './pages/Categories.js';
 import Products from './pages/Products.js';
 import Reviews from './pages/Reviews.js';
 import Buyers from './pages/Buyers.js';
+import BuyerDetails from './pages/BuyerDetails.js';
 import AdminSettings from './pages/AdminSettings.js';
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
           <Route path="/buyers" element={<Buyers />} />
+          <Route path="/buyers/:id" element={<BuyerDetails />} />
           <Route path="/admin-settings" element={<AdminSettings />} />
           <Route path="*" element={<NotFound />} />
         </Route>

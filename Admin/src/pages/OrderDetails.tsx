@@ -160,15 +160,6 @@ export default function OrderDetailsPage() {
 
       {/* Main Body Container */}
       <div className="sidebar-page-container py-6">
-        {/* Back Link */}
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs text-blue-600 font-semibold mb-5 hover:underline cursor-pointer"
-        >
-          <ArrowLeft size={14} className={isRtl ? 'rotate-180' : ''} />
-          <span>{t('ordersPage.backToOrders', 'Back to Orders')}</span>
-        </button>
 
         {isMobile ? (
           /* Mobile Stacked View */
