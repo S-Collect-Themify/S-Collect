@@ -126,6 +126,7 @@
       "categories": "Categories",
       "products": "Products",
       "reviews": "Reviews",
+      "vouchers": "Vouchers",
       "buyers": "Buyers",
       "adminSettings": "Settings",
       "logout": "Logout",
@@ -1003,11 +1004,85 @@
   },
   "productsListing": {
     "title": "Products",
-    "description": "Browse and manage all products in the marketplace."
+    "description": "Browse and manage all products in the marketplace.",
+    "searchPlaceholder": "Search Products...",
+    "vendor": "Vendor",
+    "category": "Category",
+    "status": "Status",
+    "allVendors": "All Vendors",
+    "allCategories": "All Categories",
+    "allStatuses": "All Statuses",
+    "active": "Active",
+    "disabled": "Disabled",
+    "table": {
+      "productName": "Product Name",
+      "vendor": "Vendor",
+      "category": "Category",
+      "price": "Price (SAR)",
+      "stock": "Stock",
+      "status": "Status"
+    },
+    "mobile": {
+      "price": "Price",
+      "stock": "Stock"
+    },
+    "pagination": {
+      "showing": "Showing {{start}}-{{end}} of {{total}} items"
+    },
+    "disableModal": {
+      "title": "Disable Product?",
+      "message": "Are you sure you want to disable {{name}}? It will no longer be visible to buyers.",
+      "cancel": "Cancel",
+      "confirm": "Disable Product"
+    },
+    "enableModal": {
+      "title": "Enable Product?",
+      "message": "Are you sure you want to enable {{name}}?",
+      "cancel": "Cancel",
+      "confirm": "Enable Product"
+    },
+    "emptyState": "No products found"
   },
-  "reviews": {
-    "title": "Reviews",
-    "description": "Moderate and review customer product feedback."
+  "reviewsListing": {
+    "title": "Product Reviews Management",
+    "mobileTitle": "Product Reviews",
+    "description": "Moderate and review customer product feedback.",
+    "searchPlaceholder": "Search by product, buyer, or vendor...",
+    "vendor": "Vendor",
+    "rating": "Rating",
+    "product": "Product",
+    "allVendors": "Vendor: All Vendors",
+    "allRatings": "Rating: All Ratings",
+    "allProducts": "Product: All Products",
+    "vendorMobile": "Vendor: All",
+    "ratingMobile": "Rating: All",
+    "productMobile": "Product: All",
+    "table": {
+      "reviewId": "Review ID",
+      "product": "Product",
+      "buyerName": "Buyer Name",
+      "vendor": "Vendor",
+      "rating": "Rating",
+      "date": "Date",
+      "action": "Action"
+    },
+    "mobile": {
+      "byBuyerAndVendor": "By {{buyer}} · {{vendor}}"
+    },
+    "deleteModal": {
+      "title": "Delete Review",
+      "message": "Are you sure you want to permanently delete review {{reviewId}} by {{buyerName}}? This action cannot be undone and will update the product rating automatically.",
+      "auditWarning": "This deletion will be logged in Audit Log with your admin details.",
+      "cancel": "Cancel",
+      "confirm": "Delete Review"
+    },
+    "emptyState": {
+      "title": "No reviews found",
+      "description": "Try adjusting your search or filter criteria."
+    },
+    "pagination": {
+      "showing": "Showing {{start}}-{{end}} of {{total}} items"
+    }
   },
   "ordersListing": {
     "title": "Orders",
@@ -1016,6 +1091,106 @@
   "buyers": {
     "title": "Buyers",
     "description": "Manage buyer accounts and information."
+  },
+  "vouchersListing": {
+    "title": "Voucher Management",
+    "createTitle": "Create New Voucher",
+    "editTitle": "Edit Voucher",
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "vouchers": "Vouchers",
+      "create": "Create Voucher",
+      "edit": "Edit Voucher"
+    },
+    "createButton": "Create Voucher",
+    "searchPlaceholder": "Search by code or campaign...",
+    "stats": {
+      "activeVouchers": "Active Vouchers",
+      "currentlyRunning": "{{count}} currently running",
+      "totalCosts": "Total Costs",
+      "withinBudget": "Within quarterly budget",
+      "redemptionsThisMonth": "Redemptions This Month",
+      "increaseFromLastWeek": "+12% increase from last week"
+    },
+    "tabs": {
+      "active": "Active",
+      "expired": "Expired",
+      "all": "All"
+    },
+    "filters": {
+      "type": "Type",
+      "status": "Status",
+      "allTypes": "Type: All Types",
+      "allStatuses": "Status: All Statuses",
+      "typeMobile": "Category",
+      "statusMobile": "Status"
+    },
+    "table": {
+      "code": "Code",
+      "type": "Type",
+      "discount": "Discount",
+      "minOrder": "Min Order",
+      "maxDiscount": "Max Discount",
+      "usage": "Usage",
+      "expiryDate": "Expiry Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "types": {
+      "percentage": "Percentage",
+      "amount": "Amount",
+      "freeShipping": "Free Shipping"
+    },
+    "statuses": {
+      "active": "Active",
+      "expired": "Expired"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "form": {
+      "voucherCode": "Voucher Code *",
+      "voucherCodePlaceholder": "Enter voucher code or leave empty to auto-generate",
+      "voucherType": "Voucher Type *",
+      "discountValue": "Discount Value *",
+      "discountValuePlaceholder": "Enter discount value (e.g. 20 for 20%)",
+      "minOrderAmount": "Minimum Order Amount (SAR)",
+      "minOrderAmountPlaceholder": "SAR 0.00",
+      "maxDiscountAmount": "Maximum Discount (SAR)",
+      "maxDiscountAmountPlaceholder": "SAR 0.00",
+      "expiryDate": "Expiry Date *",
+      "expiryDatePlaceholder": "Select date (YYYY-MM-DD)",
+      "maxUsageCount": "Maximum Usage Count",
+      "maxUsageCountPlaceholder": "Enter max usage",
+      "limitOnePerCustomer": "Limit to one use per customer",
+      "limitOnePerCustomerDesc": "Each registered customer can only redeem this coupon code once.",
+      "cancel": "Cancel",
+      "createVoucher": "Create Voucher",
+      "saveChanges": "Save Changes",
+      "errors": {
+        "voucherCodeRequired": "Voucher code is required",
+        "discountValueRequired": "Discount value is required",
+        "discountValueInvalid": "Enter a valid positive discount value",
+        "minOrderInvalid": "Enter a valid minimum order amount",
+        "maxDiscountInvalid": "Enter a valid maximum discount amount",
+        "expiryDateRequired": "Expiry date is required",
+        "maxUsageInvalid": "Enter a valid max usage count"
+      }
+    },
+    "deleteModal": {
+      "title": "Delete Voucher?",
+      "message": "Are you sure you want to delete voucher {{code}}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete Voucher"
+    },
+    "emptyState": {
+      "title": "No vouchers found",
+      "description": "Try adjusting your search or filter criteria."
+    },
+    "pagination": {
+      "showing": "Showing {{start}}-{{end}} of {{total}} items"
+    }
   },
   "adminSettings": {
     "title": "Settings",

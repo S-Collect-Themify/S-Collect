@@ -101,18 +101,18 @@ const SortableRow = ({
           <button
             type="button"
             onClick={() => onEdit(cat)}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-blue-50 transition-all cursor-pointer"
+            className="inline-flex items-center justify-center rounded-full bg-gray-100 p-2.5 hover:bg-blue-50 transition-all cursor-pointer"
             title="Edit"
           >
-            <SquarePen size={15} />
+            <SquarePen size={18} />
           </button>
           <button
             type="button"
             onClick={() => onDelete(cat)}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red hover:bg-red-light transition-all cursor-pointer"
+            className="inline-flex items-center justify-center rounded-full bg-gray-100 p-2.5 text-red hover:bg-red-light transition-all cursor-pointer"
             title="Delete"
           >
-            <Trash size={15} />
+            <Trash size={18} />
           </button>
         </div>
       </td>

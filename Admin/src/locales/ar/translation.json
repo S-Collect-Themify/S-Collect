@@ -125,6 +125,7 @@
       "categories": "الفئات",
       "products": "المنتجات",
       "reviews": "التقييمات",
+      "vouchers": "القسائم",
       "buyers": "المشترون",
       "adminSettings": "الإعدادات",
       "logout": "تسجيل الخروج",
@@ -999,11 +1000,85 @@
   },
   "productsListing": {
     "title": "المنتجات",
-    "description": "تصفح وإدارة جميع المنتجات في السوق."
+    "description": "تصفح وإدارة جميع المنتجات في السوق.",
+    "searchPlaceholder": "البحث عن المنتجات...",
+    "vendor": "المورد",
+    "category": "الفئة",
+    "status": "الحالة",
+    "allVendors": "جميع الموردين",
+    "allCategories": "جميع الفئات",
+    "allStatuses": "جميع الحالات",
+    "active": "نشط",
+    "disabled": "معطل",
+    "table": {
+      "productName": "اسم المنتج",
+      "vendor": "المورد",
+      "category": "الفئة",
+      "price": "السعر (ر.س)",
+      "stock": "المخزون",
+      "status": "الحالة"
+    },
+    "mobile": {
+      "price": "السعر",
+      "stock": "المخزون"
+    },
+    "pagination": {
+      "showing": "عرض {{start}}-{{end}} من {{total}} عنصر"
+    },
+    "disableModal": {
+      "title": "إلغاء تفعيل المنتج؟",
+      "message": "هل أنت متأكد من إلغاء تفعيل {{name}}؟ لن يكون مرئياً للمشترين بعد الآن.",
+      "cancel": "إلغاء",
+      "confirm": "إلغاء تفعيل المنتج"
+    },
+    "enableModal": {
+      "title": "تفعيل المنتج؟",
+      "message": "هل أنت متأكد من تفعيل {{name}}؟",
+      "cancel": "إلغاء",
+      "confirm": "تفعيل المنتج"
+    },
+    "emptyState": "لم يتم العثور على منتجات"
   },
-  "reviews": {
-    "title": "التقييمات",
-    "description": "مراجعة وإدارة تقييمات العملاء للمنتجات."
+  "reviewsListing": {
+    "title": "إدارة تقييمات المنتجات",
+    "mobileTitle": "تقييمات المنتجات",
+    "description": "مراجعة وإدارة تقييمات العملاء للمنتجات.",
+    "searchPlaceholder": "البحث حسب المنتج، المشتري، أو المورد...",
+    "vendor": "المورد",
+    "rating": "التقييم",
+    "product": "المنتج",
+    "allVendors": "المورد: جميع الموردين",
+    "allRatings": "التقييم: جميع التقييمات",
+    "allProducts": "المنتج: جميع المنتجات",
+    "vendorMobile": "المورد: الكل",
+    "ratingMobile": "التقييم: الكل",
+    "productMobile": "المنتج: الكل",
+    "table": {
+      "reviewId": "معرف التقييم",
+      "product": "المنتج",
+      "buyerName": "اسم المشتري",
+      "vendor": "المورد",
+      "rating": "التقييم",
+      "date": "التاريخ",
+      "action": "الإجراء"
+    },
+    "mobile": {
+      "byBuyerAndVendor": "بواسطة {{buyer}} · {{vendor}}"
+    },
+    "deleteModal": {
+      "title": "حذف التقييم",
+      "message": "هل أنت متأكد من رغبتك في حذف التقييم {{reviewId}} بشكل دائم المقدم من {{buyerName}}؟ لا يمكن التراجع عن هذا الإجراء وسيتم تحديث تقييم المنتج تلقائياً.",
+      "auditWarning": "سيتم تسجيل عملية الحذف هذه في سجل التدقيق مع بيانات المشرف الخاصة بك.",
+      "cancel": "إلغاء",
+      "confirm": "حذف التقييم"
+    },
+    "emptyState": {
+      "title": "لم يتم العثور على تقييمات",
+      "description": "جرب تعديل معايير البحث أو التصفية."
+    },
+    "pagination": {
+      "showing": "عرض {{start}}-{{end}} من {{total}} عنصر"
+    }
   },
   "ordersListing": {
     "title": "الطلبات",
@@ -1012,6 +1087,106 @@
   "buyers": {
     "title": "المشترون",
     "description": "إدارة حسابات المشترون ومعلوماتهم."
+  },
+  "vouchersListing": {
+    "title": "إدارة القسائم",
+    "createTitle": "إنشاء قسيمة جديدة",
+    "editTitle": "تعديل القسيمة",
+    "breadcrumb": {
+      "dashboard": "لوحة التحكم",
+      "vouchers": "القسائم",
+      "create": "إنشاء قسيمة",
+      "edit": "تعديل قسيمة"
+    },
+    "createButton": "إنشاء قسيمة",
+    "searchPlaceholder": "البحث حسب الكود أو الحملة...",
+    "stats": {
+      "activeVouchers": "القسائم النشطة",
+      "currentlyRunning": "{{count}} تعمل حالياً",
+      "totalCosts": "إجمالي التكاليف",
+      "withinBudget": "ضمن ميزانية الربع",
+      "redemptionsThisMonth": "الاستخدامات هذا الشهر",
+      "increaseFromLastWeek": "+12% زيادة عن الأسبوع الماضي"
+    },
+    "tabs": {
+      "active": "نشطة",
+      "expired": "منتهية",
+      "all": "الكل"
+    },
+    "filters": {
+      "type": "النوع",
+      "status": "الحالة",
+      "allTypes": "النوع: جميع الأنواع",
+      "allStatuses": "الحالة: جميع الحالات",
+      "typeMobile": "الفئة",
+      "statusMobile": "الحالة"
+    },
+    "table": {
+      "code": "الكود",
+      "type": "النوع",
+      "discount": "الخصم",
+      "minOrder": "الحد الأدنى للطلب",
+      "maxDiscount": "أقصى خصم",
+      "usage": "الاستخدام",
+      "expiryDate": "تاريخ الانتهاء",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "types": {
+      "percentage": "نسبة مئوية",
+      "amount": "مبلغ ثابت",
+      "freeShipping": "شحن مجاني"
+    },
+    "statuses": {
+      "active": "نشطة",
+      "expired": "منتهية"
+    },
+    "actions": {
+      "edit": "تعديل",
+      "delete": "حذف"
+    },
+    "form": {
+      "voucherCode": "كود القسيمة *",
+      "voucherCodePlaceholder": "أدخل كود القسيمة أو اتركه فارغاً للتوليد التلقائي",
+      "voucherType": "نوع القسيمة *",
+      "discountValue": "قيمة الخصم *",
+      "discountValuePlaceholder": "أدخل قيمة الخصم (مثلاً 20 لـ 20%)",
+      "minOrderAmount": "الحد الأدنى لمبلغ الطلب (ر.س)",
+      "minOrderAmountPlaceholder": "SAR 0.00",
+      "maxDiscountAmount": "أقصى قيمة خصم (ر.س)",
+      "maxDiscountAmountPlaceholder": "SAR 0.00",
+      "expiryDate": "تاريخ الانتهاء *",
+      "expiryDatePlaceholder": "حدد التاريخ (YYYY-MM-DD)",
+      "maxUsageCount": "أقصى عدد استخدامات",
+      "maxUsageCountPlaceholder": "أدخل أقصى استخدام",
+      "limitOnePerCustomer": "تقييد باستعمال واحد لكل عميل",
+      "limitOnePerCustomerDesc": "يمكن لكل عميل مسجل استخدام كود الخصم هذا مرة واحدة فقط.",
+      "cancel": "إلغاء",
+      "createVoucher": "إنشاء القسيمة",
+      "saveChanges": "حفظ التغييرات",
+      "errors": {
+        "voucherCodeRequired": "كود القسيمة مطلوب",
+        "discountValueRequired": "قيمة الخصم مطلوبة",
+        "discountValueInvalid": "أدخل قيمة خصم موجبة صالحة",
+        "minOrderInvalid": "أدخل حداً أدنى صالحاً",
+        "maxDiscountInvalid": "أدخل أقصى قيمة خصم صالحة",
+        "expiryDateRequired": "تاريخ الانتهاء مطلوب",
+        "maxUsageInvalid": "أدخل عدد استخدامات صالح"
+      }
+    },
+    "deleteModal": {
+      "title": "حذف القسيمة؟",
+      "message": "هل أنت متأكد من حذف القسيمة {{code}}؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirm": "حذف القسيمة"
+    },
+    "emptyState": {
+      "title": "لم يتم العثور على قسائم",
+      "description": "جرب تعديل معايير البحث أو التصفية."
+    },
+    "pagination": {
+      "showing": "عرض {{start}}-{{end}} من {{total}} عنصر"
+    }
   },
   "adminSettings": {
     "title": "الإعدادات",

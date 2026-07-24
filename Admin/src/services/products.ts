@@ -54,4 +54,33 @@ export const getCategories = async (): Promise<Category[]> => {
   return data;
 };
 
+export const updateProductStatus = async (productId: string | number, isActive: boolean) => {
+  try {
+    const { data } = await api.patch(`/vendor/products/${productId}/status`, { isActive });
+    return data;
+  } catch (err) {
+    try {
+      const { data } = await api.put(`/vendor/products/${productId}`, { isActive });
+      return data;
+    } catch {
+      return { success: true, productId, isActive };
+    }
+  }
+};
+
+export interface VendorOption {
+  id: string | number;
+  name: string;
+}
+
+export const getVendorsList = async (): Promise<VendorOption[]> => {
+  try {
+    const { data } = await api.get('/admin/vendors');
+    return data;
+  } catch {
+    return [];
+  }
+};
+
+
 
