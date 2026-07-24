@@ -120,7 +120,7 @@ export default function BuyerTable() {
       {/* Filters (Matching Image 1 layout with larger search bar on mobile) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-5 w-full">
         {/* Search */}
-        <div className="flex items-center gap-2.5 border border-gray-200/90 rounded-2xl sm:rounded-xl px-4 bg-white h-12 sm:h-9 flex-1 sm:max-w-xs shadow-2xs transition-colors focus-within:border-gray-400">
+        <div className="flex items-center gap-2.5 border border-gray-200/90 rounded-2xl sm:rounded-xl px-4 py-2.5 bg-white flex-1 sm:max-w-xs shadow-2xs transition-colors focus-within:border-gray-400">
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
             type="text"

@@ -89,7 +89,7 @@ export default function BuyerDetails() {
       : 0;
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50/80 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* ── Page Header Area (Matching OrderDetails & ReturnRequestDetails) ── */}
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
         <div className="flex flex-col gap-1">
@@ -110,7 +110,7 @@ export default function BuyerDetails() {
       </div>
 
       {/* ── Main Body Container ── */}
-      <div className="sidebar-page-container py-6">
+      <div className="sidebar-page-container py-6 bg-[#F8F8F8]">
         <motion.div
           variants={containerVariants}
           initial="hidden"
