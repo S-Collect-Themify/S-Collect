@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import AppLayout from './pages/AppLayout.js';
 import Dashboard from './pages/Dashboard.js';
-import Inventory from './pages/Inventory';
 import Settings from './pages/Settings.js';
 import AccountSettings from './pages/AccountSettings.js';
 import Management from './pages/Mangement.js';
@@ -33,6 +32,7 @@ import Reviews from './pages/Reviews.js';
 import Vouchers from './pages/Vouchers.js';
 import CreateVoucher from './pages/CreateVoucher.js';
 import Buyers from './pages/Buyers.js';
+import BuyerDetails from './pages/BuyerDetails.js';
 import AdminSettings from './pages/AdminSettings.js';
 
 function App() {
@@ -49,7 +49,6 @@ function App() {
 
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="/inventory" element={<Inventory />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/management" element={<Management />} />
@@ -77,6 +76,7 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
           <Route path="/buyers" element={<Buyers />} />
+          <Route path="/buyers/:id" element={<BuyerDetails />} />
           <Route path="/admin-settings" element={<AdminSettings />} />
           <Route path="*" element={<NotFound />} />
         </Route>

@@ -10,6 +10,7 @@ export * from './store/vendorStore';
 // Export Modals
 export { default as ActivateVendorModal } from './modals/ActivateVendorModal';
 export { default as SuspendVendorModal } from './modals/SuspendVendorModal';
+export { default as RejectVendorModal } from './modals/RejectVendorModal';
 export { default as VendorConfirmModal } from './modals/VendorConfirmModal';
 
 // Export Components

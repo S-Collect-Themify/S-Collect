@@ -28,11 +28,11 @@ type VendorStore = {
   setActiveFilter: (filter: ActiveFilter) => void;
   setPage: (page: number) => void;
   approveVendor: (id: number) => void;
-  rejectVendor: (id: number) => void;
+  rejectVendor: (id: number, reason?: string) => void;
   suspendVendor: (id: number, reason?: string) => void;
   activateVendor: (id: number) => void;
   bulkApprove: (ids: number[]) => void;
-  bulkReject: (ids: number[]) => void;
+  bulkReject: (ids: number[], reason?: string) => void;
   toggleVendorActive: (id: number) => void;
   toggleRow: (id: number) => void;
   setSelectedRows: (ids: number[]) => void;
@@ -63,10 +63,10 @@ export const useVendorStore = create<VendorStore>((set) => ({
           : v
       ),
     })),
-  rejectVendor: (id) =>
+  rejectVendor: (id, reason) =>
     set((state) => ({
       vendors: state.vendors.map((v) =>
-        v.id === id ? { ...v, status: 'suspended' } : v
+        v.id === id ? { ...v, status: 'suspended', suspendReason: reason ?? '' } : v
       ),
     })),
   suspendVendor: (id, reason) =>
@@ -92,10 +92,10 @@ export const useVendorStore = create<VendorStore>((set) => ({
       ),
       selectedRows: [],
     })),
-  bulkReject: (ids) =>
+  bulkReject: (ids, reason) =>
     set((state) => ({
       vendors: state.vendors.map((v) =>
-        ids.includes(v.id) ? { ...v, status: 'suspended' } : v
+        ids.includes(v.id) ? { ...v, status: 'suspended', suspendReason: reason ?? '' } : v
       ),
       selectedRows: [],
     })),
