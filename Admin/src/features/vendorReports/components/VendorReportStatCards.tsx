@@ -92,7 +92,7 @@ export default function VendorReportStatCards({ cards }: VendorReportStatCardsPr
 
             {/* Bottom Row: Value + Currency + Trend Indicator */}
             <div className="flex items-end justify-between flex-col sm:flex-row gap-2">
-              <div className="flex items-baseline  gap-1 w-full ">
+              <div className="flex items-baseline gap-1 w-full ">
                 <span className="text-xl lg:text-2xl font-extrabold text-gray-900 tracking-tight ">
                   {card.value}
                 </span>

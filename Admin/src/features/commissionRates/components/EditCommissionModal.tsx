@@ -41,7 +41,7 @@ export default function EditCommissionModal({
   const cleanedRate = rateInput.replace('%', '').trim();
   const parsedRate = parseFloat(cleanedRate);
   const isExceedsLimit = !isNaN(parsedRate) && parsedRate > 100;
-  const isInvalidRate = !isNaN(parsedRate) && parsedRate < 0;
+  const isInvalidRate = !isNaN(parsedRate) && parsedRate <= 0;
   const isHasError = isExceedsLimit || isInvalidRate || isNaN(parsedRate);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,7 +51,7 @@ export default function EditCommissionModal({
       toast.error(
         t(
           'commissionRates.rateValidationError',
-          'Commission rate must be between 0% and 100%'
+          'Commission rate must be greater than 0% and up to 100%'
         )
       );
       return;
@@ -149,7 +149,7 @@ export default function EditCommissionModal({
                 <span>
                   {t(
                     'commissionRates.rateValidationError',
-                    'Commission rate must be between 0% and 100%'
+                    'Commission rate must be greater than 0% and up to 100%'
                   )}
                 </span>
               </div>

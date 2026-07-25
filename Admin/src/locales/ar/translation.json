@@ -832,7 +832,12 @@
       "reasonRequired": "سبب التعليق مطلوب.",
       "sendNotification": "إرسال إشعار للمورد",
       "suspendBtn": "تعليق المورد",
-      "activateBtn": "تفعيل المورد"
+      "activateBtn": "تفعيل المورد",
+      "rejectVendor": "رفض المورد",
+      "rejectTitle": "رفض المورد",
+      "rejectReasonLabel": "سبب الرفض",
+      "rejectReasonPlaceholder": "سبب الرفض...",
+      "rejectBtn": "رفض المورد"
     },
     "ordersLog": {
       "pageTitle": "إدارة الموردين",
@@ -912,18 +917,6 @@
       "orders": "الطلبات",
       "revenue": "الإيرادات"
     }
-  },
-  "vendorReports": {
-    "title": "تقارير الموردين",
-    "description": "عرض تقارير الأداء للموردين الفرديين."
-  },
-  "commissionRates": {
-    "title": "نسب العمولات",
-    "description": "ضبط نسب العمولات المطبقة على مبيعات الموردين."
-  },
-  "payouts": {
-    "title": "المدفوعات",
-    "description": "متابعة وإدارة مدفوعات الموردين وسجل الدفعات."
   },
   "categories": {
     "title": "الفئات",
@@ -1324,7 +1317,7 @@
     "categoryOverrideNotice": "تتجاوز هذه النسبة نسبة المنصة الافتراضية لهذه الفئة.",
     "rateExceedsLimitTitle": "لا يمكن أن تتجاوز النسبة 100%",
     "rateExceedsLimitError": "لا يمكن أن تتجاوز نسبة العمولة 100%. يرجى إدخال قيمة بين 0.00% و100.00%.",
-    "rateValidationError": "يجب أن تكون نسبة العمولة بين 0% و100%",
+    "rateValidationError": "يجب أن تكون نسبة العمولة أكبر من 0% وحتى 100%",
     "rateInvalidError": "يرجى إدخال نسبة مئوية صالحة إيجابية.",
     "cancel": "إلغاء",
     "saveChanges": "حفظ التغييرات",
@@ -1334,5 +1327,49 @@
     "confirm": "تأكيد",
     "updateSuccess": "تم تحديث نسبة العمولة بنجاح!",
     "exportSuccess": "تم تصدير نسب العمولة بنجاح!"
+  },
+  "payouts": {
+    "title": "المدفوعات",
+    "description": "إدارة مدفوعات البائعين المعلقة وتسجيل التحويلات البنكية اليدوية.",
+    "export": "تصدير",
+    "exportExcel": "تصدير كملف إكسيل (.csv)",
+    "exportPdf": "تصدير كملف PDF (.pdf)",
+    "totalRegisteredTitle": "إجمالي المدفوعات المسجلة",
+    "pendingPayoutsTitle": "المدفوعات المعلقة",
+    "vendorsWithPendingTitle": "البائعين بانتظار المدفوعات",
+    "badgeActivePeriod": "الفترة النشطة",
+    "badgeRequiresAction": "يتطلب إجراء",
+    "badgeAllAccounts": "جميع الحسابات",
+    "pendingSectionTitle": "مدفوعات البائعين المعلقة",
+    "vendorName": "اسم البائع",
+    "totalGmv": "إجمالي المبيعات (ر.س)",
+    "commission": "العمولة (ر.س)",
+    "totalPayouts": "إجمالي المدفوعات (ر.س)",
+    "pendingPayout": "المبلغ المعلق (ر.س)",
+    "actions": "الإجراءات",
+    "registerPayoutAction": "تسجيل دفع",
+    "statusActive": "نشط",
+    "totalGmvLabel": "إجمالي المبيعات",
+    "commissionLabel": "العمولة",
+    "totalPayoutsLabel": "إجمالي المدفوعات",
+    "pendingPayoutLabel": "المبلغ المعلق",
+    "showingCount": "عرض {{start}} - {{end}} من {{total}} بائع",
+    "registerModalTitle": "تسجيل دفع",
+    "vendorLabel": "البائع",
+    "bankAccountLabel": "الحساب البنكي",
+    "payoutAmountLabel": "مبلغ الدفع (ر.س)",
+    "notesRefLabel": "ملاحظات / رقم المرجع",
+    "notesPlaceholder": "مثال: تحويل #12345",
+    "payoutDateLabel": "تاريخ الدفع",
+    "manualRecordNotice": "هذا سجل يدوي فقط. لن يتم إجراء أي تحويل بنكي تلقائي من المنصة.",
+    "cancel": "إلغاء",
+    "confirmRegisterTitle": "تأكيد تسجيل الدفع",
+    "confirmRegisterMessage": "هل أنت متأكد من تسجيل دفع بقيمة {{amount}} ر.س للبائع {{vendor}}؟ سيؤدي هذا الإجراء إلى تسجيل قيد دفع يدوي.",
+    "amountInvalidError": "يرجى إدخال مبلغ دفع صالح.",
+    "amountExceedsPendingError": "لا يمكن أن يتجاوز مبلغ الدفع رصيد المدفوعات المعلقة.",
+    "amountExceedsNotice": "المبلغ المدخل يتجاوز رصيد المدفوعات المعلقة الحالي البالغ {{max}} ر.س. يرجى المراجعة.",
+    "amountZeroNotice": "أدخل مبلغ دفع أكبر من 0 للمتابعة.",
+    "registerSuccessToast": "تم تسجيل عملية الدفع بنجاح!",
+    "exportSuccess": "تم تصدير تقرير المدفوعات بنجاح!"
   }
 }

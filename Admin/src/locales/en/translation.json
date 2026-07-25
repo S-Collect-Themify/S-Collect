@@ -836,7 +836,12 @@
       "reasonRequired": "Reason is required.",
       "sendNotification": "Send notification to vendor",
       "suspendBtn": "Suspend Vendor",
-      "activateBtn": "Activate Vendor"
+      "activateBtn": "Activate Vendor",
+      "rejectVendor": "Reject Vendor",
+      "rejectTitle": "Reject Vendor",
+      "rejectReasonLabel": "Reason for rejection",
+      "rejectReasonPlaceholder": "Reason for rejection...",
+      "rejectBtn": "Reject Vendor"
     },
     "ordersLog": {
       "pageTitle": "Vendor Management",
@@ -916,18 +921,6 @@
       "orders": "Orders",
       "revenue": "Revenue"
     }
-  },
-  "vendorReports": {
-    "title": "Vendor Reports",
-    "description": "View performance reports for individual vendors."
-  },
-  "commissionRates": {
-    "title": "Commission Rates",
-    "description": "Configure commission rates applied to vendor sales."
-  },
-  "payouts": {
-    "title": "Payouts",
-    "description": "Track and manage vendor payouts and payment history."
   },
   "categories": {
     "title": "Categories",
@@ -1328,7 +1321,7 @@
     "categoryOverrideNotice": "This rate overrides the default platform rate for this category.",
     "rateExceedsLimitTitle": "Rate cannot exceed 100%",
     "rateExceedsLimitError": "Commission rate cannot exceed 100%. Please enter a value between 0.00% and 100.00%.",
-    "rateValidationError": "Commission rate must be between 0% and 100%",
+    "rateValidationError": "Commission rate must be greater than 0% and up to 100%",
     "rateInvalidError": "Please enter a valid positive percentage.",
     "cancel": "Cancel",
     "saveChanges": "Save Changes",
@@ -1338,5 +1331,49 @@
     "confirm": "Confirm",
     "updateSuccess": "Commission rate updated successfully!",
     "exportSuccess": "Commission Rates exported successfully!"
+  },
+  "payouts": {
+    "title": "Payouts",
+    "description": "Manage pending vendor payouts and register manual bank transfers.",
+    "export": "Export",
+    "exportExcel": "Export as Excel (.csv)",
+    "exportPdf": "Export as PDF (.pdf)",
+    "totalRegisteredTitle": "Total Payouts Registered",
+    "pendingPayoutsTitle": "Pending Payouts",
+    "vendorsWithPendingTitle": "Vendors with Pending",
+    "badgeActivePeriod": "Active Period",
+    "badgeRequiresAction": "Requires Action",
+    "badgeAllAccounts": "All Accounts",
+    "pendingSectionTitle": "Pending Vendor Payouts",
+    "vendorName": "Vendor Name",
+    "totalGmv": "Total GMV (SAR)",
+    "commission": "Commission (SAR)",
+    "totalPayouts": "Total Payouts (SAR)",
+    "pendingPayout": "Pending Payout (SAR)",
+    "actions": "Actions",
+    "registerPayoutAction": "Register Payout",
+    "statusActive": "Active",
+    "totalGmvLabel": "Total GMV",
+    "commissionLabel": "Commission",
+    "totalPayoutsLabel": "Total Payouts",
+    "pendingPayoutLabel": "Pending Payout",
+    "showingCount": "Showing {{start}} - {{end}} of {{total}} vendors",
+    "registerModalTitle": "Register Payout",
+    "vendorLabel": "Vendor",
+    "bankAccountLabel": "Bank Account",
+    "payoutAmountLabel": "Payout Amount (SAR)",
+    "notesRefLabel": "Notes / Reference #",
+    "notesPlaceholder": "e.g. Transfer #12345",
+    "payoutDateLabel": "Payout Date",
+    "manualRecordNotice": "This is a manual record only. No bank transfer will be initiated by the platform.",
+    "cancel": "Cancel",
+    "confirmRegisterTitle": "Confirm Payout Registration",
+    "confirmRegisterMessage": "Are you sure you want to register a payout of {{amount}} SAR for {{vendor}}? This action will record a manual payout entry.",
+    "amountInvalidError": "Please enter a valid payout amount.",
+    "amountExceedsPendingError": "Payout amount cannot exceed the pending payout balance.",
+    "amountExceedsNotice": "The entered amount exceeds the current pending payout of {{max}} SAR. Please review.",
+    "amountZeroNotice": "Enter a payout amount greater than 0 to proceed.",
+    "registerSuccessToast": "Payout registered successfully!",
+    "exportSuccess": "Payouts report exported successfully!"
   }
 }

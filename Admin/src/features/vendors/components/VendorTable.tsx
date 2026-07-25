@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useVendorStore, useVendorTable } from '../store/vendorStore';
 import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
+import RejectVendorModal from '../modals/RejectVendorModal';
+import SuspendVendorModal from '../modals/SuspendVendorModal';
 import VendorDesktopTable from './VendorDesktopTable';
 import VendorMobileList from './VendorMobileList';
 import VendorPagination from './VendorPagination';
@@ -26,6 +28,7 @@ export default function VendorTable() {
   const setPage = useVendorStore((s) => s.setPage);
   const bulkApprove = useVendorStore((s) => s.bulkApprove);
   const bulkReject = useVendorStore((s) => s.bulkReject);
+  const suspendVendor = useVendorStore((s) => s.suspendVendor);
   const toggleVendorActive = useVendorStore((s) => s.toggleVendorActive);
   const toggleRow = useVendorStore((s) => s.toggleRow);
   const setSelectedRows = useVendorStore((s) => s.setSelectedRows);
@@ -60,6 +63,18 @@ export default function VendorTable() {
     ids: number[];
     vendorName?: string;
   }>({ isOpen: false, type: 'approve', ids: [] });
+
+  const [rejectModal, setRejectModal] = useState<{
+    isOpen: boolean;
+    ids: number[];
+    vendorName: string;
+  }>({ isOpen: false, ids: [], vendorName: '' });
+
+  const [suspendModal, setSuspendModal] = useState<{
+    isOpen: boolean;
+    ids: number[];
+    vendorName: string;
+  }>({ isOpen: false, ids: [], vendorName: '' });
 
   const tabs: { key: VendorTab; label: string; count?: number }[] = [
     { key: 'pending', label: t('vendors.tabs.pending'), count: pendingCount },
@@ -107,8 +122,41 @@ export default function VendorTable() {
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
-  const openConfirm = (type: ModalType, ids: number[], vendorName?: string) =>
-    setConfirmModal({ isOpen: true, type, ids, vendorName });
+  const openConfirm = (type: ModalType, ids: number[], vendorName?: string) => {
+    if (type === 'reject') {
+      setRejectModal({
+        isOpen: true,
+        ids,
+        vendorName: vendorName ?? (ids.length > 1 ? `${ids.length} Vendors` : ''),
+      });
+    } else if (type === 'deactivate') {
+      const vName =
+        vendorName ??
+        (ids.length === 1
+          ? useVendorStore.getState().vendors.find((v) => v.id === ids[0])?.businessName
+          : `${ids.length} Vendors`);
+      setSuspendModal({
+        isOpen: true,
+        ids,
+        vendorName: vName ?? '',
+      });
+    } else {
+      setConfirmModal({ isOpen: true, type, ids, vendorName });
+    }
+  };
+
+  const handleConfirmReject = (reason: string, _notify: boolean) => {
+    bulkReject(rejectModal.ids, reason);
+    setRejectModal({ isOpen: false, ids: [], vendorName: '' });
+  };
+
+  const handleConfirmSuspend = (reason: string, _notify: boolean) => {
+    suspendModal.ids.forEach((id) => {
+      suspendVendor(id, reason);
+    });
+    clearSelection();
+    setSuspendModal({ isOpen: false, ids: [], vendorName: '' });
+  };
 
   const handleConfirm = () => {
     const { type, ids } = confirmModal;
@@ -289,6 +337,22 @@ export default function VendorTable() {
         vendorName={confirmModal.vendorName}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
+      />
+
+      {/* Reject Vendor Modal */}
+      <RejectVendorModal
+        isOpen={rejectModal.isOpen}
+        vendorName={rejectModal.vendorName}
+        onConfirm={handleConfirmReject}
+        onCancel={() => setRejectModal({ isOpen: false, ids: [], vendorName: '' })}
+      />
+
+      {/* Suspend Vendor Modal */}
+      <SuspendVendorModal
+        isOpen={suspendModal.isOpen}
+        vendorName={suspendModal.vendorName}
+        onConfirm={handleConfirmSuspend}
+        onCancel={() => setSuspendModal({ isOpen: false, ids: [], vendorName: '' })}
       />
     </div>
   );
