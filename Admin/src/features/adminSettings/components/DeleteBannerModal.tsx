@@ -5,7 +5,8 @@ import { useAdminSettingsStore } from '../store';
 
 export const DeleteBannerModal: React.FC = () => {
   const { t } = useTranslation();
-  const { deleteModal, closeDeleteModal, confirmDeleteBanner } = useAdminSettingsStore();
+  const { deleteModal, closeDeleteModal, confirmDeleteBanner } =
+    useAdminSettingsStore();
 
   if (!deleteModal.open || !deleteModal.banner) return null;
 
@@ -19,13 +20,16 @@ export const DeleteBannerModal: React.FC = () => {
 
         {/* Modal Title */}
         <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {t('banners.deleteModal.title', { defaultValue: 'Confirm Delete Banner' })}
+          {t('banners.deleteModal.title', {
+            defaultValue: 'Confirm Delete Banner',
+          })}
         </h3>
 
         {/* Modal Subtitle / Description */}
         <p className="text-sm text-gray-500 font-normal leading-relaxed mb-8 max-w-xs mx-auto">
           {t('banners.deleteModal.message', {
-            defaultValue: 'Are you sure you want to delete this banner? This action cannot be undone.',
+            defaultValue:
+              'Are you sure you want to delete this banner? This action cannot be undone.',
           })}
         </p>
 
@@ -44,7 +48,9 @@ export const DeleteBannerModal: React.FC = () => {
             onClick={confirmDeleteBanner}
             className="flex-1 py-3 px-5 text-sm font-semibold text-white bg-red-700 hover:bg-red-800 rounded-xl transition-colors cursor-pointer"
           >
-            {t('banners.deleteModal.confirm', { defaultValue: 'Delete Permanently' })}
+            {t('banners.deleteModal.confirm', {
+              defaultValue: 'Delete Permanently',
+            })}
           </button>
         </div>
       </div>

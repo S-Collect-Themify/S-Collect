@@ -1,6 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { SquarePen, Trash2, Plus, ArrowLeft, GripVertical } from 'lucide-react';
+import {
+  SquarePen,
+  Trash2,
+  Plus,
+  ArrowLeft,
+  GripVertical,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react';
+import i18n from '../../../i18n';
 import {
   DndContext,
   closestCenter,
@@ -143,8 +152,15 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
 
 export const BannersList: React.FC = () => {
   const { t } = useTranslation();
-  const { banners, setViewMode, setEditingBanner, openDeleteModal, reorderBanners } =
-    useAdminSettingsStore();
+  const {
+    banners,
+    setViewMode,
+    setEditingBanner,
+    openDeleteModal,
+    reorderBanners,
+  } = useAdminSettingsStore();
+  const isArabic = i18n.language === 'ar';
+  const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -171,18 +187,23 @@ export const BannersList: React.FC = () => {
     <div className="space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setViewMode('settings')}
-            className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
-            title={t('adminSettings.backToSettings', { defaultValue: 'Back to Settings' })}
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
             {t('banners.title', { defaultValue: 'Banners' })}
           </h1>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+            <button
+              type="button"
+              onClick={() => setViewMode('settings')}
+              className="hover:text-black transition-colors cursor-pointer"
+            >
+              {t('banners.breadcrumb.settings', { defaultValue: 'Settings' })}
+            </button>
+            <ChevronIcon size={12} />
+            <span className="text-gray-900 font-semibold">
+              {t('banners.title', { defaultValue: 'Banners' })}
+            </span>
+          </div>
         </div>
 
         <button
@@ -214,13 +235,17 @@ export const BannersList: React.FC = () => {
                     {t('banners.table.name', { defaultValue: 'Name' })}
                   </th>
                   <th className="py-4 px-6 font-semibold">
-                    {t('banners.table.redirectLink', { defaultValue: 'Redirect Link' })}
+                    {t('banners.table.redirectLink', {
+                      defaultValue: 'Redirect Link',
+                    })}
                   </th>
                   <th className="py-4 px-6 font-semibold">
                     {t('banners.table.role', { defaultValue: 'Role' })}
                   </th>
                   <th className="py-4 px-6 font-semibold">
-                    {t('banners.table.dateAdded', { defaultValue: 'Date Added' })}
+                    {t('banners.table.dateAdded', {
+                      defaultValue: 'Date Added',
+                    })}
                   </th>
                   <th className="py-4 px-6 font-semibold text-right rtl:text-left">
                     {t('banners.table.actions', { defaultValue: 'Actions' })}
@@ -234,8 +259,13 @@ export const BannersList: React.FC = () => {
                 <tbody className="divide-y divide-gray-100 text-sm">
                   {banners.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-gray-400">
-                        {t('banners.noBanners', { defaultValue: 'No banners added yet.' })}
+                      <td
+                        colSpan={6}
+                        className="py-12 text-center text-gray-400"
+                      >
+                        {t('banners.noBanners', {
+                          defaultValue: 'No banners added yet.',
+                        })}
                       </td>
                     </tr>
                   ) : (

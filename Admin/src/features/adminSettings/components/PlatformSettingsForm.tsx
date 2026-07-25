@@ -23,7 +23,9 @@ export const PlatformSettingsForm: React.FC = () => {
   const isArabic = i18n.language === 'ar';
   const { platformSettings, updatePlatformSettings } = useAdminSettingsStore();
 
-  const [logoPreview, setLogoPreview] = useState<string | null>(platformSettings.logoUrl || null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    platformSettings.logoUrl || null
+  );
   const [logoError, setLogoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,7 +100,10 @@ export const PlatformSettingsForm: React.FC = () => {
       <div>
         {/* Platform Name */}
         <div className="mb-6">
-          <label htmlFor="platformName" className="text-sm font-semibold text-gray-900 mb-2 block">
+          <label
+            htmlFor="platformName"
+            className="text-sm font-semibold text-gray-900 mb-2 block"
+          >
             {t('adminSettings.platformName', { defaultValue: 'Platform Name' })}{' '}
             <span className="text-red-500">*</span>
           </label>
@@ -123,7 +128,9 @@ export const PlatformSettingsForm: React.FC = () => {
               },
             })}
             className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all ${
-              errors.name ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+              errors.name
+                ? 'border-red-400 bg-red-50/20'
+                : 'border-gray-200 bg-white'
             }`}
             placeholder="CollectS"
           />
@@ -152,8 +159,8 @@ export const PlatformSettingsForm: React.FC = () => {
               logoError
                 ? 'border-red-400 bg-red-50/30 cursor-pointer'
                 : logoPreview
-                ? 'border-gray-200 bg-gray-50/40'
-                : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
+                  ? 'border-gray-200 bg-gray-50/40'
+                  : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
             }`}
           >
             {/* Show X button if logo uploaded */}
@@ -179,7 +186,9 @@ export const PlatformSettingsForm: React.FC = () => {
             ) : logoError ? (
               <div className="flex flex-col items-center">
                 <AlertCircle className="size-8 text-red-500 mb-2 stroke-[1.5]" />
-                <p className="text-xs font-semibold text-red-500 mb-1">{logoError}</p>
+                <p className="text-xs font-semibold text-red-500 mb-1">
+                  {logoError}
+                </p>
                 <p className="text-xs text-red-400 font-normal mb-3">
                   {isArabic
                     ? 'اللوجو لا يتجاوز 2MB — الصيغ: PNG, SVG, WEBP'
@@ -190,20 +199,26 @@ export const PlatformSettingsForm: React.FC = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
                 >
-                  {t('adminSettings.uploadLogo', { defaultValue: 'Upload Logo' })}
+                  {t('adminSettings.uploadLogo', {
+                    defaultValue: 'Upload Logo',
+                  })}
                 </button>
               </div>
             ) : (
               <div className="flex flex-col items-center">
                 <ImageIcon className="size-8 text-gray-300 mb-2 stroke-[1.5]" />
                 <p className="text-xs text-gray-500 font-medium mb-3">
-                  {t('adminSettings.noLogoUploaded', { defaultValue: 'No Logo Uploaded' })}
+                  {t('adminSettings.noLogoUploaded', {
+                    defaultValue: 'No Logo Uploaded',
+                  })}
                 </p>
                 <button
                   type="button"
                   className="bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors mb-2"
                 >
-                  {t('adminSettings.uploadLogo', { defaultValue: 'Upload Logo' })}
+                  {t('adminSettings.uploadLogo', {
+                    defaultValue: 'Upload Logo',
+                  })}
                 </button>
                 <p className="text-[11px] text-gray-400 font-normal">
                   {isArabic
@@ -219,7 +234,10 @@ export const PlatformSettingsForm: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {/* Currency */}
           <div>
-            <label htmlFor="currency" className="text-sm font-semibold text-gray-900 mb-2 block">
+            <label
+              htmlFor="currency"
+              className="text-sm font-semibold text-gray-900 mb-2 block"
+            >
               {t('adminSettings.currency', { defaultValue: 'Currency' })}{' '}
               <span className="text-red-500">*</span>
             </label>
@@ -242,21 +260,30 @@ export const PlatformSettingsForm: React.FC = () => {
               </div>
             </div>
             {errors.currency && (
-              <p className="text-xs text-red-500 mt-1.5">{errors.currency.message}</p>
+              <p className="text-xs text-red-500 mt-1.5">
+                {errors.currency.message}
+              </p>
             )}
           </div>
 
           {/* Default Language */}
           <div>
-            <label htmlFor="defaultLanguage" className="text-sm font-semibold text-gray-900 mb-2 block">
-              {t('adminSettings.defaultLanguage', { defaultValue: 'Default Language' })}{' '}
+            <label
+              htmlFor="defaultLanguage"
+              className="text-sm font-semibold text-gray-900 mb-2 block"
+            >
+              {t('adminSettings.defaultLanguage', {
+                defaultValue: 'Default Language',
+              })}{' '}
               <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <select
                 id="defaultLanguage"
                 {...register('defaultLanguage', {
-                  required: isArabic ? 'اللغة مطلوبة' : 'Default language is required',
+                  required: isArabic
+                    ? 'اللغة مطلوبة'
+                    : 'Default language is required',
                 })}
                 className="w-full appearance-none border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent pr-10 cursor-pointer"
               >
@@ -271,7 +298,9 @@ export const PlatformSettingsForm: React.FC = () => {
               </div>
             </div>
             {errors.defaultLanguage && (
-              <p className="text-xs text-red-500 mt-1.5">{errors.defaultLanguage.message}</p>
+              <p className="text-xs text-red-500 mt-1.5">
+                {errors.defaultLanguage.message}
+              </p>
             )}
           </div>
         </div>

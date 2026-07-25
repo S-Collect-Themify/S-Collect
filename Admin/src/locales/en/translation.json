@@ -1220,10 +1220,40 @@
       "nameRequired": "Platform name is required"
     },
     "adminAccounts": {
-      "title": "Admin Accounts",
+      "title": "Admins",
       "description": "Manage platform admin accounts and permissions",
-      "button": "Manage Admins"
+      "button": "Manage Admins",
+      "addBtn": "Add New Admin",
+      "addTitle": "Add New Admin",
+      "editTitle": "Edit Admin",
+      "profileImage": "Admin Profile Image (Optional, Max 2MB)",
+      "chooseFile": "Choose File",
+      "imageHint": "Supported formats: JPG, PNG, WEBP. Maximum file size: 2MB.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "e.g. John Doe",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "e.g. john@platform.com",
+      "role": "Role",
+      "phoneNumber": "Phone Number (Optional)",
+      "phoneNumberPlaceholder": "+966 50 000 0000",
+      "addAdminBtn": "Add Admin",
+      "saveChangesBtn": "Save Changes",
+      "fileTooLarge": "Image file size must be 2MB or less",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "dateAdded": "Date Added",
+        "actions": "Actions"
+      }
     },
+    "confirmDeleteAdminTitle": "Confirm Delete Admin",
+    "confirmDeleteAdminDesc": "Are you sure you want to remove this admin? They will lose all access to the platform.",
+    "deleteAdminBtn": "Delete Admin",
+    "cannotDeleteSuperAdminTitle": "Cannot Delete Super Admin",
+    "cannotDeleteSuperAdminDesc": "Super Admin accounts cannot be deleted. Please transfer Super Admin privileges to another admin first.",
+    "emailExistsTitle": "Email Already Exists",
+    "emailExistsDesc": "An admin with this email address already exists. Please use a different email or contact the existing admin.",
     "bannersCard": {
       "title": "Banners",
       "description": "Manage homepage banners and promotional slots",
@@ -1283,6 +1313,38 @@
       "message": "Are you sure you want to delete this banner? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Delete Banner"
+    },
+    "enableModal": {
+      "title": "Enable Banner",
+      "message": "Are you sure you want to enable this banner? It will immediately be displayed on the platform home page.",
+      "confirm": "Enable Banner"
     }
+  },
+  "shippingZones": {
+    "title": "Shipping Zones",
+    "registeredVendors": "{{count}} Registered Vendors",
+    "disableZoneTitle": "Disable Zone",
+    "disableZoneDesc": "This zone has active shipping orders. Disabling will only affect new orders placed after this change. Do you want to continue?",
+    "disableZoneBtn": "Disable Zone",
+    "zoneEnabledSuccess": "Zone enabled successfully",
+    "zoneDisabledSuccess": "Zone disabled successfully",
+    "ratesTitle": "Vendor Shipping Rates",
+    "table": {
+      "zoneName": "Zone Name",
+      "vendorsCount": "Vendors Count",
+      "status": "Status",
+      "actions": "Actions",
+      "viewReport": "View Report",
+      "vendorName": "Vendor Name",
+      "standardRate": "Standard Rate (SAR)",
+      "expressRate": "Express Rate (SAR)",
+      "lastUpdated": "Last Updated"
+    },
+    "footerNote": "* Vendor rates are managed by vendors from their dashboard. Admin view only."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "tryAgain": "Try Again",
+    "understood": "Understood"
   }
 }

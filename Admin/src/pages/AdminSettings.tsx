@@ -5,15 +5,20 @@ import { PlatformSettingsForm } from '../features/adminSettings/components/Platf
 import { AdminQuickActionsCards } from '../features/adminSettings/components/AdminQuickActionsCards';
 import { BannersList } from '../features/adminSettings/components/BannersList';
 import { BannerForm } from '../features/adminSettings/components/BannerForm';
-import { DeleteBannerModal } from '../features/adminSettings/components/DeleteBannerModal';
+import { DeleteBannerModal as DeleteBannerModalComponent } from '../features/adminSettings/components/DeleteBannerModal';
 import { ShippingSettingsModal } from '../features/adminSettings/components/ShippingSettingsModal';
-import { AdminAccountsModal } from '../features/adminSettings/components/AdminAccountsModal';
+import { AdminsList } from '../features/adminSettings/components/AdminsList';
+import { AdminForm } from '../features/adminSettings/components/AdminForm';
+import { DeleteAdminModal } from '../features/adminSettings/components/DeleteAdminModal';
+import { EmailExistsModal } from '../features/adminSettings/components/EmailExistsModal';
+import { ShippingZonesList } from '../features/adminSettings/components/ShippingZonesList';
+import { DisableZoneModal } from '../features/adminSettings/components/DisableZoneModal';
+import { VendorShippingRatesReport } from '../features/adminSettings/components/VendorShippingRatesReport';
 
 const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
-  const { viewMode } = useAdminSettingsStore();
+  const { viewMode, setViewMode } = useAdminSettingsStore();
   const [shippingModalOpen, setShippingModalOpen] = useState(false);
-  const [adminsModalOpen, setAdminsModalOpen] = useState(false);
 
   return (
     <div className="sidebar-page-container p-4 sm:p-6 lg:p-8 w-full min-h-screen">
@@ -35,8 +40,8 @@ const AdminSettings: React.FC = () => {
             {/* Right Stack: Quick Action Cards */}
             <div className="lg:col-span-4">
               <AdminQuickActionsCards
-                onManageShipping={() => setShippingModalOpen(true)}
-                onManageAdmins={() => setAdminsModalOpen(true)}
+                onManageShipping={() => setViewMode('shipping-zones')}
+                onManageAdmins={() => setViewMode('admins')}
               />
             </div>
           </div>
@@ -52,16 +57,30 @@ const AdminSettings: React.FC = () => {
       {/* Edit Banner View */}
       {viewMode === 'banners-edit' && <BannerForm mode="edit" />}
 
+      {/* Admins Listing View */}
+      {viewMode === 'admins' && <AdminsList />}
+
+      {/* Add New Admin View */}
+      {viewMode === 'admins-add' && <AdminForm mode="add" />}
+
+      {/* Edit Admin View */}
+      {viewMode === 'admins-edit' && <AdminForm mode="edit" />}
+
+      {/* Shipping Zones View */}
+      {viewMode === 'shipping-zones' && <ShippingZonesList />}
+
+      {/* Vendor Shipping Rates View */}
+      {viewMode === 'shipping-rates' && <VendorShippingRatesReport />}
+
       {/* Modals */}
-      <DeleteBannerModal />
+      <DeleteBannerModalComponent />
       <ShippingSettingsModal
         open={shippingModalOpen}
         onClose={() => setShippingModalOpen(false)}
       />
-      <AdminAccountsModal
-        open={adminsModalOpen}
-        onClose={() => setAdminsModalOpen(false)}
-      />
+      <DeleteAdminModal />
+      <EmailExistsModal />
+      <DisableZoneModal />
     </div>
   );
 };

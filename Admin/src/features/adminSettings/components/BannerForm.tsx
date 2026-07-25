@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Upload, ChevronRight, ChevronLeft, AlertCircle } from 'lucide-react';
+import {
+  Upload,
+  ChevronRight,
+  ChevronLeft,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
 import { useAdminSettingsStore, MAX_ACTIVE_BANNERS } from '../store';
 import i18n from '../../../i18n';
 import toast from 'react-hot-toast';
+import Toggle from '../../categories/components/Toggle';
 
 interface BannerFormProps {
   mode: 'add' | 'edit';
@@ -18,10 +25,12 @@ interface BannerFormInputs {
 
 export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const { t } = useTranslation();
-  const { addBanner, updateBanner, editingBanner, setViewMode, banners } = useAdminSettingsStore();
+  const { addBanner, updateBanner, editingBanner, setViewMode, banners } =
+    useAdminSettingsStore();
   const isArabic = i18n.language === 'ar';
   const BreadcrumbChevron = isArabic ? ChevronLeft : ChevronRight;
 
+  const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(
     editingBanner?.imageUrl || null
   );
@@ -58,7 +67,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       setValue('isActive', editingBanner.isActive);
       setImagePreview(editingBanner.imageUrl || null);
       setImageFileName(editingBanner.imageFileName || 'winter-sale-banner.png');
-      setImageDimensions(editingBanner.imageDimensions || 'Dimensions: 1200 × 480 px');
+      setImageDimensions(
+        editingBanner.imageDimensions || 'Dimensions: 1200 × 480 px'
+      );
     }
   }, [mode, editingBanner, setValue]);
 
@@ -110,8 +121,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   };
 
   const handleToggleActive = () => {
-    const nextState = !isActive;
-    if (nextState) {
+    if (!isActive) {
       const activeCount = banners.filter(
         (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
       ).length;
@@ -124,8 +134,15 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
         );
         return;
       }
+      setConfirmEnableModalOpen(true);
+    } else {
+      setValue('isActive', false);
     }
-    setValue('isActive', nextState);
+  };
+
+  const handleConfirmEnable = () => {
+    setValue('isActive', true);
+    setConfirmEnableModalOpen(false);
   };
 
   const onSubmit = (data: BannerFormInputs) => {
@@ -197,8 +214,12 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           <BreadcrumbChevron size={12} />
           <span className="text-gray-600 font-semibold">
             {mode === 'add'
-              ? t('banners.breadcrumb.addNewBanner', { defaultValue: 'Add New Banner' })
-              : t('banners.breadcrumb.editBanner', { defaultValue: 'Edit Banner' })}
+              ? t('banners.breadcrumb.addNewBanner', {
+                  defaultValue: 'Add New Banner',
+                })
+              : t('banners.breadcrumb.editBanner', {
+                  defaultValue: 'Edit Banner',
+                })}
           </span>
         </div>
       </div>
@@ -244,7 +265,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                       onClick={handleRemoveImage}
                       className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors cursor-pointer mt-1 block"
                     >
-                      {t('banners.form.removeImage', { defaultValue: 'Remove Image' })}
+                      {t('banners.form.removeImage', {
+                        defaultValue: 'Remove Image',
+                      })}
                     </button>
                   </div>
                 </div>
@@ -262,7 +285,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                 {imageError ? (
                   <div className="flex flex-col items-center">
                     <AlertCircle className="size-7 text-red-500 mb-2 stroke-[1.5]" />
-                    <p className="text-xs font-semibold text-red-500 mb-1">{imageError}</p>
+                    <p className="text-xs font-semibold text-red-500 mb-1">
+                      {imageError}
+                    </p>
                     <p className="text-[11px] text-gray-400 font-normal">
                       {isArabic
                         ? 'حجم صورة الـ Banner لا يتجاوز 3MB — الصيغ: PNG, JPG, WEBP. أبعاد 1200×400px على الأقل.'
@@ -273,7 +298,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                   <div className="flex flex-col items-center">
                     <Upload className="size-6 text-gray-400 mb-2 stroke-[1.75]" />
                     <p className="text-xs font-semibold text-gray-700 mb-1">
-                      {t('banners.form.uploadBannerImage', { defaultValue: 'Upload Banner Image' })}
+                      {t('banners.form.uploadBannerImage', {
+                        defaultValue: 'Upload Banner Image',
+                      })}
                     </p>
                     <p className="text-[11px] text-gray-400 font-normal">
                       {isArabic
@@ -288,20 +315,30 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
           {/* Redirect Link URL */}
           <div>
-            <label htmlFor="redirectUrl" className="text-sm font-semibold text-gray-900 mb-2 block">
-              {t('banners.form.redirectLinkUrl', { defaultValue: 'Redirect Link URL' })}{' '}
+            <label
+              htmlFor="redirectUrl"
+              className="text-sm font-semibold text-gray-900 mb-2 block"
+            >
+              {t('banners.form.redirectLinkUrl', {
+                defaultValue: 'Redirect Link URL',
+              })}{' '}
               <span className="text-red-500">*</span>
             </label>
             <input
               id="redirectUrl"
               type="text"
               {...register('redirectUrl', {
-                required: isArabic ? 'رابط التوجيه مطلوب' : 'Redirect link URL is required',
+                required: isArabic
+                  ? 'رابط التوجيه مطلوب'
+                  : 'Redirect link URL is required',
                 validate: (val) => {
                   if (!val || !val.trim()) {
-                    return isArabic ? 'رابط التوجيه مطلوب' : 'Redirect link URL is required';
+                    return isArabic
+                      ? 'رابط التوجيه مطلوب'
+                      : 'Redirect link URL is required';
                   }
-                  const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=#]*)?$/i;
+                  const urlRegex =
+                    /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=#]*)?$/i;
                   if (!urlRegex.test(val.trim())) {
                     return isArabic
                       ? 'يرجى إدخال رابط URL صحيح (مثال: https://example.com)'
@@ -312,11 +349,15 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
               })}
               placeholder="https://example.com/target-page"
               className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all ${
-                errors.redirectUrl ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                errors.redirectUrl
+                  ? 'border-red-400 bg-red-50/20'
+                  : 'border-gray-200 bg-white'
               }`}
             />
             {errors.redirectUrl && (
-              <p className="text-xs text-red-500 mt-1.5">{errors.redirectUrl.message}</p>
+              <p className="text-xs text-red-500 mt-1.5">
+                {errors.redirectUrl.message}
+              </p>
             )}
           </div>
 
@@ -325,31 +366,20 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             <div className="flex items-center justify-between">
               <div>
                 <label className="text-sm font-semibold text-gray-900 block">
-                  {t('banners.form.bannerStatus', { defaultValue: 'Banner Status' })}
+                  {t('banners.form.bannerStatus', {
+                    defaultValue: 'Banner Status',
+                  })}
                 </label>
                 <p className="text-xs text-gray-400 font-normal mt-0.5">
                   {t('banners.form.bannerStatusHint', {
-                    defaultValue: 'Active banners will display on platform home page instantly.',
+                    defaultValue:
+                      'Active banners will display on platform home page instantly.',
                   })}
                 </p>
               </div>
 
               {/* Toggle Switch */}
-              <button
-                type="button"
-                onClick={handleToggleActive}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isActive ? 'bg-emerald-500' : 'bg-gray-200'
-                }`}
-                role="switch"
-                aria-checked={isActive}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                    isActive ? (isArabic ? '-translate-x-5' : 'translate-x-5') : 'translate-x-0'
-                  }`}
-                />
-              </button>
+              <Toggle checked={isActive} onChange={handleToggleActive} />
             </div>
           </div>
 
@@ -368,11 +398,58 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             >
               {mode === 'add'
                 ? t('banners.form.saveBanner', { defaultValue: 'Save Banner' })
-                : t('banners.form.saveChanges', { defaultValue: 'Save Changes' })}
+                : t('banners.form.saveChanges', {
+                    defaultValue: 'Save Changes',
+                  })}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Confirm Enable Banner Modal */}
+      {confirmEnableModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-gray-100 relative">
+            <div className="flex flex-col items-center">
+              <div className="size-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
+                <CheckCircle2 size={26} />
+              </div>
+
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                {t('banners.enableModal.title', {
+                  defaultValue: 'Enable Banner',
+                })}
+              </h3>
+
+              <p className="text-xs text-gray-500 leading-relaxed mb-6 max-w-xs">
+                {t('banners.enableModal.message', {
+                  defaultValue:
+                    'Are you sure you want to enable this banner? It will immediately be displayed on the platform home page.',
+                })}
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setConfirmEnableModalOpen(false)}
+                  className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer"
+                >
+                  {t('common.cancel', { defaultValue: 'Cancel' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmEnable}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs"
+                >
+                  {t('banners.enableModal.confirm', {
+                    defaultValue: 'Enable Banner',
+                  })}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

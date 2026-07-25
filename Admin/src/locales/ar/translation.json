@@ -1218,11 +1218,41 @@
     "adminAccounts": {
       "title": "حسابات الأدمن",
       "description": "إدارة حسابات وصلاحيات مسؤولي المنصة",
-      "button": "إدارة المسؤولين"
+      "button": "إدارة المسؤولين",
+      "addBtn": "إضافة مسؤول جديد",
+      "addTitle": "إضافة مسؤول جديد",
+      "editTitle": "تعديل المسؤول",
+      "profileImage": "صورة ملف المسؤول (اختياري، حد أقصى 2 ميجابايت)",
+      "chooseFile": "اختر ملفاً",
+      "imageHint": "الصيغ المدعومة: JPG، PNG، WEBP. الحد الأقصى لحجم الملف: 2 ميجابايت.",
+      "fullName": "الاسم الكامل",
+      "fullNamePlaceholder": "مثال: أحمد محمد",
+      "emailAddress": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "مثال: john@platform.com",
+      "role": "الصلاحية",
+      "phoneNumber": "رقم الهاتف (اختياري)",
+      "phoneNumberPlaceholder": "+966 50 000 0000",
+      "addAdminBtn": "إضافة مسؤول",
+      "saveChangesBtn": "حفظ التغييرات",
+      "fileTooLarge": "يجب ألا يتجاوز حجم ملف الصورة 2 ميجابايت",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "role": "الصلاحية",
+        "dateAdded": "تاريخ الإضافة",
+        "actions": "الإجراءات"
+      }
     },
+    "confirmDeleteAdminTitle": "تأكيد حذف المسؤول",
+    "confirmDeleteAdminDesc": "هل أنت تأكد من إزالة هذا المسؤول؟ سيفقد كل صلاحيات الوصول إلى المنصة.",
+    "deleteAdminBtn": "حذف المسؤول",
+    "cannotDeleteSuperAdminTitle": "لا يمكن حذف المسؤول الفائق (Super Admin)",
+    "cannotDeleteSuperAdminDesc": "لا يمكن حذف حسابات المسؤول الفائق. يرجى نقل صلاحيات المسؤول الفائق إلى مسؤول آخر أولاً.",
+    "emailExistsTitle": "البريد الإلكتروني موجود بالفعل",
+    "emailExistsDesc": "يوجد مسؤول مسجل بالفعل بهذا البريد الإلكتروني. يرجى استخدام بريد إلكتروني آخر أو التواصل مع المسؤول الحالي.",
     "bannersCard": {
       "title": "الإعلانات البانريّة",
-      "description": "إدارة بنرات الصفحة الرئيسية والعروض الترويجية",
+      "description": "إدارة بانرات الصفحة الرئيسية والعروض الترويجية",
       "button": "إدارة البانرات"
     },
     "shippingCard": {
@@ -1233,8 +1263,8 @@
   },
   "banners": {
     "title": "الإعلانات البانريّة",
-    "addNewBanner": "إضافة بنر جديد",
-    "noBanners": "لم يتم إضافة بنرات حتى الآن.",
+    "addNewBanner": "إضافة بانر جديد",
+    "noBanners": "لم يتم إضافة بانرات حتى الآن.",
     "edit": "تعديل البانر",
     "delete": "حذف البانر",
     "table": {
@@ -1249,7 +1279,7 @@
       "inactive": "غير نشط"
     },
     "add": {
-      "title": "إضافة بنر جديد"
+      "title": "إضافة بانر جديد"
     },
     "edit": {
       "title": "تعديل البانر"
@@ -1257,7 +1287,7 @@
     "breadcrumb": {
       "settings": "الإعدادات",
       "banners": "البانرات",
-      "addNewBanner": "إضافة بنر جديد",
+      "addNewBanner": "إضافة بانر جديد",
       "editBanner": "تعديل البانر"
     },
     "form": {
@@ -1279,6 +1309,38 @@
       "message": "هل أنت متأكد من حذف هذا البانر؟ لا يمكن التراجع عن هذا الإجراء.",
       "cancel": "إلغاء",
       "confirm": "حذف البانر"
+    },
+    "enableModal": {
+      "title": "تفعيل البانر",
+      "message": "هل أنت متأكد من تفعيل هذا البانر؟ سيتم عرضه فوراً على الصفحة الرئيسية للمنصة.",
+      "confirm": "تفعيل البانر"
     }
+  },
+  "shippingZones": {
+    "title": "مناطق الشحن",
+    "registeredVendors": "{{count}} مورد مسجل",
+    "disableZoneTitle": "تعطيل المنطقة",
+    "disableZoneDesc": "تحتوي هذه المنطقة على طلبات شحن نشطة. التجميد سيوثر فقط على الطلبات الجديدة المقدمة بعد هذا التغيير. هل تريد المتابعة؟",
+    "disableZoneBtn": "تعطيل المنطقة",
+    "zoneEnabledSuccess": "تم تفعيل المنطقة بنجاح",
+    "zoneDisabledSuccess": "تم تعطيل المنطقة بنجاح",
+    "ratesTitle": "أسعار شحن الموردين",
+    "table": {
+      "zoneName": "اسم المنطقة",
+      "vendorsCount": "عدد الموردين",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "viewReport": "عرض التقرير",
+      "vendorName": "اسم المورد",
+      "standardRate": "السعر القياسي (ر.س)",
+      "expressRate": "السعر السريع (ر.س)",
+      "lastUpdated": "آخر تحديث"
+    },
+    "footerNote": "* يتم إدارة أسعار الموردين من قبل الموردين من لوحة تحكمهم. عرض للمسؤولين فقط."
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "tryAgain": "حاول مرة أخرى",
+    "understood": "فهمت"
   }
 }

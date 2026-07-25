@@ -35,7 +35,7 @@ export const AdminQuickActionsCards: React.FC<AdminQuickActionsCardsProps> = ({
         </div>
         <button
           type="button"
-          onClick={onManageAdmins}
+          onClick={onManageAdmins || (() => setViewMode('admins'))}
           className="bg-black hover:bg-gray-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
         >
           {t('adminSettings.adminAccounts.button', { defaultValue: 'Manage Admins' })}
@@ -79,7 +79,7 @@ export const AdminQuickActionsCards: React.FC<AdminQuickActionsCardsProps> = ({
         </div>
         <button
           type="button"
-          onClick={onManageShipping}
+          onClick={onManageShipping || (() => setViewMode('shipping-zones'))}
           className="bg-black hover:bg-gray-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
         >
           {t('adminSettings.shippingCard.button', { defaultValue: 'Manage Shipping' })}
