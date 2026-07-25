@@ -183,7 +183,7 @@ export function AccountSettingsForm({
           <button
             type="submit"
             disabled={isPending}
-            className="py-3 px-4 rounded-lg text-sm font-semibold text-white bg-[#090909] md:w-fit w-full disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-200 ease-out active:scale-95 min-w-[130px] flex items-center justify-center cursor-pointer"
+            className="py-3 px-4 rounded-lg text-sm font-semibold text-white bg-[#090909] md:w-fit w-full disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-200 ease-out active:scale-95 min-w-32.5 flex items-center justify-center cursor-pointer"
           >
             {isPending ? (
               <span className="flex items-center gap-1 text-white">

@@ -332,7 +332,7 @@ export function StoreProfileForm({
             placeholder={t('settings.storeDescriptionPlaceholder')}
             disabled={isPending}
             className={cn(
-              'w-full h-[140px] resize-none rounded-lg border bg-white/50 px-4 pt-3 pb-8 text-sm text-[#090909] shadow-none outline-none transition-all duration-200 ease-out placeholder:text-gray-400 disabled:bg-white/50 disabled:text-[#969696] disabled:cursor-default focus:-translate-y-0.5',
+              'w-full h-35 resize-none rounded-lg border bg-white/50 px-4 pt-3 pb-8 text-sm text-[#090909] shadow-none outline-none transition-all duration-200 ease-out placeholder:text-gray-400 disabled:bg-white/50 disabled:text-[#969696] disabled:cursor-default focus:-translate-y-0.5',
               errors.storeDescription
                 ? 'border-red-400 bg-red-50 focus:border-red-400 focus:ring-1 focus:ring-red-100'
                 : 'border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-100'
