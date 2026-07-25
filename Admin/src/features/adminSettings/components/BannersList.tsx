@@ -4,7 +4,6 @@ import {
   SquarePen,
   Trash2,
   Plus,
-  ArrowLeft,
   GripVertical,
   ChevronRight,
   ChevronLeft,
