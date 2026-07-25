@@ -26,7 +26,7 @@ export const ProductFilterBar = ({
   return (
     <div className="flex flex-wrap items-center gap-3 mb-6">
       {/* Search Input */}
-      <div className="relative flex-1 min-w-[240px] max-w-sm">
+      <div className="relative flex-1 min-w-60 max-w-sm">
         <Search
           size={18}
           className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:left-auto rtl:right-3.5"
