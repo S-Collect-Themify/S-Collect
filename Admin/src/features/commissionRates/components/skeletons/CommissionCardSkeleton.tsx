@@ -1,0 +1,28 @@
+interface CommissionCardSkeletonProps {
+  cardCount?: number;
+}
+
+export default function CommissionCardSkeleton({ cardCount = 4 }: CommissionCardSkeletonProps) {
+  return (
+    <div className="space-y-3 animate-pulse">
+      {Array.from({ length: cardCount }).map((_, idx) => (
+        <div
+          key={idx}
+          className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3"
+        >
+          {/* Top Row: Name & Status */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="h-4 bg-gray-200 rounded-md w-32" />
+            <div className="h-5 bg-gray-200 rounded-full w-14" />
+          </div>
+
+          {/* Bottom Row: Rate & Action */}
+          <div className="flex items-center justify-between pt-1">
+            <div className="h-3.5 bg-gray-200 rounded-md w-20" />
+            <div className="w-8 h-8 bg-gray-200 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
