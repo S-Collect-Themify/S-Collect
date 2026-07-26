@@ -90,5 +90,13 @@ export const updateProductVariant = async (
   return data;
 };
 
+export const deleteProductImage = async (
+  productId: string,
+  imageId: string
+) => {
+  const { data } = await api.delete(`/vendor/products/${productId}/images/${imageId}`);
+  return data;
+};
+
 
 

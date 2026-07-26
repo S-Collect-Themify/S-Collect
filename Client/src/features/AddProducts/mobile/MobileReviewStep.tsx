@@ -40,7 +40,10 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
     });
 
     const onSuccess = (response: any) => {
-      const thumbnail = response?.images?.find((img: any) => img.isThumbnail)?.url || response?.images?.[0]?.url || response?.thumbnailUrl;
+      const thumbnail =
+        response?.images?.find((img: any) => img.isThumbnail)?.url ||
+        response?.images?.[0]?.url ||
+        response?.thumbnailUrl;
       let finalThumbnail = thumbnail;
       if (!finalThumbnail) {
         const firstImageFile = formData.images?.[0];
@@ -60,8 +63,24 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
     };
 
     if (isEdit && productId) {
+      const price = parseFloat(formData.basePrice) || 0;
+      const compareAtPrice = formData.comparePrice
+        ? parseFloat(formData.comparePrice)
+        : 0;
+      const stock = formData.quantity || 0;
+
+      const variants = (formData.variantsMeta || [])
+        .filter((vm) => vm.id)
+        .map((vm) => ({
+          id: vm.id,
+          price,
+          compareAtPrice,
+          stock,
+          isActive: true,
+        }));
+
       updateProduct(
-        { productId, formData: multipartData },
+        { productId, formData: multipartData, variants },
         { onSuccess, onError }
       );
     } else {
@@ -205,7 +224,9 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
           onClick={handlePublish}
           className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 active:scale-[0.98]"
         >
-          {isEdit ? t('addProduct.save', 'Save Changes') : t('addProduct.publish', 'Publish')}
+          {isEdit
+            ? t('addProduct.save', 'Save Changes')
+            : t('addProduct.publish', 'Publish')}
         </button>
       </div>
     </div>

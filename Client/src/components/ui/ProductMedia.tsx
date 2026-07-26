@@ -2,8 +2,12 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import type { ProductFormData } from '../../features/AddProducts/types';
 import { compressImage } from '../../features/AddProducts/utils';
+import { deleteProductImage } from '../../services/products';
+import { useParams } from 'react-router-dom';
 
 interface PreviewImage {
   id: string;
@@ -16,12 +20,32 @@ interface PreviewImage {
 const ProductMedia = () => {
   const { t } = useTranslation();
   const { setValue, watch } = useFormContext<ProductFormData>();
+  const { productId } = useParams<{ productId: string }>();
+  const queryClient = useQueryClient();
   const files = watch('images') || [];
   const existingImages = watch('existingImages') || [];
   const [previews, setPreviews] = useState<PreviewImage[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filesKey = files.map((f) => `${f.name}-${f.size}`).join(',');
   const existingKey = existingImages.map((img) => img.id).join(',');
+
+  const deleteMutation = useMutation({
+    mutationFn: ({ pid, imageId }: { pid: string; imageId: string }) =>
+      deleteProductImage(pid, imageId),
+    onSuccess: () => {
+      if (productId) {
+        queryClient.invalidateQueries({ queryKey: ['product', productId] });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+      }
+      toast.success(t('addProduct.imageDeleted', 'Image deleted successfully'));
+    },
+    onError: (err) => {
+      console.error('Failed to delete image:', err);
+      toast.error(t('addProduct.imageDeleteFailed', 'Failed to delete image'));
+    },
+    onSettled: () => setDeletingId(null),
+  });
 
   useEffect(() => {
     const newPreviews: PreviewImage[] = [
@@ -64,10 +88,26 @@ const ProductMedia = () => {
     if (!preview) return;
 
     if (preview.isExisting && preview.imageId) {
-      const updated = existingImages.filter(
-        (img) => img.id !== preview.imageId
-      );
-      setValue('existingImages', updated, { shouldValidate: true });
+      // Delete from backend via dedicated endpoint
+      if (productId) {
+        setDeletingId(preview.imageId);
+        deleteMutation.mutate(
+          { pid: productId, imageId: preview.imageId },
+          {
+            onSuccess: () => {
+              const updated = existingImages.filter(
+                (img) => img.id !== preview.imageId
+              );
+              setValue('existingImages', updated, { shouldValidate: true });
+            },
+          }
+        );
+      } else {
+        const updated = existingImages.filter(
+          (img) => img.id !== preview.imageId
+        );
+        setValue('existingImages', updated, { shouldValidate: true });
+      }
     } else if (preview.file) {
       const updatedFiles = files.filter(
         (f) =>
@@ -96,13 +136,17 @@ const ProductMedia = () => {
           const isThumbnail =
             image.isExisting &&
             existingImages.find((img) => img.id === image.imageId)?.isThumbnail;
+          const isDeleting =
+            image.imageId != null && deletingId === image.imageId;
 
           return (
             <div key={image.id} className="relative h-28 w-full sm:h-24 group">
               <img
                 src={image.preview}
                 alt=""
-                className="h-full w-full rounded-xl object-cover"
+                className={`h-full w-full rounded-xl object-cover transition ${
+                  isDeleting ? 'opacity-40' : ''
+                }`}
               />
 
               {isThumbnail && (
@@ -111,10 +155,17 @@ const ProductMedia = () => {
                 </span>
               )}
 
+              {isDeleting && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={() => handleDelete(index)}
-                className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10"
+                disabled={isDeleting}
+                className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10 disabled:opacity-50"
               >
                 <Trash2 size={12} />
               </button>
