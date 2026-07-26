@@ -59,6 +59,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   });
 
   const isActive = watch('isActive');
+  const bannerNameValue = watch('name') || '';
 
   useEffect(() => {
     if (mode === 'edit' && editingBanner) {
@@ -129,7 +130,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       if (activeCount >= MAX_ACTIVE_BANNERS) {
         toast.error(
           isArabic
-            ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+            ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
             : 'Cannot activate more than 5 banners at the same time.'
         );
         return;
@@ -148,24 +149,18 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const onSubmit = (data: BannerFormInputs) => {
     if (!imagePreview) {
       setImageError(
-        isArabic ? 'صورة البنر مطلوبة' : 'Banner image is required'
+        isArabic ? 'صورة البانر مطلوبة' : 'Banner image is required'
       );
       return;
     }
 
     if (imageError) return;
 
-    const nameDerivedFromUrl =
-      data.name ||
-      (data.redirectUrl
-        ? data.redirectUrl.split('/').pop()?.replace(/-/g, ' ') || 'New Banner'
-        : 'New Banner');
-    const capitalizedName =
-      nameDerivedFromUrl.charAt(0).toUpperCase() + nameDerivedFromUrl.slice(1);
+    const bannerName = data.name.trim();
 
     if (mode === 'add') {
       addBanner({
-        name: capitalizedName,
+        name: bannerName,
         redirectUrl: data.redirectUrl,
         isActive: data.isActive,
         imageUrl: imagePreview,
@@ -174,7 +169,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       });
     } else if (editingBanner) {
       updateBanner(editingBanner.id, {
-        name: capitalizedName,
+        name: bannerName,
         redirectUrl: data.redirectUrl,
         isActive: data.isActive,
         imageUrl: imagePreview,
@@ -225,8 +220,79 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       </div>
 
       {/* Form Card (Full width matching page size) */}
-      <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-xs w-full">
+      <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-xs w-full md:w-3/5">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Banner Title / Name */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label
+                htmlFor="bannerName"
+                className="text-sm font-semibold text-gray-900 block"
+              >
+                {t('banners.form.bannerTitle', { defaultValue: 'Banner Title' })}{' '}
+                <span className="text-red-500">*</span>
+              </label>
+              <span className="text-xs text-gray-400 font-normal">
+                {bannerNameValue.length}/50
+              </span>
+            </div>
+            <input
+              id="bannerName"
+              type="text"
+              maxLength={50}
+              {...register('name', {
+                required: isArabic
+                  ? 'عنوان البانر مطلوب'
+                  : 'Banner title is required',
+                minLength: {
+                  value: 2,
+                  message: isArabic
+                    ? 'يجب أن يكون عنوان البانر بين 2 و 50 حرفاً'
+                    : 'Banner title must be between 2 and 50 characters',
+                },
+                maxLength: {
+                  value: 50,
+                  message: isArabic
+                    ? 'يجب ألا يتجاوز عنوان البانر 50 حرفاً'
+                    : 'Banner title cannot exceed 50 characters',
+                },
+                validate: (val) => {
+                  if (!val || !val.trim()) {
+                    return isArabic
+                      ? 'عنوان البانر مطلوب'
+                      : 'Banner title is required';
+                  }
+                  if (val.trim().length < 2) {
+                    return isArabic
+                      ? 'يجب أن يكون عنوان البانر بين 2 و 50 حرفاً'
+                      : 'Banner title must be between 2 and 50 characters';
+                  }
+                  if (val.trim().length > 50) {
+                    return isArabic
+                      ? 'يجب ألا يتجاوز عنوان البانر 50 حرفاً'
+                      : 'Banner title cannot exceed 50 characters';
+                  }
+                  return true;
+                },
+              })}
+              placeholder={
+                isArabic
+                  ? 'أدخل عنوان البانر (مثال: عروض الشتاء)'
+                  : 'Enter banner title (e.g. Winter Sale)'
+              }
+              className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all ${
+                errors.name
+                  ? 'border-red-400 bg-red-50/20'
+                  : 'border-gray-200 bg-white'
+              }`}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1.5">
+                {errors.name.message}
+              </p>
+            )}
+          </div>
+
           {/* Banner Image */}
           <div>
             <label className="text-sm font-semibold text-gray-900 mb-2 block">
@@ -439,7 +505,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                 <button
                   type="button"
                   onClick={handleConfirmEnable}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs"
+                  className="w-full bg-green hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs"
                 >
                   {t('banners.enableModal.confirm', {
                     defaultValue: 'Enable Banner',

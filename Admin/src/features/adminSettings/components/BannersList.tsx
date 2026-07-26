@@ -30,6 +30,7 @@ import type { BannerItem } from '../types';
 
 interface SortableBannerRowProps {
   banner: BannerItem;
+  order: number;
   onEdit: (banner: BannerItem) => void;
   onDelete: (banner: BannerItem) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -37,6 +38,7 @@ interface SortableBannerRowProps {
 
 const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   banner,
+  order,
   onEdit,
   onDelete,
   t,
@@ -63,37 +65,42 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
       style={style}
       className="hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-b-0"
     >
-      {/* Drag handle */}
-      <td className="py-4 px-3 w-10 text-gray-400">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 transition-colors rounded"
-          title="Drag to reorder"
-        >
-          <GripVertical size={16} />
-        </button>
+      {/* Order column */}
+      <td className="py-4 px-4 text-gray-500 font-medium text-sm">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 transition-colors rounded"
+            title="Drag to reorder"
+          >
+            <GripVertical size={16} />
+          </button>
+          <span>{order}</span>
+        </div>
       </td>
 
-      {/* Name column */}
+      {/* Thumbnail column */}
       <td className="py-4 px-4">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-100">
-            {banner.imageUrl ? (
-              <img
-                src={banner.imageUrl}
-                alt={banner.name}
-                className="size-full object-cover"
-              />
-            ) : (
-              <div className="size-full flex items-center justify-center text-gray-400 text-xs font-medium">
-                No Img
-              </div>
-            )}
-          </div>
-          <span className="font-semibold text-gray-900">{banner.name}</span>
+        <div className="w-36 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-200/80 shadow-2xs">
+          {banner.imageUrl ? (
+            <img
+              src={banner.imageUrl}
+              alt={banner.name}
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="size-full flex items-center justify-center text-gray-400 text-xs font-medium">
+              No Img
+            </div>
+          )}
         </div>
+      </td>
+
+      {/* Banner Title column */}
+      <td className="py-4 px-6 font-semibold text-gray-900 text-sm">
+        {banner.name}
       </td>
 
       {/* Redirect link column */}
@@ -102,27 +109,24 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
           href={banner.redirectUrl}
           target="_blank"
           rel="noreferrer"
-          className="hover:underline hover:text-black transition-colors"
+          className="hover:underline hover:text-black transition-colors text-sm"
         >
           {banner.redirectUrl}
         </a>
       </td>
 
-      {/* Role / Status column */}
+      {/* Status column */}
       <td className="py-4 px-6">
         {banner.isActive ? (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/50">
             {t('banners.status.active', { defaultValue: 'Active' })}
           </span>
         ) : (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-500">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-500 border border-red-100/50">
             {t('banners.status.inactive', { defaultValue: 'Inactive' })}
           </span>
         )}
       </td>
-
-      {/* Date added column */}
-      <td className="py-4 px-6 text-gray-500">{banner.dateAdded}</td>
 
       {/* Actions column */}
       <td className="py-4 px-6 text-right rtl:text-left">
@@ -219,34 +223,34 @@ export const BannersList: React.FC = () => {
       </div>
 
       {/* Table Card (Full Width) */}
-      <div className="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden w-full">
+      <div className="bg-white rounded-2xl p-6 shadow-xs border border-gray-100 overflow-hidden w-full">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-separate border-spacing-y-0">
               <thead>
-                <tr className="bg-gray-50/70 border-b border-gray-100 text-xs font-semibold text-gray-600">
-                  <th className="py-4 px-3 w-10"></th>
-                  <th className="py-4 px-4 font-semibold">
-                    {t('banners.table.name', { defaultValue: 'Name' })}
+                <tr className="bg-[#f8f9fa] text-xs font-medium text-gray-500">
+                  <th className="py-3 px-4 first:rounded-l-xl font-medium">
+                    {t('banners.table.order', { defaultValue: 'Order' })}
                   </th>
-                  <th className="py-4 px-6 font-semibold">
+                  <th className="py-3 px-4 font-medium">
+                    {t('banners.table.thumbnail', { defaultValue: 'Thumbnail' })}
+                  </th>
+                  <th className="py-3 px-6 font-medium">
+                    {t('banners.table.title', { defaultValue: 'Banner Title' })}
+                  </th>
+                  <th className="py-3 px-6 font-medium">
                     {t('banners.table.redirectLink', {
                       defaultValue: 'Redirect Link',
                     })}
                   </th>
-                  <th className="py-4 px-6 font-semibold">
-                    {t('banners.table.role', { defaultValue: 'Role' })}
+                  <th className="py-3 px-6 font-medium">
+                    {t('banners.table.status', { defaultValue: 'Status' })}
                   </th>
-                  <th className="py-4 px-6 font-semibold">
-                    {t('banners.table.dateAdded', {
-                      defaultValue: 'Date Added',
-                    })}
-                  </th>
-                  <th className="py-4 px-6 font-semibold text-right rtl:text-left">
+                  <th className="py-3 px-6 last:rounded-r-xl font-medium text-right rtl:text-left">
                     {t('banners.table.actions', { defaultValue: 'Actions' })}
                   </th>
                 </tr>
@@ -268,10 +272,11 @@ export const BannersList: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    banners.map((banner) => (
+                    banners.map((banner, index) => (
                       <SortableBannerRow
                         key={banner.id}
                         banner={banner}
+                        order={index + 1}
                         onEdit={handleEdit}
                         onDelete={openDeleteModal}
                         t={t}
