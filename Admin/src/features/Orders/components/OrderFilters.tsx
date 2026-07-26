@@ -96,7 +96,7 @@ export const OrderFilters = ({
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-start gap-3 mb-5">
         {/* Search Input */}
         <div className="relative flex-1 max-w-sm">
           <Search
