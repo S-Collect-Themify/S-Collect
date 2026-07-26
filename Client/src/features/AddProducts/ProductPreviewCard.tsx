@@ -41,8 +41,6 @@ const ProductPreviewCard = ({
     thumbnailUrl ||
     (newImagePreview ? URL.createObjectURL(newImagePreview) : undefined);
 
-    console.log(formData)
-
   return (
     <div className="rounded-2xl border border-gray-200 p-6 bg-white">
       <div className="flex gap-5">
