@@ -75,7 +75,7 @@ export default function ProductInfo({
         <div className="flex gap-3">
           {/* Thumbnails column */}
           {imageUrls.length > 1 && (
-            <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
+            <div className="flex flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
               {imageUrls.map((url, i) => (
                 <button
                   key={i}
@@ -135,7 +135,7 @@ export default function ProductInfo({
               type="button"
               onClick={onEdit}
               aria-label={t('productDetails.productInfo.editProduct')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer"
             >
               <Pencil size={16} />
             </button>

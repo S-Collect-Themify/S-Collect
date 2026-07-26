@@ -171,9 +171,12 @@ const AddProduct = () => {
               <button
                 type="submit"
                 form="add-product-form"
-                className="rounded-xl bg-gray-950 px-6 py-3 text-white transition hover:bg-gray-800 cursor-pointer"
+                disabled={isPending}
+                className="rounded-xl bg-gray-950 px-6 py-3 text-white transition hover:bg-gray-800 cursor-pointer disabled:opacity-50"
               >
-                {t('addProduct.continue')}
+                {isEdit
+                  ? t('addProduct.save', 'Update')
+                  : t('addProduct.continue')}
               </button>
             </motion.div>
           </div>

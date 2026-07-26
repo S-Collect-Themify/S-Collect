@@ -68,6 +68,7 @@ export const useUpdateProduct = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', variables.productId] });
+      queryClient.invalidateQueries({ queryKey: ['product-details', variables.productId] });
       toast.success(
         isRtl
           ? 'تم تحديث المنتج بنجاح!'
