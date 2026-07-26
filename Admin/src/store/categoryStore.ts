@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { arrayMove } from '@dnd-kit/sortable';
 import type { Category } from '../features/categories/types';
-import { INITIAL_CATEGORIES } from '../features/categories/data';
 
 interface FormModalState {
   open: boolean;
@@ -28,7 +26,6 @@ interface CannotDeleteModalState {
 }
 
 interface CategoryStore {
-  categories: Category[];
   search: string;
   categoryFilter: string;
   currentPage: number;
@@ -55,16 +52,11 @@ interface CategoryStore {
   closeDelete: () => void;
   closeStatusModal: () => void;
   closeCannotDeleteModal: () => void;
-
-  handleSave: (data: Omit<Category, 'id' | 'productsCount'>) => void;
-  handleDelete: (lang: string) => void;
+  openCannotDeleteModal: (payload: { isBulk: boolean; categoryName?: string; productsCount?: number }) => void;
   handleToggleActiveRequest: (category: Category) => void;
-  handleStatusConfirm: () => void;
-  reorderCategories: (oldIndex: number, newIndex: number) => void;
 }
 
-export const useCategoryStore = create<CategoryStore>((set, get) => ({
-  categories: INITIAL_CATEGORIES,
+export const useCategoryStore = create<CategoryStore>((set) => ({
   search: '',
   categoryFilter: 'all',
   currentPage: 1,
@@ -108,93 +100,10 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   openEdit: (category) => set({ formModal: { open: true, mode: 'edit', category } }),
   openDelete: (category) => set({ deleteModal: { open: true, category, isBulk: false } }),
   openBulkDelete: () => set({ deleteModal: { open: true, category: null, isBulk: true } }),
-  closeForm: () =>
-    set((state) => ({ formModal: { ...state.formModal, open: false } })),
+  closeForm: () => set((state) => ({ formModal: { ...state.formModal, open: false } })),
   closeDelete: () => set({ deleteModal: { open: false, category: null, isBulk: false } }),
   closeStatusModal: () => set({ statusModal: { open: false, category: null } }),
   closeCannotDeleteModal: () => set({ cannotDeleteModal: { open: false, isBulk: false } }),
-
-  handleSave: (data) => {
-    const { formModal, closeForm } = get();
-    if (formModal.mode === 'add') {
-      const newCat: Category = {
-        ...data,
-        id: String(Date.now()),
-        productsCount: 0,
-      };
-      set((state) => ({ categories: [newCat, ...state.categories] }));
-    } else if (formModal.category) {
-      const targetId = formModal.category.id;
-      set((state) => ({
-        categories: state.categories.map((c) =>
-          c.id === targetId ? { ...c, ...data } : c
-        ),
-      }));
-    }
-    closeForm();
-  },
-
-  handleDelete: (lang) => {
-    const { deleteModal, categories, selectedIds, closeDelete, clearSelection } = get();
-
-    if (deleteModal.isBulk) {
-      const selectedCats = categories.filter((c) => selectedIds.has(c.id));
-      const hasProducts = selectedCats.some((c) => c.productsCount > 0);
-      if (hasProducts) {
-        closeDelete();
-        set({ cannotDeleteModal: { open: true, isBulk: true } });
-        return;
-      }
-      set((state) => ({
-        categories: state.categories.filter((c) => !state.selectedIds.has(c.id)),
-      }));
-      clearSelection();
-    } else if (deleteModal.category) {
-      const cat = deleteModal.category;
-      if (cat.productsCount > 0) {
-        closeDelete();
-        set({
-          cannotDeleteModal: {
-            open: true,
-            isBulk: false,
-            categoryName: lang === 'ar' ? cat.nameAr : cat.nameEn,
-            productsCount: cat.productsCount,
-          },
-        });
-        return;
-      }
-      set((state) => {
-        const nextSelected = new Set(state.selectedIds);
-        nextSelected.delete(cat.id);
-        return {
-          categories: state.categories.filter((c) => c.id !== cat.id),
-          selectedIds: nextSelected,
-        };
-      });
-    }
-    closeDelete();
-  },
-
-  handleToggleActiveRequest: (cat) => {
-    set({ statusModal: { open: true, category: cat } });
-  },
-
-  handleStatusConfirm: () => {
-    const { statusModal } = get();
-    if (statusModal.category) {
-      const targetId = statusModal.category.id;
-      set((state) => ({
-        categories: state.categories.map((c) =>
-          c.id === targetId ? { ...c, isActive: !c.isActive } : c
-        ),
-      }));
-    }
-    set({ statusModal: { open: false, category: null } });
-  },
-
-  reorderCategories: (oldIndex, newIndex) => {
-    set((state) => ({
-      categories: arrayMove(state.categories, oldIndex, newIndex),
-    }));
-  },
+  openCannotDeleteModal: (payload) => set({ cannotDeleteModal: { open: true, ...payload } }),
+  handleToggleActiveRequest: (category) => set({ statusModal: { open: true, category } }),
 }));
