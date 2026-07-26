@@ -41,6 +41,8 @@ const ProductPreviewCard = ({
     thumbnailUrl ||
     (newImagePreview ? URL.createObjectURL(newImagePreview) : undefined);
 
+    console.log(formData)
+
   return (
     <div className="rounded-2xl border border-gray-200 p-6 bg-white">
       <div className="flex gap-5">
@@ -84,7 +86,7 @@ const ProductPreviewCard = ({
       <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
         <div>
           <p className="text-gray-400 text-xs mb-0.5">Brand</p>
-          <p className="font-medium">—</p>
+          <p className="font-medium">{formData.sku || '—'}</p>
         </div>
         <div>
           <p className="text-gray-400 text-xs mb-0.5">SKU</p>

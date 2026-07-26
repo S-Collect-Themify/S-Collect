@@ -82,6 +82,7 @@ export const useSaveProduct = ({ isEdit, productId }: UseSaveProductOptions) => 
       queryClient.invalidateQueries({ queryKey: ['products'] });
       if (productId) {
         queryClient.invalidateQueries({ queryKey: ['product', productId] });
+        queryClient.invalidateQueries({ queryKey: ['product-details', productId] });
       }
       toast.success(
         isEdit

@@ -85,9 +85,15 @@ export const useAddProductPage = () => {
     methods.setValue(fieldName, prev.filter((_, i) => i !== index));
   };
 
-  // Form submission handler -> transition to Review step
+  // Form submission handler
+  // - In edit mode: update the product immediately and show success popup
+  // - In create mode: transition to Review step
   const onSubmit = () => {
-    setStep('review');
+    if (isEdit) {
+      handlePublish();
+    } else {
+      setStep('review');
+    }
   };
 
   // Publish / Save handler -> execute saveProduct mutation and transition to Success step
@@ -125,7 +131,11 @@ export const useAddProductPage = () => {
 
   const handleCloseSuccess = () => {
     setStep('form');
-    navigate('/');
+    if (isEdit && productId) {
+      navigate(`/product-details/${productId}`);
+    } else {
+      navigate('/');
+    }
   };
 
   const handleCancel = () => {
