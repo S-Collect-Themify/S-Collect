@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Tag, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'motion/react';
@@ -6,6 +6,7 @@ import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   ITEMS_PER_PAGE,
   useCategoryStore,
+  useCategoriesData,
   CategoryHeader,
   CategoryFilterBar,
   CategoryFormModal,
@@ -17,6 +18,7 @@ import {
   MobileCard,
   Pagination,
   BulkNavbar,
+  type Category,
 } from '../features/categories';
 
 // ─── Main Categories Page ──────────────────────────────────────────────────────
@@ -24,12 +26,21 @@ const Categories = () => {
   const { t, i18n } = useTranslation();
   const { isMobile } = useBreakpoint();
 
-  // ── Store State ──
-  const categories = useCategoryStore((s) => s.categories);
-  const isLoading = useCategoryStore((s) => s.isLoading);
-  const error = useCategoryStore((s) => s.error);
-  const fetchCategories = useCategoryStore((s) => s.fetchCategories);
+  // ── React Query Hook (Data Fetching & Mutations) ──
+  const {
+    categories,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    createCategoryMutation,
+    updateCategoryMutation,
+    deactivateCategoryMutation,
+    reactivateCategoryMutation,
+    deleteCategoryMutation,
+  } = useCategoriesData();
 
+  // ── Store State (UI & Modals) ──
   const search = useCategoryStore((s) => s.search);
   const categoryFilter = useCategoryStore((s) => s.categoryFilter);
   const currentPage = useCategoryStore((s) => s.currentPage);
@@ -53,16 +64,73 @@ const Categories = () => {
   const closeDelete = useCategoryStore((s) => s.closeDelete);
   const closeStatusModal = useCategoryStore((s) => s.closeStatusModal);
   const closeCannotDeleteModal = useCategoryStore((s) => s.closeCannotDeleteModal);
-
-  const handleSave = useCategoryStore((s) => s.handleSave);
-  const handleDelete = useCategoryStore((s) => s.handleDelete);
+  const openCannotDeleteModal = useCategoryStore((s) => s.openCannotDeleteModal);
   const handleToggleActiveRequest = useCategoryStore((s) => s.handleToggleActiveRequest);
-  const handleStatusConfirm = useCategoryStore((s) => s.handleStatusConfirm);
 
-  // ── Fetch Categories from API on mount ──
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  // ── Mutation Action Handlers ──
+  const handleSave = async (data: Omit<Category, 'id' | 'productsCount'>) => {
+    if (formModal.mode === 'add') {
+      await createCategoryMutation.mutateAsync({
+        name: data.nameEn || data.name || '',
+        nameAr: data.nameAr || '',
+        slug: data.slug,
+      });
+      closeForm();
+    } else if (formModal.category) {
+      await updateCategoryMutation.mutateAsync({
+        id: formModal.category.id,
+        payload: {
+          name: data.nameEn || data.name || '',
+          nameAr: data.nameAr || '',
+          slug: data.slug,
+          isActive: data.isActive,
+        },
+      });
+      closeForm();
+    }
+  };
+
+  const handleStatusConfirm = async () => {
+    if (statusModal.category) {
+      const cat = statusModal.category;
+      if (cat.isActive) {
+        await deactivateCategoryMutation.mutateAsync(cat.id);
+      } else {
+        await reactivateCategoryMutation.mutateAsync(cat.id);
+      }
+      closeStatusModal();
+    }
+  };
+
+  const handleDelete = async (lang: string) => {
+    if (deleteModal.isBulk) {
+      const selectedCats = categories.filter((c) => selectedIds.has(c.id));
+      const hasProducts = selectedCats.some((c) => c.productsCount > 0);
+      if (hasProducts) {
+        closeDelete();
+        openCannotDeleteModal({ isBulk: true });
+        return;
+      }
+      for (const cat of selectedCats) {
+        await deleteCategoryMutation.mutateAsync(cat.id);
+      }
+      clearSelection();
+      closeDelete();
+    } else if (deleteModal.category) {
+      const cat = deleteModal.category;
+      if (cat.productsCount > 0) {
+        closeDelete();
+        openCannotDeleteModal({
+          isBulk: false,
+          categoryName: lang === 'ar' ? cat.nameAr : cat.nameEn,
+          productsCount: cat.productsCount,
+        });
+        return;
+      }
+      await deleteCategoryMutation.mutateAsync(cat.id);
+      closeDelete();
+    }
+  };
 
   // ── Filtering & Pagination ──
   const filtered = useMemo(() => {
@@ -83,13 +151,14 @@ const Categories = () => {
     return result;
   }, [categories, search, categoryFilter]);
 
-
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
 
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
+
+  const isSubmitting = createCategoryMutation.isPending || updateCategoryMutation.isPending;
 
   return (
     <>
@@ -107,11 +176,11 @@ const Categories = () => {
         {/* Content */}
         {isLoading ? (
           <CategorySkeleton isMobile={isMobile} />
-        ) : error && categories.length === 0 ? (
-          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
+        ) : isError && categories.length === 0 ? (
+          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-xs flex flex-col items-center justify-center">
             <p className="text-red-500 text-sm font-medium mb-3">{error}</p>
             <button
-              onClick={() => fetchCategories()}
+              onClick={() => refetch()}
               className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-xl hover:bg-gray-800 transition-all cursor-pointer"
             >
               <RefreshCw size={14} />
@@ -120,7 +189,6 @@ const Categories = () => {
           </div>
         ) : isMobile ? (
           <div className="space-y-3">
-
             <AnimatePresence>
               {paginated.map((cat) => (
                 <MobileCard
@@ -136,14 +204,14 @@ const Categories = () => {
             </AnimatePresence>
 
             {paginated.length === 0 && (
-              <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-xs">
                 <Tag size={36} className="mx-auto text-gray-300 mb-3" />
                 <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
               </div>
             )}
 
             {filtered.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-3">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden mt-3">
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
@@ -155,7 +223,7 @@ const Categories = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
             <CategoryTable
               categories={paginated}
               selectedIds={selectedIds}
@@ -192,6 +260,7 @@ const Categories = () => {
           mode={formModal.mode}
           category={formModal.category}
           categories={categories}
+          isSubmitting={isSubmitting}
           onClose={closeForm}
           onSave={handleSave}
         />
@@ -202,7 +271,7 @@ const Categories = () => {
           categoryName={
             i18n.language === 'ar'
               ? deleteModal.category?.nameAr ?? ''
-              : deleteModal.category?.nameEn ?? ''
+              : deleteModal.category?.nameEn ?? deleteModal.category?.name ?? ''
           }
           count={deleteModal.isBulk ? selectedIds.size : undefined}
           onClose={closeDelete}
@@ -215,7 +284,7 @@ const Categories = () => {
           categoryName={
             i18n.language === 'ar'
               ? statusModal.category?.nameAr ?? ''
-              : statusModal.category?.nameEn ?? ''
+              : statusModal.category?.nameEn ?? statusModal.category?.name ?? ''
           }
           currentStatus={statusModal.category?.isActive ?? false}
           onClose={closeStatusModal}

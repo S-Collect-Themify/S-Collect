@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
 import { toSlug } from '../utils';
 import Toggle from './Toggle';
-import { useCategoryStore } from '../../../store/categoryStore';
 
 // ─── Status Confirmation Modal ─────────────────────────────────────────────────
 export interface StatusConfirmModalProps {
@@ -199,6 +198,7 @@ export interface CategoryFormModalProps {
   mode: 'add' | 'edit';
   category?: Category | null;
   categories: Category[];
+  isSubmitting?: boolean;
   onClose: () => void;
   onSave: (data: Omit<Category, 'id' | 'productsCount'>) => void;
 }
@@ -208,11 +208,12 @@ export const CategoryFormModal = ({
   mode,
   category,
   categories,
+  isSubmitting: isSubmittingProp,
   onClose,
   onSave,
 }: CategoryFormModalProps) => {
   const { t } = useTranslation();
-  const isSubmitting = useCategoryStore((s) => s.isSubmitting);
+  const isSubmitting = isSubmittingProp ?? false;
   const [nameEn, setNameEn] = useState(category?.nameEn ?? '');
   const [nameAr, setNameAr] = useState(category?.nameAr ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');

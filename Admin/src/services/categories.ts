@@ -62,3 +62,7 @@ export const reactivateAdminCategory = async (id: string): Promise<ApiCategoryIt
   const { data } = await api.post(`/admin/categories/${id}/reactivate`);
   return data;
 };
+
+export const deleteAdminCategory = async (id: string): Promise<void> => {
+  await api.delete(`/admin/categories/${id}`);
+};

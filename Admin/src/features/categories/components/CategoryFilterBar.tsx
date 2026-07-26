@@ -1,14 +1,15 @@
 import { Search, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCategoryStore } from '../../../store/categoryStore';
+import { useCategoriesData } from '../useCategoriesData';
 
 export const CategoryFilterBar = () => {
   const { t, i18n } = useTranslation();
   const search = useCategoryStore((state) => state.search);
   const categoryFilter = useCategoryStore((state) => state.categoryFilter);
-  const categories = useCategoryStore((state) => state.categories);
   const setSearch = useCategoryStore((state) => state.setSearch);
   const setCategoryFilter = useCategoryStore((state) => state.setCategoryFilter);
+  const { categories } = useCategoriesData();
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
@@ -35,7 +36,7 @@ export const CategoryFilterBar = () => {
           <option value="all">{t('categories.filter.all')}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
-              {i18n.language === 'ar' ? c.nameAr : c.nameEn}
+              {i18n.language === 'ar' ? c.nameAr : c.nameEn || c.name}
             </option>
           ))}
         </select>

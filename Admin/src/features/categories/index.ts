@@ -2,11 +2,14 @@
 // Types
 export type { Category } from './types';
 
-// Data  (swap this file's contents when moving to an API)
+// Data
 export { INITIAL_CATEGORIES, ITEMS_PER_PAGE } from './data';
 
 // Store
 export { useCategoryStore } from '../../store/categoryStore';
+
+// Hook
+export { useCategoriesData } from './useCategoriesData';
 
 // Utils
 export { toSlug } from './utils';
@@ -30,5 +33,3 @@ export { default as MobileCard } from './components/MobileCard';
 export type { MobileCardProps } from './components/MobileCard';
 export { Pagination, BulkNavbar } from './components/CategoryControls';
 export type { PaginationProps, BulkNavbarProps } from './components/CategoryControls';
-
-
