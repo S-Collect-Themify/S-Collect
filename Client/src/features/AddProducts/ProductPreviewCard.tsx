@@ -114,6 +114,30 @@ const ProductPreviewCard = ({
         )}
       </div>
 
+      {(formData.description || formData.descriptionAr) && (
+        <div className="mt-4 space-y-2">
+          {formData.description && (
+            <div>
+              <p className="text-gray-400 text-xs mb-0.5">Description</p>
+              <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">
+                {formData.description}
+              </p>
+            </div>
+          )}
+          {formData.descriptionAr && (
+            <div>
+              <p className="text-gray-400 text-xs mb-0.5">الوصف</p>
+              <p
+                dir="rtl"
+                className="text-sm text-gray-700 leading-relaxed line-clamp-2"
+              >
+                {formData.descriptionAr}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {categories.length > 0 && (
         <TagList label="Categories" items={categories} />
       )}

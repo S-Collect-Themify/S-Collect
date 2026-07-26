@@ -12,6 +12,8 @@ export interface ProductImageInfo {
 export interface ProductInfoProps {
   images?: ProductImageInfo[];
   name?: string;
+  description?: string;
+  descriptionAr?: string;
   category?: string;
   brand?: string;
   sku?: string;
@@ -29,6 +31,8 @@ export interface ProductInfoProps {
 export default function ProductInfo({
   images = [],
   name,
+  description,
+  descriptionAr,
   category,
   brand,
   sku,
@@ -41,12 +45,17 @@ export default function ProductInfo({
   averageRating = 0,
   totalReviews,
 }: ProductInfoProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const onEdit = () => {
     navigate(`/edit-product/${id}`);
   };
+
+  const isArabic = i18n.language === 'ar';
+  const displayDescription = isArabic
+    ? descriptionAr || description
+    : description || descriptionAr;
 
   // Pick the thumbnail (or first image) as the main displayed image
   const sortedImages = [...images].sort(
@@ -72,7 +81,7 @@ export default function ProductInfo({
                   key={i}
                   type="button"
                   onClick={() => setActiveIndex(i)}
-                  className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${
+                  className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition ${
                     i === activeIndex
                       ? 'border-gray-900'
                       : 'border-transparent opacity-60 hover:opacity-100'
@@ -152,6 +161,21 @@ export default function ProductInfo({
               <span className="font-bold text-gray-700">{sku}</span>
             </div>
           </div>
+
+          {/* Description */}
+          {displayDescription && (
+            <div className="mt-4">
+              <p className="mb-1 text-xs text-gray-400">
+                {t('productDetails.productInfo.description', 'Description')}
+              </p>
+              <p
+                dir={isArabic ? 'rtl' : 'ltr'}
+                className="text-sm leading-relaxed text-gray-700"
+              >
+                {displayDescription}
+              </p>
+            </div>
+          )}
 
           <div className="my-3 lg:my-6 flex flex-col  gap-2 sm:flex-row items-center sm:gap-2">
             <div className="flex items-center gap-2 ">

@@ -596,7 +596,8 @@
       "units": "وحدة",
       "averageRating": "متوسط التقييم",
       "totalReviews": "إجمالي المراجعات",
-      "reviewsCount": "{{count}} مراجعة"
+      "reviewsCount": "{{count}} مراجعة",
+      "description":"الوصف"
     },
     "rating": {
       "basedOn": "بناءً على {{count}} مراجعة",

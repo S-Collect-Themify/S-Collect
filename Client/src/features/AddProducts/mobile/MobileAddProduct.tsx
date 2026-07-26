@@ -40,6 +40,7 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
       nameAr: '',
       nameEn: '',
       description: '',
+      descriptionAr: '',
       basePrice: '',
       comparePrice: '',
       sku: '',

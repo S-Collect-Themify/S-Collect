@@ -119,6 +119,8 @@ const ProductDetails = () => {
         <ProductInfo
           images={product.images}
           name={productName}
+          description={product.description}
+          descriptionAr={product.descriptionAr}
           category={categoryName ?? '-'}
           brand="-"
           sku={variant?.sku ?? '-'}

@@ -129,7 +129,8 @@ export const mapProductToFormData = async (
   return {
     nameAr: raw.nameAr || raw.name || '',
     nameEn: raw.nameEn || raw.name || '',
-    description: raw.description || raw.descriptionAr || '',
+    description: raw.description || '',
+    descriptionAr: raw.descriptionAr || raw.description || '',
     basePrice: firstVariant?.price?.toString() ?? '',
     comparePrice: firstVariant?.compareAtPrice?.toString() ?? '',
     sku: firstVariant?.sku ?? '',
@@ -158,7 +159,7 @@ export const mapFormToMultipartFormData = (
 
   // 2. Optional description fields
   multipart.append('description', formData.description || '');
-  multipart.append('descriptionAr', formData.description || '');
+  multipart.append('descriptionAr', formData.descriptionAr || formData.description || '');
 
   // Helper: find real option meta by name
   const findOptionMeta = (name: string) =>
