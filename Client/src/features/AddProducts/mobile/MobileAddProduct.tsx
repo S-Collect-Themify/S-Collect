@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 
 import type { ProductFormData } from '../types';
-import { mapProductToFormData } from '../utils';
 import { useProduct } from '../useProduct';
 import MobileStepIndicator from './MobileStepIndicator';
 import MobileBasicInfoStep from './MobileBasicInfoStep';
@@ -24,10 +23,17 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
   const isArabic = i18n.language === 'ar';
   const isEdit = !!productId;
 
-  const { data: productData, isLoading: isProductLoading } = useProduct(productId);
+  const { data: productData, isLoading: isProductLoading } =
+    useProduct(productId);
 
-  const { step, isLoading, isSuccess, createdThumbnailUrl, previousStep, reset } =
-    useMobileAddProductStore();
+  const {
+    step,
+    isLoading,
+    isSuccess,
+    createdThumbnailUrl,
+    previousStep,
+    reset,
+  } = useMobileAddProductStore();
 
   const methods = useForm<ProductFormData>({
     defaultValues: {
@@ -38,6 +44,9 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
       comparePrice: '',
       sku: '',
       images: [],
+      existingImages: [],
+      optionsMeta: [],
+      variantsMeta: [],
       categoryId: '',
     },
   });
@@ -45,14 +54,12 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
   // Populate form + store when product data arrives in edit mode
   useEffect(() => {
     if (isEdit && productData) {
-      mapProductToFormData(productData).then((formData) => {
-        methods.reset(formData);
-        const store = useMobileAddProductStore.getState();
-        formData.sizes?.forEach((s) => store.addSize(s));
-        formData.colors?.forEach((c) => store.addColor(c));
-        store.setQuantity(formData.quantity ?? 0);
-        store.setIsActive(formData.enabled ?? true);
-      });
+      methods.reset(productData);
+      const store = useMobileAddProductStore.getState();
+      productData.sizes?.forEach((s) => store.addSize(s));
+      productData.colors?.forEach((c) => store.addColor(c));
+      store.setQuantity(productData.quantity ?? 0);
+      store.setIsActive(productData.enabled ?? true);
     }
   }, [isEdit, productData, methods]);
 
@@ -137,7 +144,12 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
 
         {/* Popups */}
         {isLoading && <MobileLoadingPopup />}
-        {isSuccess && <MobileSuccessPopup onClose={handleDone} thumbnailUrl={createdThumbnailUrl} />}
+        {isSuccess && (
+          <MobileSuccessPopup
+            onClose={handleDone}
+            thumbnailUrl={createdThumbnailUrl}
+          />
+        )}
       </div>
     </FormProvider>
   );

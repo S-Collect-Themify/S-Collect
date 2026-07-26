@@ -31,11 +31,14 @@ export const useSaveProduct = ({ isEdit, productId }: UseSaveProductOptions) => 
           : rawResponse;
 
       const targetId = productId || unwrapped?.id;
-      const firstImageId = unwrapped?.images?.[0]?.id;
 
-      if (targetId && firstImageId) {
+      // Use the image marked as thumbnail, or fall back to the first image
+      const thumbnailImg = unwrapped?.images?.find((img: any) => img.isThumbnail);
+      const thumbnailImageId = thumbnailImg?.id || unwrapped?.images?.[0]?.id;
+
+      if (targetId && thumbnailImageId) {
         try {
-          await setProductThumbnail(targetId, firstImageId);
+          await setProductThumbnail(targetId, thumbnailImageId);
         } catch (thumbError) {
           console.error('Failed to set thumbnail automatically:', thumbError);
         }
