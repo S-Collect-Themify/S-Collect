@@ -1,5 +1,5 @@
-export type TransactionStatus = 'Captured' | 'Pending' | 'Failed' | 'Refunded';
-export type TransactionStatusFilter = 'All' | TransactionStatus;
+export type TransactionStatus = string;
+export type TransactionStatusFilter = 'ALL' | 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED' | string;
 
 export interface TransactionItem {
   id: string;
@@ -8,8 +8,9 @@ export interface TransactionItem {
   buyerName: string;
   amount: number;
   paymentMethod: string;
-  status: TransactionStatus;
+  status: string;
   fatoorahRef: string;
+  rawPaymentStatus?: string;
 }
 
 export interface ExportHeader {
@@ -17,4 +18,4 @@ export interface ExportHeader {
   label: string;
 }
 
-export type DateRangeKey = 'last7Days' | 'last30Days' | 'thisMonth' | 'thisYear';
+export type DateRangeKey = 'all' | 'last7Days' | 'last30Days' | 'thisMonth' | 'thisYear';

@@ -48,10 +48,16 @@ export const OrderFilters = ({
     { key: 'thisYear', labelKey: 'ordersPage.dateOptions.thisYear', defaultLabel: 'This Year' },
   ];
 
-  const currentStatusDisplay =
-    statusFilter === 'All'
-      ? t('ordersPage.all', 'All')
-      : t(`ordersPage.statuses.${statusFilter}`, statusFilter);
+  const formatStatusDisplay = (st: string) => {
+    if (st === 'All') return t('ordersPage.all', 'All');
+    const defaultLabel = st
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+    return t(`ordersPage.statuses.${st}`, defaultLabel);
+  };
+
+  const currentStatusDisplay = formatStatusDisplay(statusFilter);
 
   const currentDateOption = dateOptions.find((d) => d.key === dateFilter);
   const currentDateDisplay = currentDateOption
@@ -142,7 +148,7 @@ export const OrderFilters = ({
             {({ close }) => (
               <div>
                 {(activeMainTab === 'allOrders'
-                  ? ['All', 'Delivered', 'Canceled', 'Shipped', 'Pending', 'Processing']
+                  ? ['All', 'PENDING', 'PROCESSING', 'PARTIALLY_SHIPPED', 'SHIPPED', 'DELIVERED', 'CANCELLED']
                   : ['All', 'Pending', 'Approved', 'Rejected']
                 ).map((st) => (
                   <button
@@ -158,9 +164,7 @@ export const OrderFilters = ({
                         : 'text-gray-700'
                     }`}
                   >
-                    {st === 'All'
-                      ? t('ordersPage.all', 'All')
-                      : t(`ordersPage.statuses.${st}`, st)}
+                    {formatStatusDisplay(st)}
                   </button>
                 ))}
               </div>

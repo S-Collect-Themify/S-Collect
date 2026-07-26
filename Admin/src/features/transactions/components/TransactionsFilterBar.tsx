@@ -6,14 +6,15 @@ import { useTransactionStore } from '../../../store/transactionStore';
 import type { TransactionStatusFilter } from '../types/transaction.types';
 
 const STATUS_OPTIONS: { key: TransactionStatusFilter; labelKey: string; defaultLabel: string }[] = [
-  { key: 'All', labelKey: 'statusAll', defaultLabel: 'Status: All' },
-  { key: 'Captured', labelKey: 'statusCaptured', defaultLabel: 'Status: Captured' },
-  { key: 'Pending', labelKey: 'statusPending', defaultLabel: 'Status: Pending' },
-  { key: 'Failed', labelKey: 'statusFailed', defaultLabel: 'Status: Failed' },
-  { key: 'Refunded', labelKey: 'statusRefunded', defaultLabel: 'Status: Refunded' },
+  { key: 'ALL', labelKey: 'statusAll', defaultLabel: 'Status: All' },
+  { key: 'PENDING', labelKey: 'statusPending', defaultLabel: 'Status: Pending' },
+  { key: 'PAID', labelKey: 'statusPaid', defaultLabel: 'Status: Paid' },
+  { key: 'FAILED', labelKey: 'statusFailed', defaultLabel: 'Status: Failed' },
+  { key: 'CANCELLED', labelKey: 'statusCancelled', defaultLabel: 'Status: Cancelled' },
 ];
 
 const DATE_RANGES = [
+  { key: 'all', defaultLabel: 'All Dates' },
   { key: 'last7Days', defaultLabel: 'Last 7 Days' },
   { key: 'last30Days', defaultLabel: 'Last 30 Days' },
   { key: 'thisMonth', defaultLabel: 'This Month' },
@@ -52,7 +53,7 @@ export const TransactionsFilterBar: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3 mb-5">
       {/* Search Input */}
       <div className="relative flex-1 max-w-sm">
         <Search
@@ -69,7 +70,7 @@ export const TransactionsFilterBar: React.FC = () => {
             'dashboardOverview.transactionsLog.searchPlaceholder',
             'Search order or buyer...'
           )}
-          className={`w-full py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
+          className={`w-full py-2.5 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
             isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
           }`}
         />
@@ -81,7 +82,7 @@ export const TransactionsFilterBar: React.FC = () => {
         <PortalDropdown
           minWidth={140}
           animate={false}
-          menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50"
+          menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
           trigger={({ isOpen, toggle }) => {
             const opt = STATUS_OPTIONS.find((o) => o.key === statusFilter);
             const statusText = opt
@@ -92,7 +93,7 @@ export const TransactionsFilterBar: React.FC = () => {
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
@@ -144,7 +145,7 @@ export const TransactionsFilterBar: React.FC = () => {
                 initTempAmount();
                 toggle();
               }}
-              className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+              className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <DollarSign size={14} className="text-blue-500 shrink-0" />
@@ -234,12 +235,12 @@ export const TransactionsFilterBar: React.FC = () => {
         <PortalDropdown
           minWidth={140}
           animate={false}
-          menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50"
+          menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
           trigger={({ isOpen, toggle }) => (
             <button
               type="button"
               onClick={toggle}
-              className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+              className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <Calendar size={14} className="text-gray-400 shrink-0" />

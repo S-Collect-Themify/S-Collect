@@ -51,12 +51,12 @@ export const TransactionsHeader: React.FC<TransactionsHeaderProps> = ({
         <PortalDropdown
           minWidth={185}
           animate={false}
-          menuClassName="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50"
+          menuClassName="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50"
           trigger={({ toggle }) => (
             <button
               type="button"
               onClick={toggle}
-              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gray-950 text-white text-xs sm:text-label-md font-semibold rounded-xl hover:bg-gray-800 transition-all active:scale-95 cursor-pointer shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gray-950 text-white text-xs sm:text-label-md font-semibold rounded-lg hover:bg-gray-800 transition-all active:scale-95 cursor-pointer shadow-sm"
             >
               <Download size={16} />
               <span>{t('dashboardOverview.transactionsLog.export', 'Export')}</span>
