@@ -216,6 +216,10 @@
     "nameAr": "Product Name (Arabic)",
     "nameEn": "Product Name (English)",
     "description": "Description",
+    "descriptionArPlaceholder": "Description (Arabic)",
+    "descriptionEnPlaceholder": "Description (English)",
+    "descriptionAr": "Description (Arabic)",
+    "descriptionEn": "Description (English)",
 
     "categories": "Categories",
     "sizes": "Sizes",
@@ -266,7 +270,8 @@
     "errors": {
       "nameArRequired": "Product name in Arabic is required",
       "nameEnRequired": "Product name in English is required",
-      "descriptionRequired": "Description is required",
+      "descriptionRequired": "Description in English is required",
+      "descriptionArRequired": "Description in Arabic is required",
       "basePriceRequired": "Base price is required",
       "comparePriceRequired": "Compare-at price is required",
       "skuRequired": "SKU is required",

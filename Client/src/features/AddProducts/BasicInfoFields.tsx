@@ -101,15 +101,13 @@ const BasicInfoFields = () => {
 
       <div>
         <label className={labelCls}>
-          {t('addProduct.description')} <span className="text-red-500">*</span>
+          {t('addProduct.descriptionEn', 'Description (English)')}{' '}
+          <span className="text-red-500">*</span>
         </label>
         <textarea
           rows={isMobile ? 4 : 5}
           className={inputCls(errors.description?.message)}
-          placeholder={t(
-            'addProduct.descriptionPlaceholder',
-            'Description (English)'
-          )}
+          placeholder={t('addProduct.descriptionEnPlaceholder')}
           {...register('description', {
             required: t('addProduct.errors.descriptionRequired'),
           })}
@@ -121,22 +119,16 @@ const BasicInfoFields = () => {
 
       <div>
         <label className={labelCls}>
-          {t('addProduct.descriptionAr', 'الوصف بالعربية')}{' '}
+          {t('addProduct.descriptionAr', 'Description (Arabic)')}{' '}
           <span className="text-red-500">*</span>
         </label>
         <textarea
           rows={isMobile ? 4 : 5}
           className={inputCls(errors.descriptionAr?.message)}
-          placeholder={t(
-            'addProduct.descriptionArPlaceholder',
-            'الوصف بالعربية'
-          )}
+          placeholder={t('addProduct.descriptionArPlaceholder')}
           dir="rtl"
           {...register('descriptionAr', {
-            required: t(
-              'addProduct.errors.descriptionArRequired',
-              'الوصف بالعربية مطلوب'
-            ),
+            required: t('addProduct.errors.descriptionArRequired'),
           })}
         />
         {errors.descriptionAr && (
