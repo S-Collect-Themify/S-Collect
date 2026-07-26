@@ -55,7 +55,6 @@ const ReviewPage = ({
           onPrevious={onPrevious}
           onPublish={onPublish}
           isPublishing={isPublishing}
-          isEdit={isEdit}
         />
       </div>
     </div>
