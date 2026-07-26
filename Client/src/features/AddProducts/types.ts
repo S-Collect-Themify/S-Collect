@@ -51,9 +51,13 @@ export interface RawProductResponse {
   nameAr?: string;
   nameEn?: string;
   description?: string;
+  descriptionAr?: string;
   categoryId?: string;
   category?: { id?: string; name?: string; nameAr?: string };
   enabled?: boolean;
+  isActive?: boolean;
+  isDisabled?: boolean;
+  isFeatured?: boolean;
   options?: ProductOption[];
   variants?: ProductVariant[];
   images?: ProductImage[];

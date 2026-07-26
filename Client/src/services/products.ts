@@ -16,7 +16,7 @@ export const updateProductFull = async (
   productId: string,
   formData: FormData
 ) => {
-  const { data } = await api.put(`/vendor/products/${productId}`, formData, {
+  const { data } = await api.patch(`/vendor/products/${productId}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

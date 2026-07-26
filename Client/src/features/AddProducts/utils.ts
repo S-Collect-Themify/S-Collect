@@ -3,10 +3,18 @@ import type { ProductFormData, RawProductResponse, ProductOptionValue } from './
 export const urlToFile = async (
   url: string,
   filename: string
-): Promise<File> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new File([blob], filename, { type: blob.type || 'image/jpeg' });
+): Promise<File | null> => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status}`);
+    }
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type || 'image/jpeg' });
+  } catch (err) {
+    console.error('Failed to convert URL to File:', url, err);
+    return null;
+  }
 };
 
 /**
@@ -84,22 +92,25 @@ export const mapProductToFormData = async (
   const imageUrls: string[] = (raw.images || [])
     .map((img) => img.url || '')
     .filter(Boolean);
-  const images: File[] = await Promise.all(
+  const imageResults = await Promise.all(
     imageUrls.map((url: string, i: number) =>
       urlToFile(url, `existing-image-${i}.jpg`)
     )
   );
+  const images: File[] = imageResults.filter(
+    (file): file is File => file !== null
+  );
 
   return {
     nameAr: raw.nameAr || raw.name || '',
-    nameEn: raw.name || raw.nameEn || '',
-    description: raw.description || '',
+    nameEn: raw.nameEn || raw.name || '',
+    description: raw.description || raw.descriptionAr || '',
     basePrice: firstVariant?.price?.toString() ?? '',
     comparePrice: firstVariant?.compareAtPrice?.toString() ?? '',
     sku: firstVariant?.sku ?? '',
     images,
     categoryId: raw.categoryId || raw.category?.id || '',
-    enabled: raw.enabled ?? true,
+    enabled: raw.enabled ?? (raw.isDisabled ? false : (raw.isActive ?? true)),
     quantity,
     categories: [],
     sizes,
