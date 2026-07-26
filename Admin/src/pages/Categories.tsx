@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Tag } from 'lucide-react';
+import { useMemo, useEffect } from 'react';
+import { Tag, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -13,6 +13,7 @@ import {
   StatusConfirmModal,
   CannotDeleteModal,
   CategoryTable,
+  CategorySkeleton,
   MobileCard,
   Pagination,
   BulkNavbar,
@@ -25,6 +26,10 @@ const Categories = () => {
 
   // ── Store State ──
   const categories = useCategoryStore((s) => s.categories);
+  const isLoading = useCategoryStore((s) => s.isLoading);
+  const error = useCategoryStore((s) => s.error);
+  const fetchCategories = useCategoryStore((s) => s.fetchCategories);
+
   const search = useCategoryStore((s) => s.search);
   const categoryFilter = useCategoryStore((s) => s.categoryFilter);
   const currentPage = useCategoryStore((s) => s.currentPage);
@@ -54,6 +59,11 @@ const Categories = () => {
   const handleToggleActiveRequest = useCategoryStore((s) => s.handleToggleActiveRequest);
   const handleStatusConfirm = useCategoryStore((s) => s.handleStatusConfirm);
 
+  // ── Fetch Categories from API on mount ──
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   // ── Filtering & Pagination ──
   const filtered = useMemo(() => {
     let result = categories;
@@ -61,9 +71,10 @@ const Categories = () => {
       const q = search.toLowerCase();
       result = result.filter(
         (c) =>
-          c.nameEn.toLowerCase().includes(q) ||
-          c.nameAr.toLowerCase().includes(q) ||
-          c.slug.toLowerCase().includes(q)
+          (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
+          (c.nameAr && c.nameAr.toLowerCase().includes(q)) ||
+          (c.name && c.name.toLowerCase().includes(q)) ||
+          (c.slug && c.slug.toLowerCase().includes(q))
       );
     }
     if (categoryFilter !== 'all') {
@@ -71,6 +82,7 @@ const Categories = () => {
     }
     return result;
   }, [categories, search, categoryFilter]);
+
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
 
@@ -93,8 +105,22 @@ const Categories = () => {
         <CategoryFilterBar />
 
         {/* Content */}
-        {isMobile ? (
+        {isLoading ? (
+          <CategorySkeleton isMobile={isMobile} />
+        ) : error && categories.length === 0 ? (
+          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
+            <p className="text-red-500 text-sm font-medium mb-3">{error}</p>
+            <button
+              onClick={() => fetchCategories()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-xl hover:bg-gray-800 transition-all cursor-pointer"
+            >
+              <RefreshCw size={14} />
+              Retry
+            </button>
+          </div>
+        ) : isMobile ? (
           <div className="space-y-3">
+
             <AnimatePresence>
               {paginated.map((cat) => (
                 <MobileCard

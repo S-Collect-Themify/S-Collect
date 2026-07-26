@@ -24,7 +24,11 @@ export type {
 } from './components/CategoryModals';
 export { default as CategoryTable } from './components/CategoryTable';
 export type { DesktopTableProps } from './components/CategoryTable';
+export { default as CategorySkeleton } from './components/CategorySkeleton';
+export type { CategorySkeletonProps } from './components/CategorySkeleton';
 export { default as MobileCard } from './components/MobileCard';
 export type { MobileCardProps } from './components/MobileCard';
 export { Pagination, BulkNavbar } from './components/CategoryControls';
 export type { PaginationProps, BulkNavbarProps } from './components/CategoryControls';
+
+

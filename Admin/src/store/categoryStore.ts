@@ -1,7 +1,15 @@
 import { create } from 'zustand';
 import { arrayMove } from '@dnd-kit/sortable';
+import toast from 'react-hot-toast';
 import type { Category } from '../features/categories/types';
 import { INITIAL_CATEGORIES } from '../features/categories/data';
+import {
+  getAdminCategories,
+  createAdminCategory,
+  updateAdminCategory,
+  deactivateAdminCategory,
+  reactivateAdminCategory,
+} from '../services/categories';
 
 interface FormModalState {
   open: boolean;
@@ -29,6 +37,9 @@ interface CannotDeleteModalState {
 
 interface CategoryStore {
   categories: Category[];
+  isLoading: boolean;
+  isSubmitting: boolean;
+  error: string | null;
   search: string;
   categoryFilter: string;
   currentPage: number;
@@ -40,6 +51,7 @@ interface CategoryStore {
   cannotDeleteModal: CannotDeleteModalState;
 
   // Actions
+  fetchCategories: () => Promise<void>;
   setSearch: (val: string) => void;
   setCategoryFilter: (val: string) => void;
   setCurrentPage: (page: number) => void;
@@ -56,7 +68,7 @@ interface CategoryStore {
   closeStatusModal: () => void;
   closeCannotDeleteModal: () => void;
 
-  handleSave: (data: Omit<Category, 'id' | 'productsCount'>) => void;
+  handleSave: (data: Omit<Category, 'id' | 'productsCount'>) => Promise<void>;
   handleDelete: (lang: string) => void;
   handleToggleActiveRequest: (category: Category) => void;
   handleStatusConfirm: () => void;
@@ -65,10 +77,37 @@ interface CategoryStore {
 
 export const useCategoryStore = create<CategoryStore>((set, get) => ({
   categories: INITIAL_CATEGORIES,
+  isLoading: false,
+  isSubmitting: false,
+  error: null,
   search: '',
   categoryFilter: 'all',
   currentPage: 1,
   selectedIds: new Set<string>(),
+
+  fetchCategories: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const rawList = await getAdminCategories();
+      const formattedList: Category[] = rawList.map((item) => ({
+        id: String(item.id),
+        name: item.name,
+        nameEn: item.nameEn || item.name || '',
+        nameAr: item.nameAr || item.name || '',
+        slug: item.slug || '',
+        isActive: item.isActive !== undefined ? Boolean(item.isActive) : true,
+        productsCount: item.productsCount ?? 0,
+        createdAt: item.createdAt,
+      }));
+      set({ categories: formattedList, isLoading: false, error: null });
+    } catch (err: any) {
+      console.error('Failed to fetch admin categories:', err);
+      set({
+        error: err?.response?.data?.message || err?.message || 'Failed to fetch categories',
+        isLoading: false,
+      });
+    }
+  },
 
   formModal: { open: false, mode: 'add', category: null },
   deleteModal: { open: false, category: null, isBulk: false },
@@ -114,25 +153,47 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
   closeStatusModal: () => set({ statusModal: { open: false, category: null } }),
   closeCannotDeleteModal: () => set({ cannotDeleteModal: { open: false, isBulk: false } }),
 
-  handleSave: (data) => {
-    const { formModal, closeForm } = get();
+  handleSave: async (data) => {
+    const { formModal, closeForm, fetchCategories } = get();
     if (formModal.mode === 'add') {
-      const newCat: Category = {
-        ...data,
-        id: String(Date.now()),
-        productsCount: 0,
-      };
-      set((state) => ({ categories: [newCat, ...state.categories] }));
+      set({ isSubmitting: true });
+      try {
+        await createAdminCategory({
+          name: data.nameEn || data.name || '',
+          nameAr: data.nameAr || '',
+          slug: data.slug,
+        });
+        toast.success('Category created successfully');
+        closeForm();
+        await fetchCategories();
+      } catch (err: any) {
+        console.error('Failed to create category:', err);
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to create category');
+      } finally {
+        set({ isSubmitting: false });
+      }
     } else if (formModal.category) {
       const targetId = formModal.category.id;
-      set((state) => ({
-        categories: state.categories.map((c) =>
-          c.id === targetId ? { ...c, ...data } : c
-        ),
-      }));
+      set({ isSubmitting: true });
+      try {
+        await updateAdminCategory(targetId, {
+          name: data.nameEn || data.name || '',
+          nameAr: data.nameAr || '',
+          slug: data.slug,
+          isActive: data.isActive,
+        });
+        toast.success('Category updated successfully');
+        closeForm();
+        await fetchCategories();
+      } catch (err: any) {
+        console.error('Failed to update category:', err);
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to update category');
+      } finally {
+        set({ isSubmitting: false });
+      }
     }
-    closeForm();
   },
+
 
   handleDelete: (lang) => {
     const { deleteModal, categories, selectedIds, closeDelete, clearSelection } = get();
@@ -179,17 +240,27 @@ export const useCategoryStore = create<CategoryStore>((set, get) => ({
     set({ statusModal: { open: true, category: cat } });
   },
 
-  handleStatusConfirm: () => {
-    const { statusModal } = get();
+  handleStatusConfirm: async () => {
+    const { statusModal, closeStatusModal, fetchCategories } = get();
     if (statusModal.category) {
       const targetId = statusModal.category.id;
-      set((state) => ({
-        categories: state.categories.map((c) =>
-          c.id === targetId ? { ...c, isActive: !c.isActive } : c
-        ),
-      }));
+      const isCurrentlyActive = statusModal.category.isActive;
+      try {
+        if (isCurrentlyActive) {
+          await deactivateAdminCategory(targetId);
+          toast.success('Category deactivated successfully');
+        } else {
+          await reactivateAdminCategory(targetId);
+          toast.success('Category reactivated successfully');
+        }
+        closeStatusModal();
+        await fetchCategories();
+      } catch (err: any) {
+        console.error('Failed to update category status:', err);
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to update status');
+        closeStatusModal();
+      }
     }
-    set({ statusModal: { open: false, category: null } });
   },
 
   reorderCategories: (oldIndex, newIndex) => {

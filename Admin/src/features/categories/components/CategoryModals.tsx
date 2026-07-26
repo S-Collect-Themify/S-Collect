@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { X, AlertTriangle, Trash2, PackageX } from 'lucide-react';
+import { X, AlertTriangle, Trash2, PackageX, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
 import { toSlug } from '../utils';
 import Toggle from './Toggle';
+import { useCategoryStore } from '../../../store/categoryStore';
 
 // ─── Status Confirmation Modal ─────────────────────────────────────────────────
 export interface StatusConfirmModalProps {
@@ -211,6 +212,7 @@ export const CategoryFormModal = ({
   onSave,
 }: CategoryFormModalProps) => {
   const { t } = useTranslation();
+  const isSubmitting = useCategoryStore((s) => s.isSubmitting);
   const [nameEn, setNameEn] = useState(category?.nameEn ?? '');
   const [nameAr, setNameAr] = useState(category?.nameAr ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
@@ -380,15 +382,23 @@ export const CategoryFormModal = ({
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={!isValid}
-                className="w-full py-3 rounded-xl bg-gray-950 text-white text-label-md font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all cursor-pointer"
+                disabled={!isValid || isSubmitting}
+                className="w-full py-3 rounded-xl bg-gray-950 text-white text-label-md font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
               >
-                {t('categories.modal.save')}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  t('categories.modal.save')
+                )}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-xl text-label-md font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full py-2.5 rounded-xl text-label-md font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-50 transition-all cursor-pointer"
               >
                 {t('categories.modal.cancel')}
               </button>
