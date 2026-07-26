@@ -51,6 +51,7 @@ const AddProduct = () => {
     onSubmit,
     handlePublish,
     handleCloseSuccess,
+    handleCancel,
   } = useAddProductPage();
 
   if (isMobile) {
@@ -162,7 +163,7 @@ const AddProduct = () => {
             >
               <button
                 type="button"
-                onClick={() => setStep('form')}
+                onClick={handleCancel}
                 className="rounded-xl border border-red-500 px-6 py-3 text-red-500 transition hover:bg-red-50 cursor-pointer"
               >
                 {t('addProduct.cancel')}

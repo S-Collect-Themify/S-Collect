@@ -128,6 +128,14 @@ export const useAddProductPage = () => {
     navigate('/');
   };
 
+  const handleCancel = () => {
+    if (isEdit && productId) {
+      navigate(`/product-details/${productId}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   return {
     t,
     isEdit,
@@ -149,5 +157,6 @@ export const useAddProductPage = () => {
     onSubmit,
     handlePublish,
     handleCloseSuccess,
+    handleCancel,
   };
 };
