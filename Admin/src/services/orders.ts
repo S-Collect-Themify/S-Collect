@@ -56,6 +56,54 @@ export interface AdminOrdersResponse {
   };
 }
 
+export interface AdminOrderDetailItem {
+  id: string;
+  productId?: unknown;
+  variantId?: unknown;
+  productName: string;
+  variantLabel?: unknown;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  isRefunded?: boolean;
+  commissionRateApplied?: number;
+}
+
+export interface AdminSubOrder {
+  id: string;
+  orderId: string;
+  vendorId: string;
+  status: string;
+  shippingRateApplied: number;
+  trackingNumber?: unknown;
+  statusOverrideReason?: unknown;
+  shippedAt?: unknown;
+  deliveredAt?: unknown;
+  items: AdminOrderDetailItem[];
+  createdAt: string;
+}
+
+export interface AdminOrderDetailResponse {
+  id: string;
+  buyerAccountId?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  shippingZone?: string;
+  shippingCity?: string;
+  shippingStreetAddress?: string;
+  shippingBuildingNumber?: unknown;
+  shippingAdditionalDirections?: unknown;
+  subtotalAmount: number;
+  shippingTotalAmount: number;
+  grandTotalAmount: number;
+  voucherId?: unknown;
+  discountAmount: number;
+  paymentStatus: string;
+  overallStatus: string;
+  subOrders: AdminSubOrder[];
+  createdAt: string;
+}
+
 /**
  * Fetch orders list from /api/v1/admin/orders
  */
@@ -64,7 +112,7 @@ export async function getAdminOrders(params?: {
   pageSize?: number;
 }): Promise<AdminOrdersResponse> {
   const pageNum = params?.pageNum ?? 1;
-  const pageSize = params?.pageSize ?? 25;
+  const pageSize = params?.pageSize ?? 20;
 
   const response = await api.get('/admin/orders', {
     params: {
@@ -102,6 +150,33 @@ export async function getAdminOrders(params?: {
   }
 
   return { items, pagination };
+}
+
+/**
+ * Fetch single order details by ID from /api/v1/admin/orders/{id}
+ */
+export async function getAdminOrderDetail(id: string): Promise<AdminOrderDetailResponse> {
+  const response = await api.get(`/admin/orders/${id}`);
+  const data = response.data;
+  return data?.data || data;
+}
+
+export interface UpdateSubOrderStatusPayload {
+  status: string;
+  reason?: string;
+  trackingNumber?: string;
+}
+
+/**
+ * Patch sub-order status and tracking number: /api/v1/admin/sub-orders/{id}/status
+ */
+export async function updateAdminSubOrderStatus(
+  subOrderId: string,
+  payload: UpdateSubOrderStatusPayload
+): Promise<AdminSubOrder> {
+  const response = await api.patch(`/admin/sub-orders/${subOrderId}/status`, payload);
+  const data = response.data;
+  return data?.data || data;
 }
 
 /**

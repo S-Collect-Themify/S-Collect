@@ -20,7 +20,7 @@ export const TransactionsPagination: React.FC<TransactionsPaginationProps> = ({
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const safePage = Math.min(page, totalPages);
 
-  if (totalItems === 0) return null;
+  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
 
   const startItem = (safePage - 1) * itemsPerPage + 1;
   const endItem = Math.min(safePage * itemsPerPage, totalItems);

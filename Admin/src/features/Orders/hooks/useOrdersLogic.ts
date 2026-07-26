@@ -22,7 +22,7 @@ export const useOrdersLogic = () => {
   // Pagination State
   const [page, setPage] = useState(1);
 
-  const itemsPerPage = isMobile && activeMainTab === 'refunds' ? 10 : 10;
+  const itemsPerPage = isMobile && activeMainTab === 'refunds' ? 10 : 20;
 
   // React Query Hook for API Orders
   const {

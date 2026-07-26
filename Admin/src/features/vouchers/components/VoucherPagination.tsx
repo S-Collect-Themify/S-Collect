@@ -20,6 +20,9 @@ export const VoucherPagination = ({
   const isAr = i18n.language === 'ar';
 
   const limit = itemsPerPage > 0 ? itemsPerPage : 20;
+
+  if (totalItems <= limit || totalPages <= 1) return null;
+
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
   const endItem = Math.min(currentPage * limit, totalItems);
 

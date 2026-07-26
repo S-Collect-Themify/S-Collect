@@ -22,6 +22,8 @@ export default function VendorPagination({
 }: VendorPaginationProps) {
   const { t } = useTranslation();
 
+  if (totalItems <= 20 || totalPages <= 1) return null;
+
   return (
     <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
       <span className="text-xs text-gray-400">
