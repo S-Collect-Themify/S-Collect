@@ -85,7 +85,9 @@ const AddProduct = () => {
     <FormProvider {...methods}>
       <>
         <div className="sidebar-page-container-header">
-          <h1 className="heading-page-title">{t('addProduct.title')}</h1>
+          <h1 className="heading-page-title">
+            {isEdit ? t('addProduct.editTitle') : t('addProduct.title')}
+          </h1>
         </div>
         <motion.div
           className="sidebar-page-container"
