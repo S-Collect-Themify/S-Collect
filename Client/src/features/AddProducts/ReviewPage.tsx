@@ -28,13 +28,17 @@ const ReviewPage = ({
 }: ReviewPageProps) => (
   <div className="flex-1 overflow-y-auto  px-4 py-6 lg:p-14">
     <div className="mb-6 md:mb-8 md:ml-4">
-      <h1 className="text-h5 font-bold">{isEdit ? 'Edit Product' : 'Add Product'}</h1>
+      <h1 className="text-h5 font-bold">
+        {isEdit ? 'Edit Product' : 'Add Product'}
+      </h1>
       <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
         <span className="cursor-pointer hover:underline" onClick={onPrevious}>
           {isEdit ? 'Edit Product' : 'Add Product'}
         </span>
         <span>»</span>
-        <span className="text-gray-800 font-medium">{isEdit ? 'Updated' : 'Published'}</span>
+        <span className="text-gray-800 font-medium">
+          {isEdit ? 'Updated' : 'Published'}
+        </span>
       </div>
     </div>
 
@@ -47,7 +51,12 @@ const ReviewPage = ({
           colors={colors}
           quantity={quantity}
         />
-        <StepSummary onPrevious={onPrevious} onPublish={onPublish} isPublishing={isPublishing} />
+        <StepSummary
+          onPrevious={onPrevious}
+          onPublish={onPublish}
+          isPublishing={isPublishing}
+          isEdit={isEdit}
+        />
       </div>
     </div>
   </div>

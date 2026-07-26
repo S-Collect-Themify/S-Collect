@@ -1,3 +1,27 @@
+export interface ExistingImage {
+  id: string;
+  url: string;
+  isThumbnail: boolean;
+}
+
+export interface OptionValueMeta {
+  id: string;
+  value: string;
+  valueAr: string;
+}
+
+export interface OptionMeta {
+  id: string;
+  name: string;
+  nameAr: string;
+  values: OptionValueMeta[];
+}
+
+export interface VariantMeta {
+  id: string;
+  optionValueIds: string[];
+}
+
 export interface ProductFormData {
   nameAr: string;
   nameEn: string;
@@ -6,6 +30,9 @@ export interface ProductFormData {
   comparePrice: string;
   sku: string;
   images: File[];
+  existingImages?: ExistingImage[];
+  optionsMeta?: OptionMeta[];
+  variantsMeta?: VariantMeta[];
   categoryId: string;
   enabled?: boolean;
   quantity?: number;

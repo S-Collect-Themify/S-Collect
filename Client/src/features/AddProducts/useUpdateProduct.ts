@@ -19,10 +19,11 @@ export const useUpdateProduct = () => {
           ? rawResponse.data
           : rawResponse;
 
-      const firstImageId = unwrapped?.images?.[0]?.id;
-      if (productId && firstImageId) {
+      const thumbnailImg = unwrapped?.images?.find((img: any) => img.isThumbnail);
+      const thumbnailImageId = thumbnailImg?.id || unwrapped?.images?.[0]?.id;
+      if (productId && thumbnailImageId) {
         try {
-          await setProductThumbnail(productId, firstImageId);
+          await setProductThumbnail(productId, thumbnailImageId);
         } catch (thumbError) {
           console.error('Failed to set thumbnail automatically:', thumbError);
         }

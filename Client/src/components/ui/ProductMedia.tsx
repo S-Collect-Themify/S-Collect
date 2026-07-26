@@ -7,51 +7,47 @@ import { compressImage } from '../../features/AddProducts/utils';
 
 interface PreviewImage {
   id: string;
-  file: File;
+  file?: File;
   preview: string;
+  isExisting?: boolean;
+  imageId?: string;
 }
 
 const ProductMedia = () => {
   const { t } = useTranslation();
   const { setValue, watch } = useFormContext<ProductFormData>();
   const files = watch('images') || [];
+  const existingImages = watch('existingImages') || [];
   const [previews, setPreviews] = useState<PreviewImage[]>([]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   const filesKey = files.map((f) => `${f.name}-${f.size}`).join(',');
+  const existingKey = existingImages.map((img) => img.id).join(',');
 
   useEffect(() => {
-    const newPreviews = files.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+    const newPreviews: PreviewImage[] = [
+      ...existingImages.map((img) => ({
+        id: `existing-${img.id}`,
+        preview: img.url,
+        isExisting: true,
+        imageId: img.id,
+      })),
+      ...files.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+      })),
+    ];
 
     setPreviews(newPreviews);
 
     return () => {
-      newPreviews.forEach((image) => URL.revokeObjectURL(image.preview));
+      newPreviews.forEach((image) => {
+        if (!image.isExisting) {
+          URL.revokeObjectURL(image.preview);
+        }
+      });
     };
-  }, [filesKey]);
-
-  useEffect(() => {
-    files.forEach((file) => {
-      const key = `${file.name}-${file.size}`;
-      if (progressMap[key] === undefined) {
-        setProgressMap((prev) => ({ ...prev, [key]: 0 }));
-        
-        let current = 0;
-        const timer = setInterval(() => {
-          current += Math.floor(Math.random() * 15) + 10;
-          if (current >= 100) {
-            current = 100;
-            clearInterval(timer);
-          }
-          setProgressMap((prev) => ({ ...prev, [key]: current }));
-        }, 150);
-      }
-    });
-  }, [filesKey]);
+  }, [filesKey, existingKey]);
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = Array.from(e.target.files || []);
@@ -64,10 +60,22 @@ const ProductMedia = () => {
   };
 
   const handleDelete = (indexToDelete: number) => {
-    const updatedFiles = files.filter((_, idx) => idx !== indexToDelete);
-    setValue('images', updatedFiles, {
-      shouldValidate: true,
-    });
+    const preview = previews[indexToDelete];
+    if (!preview) return;
+
+    if (preview.isExisting && preview.imageId) {
+      const updated = existingImages.filter(
+        (img) => img.id !== preview.imageId
+      );
+      setValue('existingImages', updated, { shouldValidate: true });
+    } else if (preview.file) {
+      const updatedFiles = files.filter(
+        (f) =>
+          `${f.name}-${f.size}` !==
+          `${preview.file!.name}-${preview.file!.size}`
+      );
+      setValue('images', updatedFiles, { shouldValidate: true });
+    }
   };
 
   return (
@@ -85,9 +93,9 @@ const ProductMedia = () => {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {previews.map((image, index) => {
-          const key = `${image.file.name}-${image.file.size}`;
-          const currentProgress = progressMap[key] !== undefined ? progressMap[key] : 100;
-          const isUploading = currentProgress < 100;
+          const isThumbnail =
+            image.isExisting &&
+            existingImages.find((img) => img.id === image.imageId)?.isThumbnail;
 
           return (
             <div key={image.id} className="relative h-28 w-full sm:h-24 group">
@@ -97,29 +105,19 @@ const ProductMedia = () => {
                 className="h-full w-full rounded-xl object-cover"
               />
 
-              {/* Progress Overlay */}
-              {isUploading && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/55 text-white p-2">
-                  <span className="text-xs font-semibold">{currentProgress}%</span>
-                  <div className="mt-1.5 h-1 w-4/5 overflow-hidden rounded-full bg-white/20">
-                    <div
-                      className="h-full bg-white transition-all duration-150"
-                      style={{ width: `${currentProgress}%` }}
-                    />
-                  </div>
-                </div>
+              {isThumbnail && (
+                <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                  Thumbnail
+                </span>
               )}
 
-              {/* Delete Button */}
-              {!isUploading && (
-                <button
-                  type="button"
-                  onClick={() => handleDelete(index)}
-                  className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10"
-                >
-                  <Trash2 size={12} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => handleDelete(index)}
+                className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10"
+              >
+                <Trash2 size={12} />
+              </button>
             </div>
           );
         })}
