@@ -67,7 +67,7 @@ const LanguageDropdown = () => {
                 handleLanguageChange(lang.code);
                 close();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 cursor-pointer ${
                 lang.code === i18n.language
                   ? 'text-gray-900 font-medium bg-gray-50'
                   : 'text-gray-600'

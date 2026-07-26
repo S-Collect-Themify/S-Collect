@@ -20,7 +20,13 @@ const MobileBasicInfoStep = () => {
   } = useMobileAddProductStore();
 
   const handleContinue = async () => {
-    const valid = await trigger(['nameAr', 'nameEn', 'description', 'categoryId']);
+    const valid = await trigger([
+      'nameAr',
+      'nameEn',
+      'description',
+      'descriptionAr',
+      'categoryId',
+    ]);
     if (valid) nextStep();
   };
 

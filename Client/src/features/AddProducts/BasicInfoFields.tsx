@@ -70,26 +70,33 @@ const BasicInfoFields = () => {
 
       <div>
         <label className={labelCls}>
-          {t('addProduct.category', 'Category')} <span className="text-red-500">*</span>
+          {t('addProduct.category', 'Category')}{' '}
+          <span className="text-red-500">*</span>
         </label>
         <select
           className={inputCls(errors.categoryId?.message)}
           {...register('categoryId', {
-            required: t('addProduct.errors.categoryRequired', 'Category is required'),
+            required: t(
+              'addProduct.errors.categoryRequired',
+              'Category is required'
+            ),
           })}
         >
           <option value="">
-            {isLoading 
-              ? t('addProduct.loadingCategories', 'Loading categories...') 
+            {isLoading
+              ? t('addProduct.loadingCategories', 'Loading categories...')
               : t('addProduct.selectCategory', 'Select a category')}
           </option>
-          {Array.isArray(categoriesList) && categoriesList.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {isArabic ? cat.nameAr : cat.name}
-            </option>
-          ))}
+          {Array.isArray(categoriesList) &&
+            categoriesList.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {isArabic ? cat.nameAr : cat.name}
+              </option>
+            ))}
         </select>
-        {errors.categoryId && <p className={errorCls}>{errors.categoryId.message}</p>}
+        {errors.categoryId && (
+          <p className={errorCls}>{errors.categoryId.message}</p>
+        )}
       </div>
 
       <div>
@@ -99,13 +106,41 @@ const BasicInfoFields = () => {
         <textarea
           rows={isMobile ? 4 : 5}
           className={inputCls(errors.description?.message)}
-          placeholder={t('addProduct.descriptionPlaceholder')}
+          placeholder={t(
+            'addProduct.descriptionPlaceholder',
+            'Description (English)'
+          )}
           {...register('description', {
             required: t('addProduct.errors.descriptionRequired'),
           })}
         />
         {errors.description && (
           <p className={errorCls}>{errors.description.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label className={labelCls}>
+          {t('addProduct.descriptionAr', 'الوصف بالعربية')}{' '}
+          <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          rows={isMobile ? 4 : 5}
+          className={inputCls(errors.descriptionAr?.message)}
+          placeholder={t(
+            'addProduct.descriptionArPlaceholder',
+            'الوصف بالعربية'
+          )}
+          dir="rtl"
+          {...register('descriptionAr', {
+            required: t(
+              'addProduct.errors.descriptionArRequired',
+              'الوصف بالعربية مطلوب'
+            ),
+          })}
+        />
+        {errors.descriptionAr && (
+          <p className={errorCls}>{errors.descriptionAr.message}</p>
         )}
       </div>
     </>

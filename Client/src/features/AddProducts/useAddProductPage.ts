@@ -13,6 +13,7 @@ const defaultFormValues: ProductFormData = {
   nameAr: '',
   nameEn: '',
   description: '',
+  descriptionAr: '',
   basePrice: '',
   comparePrice: '',
   sku: '',

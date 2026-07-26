@@ -600,7 +600,8 @@
       "units": "units",
       "averageRating": "Average Rating",
       "totalReviews": "Total Reviews",
-      "reviewsCount": "{{count}} Reviews"
+      "reviewsCount": "{{count}} Reviews",
+      "description": "Description"
     },
     "rating": {
       "basedOn": "Based on {{count}} Reviews",

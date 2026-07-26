@@ -66,7 +66,7 @@ const LanguageDropdown = () => {
       trigger={({ isOpen, toggle }) => (
         <button
           onClick={toggle}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-label-md text-gray-400 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-200"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-label-md text-gray-400 hover:bg-gray-800/40 hover:text-gray-100 transition-all duration-200 cursor-pointer"
         >
           <Globe size={18} className="shrink-0" />
           <span className="truncate">{currentLang.short}</span>
@@ -98,7 +98,7 @@ const LanguageDropdown = () => {
                 handleLanguageChange(lang.code);
                 close();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-700 ${lang.code === i18n.language
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-700 cursor-pointer ${lang.code === i18n.language
                 ? 'text-white font-medium bg-gray-700/50'
                 : 'text-gray-400'
                 }`}

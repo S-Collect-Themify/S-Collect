@@ -26,6 +26,7 @@ export interface ProductFormData {
   nameAr: string;
   nameEn: string;
   description: string;
+  descriptionAr: string;
   basePrice: string;
   comparePrice: string;
   sku: string;
