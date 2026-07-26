@@ -125,37 +125,6 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
           </Switch>
         </div>
 
-        <div className="space-y-3">
-          <h3 className="text-sm text-gray-500">
-            {t('addProduct.visibility', 'Visibility')}
-          </h3>
-          <label className="flex gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4 accent-black"
-              defaultChecked
-            />
-            {t('addProduct.homepage')}
-          </label>
-
-          <label className="flex gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4 accent-black"
-              defaultChecked
-            />
-            {t('addProduct.promotions')}
-          </label>
-
-          <label className="flex gap-2">
-            <input
-              type="checkbox"
-              className="w-4 h-4 accent-black"
-              defaultChecked
-            />
-            {t('addProduct.searchResults')}
-          </label>
-        </div>
       </div>
     </div>
   );

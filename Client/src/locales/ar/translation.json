@@ -215,6 +215,10 @@
     "nameAr": "اسم المنتج (بالعربية)",
     "nameEn": "اسم المنتج (بالإنجليزية)",
     "description": "الوصف",
+    "descriptionArPlaceholder": "الوصف (بالعربية)",
+    "descriptionEnPlaceholder": "الوصف (بالإنجليزية)",
+    "descriptionAr": "الوصف (بالعربية)",
+    "descriptionEn": "الوصف (بالإنجليزية)",
 
     "categories": "التصنيفات",
     "sizes": "المقاسات",
@@ -266,7 +270,8 @@
     "errors": {
       "nameArRequired": "اسم المنتج بالعربية مطلوب",
       "nameEnRequired": "اسم المنتج بالإنجليزية مطلوب",
-      "descriptionRequired": "الوصف مطلوب",
+      "descriptionRequired": "الوصف بالإنجليزية مطلوب",
+      "descriptionArRequired": "الوصف بالعربية مطلوب",
       "basePriceRequired": "السعر الأساسي مطلوب",
       "comparePriceRequired": "السعر قبل الخصم مطلوب",
       "skuRequired": "رمز المنتج مطلوب",
@@ -597,7 +602,7 @@
       "averageRating": "متوسط التقييم",
       "totalReviews": "إجمالي المراجعات",
       "reviewsCount": "{{count}} مراجعة",
-      "description":"الوصف"
+      "description": "الوصف"
     },
     "rating": {
       "basedOn": "بناءً على {{count}} مراجعة",
