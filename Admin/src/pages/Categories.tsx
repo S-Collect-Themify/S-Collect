@@ -2,16 +2,6 @@ import { useMemo } from 'react';
 import { Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'motion/react';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   ITEMS_PER_PAGE,
@@ -63,7 +53,6 @@ const Categories = () => {
   const handleDelete = useCategoryStore((s) => s.handleDelete);
   const handleToggleActiveRequest = useCategoryStore((s) => s.handleToggleActiveRequest);
   const handleStatusConfirm = useCategoryStore((s) => s.handleStatusConfirm);
-  const reorderCategories = useCategoryStore((s) => s.reorderCategories);
 
   // ── Filtering & Pagination ──
   const filtered = useMemo(() => {
@@ -90,74 +79,57 @@ const Categories = () => {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
 
-  // ── Drag & Drop ──
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = categories.findIndex((c) => c.id === active.id);
-      const newIndex = categories.findIndex((c) => c.id === over.id);
-      reorderCategories(oldIndex, newIndex);
-    }
-  };
-
   return (
     <>
-    <div  className='sidebar-page-container-header' >
+      <div className="sidebar-page-container-header">
+        <CategoryHeader />
+      </div>
+      <div
+        className={`flex-1 overflow-y-auto pt-6 sidebar-page-container transition-all ${
+          selectedIds.size > 0 ? 'pb-20' : 'pb-6'
+        }`}
+      >
+        {/* Search & Filters */}
+        <CategoryFilterBar />
 
-      <CategoryHeader />
-    </div>
-    <div className={`flex-1 overflow-y-auto pt-6 sidebar-page-container transition-all ${selectedIds.size > 0 ? 'pb-20' : 'pb-6'}`}>
-      {/* Page Header */}
+        {/* Content */}
+        {isMobile ? (
+          <div className="space-y-3">
+            <AnimatePresence>
+              {paginated.map((cat) => (
+                <MobileCard
+                  key={cat.id}
+                  category={cat}
+                  selected={selectedIds.has(cat.id)}
+                  onSelect={() => handleSelectOne(cat.id)}
+                  onEdit={openEdit}
+                  onDelete={openDelete}
+                  onToggleActive={handleToggleActiveRequest}
+                />
+              ))}
+            </AnimatePresence>
 
-      {/* Search & Filters */}
-      <CategoryFilterBar />
+            {paginated.length === 0 && (
+              <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <Tag size={36} className="mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
+              </div>
+            )}
 
-      {/* Content */}
-      {isMobile ? (
-        <div className="space-y-3">
-          <AnimatePresence>
-            {paginated.map((cat) => (
-              <MobileCard
-                key={cat.id}
-                category={cat}
-                selected={selectedIds.has(cat.id)}
-                onSelect={() => handleSelectOne(cat.id)}
-                onEdit={openEdit}
-                onDelete={openDelete}
-                onToggleActive={handleToggleActiveRequest}
-              />
-            ))}
-          </AnimatePresence>
-
-          {paginated.length === 0 && (
-            <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <Tag size={36} className="mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
-            </div>
-          )}
-
-          {filtered.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-3">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filtered.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            {filtered.length > 0 && (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-3">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={filtered.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <CategoryTable
               categories={paginated}
               selectedIds={selectedIds}
@@ -167,75 +139,73 @@ const Categories = () => {
               onDelete={openDelete}
               onToggleActive={handleToggleActiveRequest}
             />
-          </DndContext>
 
-          {filtered.length > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={filtered.length}
-              itemsPerPage={ITEMS_PER_PAGE}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </div>
-      )}
+            {filtered.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </div>
+        )}
 
-      {/* Bulk Delete Bottom Navbar */}
-      <BulkNavbar
-        selectedCount={selectedIds.size}
-        onDelete={openBulkDelete}
-        onClearSelection={clearSelection}
-      />
+        {/* Bulk Delete Bottom Navbar */}
+        <BulkNavbar
+          selectedCount={selectedIds.size}
+          onDelete={openBulkDelete}
+          onClearSelection={clearSelection}
+        />
 
-      {/* Add / Edit Modal */}
-      <CategoryFormModal
-        key={formModal.open ? (formModal.category?.id ?? 'add-new') : 'closed'}
-        isOpen={formModal.open}
-        mode={formModal.mode}
-        category={formModal.category}
-        categories={categories}
-        onClose={closeForm}
-        onSave={handleSave}
-      />
+        {/* Add / Edit Modal */}
+        <CategoryFormModal
+          key={formModal.open ? (formModal.category?.id ?? 'add-new') : 'closed'}
+          isOpen={formModal.open}
+          mode={formModal.mode}
+          category={formModal.category}
+          categories={categories}
+          onClose={closeForm}
+          onSave={handleSave}
+        />
 
-      {/* Delete Confirmation Modal */}
-      <DeleteModal
-        isOpen={deleteModal.open}
-        categoryName={
-          i18n.language === 'ar'
-            ? deleteModal.category?.nameAr ?? ''
-            : deleteModal.category?.nameEn ?? ''
-        }
-        count={deleteModal.isBulk ? selectedIds.size : undefined}
-        onClose={closeDelete}
-        onConfirm={() => handleDelete(i18n.language)}
-      />
+        {/* Delete Confirmation Modal */}
+        <DeleteModal
+          isOpen={deleteModal.open}
+          categoryName={
+            i18n.language === 'ar'
+              ? deleteModal.category?.nameAr ?? ''
+              : deleteModal.category?.nameEn ?? ''
+          }
+          count={deleteModal.isBulk ? selectedIds.size : undefined}
+          onClose={closeDelete}
+          onConfirm={() => handleDelete(i18n.language)}
+        />
 
-      {/* Status Confirmation Modal */}
-      <StatusConfirmModal
-        isOpen={statusModal.open}
-        categoryName={
-          i18n.language === 'ar'
-            ? statusModal.category?.nameAr ?? ''
-            : statusModal.category?.nameEn ?? ''
-        }
-        currentStatus={statusModal.category?.isActive ?? false}
-        onClose={closeStatusModal}
-        onConfirm={handleStatusConfirm}
-      />
+        {/* Status Confirmation Modal */}
+        <StatusConfirmModal
+          isOpen={statusModal.open}
+          categoryName={
+            i18n.language === 'ar'
+              ? statusModal.category?.nameAr ?? ''
+              : statusModal.category?.nameEn ?? ''
+          }
+          currentStatus={statusModal.category?.isActive ?? false}
+          onClose={closeStatusModal}
+          onConfirm={handleStatusConfirm}
+        />
 
-      {/* Cannot Delete Modal */}
-      <CannotDeleteModal
-        isOpen={cannotDeleteModal.open}
-        isBulk={cannotDeleteModal.isBulk}
-        categoryName={cannotDeleteModal.categoryName}
-        productsCount={cannotDeleteModal.productsCount}
-        onClose={closeCannotDeleteModal}
-      />
-    </div>
+        {/* Cannot Delete Modal */}
+        <CannotDeleteModal
+          isOpen={cannotDeleteModal.open}
+          isBulk={cannotDeleteModal.isBulk}
+          categoryName={cannotDeleteModal.categoryName}
+          productsCount={cannotDeleteModal.productsCount}
+          onClose={closeCannotDeleteModal}
+        />
+      </div>
     </>
-
   );
 };
 

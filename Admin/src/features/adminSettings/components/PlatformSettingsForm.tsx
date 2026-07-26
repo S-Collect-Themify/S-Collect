@@ -7,7 +7,7 @@ import type { PlatformSettings } from '../types';
 import i18n from '../../../i18n';
 
 const CURRENCIES = [
-  { value: 'SAR - Saudi Riyal', labelKey: 'adminSettings.currencies.sar' }
+  { value: 'SAR - Saudi Riyal', labelKey: 'adminSettings.currencies.sar' },
 ];
 
 const LANGUAGES = [
@@ -28,7 +28,6 @@ export const PlatformSettingsForm: React.FC = () => {
     defaultValues: platformSettings,
     mode: 'onChange',
   });
-
 
   const onSubmit = (data: PlatformSettings) => {
     updatePlatformSettings(data);
