@@ -87,7 +87,6 @@ const ProductDetails = () => {
   }
 
   const variant = product.variants[0];
-  const image = product.images[0];
 
   const category = categories.find((c: any) => c.id === product.categoryId);
 
@@ -118,7 +117,7 @@ const ProductDetails = () => {
 
       <div className="sidebar-page-container space-y-8">
         <ProductInfo
-          imageUrl={image?.url ?? ''}
+          images={product.images}
           name={productName}
           category={categoryName ?? '-'}
           brand="-"

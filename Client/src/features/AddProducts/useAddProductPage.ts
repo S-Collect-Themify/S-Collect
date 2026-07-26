@@ -94,15 +94,32 @@ export const useAddProductPage = () => {
     const data = methods.getValues();
     const multipartData = mapFormToMultipartFormData(data);
 
-    saveProduct(multipartData, {
-      onSuccess: (response: unknown) => {
-        const thumbnail = getProductThumbnail(response, data.images?.[0]);
-        if (thumbnail) {
-          setCreatedThumbnail(thumbnail);
-        }
-        setStep('success');
-      },
-    });
+    // Build variant updates for the dedicated variant endpoint (price/stock)
+    const price = parseFloat(data.basePrice) || 0;
+    const compareAtPrice = data.comparePrice ? parseFloat(data.comparePrice) : 0;
+    const stock = data.quantity || 0;
+    const variants = (data.variantsMeta || [])
+      .filter((vm) => vm.id)
+      .map((vm) => ({
+        id: vm.id,
+        price,
+        compareAtPrice,
+        stock,
+        isActive: true,
+      }));
+
+    saveProduct(
+      { formData: multipartData, variants },
+      {
+        onSuccess: (response: unknown) => {
+          const thumbnail = getProductThumbnail(response, data.images?.[0]);
+          if (thumbnail) {
+            setCreatedThumbnail(thumbnail);
+          }
+          setStep('success');
+        },
+      }
+    );
   };
 
   const handleCloseSuccess = () => {

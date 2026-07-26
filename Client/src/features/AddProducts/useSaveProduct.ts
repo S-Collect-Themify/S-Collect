@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createProductFull, updateProductFull, setProductThumbnail } from '../../services/products';
+import {
+  createProductFull,
+  updateProductFull,
+  setProductThumbnail,
+  updateProductVariant,
+} from '../../services/products';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import type { ApiAxiosError, ValidationErrorItem } from '../../types/api';
@@ -10,17 +15,44 @@ interface UseSaveProductOptions {
   productId?: string;
 }
 
+interface SaveProductArgs {
+  formData: FormData;
+  variants?: {
+    id: string;
+    price?: number;
+    compareAtPrice?: number;
+    stock?: number;
+    isActive?: boolean;
+  }[];
+}
+
 export const useSaveProduct = ({ isEdit, productId }: UseSaveProductOptions) => {
   const queryClient = useQueryClient();
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
   return useMutation({
-    mutationFn: async (formData: FormData) => {
+    mutationFn: async ({ formData, variants }: SaveProductArgs) => {
       let rawResponse: unknown;
 
       if (isEdit && productId) {
         rawResponse = await updateProductFull(productId, formData);
+
+        // Update variants via dedicated endpoint (price/stock)
+        if (variants && variants.length > 0) {
+          await Promise.all(
+            variants.map((v) =>
+              v.id
+                ? updateProductVariant(productId, v.id, {
+                    price: v.price,
+                    compareAtPrice: v.compareAtPrice,
+                    stock: v.stock,
+                    isActive: v.isActive,
+                  })
+                : Promise.resolve()
+            )
+          );
+        }
       } else {
         rawResponse = await createProductFull(formData);
       }
