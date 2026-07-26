@@ -30,6 +30,14 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
   const { categories, quantity, sizes, colors, previousStep } =
     useMobileAddProductStore();
 
+  const thumbnailImage =
+    formData.existingImages?.find((img) => img.isThumbnail) ||
+    formData.existingImages?.[0];
+  const newImageFile = formData.images?.[0];
+  const thumbnailSrc =
+    thumbnailImage?.url ||
+    (newImageFile ? URL.createObjectURL(newImageFile) : undefined);
+
   const handlePublish = () => {
     useMobileAddProductStore.setState({ isLoading: true });
     const multipartData = mapFormToMultipartFormData({
@@ -95,19 +103,27 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
         <div className="flex gap-3">
           {/* Thumbnail */}
           <div className="h-16 w-16 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden">
-            <svg
-              className="h-7 w-7 text-gray-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            {thumbnailSrc ? (
+              <img
+                src={thumbnailSrc}
+                alt={formData.nameEn || formData.nameAr || ''}
+                className="h-full w-full object-cover"
               />
-            </svg>
+            ) : (
+              <svg
+                className="h-7 w-7 text-gray-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            )}
           </div>
 
           <div className="min-w-0">
