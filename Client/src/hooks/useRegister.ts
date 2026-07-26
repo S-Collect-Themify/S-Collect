@@ -49,7 +49,7 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
         const apiError = responseData?.error || responseData;
         
         // 2. Try to find field-specific errors
-        let fieldErrors: unknown = null;
+        let fieldErrors: Record<string, any> = {} as Record<string, any>;
         if (apiError && typeof apiError === 'object') {
           const obj = apiError as Record<string, any>;
           fieldErrors = obj.details || obj.errors || obj.validation || apiError;
@@ -124,11 +124,11 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           }
         }
 
-        const generalMsg = 
-          apiError?.message || 
-          responseData?.message || 
-          mainMsg.trim() || 
-          error.message ||
+        const generalMsg =
+          (apiError as any)?.message ||
+          (responseData as any)?.message ||
+          mainMsg.trim() ||
+          (error as any).message ||
           (isRtl
             ? 'فشلت عملية التسجيل. يرجى المحاولة مرة أخرى.'
             : 'Registration failed. Please try again.');
