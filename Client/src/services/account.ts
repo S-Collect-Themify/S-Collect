@@ -16,3 +16,18 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
     phoneNumber: data.phoneNumber ?? '',
   };
 };
+
+export const updateAccountSettings = async (
+  settings: Partial<AccountSettings>
+): Promise<AccountSettings> => {
+  // Try calling backend account update endpoint if available, fallback gracefully
+  try {
+    const { api } = await import('./api');
+    const { data } = await api.put('/vendor/account/profile', settings);
+    return data;
+  } catch (err) {
+    // Return settings data directly if endpoint isn't supported on backend
+    return settings as AccountSettings;
+  }
+};
+

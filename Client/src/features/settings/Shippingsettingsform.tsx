@@ -32,23 +32,6 @@ export const zoneCodeToRegionId = (code: string): string => {
   return code.toLowerCase().replace(/_/g, '-');
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const SAUDI_REGIONS: Region[] = [
-  { id: "riyadh", label: "Riyadh" },
-  { id: "makkah", label: "Makkah" },
-  { id: "madinah", label: "Madinah" },
-  { id: "eastern-province", label: "Eastern Province" },
-  { id: "qassim", label: "Qassim" },
-  { id: "asir", label: "Asir" },
-  { id: "tabuk", label: "Tabuk" },
-  { id: "hail", label: "Hail" },
-  { id: "northern-borders", label: "Northern Borders" },
-  { id: "jazan", label: "Jazan" },
-  { id: "najran", label: "Najran" },
-  { id: "al-bahah", label: "Al Bahah" },
-  { id: "al-jouf", label: "Al Jouf" },
-];
-
 export default function ShippingSettingsForm({
   regions = [],
   defaultValues,
@@ -87,7 +70,7 @@ export default function ShippingSettingsForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-[720px] rounded-lg md:rounded-2xl border border-gray-200 bg-white p-3 md:p-6"
+      className="w-full max-w-180 rounded-lg md:rounded-2xl border border-gray-200 bg-white p-3 md:p-6"
     >
       <h2 className="text-xl font-semibold text-gray-900">
         {t("settings.shippingForm.title")}
