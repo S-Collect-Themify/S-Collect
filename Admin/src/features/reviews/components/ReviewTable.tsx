@@ -49,9 +49,14 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
                 {review.reviewId}
               </td>
 
-              {/* Product Name */}
-              <td className="py-4 px-6 font-medium text-gray-900">
-                {review.product}
+              {/* Product Name & Comment */}
+              <td className="py-4 px-6 font-medium text-gray-900 max-w-xs">
+                <div>{review.product}</div>
+                {review.comment && (
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 font-normal italic">
+                    "{review.comment}"
+                  </p>
+                )}
               </td>
 
               {/* Buyer Name */}

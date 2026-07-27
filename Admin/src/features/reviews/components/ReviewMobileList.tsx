@@ -57,7 +57,7 @@ export const ReviewMobileList = ({
             <span className="text-gray-400">{review.date}</span>
           </div>
 
-          {/* Row 3: Product Name + Subtitle */}
+          {/* Row 3: Product Name + Subtitle + Comment */}
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">
               {review.product}
@@ -68,6 +68,11 @@ export const ReviewMobileList = ({
                 vendor: review.vendor,
               })}
             </p>
+            {review.comment && (
+              <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded-lg mt-2 italic border border-gray-100">
+                "{review.comment}"
+              </p>
+            )}
           </div>
         </div>
       ))}
