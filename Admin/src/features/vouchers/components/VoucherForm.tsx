@@ -5,9 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Toggle from '../../categories/components/Toggle';
 import type { VoucherItem, VoucherType } from '../types';
+import { useCategories } from '../../../hooks/useCategories';
 
 export interface VoucherFormData {
   code: string;
+  category: string;
+  scope: string;
   type: VoucherType;
   discountValue: string;
   minOrder: string;
@@ -28,8 +31,9 @@ export const VoucherForm = ({
   onSubmit,
   isSubmitting = false,
 }: VoucherFormProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { categories, isLoading: isCategoriesLoading } = useCategories();
 
   const {
     register,
@@ -41,6 +45,8 @@ export const VoucherForm = ({
   } = useForm<VoucherFormData>({
     defaultValues: {
       code: initialVoucher?.code || '',
+      category: initialVoucher?.category || '',
+      scope: initialVoucher?.scope || 'All',
       type: initialVoucher?.type || 'Percentage',
       discountValue: initialVoucher?.discountValue
         ? String(initialVoucher.discountValue)
@@ -57,6 +63,8 @@ export const VoucherForm = ({
     if (initialVoucher) {
       reset({
         code: initialVoucher.code || '',
+        category: initialVoucher.category || '',
+        scope: initialVoucher.scope || 'All',
         type: initialVoucher.type || 'Percentage',
         discountValue: initialVoucher.discountValue
           ? String(initialVoucher.discountValue)
@@ -78,6 +86,8 @@ export const VoucherForm = ({
     onSubmit({
       ...data,
       code: data.code.trim(),
+      category: data.category?.trim() || '',
+      scope: data.scope?.trim() || 'All',
       discountValue: data.discountValue.trim(),
       minOrder: data.minOrder.trim(),
       maxDiscount: data.maxDiscount.trim(),
@@ -112,6 +122,74 @@ export const VoucherForm = ({
               <span>{errors.code.message}</span>
             </div>
           )}
+        </div>
+
+        {/* Category Dropdown */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            {t('vouchersListing.form.category')}
+          </label>
+          <div className="relative">
+            <select
+              {...register('category', { required: true })}
+              disabled={isCategoriesLoading}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-9 rtl:pr-4 disabled:bg-gray-50 disabled:opacity-60"
+            >
+              <option value="">
+                {t('vouchersListing.form.categoryPlaceholder', { defaultValue: 'Select Category' })}
+              </option>
+              {categories.map((cat: any) => {
+                const catName =
+                  typeof cat === 'string'
+                    ? cat
+                    : i18n.language === 'ar'
+                    ? cat.nameAr || cat.name
+                    : cat.nameEn || cat.name || cat.title || String(cat.id || cat);
+                return (
+                  <option key={cat.id || cat._id || catName} value={catName}>
+                    {catName}
+                  </option>
+                );
+              })}
+            </select>
+            <ChevronDown
+              size={16}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3.5"
+            />
+          </div>
+        </div>
+
+        {/* Scope Dropdown */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            {t('vouchersListing.form.scope')}
+          </label>
+          <div className="relative">
+            <select
+              {...register('scope', { required: true })}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-9 rtl:pr-4"
+            >
+              <option value="All">
+                {t('vouchersListing.scopes.all', { defaultValue: 'All' })}
+              </option>
+              <option value="Percentage">
+                {t('vouchersListing.scopes.percentage', { defaultValue: 'Percentage' })}
+              </option>
+              <option value="Category">
+                {t('vouchersListing.scopes.category', { defaultValue: 'Category' })}
+              </option>
+              <option value="Vendor">
+                {t('vouchersListing.scopes.vendor', { defaultValue: 'Vendor' })}
+              </option>
+              <option value="Product">
+                {t('vouchersListing.scopes.product', { defaultValue: 'Product' })}
+              </option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3.5"
+            />
+          </div>
         </div>
 
         {/* Voucher Type * & Discount Value * Grid (Mandatory) */}

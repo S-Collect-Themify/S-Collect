@@ -7,6 +7,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '1',
     code: 'WELCOME20',
+    category: 'Food',
+    scope: 'Percentage',
     type: 'Percentage',
     discount: '20%',
     discountValue: 20,
@@ -22,6 +24,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '2',
     code: 'FREESHIP',
+    category: 'Electronics',
+    scope: 'All',
     type: 'Free Shipping',
     discount: '—',
     discountValue: 0,
@@ -37,6 +41,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '3',
     code: 'SAVE50',
+    category: 'Fashion',
+    scope: 'Category',
     type: 'Amount',
     discount: 'SAR 50',
     discountValue: 50,
@@ -52,6 +58,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '4',
     code: 'VIP10',
+    category: 'Beauty',
+    scope: 'Vendor',
     type: 'Percentage',
     discount: '10%',
     discountValue: 10,
@@ -67,6 +75,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '5',
     code: 'SUMMER30',
+    category: 'Food',
+    scope: 'Percentage',
     type: 'Percentage',
     discount: '30%',
     discountValue: 30,
@@ -82,6 +92,8 @@ const RAW_INITIAL_VOUCHERS: VoucherItem[] = [
   {
     id: '6',
     code: 'FLAT100',
+    category: 'Home',
+    scope: 'Product',
     type: 'Amount',
     discount: 'SAR 100',
     discountValue: 100,

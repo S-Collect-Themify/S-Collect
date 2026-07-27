@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { getAdminCategories } from '../services/categories';
 import { getCategories } from '../services/products';
-import type { Category } from '../services/products';
 
 export const useCategories = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,7 +12,13 @@ export const useCategories = () => {
     const fetchCategories = async () => {
       setIsLoading(true);
       try {
-        const data = await getCategories();
+        let data: any;
+        try {
+          data = await getAdminCategories();
+        } catch {
+          data = await getCategories();
+        }
+
         if (active) {
           if (Array.isArray(data)) {
             setCategories(data);
@@ -21,7 +27,6 @@ export const useCategories = () => {
           } else if (data && typeof data === 'object' && Array.isArray((data as any).categories)) {
             setCategories((data as any).categories);
           } else {
-            console.error('Invalid categories API response structure:', data);
             setCategories([]);
           }
         }

@@ -1177,6 +1177,8 @@
     },
     "table": {
       "code": "الكود",
+      "category": "الفئة",
+      "scope": "النطاق",
       "type": "النوع",
       "discount": "الخصم",
       "minOrder": "الحد الأدنى للطلب",
@@ -1191,6 +1193,13 @@
       "amount": "مبلغ ثابت",
       "freeShipping": "شحن مجاني"
     },
+    "scopes": {
+      "percentage": "نسبة مئوية",
+      "all": "الكل",
+      "category": "فئة",
+      "vendor": "تاجر",
+      "product": "منتج"
+    },
     "statuses": {
       "active": "نشطة",
       "expired": "منتهية"
@@ -1202,6 +1211,10 @@
     "form": {
       "voucherCode": "كود القسيمة *",
       "voucherCodePlaceholder": "أدخل كود القسيمة أو اتركه فارغاً للتوليد التلقائي",
+      "category": "الفئة",
+      "categoryPlaceholder": "اختر الفئة",
+      "scope": "النطاق *",
+      "scopePlaceholder": "اختر النطاق",
       "voucherType": "نوع القسيمة *",
       "discountValue": "قيمة الخصم *",
       "discountValuePlaceholder": "أدخل قيمة الخصم (مثلاً 20 لـ 20%)",

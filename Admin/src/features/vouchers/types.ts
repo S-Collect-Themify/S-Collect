@@ -5,6 +5,8 @@ export type VoucherTab = 'active' | 'expired' | 'all';
 export interface VoucherItem {
   id: string;
   code: string;
+  category?: string;
+  scope?: string;
   type: VoucherType;
   discount: string; // e.g. '20%' or 'SAR 50' or '—'
   discountValue?: number | string;
@@ -20,6 +22,8 @@ export interface VoucherItem {
 
 export interface VoucherFormInput {
   code: string;
+  category?: string;
+  scope?: string;
   type: VoucherType;
   discountValue: string;
   minOrder: string;
