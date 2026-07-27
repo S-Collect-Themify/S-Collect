@@ -11,6 +11,7 @@ import NotFound from './pages/NotFound.js';
 import Login from './pages/auth/Login.js';
 import Register from './pages/auth/Register.js';
 import ForgetPass from './pages/auth/ForgetPass.js';
+import ProtectedRoute from './components/auth/ProtectedRoute.js';
 import './App.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
@@ -35,7 +36,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forget-pass" element={<ForgetPass />} />
-        <Route path="/" element={<AppLayout />}>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/settings" element={<Settings />} />
