@@ -1,6 +1,7 @@
-import { Trash, Star } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ReviewItem } from '../types';
+import { StarRating } from './StarRating';
 
 interface ReviewMobileListProps {
   reviews: ReviewItem[];
@@ -13,20 +14,6 @@ export const ReviewMobileList = ({
 }: ReviewMobileListProps) => {
   const { t } = useTranslation();
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        size={14}
-        className={
-          i < rating
-            ? 'fill-amber-400 text-amber-400'
-            : 'fill-gray-200 text-gray-200'
-        }
-      />
-    ));
-  };
-
   return (
     <div className="space-y-3">
       {reviews.map((review) => (
@@ -36,9 +23,7 @@ export const ReviewMobileList = ({
         >
           {/* Top Row: Stars + Delete Icon */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-0.5">
-              {renderStars(review.rating)}
-            </div>
+            <StarRating rating={review.rating} size={14} />
             <button
               type="button"
               onClick={() => onDeleteClick(review)}

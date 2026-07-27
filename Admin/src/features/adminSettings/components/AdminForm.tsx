@@ -237,10 +237,8 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
             )}
           </div>
 
-          {/* Role & Phone Number */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Role */}
-            <div>
+            {/* <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
                 {t('adminSettings.adminAccounts.role', { defaultValue: 'Role' })}{' '}
                 <span className="text-red-500">*</span>
@@ -258,7 +256,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
                 <option value="Finance Admin">Finance Admin</option>
                 <option value="Support Lead">Support Lead</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Phone Number (Optional) */}
             <div>
@@ -276,7 +274,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors"
               />
             </div>
-          </div>
+
 
           {/* Form Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">

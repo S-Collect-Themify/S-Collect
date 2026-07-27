@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import AppLayout from './pages/AppLayout.js';
 import Dashboard from './pages/Dashboard.js';
-import Settings from './pages/Settings.js';
 import AccountSettings from './pages/AccountSettings.js';
 import Management from './pages/Mangement.js';
 import AddProduct from './pages/AddProduct.js';
@@ -49,7 +48,6 @@ function App() {
 
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/management" element={<Management />} />
           <Route path="/add-product" element={<AddProduct />} />
