@@ -5,7 +5,9 @@ export const InventoryHeader = () => {
 
   return (
     <div className="sidebar-page-container-header">
-      <h5 className="heading-page-title font-bold text-gray-900">{t('inventoryPage.title')}</h5>
+      <h5 className="heading-page-title font-bold text-gray-900">
+        {t('inventoryPage.title')}
+      </h5>
       <p className="text-gray-500 mt-1">{t('inventoryPage.subtitle')}</p>
     </div>
   );

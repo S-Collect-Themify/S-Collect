@@ -16,7 +16,11 @@ interface StepSummaryProps {
   isPublishing?: boolean;
 }
 
-const StepSummary = ({ onPrevious, onPublish, isPublishing }: StepSummaryProps) => {
+const StepSummary = ({
+  onPrevious,
+  onPublish,
+  isPublishing,
+}: StepSummaryProps) => {
   const { t } = useTranslation();
 
   return (

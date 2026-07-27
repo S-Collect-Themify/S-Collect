@@ -1,5 +1,5 @@
-import { Star } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface RatingCount {
   stars: 1 | 2 | 3 | 4 | 5;
@@ -36,14 +36,14 @@ export default function ProductRating({
                 size={16}
                 className={
                   i < Math.round(averageRating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-gray-200 text-gray-200"
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'fill-gray-200 text-gray-200'
                 }
               />
             ))}
           </div>
           <span className="mt-1 whitespace-nowrap text-xs text-gray-400">
-            {t("productDetails.rating.basedOn", { count: totalReviews })}
+            {t('productDetails.rating.basedOn', { count: totalReviews })}
           </span>
         </div>
 
@@ -52,7 +52,10 @@ export default function ProductRating({
           {sorted.map(({ stars, count }) => (
             <div key={stars} className="flex items-center gap-3 text-sm">
               <span className="w-14 shrink-0 text-gray-500">
-                {stars} {stars > 1 ? t("productDetails.rating.stars") : t("productDetails.rating.star")}
+                {stars}{' '}
+                {stars > 1
+                  ? t('productDetails.rating.stars')
+                  : t('productDetails.rating.star')}
               </span>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
                 <div

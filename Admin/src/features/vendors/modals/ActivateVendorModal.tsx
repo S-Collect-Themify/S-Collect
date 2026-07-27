@@ -60,7 +60,7 @@ export default function ActivateVendorModal({
             </h2>
 
             {/* Vendor card */}
-            <div className="w-full flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 mb-4">
+            <div className="w-full flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 mb-4">
               <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {getInitials(vendorName)}
               </div>
@@ -76,13 +76,13 @@ export default function ActivateVendorModal({
             <div className="flex items-center gap-3 w-full">
               <button
                 onClick={onCancel}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 {t('vendors.table.cancel', 'Cancel')}
               </button>
               <button
                 onClick={onConfirm}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-xl bg-green-700 hover:bg-green-800 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-green-700 hover:bg-green-800 transition-colors"
               >
                 {t('vendors.modals.activateBtn', 'Activate Vendor')}
               </button>

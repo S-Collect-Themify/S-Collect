@@ -12,7 +12,7 @@ type ProductSale = {
 
 const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-white p-3 w-full overflow-hidden">
+    <div className="flex items-center gap-2 rounded-lg bg-white p-3 w-full overflow-hidden">
       {/* Product Image */}
       <div className="h-10 w-10 xl:h-14 xl:w-14 rounded-lg overflow-hidden shrink-0">
         <img

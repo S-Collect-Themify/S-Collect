@@ -15,7 +15,12 @@ export interface ReturnItem {
   customerNote?: string;
   uploadedImages?: string[];
   requestedDate: string;
-  status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'AWAITING_ITEM' | 'COMPLETED';
+  status:
+    | 'PENDING_REVIEW'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'AWAITING_ITEM'
+    | 'COMPLETED';
   createdAt?: string;
   rawStatus?: string;
   rawId?: string;

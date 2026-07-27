@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, handleServiceError } from './api';
 
 export interface VendorZoneRate {
   zone: string;
@@ -18,18 +18,38 @@ export const zoneCodeToRegionId = (code: string): string => {
   return code.toLowerCase().replace(/_/g, '-');
 };
 
-export const getVendorShippingSettings = async (): Promise<VendorShippingSettings> => {
-  const { data } = await api.get('/vendor/shipping');
-  const unwrapped = data && typeof data === 'object' && 'data' in data ? data.data : data;
-  return unwrapped;
-};
+export const getVendorShippingSettings =
+  async (): Promise<VendorShippingSettings> => {
+    try {
+      const { data } = await api.get('/vendor/shipping');
+      const unwrapped =
+        data && typeof data === 'object' && 'data' in data ? data.data : data;
+      return unwrapped;
+    } catch (err) {
+      throw handleServiceError(err, 'Failed to fetch shipping settings');
+    }
+  };
 
 export const updateFlatShippingRate = async (rate: number): Promise<void> => {
-  await api.put('/vendor/shipping/flat-rate', { rate });
+  try {
+    await api.put('/vendor/shipping/flat-rate', { rate });
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to update flat shipping rate');
+  }
 };
 
-export const upsertZoneShippingRate = async (code: string, rate: number): Promise<void> => {
-  await api.put(`/vendor/shipping/zones/${code}`, { rate });
+export const upsertZoneShippingRate = async (
+  code: string,
+  rate: number
+): Promise<void> => {
+  try {
+    await api.put(`/vendor/shipping/zones/${code}`, { rate });
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to update regional shipping rate for ${code}`
+    );
+  }
 };
 
 export interface UpdateShippingPayload {
@@ -37,19 +57,25 @@ export interface UpdateShippingPayload {
   regionalRates?: Record<string, number | undefined>;
 }
 
-export const updateVendorShippingSettings = async (payload: UpdateShippingPayload): Promise<void> => {
-  if (payload.flatRate !== undefined && payload.flatRate !== null) {
-    await updateFlatShippingRate(payload.flatRate);
-  }
-
-  if (payload.regionalRates) {
-    const promises: Promise<void>[] = [];
-    for (const [regionId, rate] of Object.entries(payload.regionalRates)) {
-      const code = regionIdToZoneCode(regionId);
-      if (rate !== undefined && rate !== null && !isNaN(rate) && rate > 0) {
-        promises.push(upsertZoneShippingRate(code, rate));
-      }
+export const updateVendorShippingSettings = async (
+  payload: UpdateShippingPayload
+): Promise<void> => {
+  try {
+    if (payload.flatRate !== undefined && payload.flatRate !== null) {
+      await updateFlatShippingRate(payload.flatRate);
     }
-    await Promise.all(promises);
+
+    if (payload.regionalRates) {
+      const promises: Promise<void>[] = [];
+      for (const [regionId, rate] of Object.entries(payload.regionalRates)) {
+        const code = regionIdToZoneCode(regionId);
+        if (rate !== undefined && rate !== null && !isNaN(rate) && rate > 0) {
+          promises.push(upsertZoneShippingRate(code, rate));
+        }
+      }
+      await Promise.all(promises);
+    }
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to update shipping settings');
   }
 };

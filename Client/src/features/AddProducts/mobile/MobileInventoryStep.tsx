@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from '../types';
 import { useMobileAddProductStore } from './mobileAddProductStore';
 import type { Visibility } from './mobileAddProductStore';
-import { AnimateNumber } from "motion-plus/react";
+import { AnimateNumber } from 'motion-plus/react';
 
 const LOW_STOCK_THRESHOLD = 10;
 
@@ -78,7 +78,7 @@ const MobileInventoryStep = () => {
                   duration: 0.25,
                 },
                 y: {
-                  type: "spring",
+                  type: 'spring',
                   bounce: 0.2,
                   duration: 0.4,
                 },

@@ -12,11 +12,11 @@ interface Props {
 }
 
 const STATUS_LABEL: Record<SubOrderStatus, string> = {
-  PENDING:    'Pending',
+  PENDING: 'Pending',
   PROCESSING: 'Processing',
-  SHIPPED:    'Shipped',
-  DELIVERED:  'Delivered',
-  CANCELLED:  'Cancelled',
+  SHIPPED: 'Shipped',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
 };
 
 export const SubOrderStatusUpdate = ({
@@ -26,7 +26,9 @@ export const SubOrderStatusUpdate = ({
   onUpdateStatus,
 }: Props) => {
   const { t } = useTranslation();
-  const [selectedStatus, setSelectedStatus] = useState<SubOrderStatus | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<SubOrderStatus | null>(
+    null
+  );
   const [trackingInput, setTrackingInput] = useState('');
 
   const nextAllowedStatus = NEXT_STATUS[currentStatus];
@@ -40,12 +42,21 @@ export const SubOrderStatusUpdate = ({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 text-sm">
-      <h6 className="font-semibold text-gray-900 mb-0.5">{t('ordersPage.updateOrderStatus')}</h6>
-      <p className="text-xs text-gray-400 mb-4">{t('ordersPage.updateOrderStatusDesc', 'Status changes are irreversible and can only move forward one step at a time.')}</p>
+      <h6 className="font-semibold text-gray-900 mb-0.5">
+        {t('ordersPage.updateOrderStatus')}
+      </h6>
+      <p className="text-xs text-gray-400 mb-4">
+        {t(
+          'ordersPage.updateOrderStatusDesc',
+          'Status changes are irreversible and can only move forward one step at a time.'
+        )}
+      </p>
 
       {/* Status pill buttons */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as SubOrderStatus[]).map((s) => {
+        {(
+          ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as SubOrderStatus[]
+        ).map((s) => {
           const isActive = activeSelectedStatus === s;
           const isCurrent = currentStatus === s;
           const isAllowed = s === nextAllowedStatus;
@@ -65,10 +76,10 @@ export const SubOrderStatusUpdate = ({
                 isActive
                   ? 'bg-gray-900 text-white border-gray-900'
                   : isCurrent
-                  ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                  : isDisabled
-                  ? 'opacity-40 border-gray-100 text-gray-300 cursor-not-allowed'
-                  : 'border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer'
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                    : isDisabled
+                      ? 'opacity-40 border-gray-100 text-gray-300 cursor-not-allowed'
+                      : 'border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer'
               }`}
             >
               {STATUS_LABEL[s]}
@@ -92,7 +103,10 @@ export const SubOrderStatusUpdate = ({
       {/* Update button */}
       <button
         onClick={handleUpdate}
-        disabled={isPending || (activeSelectedStatus === currentStatus && !trackingInput.trim())}
+        disabled={
+          isPending ||
+          (activeSelectedStatus === currentStatus && !trackingInput.trim())
+        }
         className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isPending ? (
@@ -107,8 +121,16 @@ export const SubOrderStatusUpdate = ({
       {/* Success feedback */}
       {isSuccess && (
         <div className="mt-3 flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2.5 text-sm">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
           {t('ordersPage.updatedSuccessfully', 'Order updated successfully.')}
         </div>

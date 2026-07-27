@@ -50,7 +50,8 @@ export const useVendorShipping = () => {
 
   const isConfigured = Boolean(
     rawData &&
-      (rawData.flatRate !== null || (rawData.zoneRates && rawData.zoneRates.length > 0))
+    (rawData.flatRate !== null ||
+      (rawData.zoneRates && rawData.zoneRates.length > 0))
   );
 
   return {
@@ -67,11 +68,14 @@ export const useUpdateVendorShipping = () => {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: (payload: UpdateShippingPayload) => updateVendorShippingSettings(payload),
+    mutationFn: (payload: UpdateShippingPayload) =>
+      updateVendorShippingSettings(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: VENDOR_SHIPPING_QUERY_KEY });
       toast.success(
-        t('settings.toast.shippingSaved', { defaultValue: 'Shipping settings saved successfully' })
+        t('settings.toast.shippingSaved', {
+          defaultValue: 'Shipping settings saved successfully',
+        })
       );
     },
     onError: (err: unknown) => {

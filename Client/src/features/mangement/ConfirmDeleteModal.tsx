@@ -39,7 +39,7 @@ export function ConfirmDeleteModal({
   const { t } = useTranslation();
   const { bg, icon: Icon, iconClass } = iconConfig[iconVariant];
 
-  return (  
+  return (
     <div className="fixed -inset-4 z-[9999] h-screen w-screen flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
       <div className="w-full max-w-[420px] rounded-2xl bg-white p-8 shadow-2xl">
         {/* Warning Icon */}

@@ -2,7 +2,7 @@ import TopSellingCardSkeleton from './TopSellingCardSkeleton';
 
 const TopSellingSkeleton = () => {
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto bg-white p-4 rounded-xl shadow h-[550px]">
+    <div className="flex flex-col gap-4 overflow-y-auto bg-white p-4 rounded-lg shadow h-137.5">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 animate-pulse">
         <div className="h-7 w-40 bg-gray-200 rounded" />

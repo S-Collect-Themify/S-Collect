@@ -10,11 +10,31 @@ interface Props {
   statusOverrideReason: string | null;
 }
 
-const TIMELINE_STEPS: { status: SubOrderStatus; label: string; desc: string }[] = [
-  { status: 'PENDING',    label: 'Order Placed',  desc: 'Order received and confirmed' },
-  { status: 'PROCESSING', label: 'Processing',    desc: 'Payment verified, order being prepared' },
-  { status: 'SHIPPED',    label: 'Shipped',        desc: 'Handed to courier for delivery' },
-  { status: 'DELIVERED',  label: 'Delivered',      desc: 'Awaiting delivery confirmation' },
+const TIMELINE_STEPS: {
+  status: SubOrderStatus;
+  label: string;
+  desc: string;
+}[] = [
+  {
+    status: 'PENDING',
+    label: 'Order Placed',
+    desc: 'Order received and confirmed',
+  },
+  {
+    status: 'PROCESSING',
+    label: 'Processing',
+    desc: 'Payment verified, order being prepared',
+  },
+  {
+    status: 'SHIPPED',
+    label: 'Shipped',
+    desc: 'Handed to courier for delivery',
+  },
+  {
+    status: 'DELIVERED',
+    label: 'Delivered',
+    desc: 'Awaiting delivery confirmation',
+  },
 ];
 
 export const SubOrderTimeline = ({
@@ -29,7 +49,9 @@ export const SubOrderTimeline = ({
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <h6 className="font-semibold text-gray-900 mb-5">{t('ordersPage.orderTimeline')}</h6>
+      <h6 className="font-semibold text-gray-900 mb-5">
+        {t('ordersPage.orderTimeline')}
+      </h6>
 
       {status === 'CANCELLED' ? (
         <div className="flex items-center gap-3 text-red-500 py-2">
@@ -37,7 +59,9 @@ export const SubOrderTimeline = ({
           <div>
             <p className="font-semibold">Order Cancelled</p>
             {statusOverrideReason && (
-              <p className="text-gray-500 text-sm mt-0.5">Reason: {statusOverrideReason}</p>
+              <p className="text-gray-500 text-sm mt-0.5">
+                Reason: {statusOverrideReason}
+              </p>
             )}
           </div>
         </div>
@@ -49,19 +73,51 @@ export const SubOrderTimeline = ({
             const isLast = i === TIMELINE_STEPS.length - 1;
 
             const getStepLabel = (label: string) => {
-              if (label === 'Order Placed') return t('ordersPage.orderPlaced', { defaultValue: 'Order Placed' });
-              if (label === 'Processing') return t('ordersPage.processing', { defaultValue: 'Processing' });
-              if (label === 'Shipped') return t('ordersPage.shipped', { defaultValue: 'Shipped' });
-              if (label === 'Delivered') return t('ordersPage.delivered', { defaultValue: 'Delivered' });
+              if (label === 'Order Placed')
+                return t('ordersPage.orderPlaced', {
+                  defaultValue: 'Order Placed',
+                });
+              if (label === 'Processing')
+                return t('ordersPage.processing', {
+                  defaultValue: 'Processing',
+                });
+              if (label === 'Shipped')
+                return t('ordersPage.shipped', { defaultValue: 'Shipped' });
+              if (label === 'Delivered')
+                return t('ordersPage.delivered', { defaultValue: 'Delivered' });
               return label;
             };
 
             // Date label
             let dateLabel = '';
-            if (step.status === 'PENDING') dateLabel = new Date(createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            if (step.status === 'SHIPPED' && shippedAt) dateLabel = new Date(shippedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            if (step.status === 'DELIVERED' && deliveredAt) dateLabel = new Date(deliveredAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            if (!done) dateLabel = t('ordersPage.pendingLabel', { defaultValue: 'Pending' });
+            if (step.status === 'PENDING')
+              dateLabel = new Date(createdAt).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+            if (step.status === 'SHIPPED' && shippedAt)
+              dateLabel = new Date(shippedAt).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+            if (step.status === 'DELIVERED' && deliveredAt)
+              dateLabel = new Date(deliveredAt).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+            if (!done)
+              dateLabel = t('ordersPage.pendingLabel', {
+                defaultValue: 'Pending',
+              });
 
             return (
               <div key={step.status} className="flex gap-4">
@@ -75,8 +131,8 @@ export const SubOrderTimeline = ({
                           ? isCurrent && step.status === 'SHIPPED'
                             ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
                             : isCurrent && step.status === 'PROCESSING'
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                            : 'bg-green-600 border-green-600 text-white shadow-sm'
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                              : 'bg-green-600 border-green-600 text-white shadow-sm'
                           : 'border-gray-300 bg-white text-gray-400'
                       }
                     `}
@@ -85,7 +141,11 @@ export const SubOrderTimeline = ({
                       isCurrent && step.status === 'SHIPPED' ? (
                         <Truck size={14} className="text-white" />
                       ) : (
-                        <Check size={14} strokeWidth={3.5} className="text-white" />
+                        <Check
+                          size={14}
+                          strokeWidth={3.5}
+                          className="text-white"
+                        />
                       )
                     ) : (
                       <span className="w-2 h-2 rounded-full bg-gray-400" />
@@ -94,9 +154,7 @@ export const SubOrderTimeline = ({
                   {!isLast && (
                     <div
                       className={`w-[2px] flex-1 my-1 transition-colors duration-200 ${
-                        (i + 1) <= currentStepIdx
-                          ? 'bg-green-600'
-                          : 'bg-gray-100'
+                        i + 1 <= currentStepIdx ? 'bg-green-600' : 'bg-gray-100'
                       }`}
                       style={{ minHeight: 36 }}
                     />
@@ -106,14 +164,20 @@ export const SubOrderTimeline = ({
                 {/* Content */}
                 <div className="flex-1 flex justify-between pb-8 last:pb-2 gap-4 min-w-0 items-start">
                   <div className="flex flex-col min-w-0">
-                    <p className={`font-semibold text-sm transition-colors duration-200 ${done ? 'text-gray-900' : 'text-gray-400'}`}>
+                    <p
+                      className={`font-semibold text-sm transition-colors duration-200 ${done ? 'text-gray-900' : 'text-gray-400'}`}
+                    >
                       {getStepLabel(step.label)}
                     </p>
-                    <p className={`text-xs sm:text-sm mt-1 transition-colors duration-200 ${done ? 'text-gray-500' : 'text-gray-300'}`}>
+                    <p
+                      className={`text-xs sm:text-sm mt-1 transition-colors duration-200 ${done ? 'text-gray-500' : 'text-gray-300'}`}
+                    >
                       {step.desc}
                     </p>
                   </div>
-                  <p className={`text-xs sm:text-sm whitespace-nowrap pt-0.5 text-right rtl:text-left transition-colors duration-200 ${done ? 'text-gray-400' : 'text-gray-300'}`}>
+                  <p
+                    className={`text-xs sm:text-sm whitespace-nowrap pt-0.5 text-right rtl:text-left transition-colors duration-200 ${done ? 'text-gray-400' : 'text-gray-300'}`}
+                  >
                     {dateLabel}
                   </p>
                 </div>

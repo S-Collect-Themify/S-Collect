@@ -22,7 +22,9 @@ export const useStoreProfile = () => {
         ...defaultStoreProfile,
         storeName: data.storeName || '',
         storeDescription:
-          typeof data.storeDescription === 'string' ? data.storeDescription : '',
+          typeof data.storeDescription === 'string'
+            ? data.storeDescription
+            : '',
         publicEmail: data.email || '',
         phoneNumber: data.phoneNumber || '',
       };

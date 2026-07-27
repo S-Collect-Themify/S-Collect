@@ -33,11 +33,14 @@ export default function RejectReturnModal({
 
         {/* Header */}
         <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
-          {t('returnsPage.rejectModalTitle', { defaultValue: 'Reject Return Request' })}
+          {t('returnsPage.rejectModalTitle', {
+            defaultValue: 'Reject Return Request',
+          })}
         </h3>
         <p className="text-xs text-gray-500 text-center leading-relaxed mb-4">
           {t('returnsPage.rejectModalMessage', {
-            defaultValue: 'Please provide a reason for rejecting this return request.',
+            defaultValue:
+              'Please provide a reason for rejecting this return request.',
           })}
         </p>
 
@@ -46,7 +49,9 @@ export default function RejectReturnModal({
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder={t('returnsPage.rejectReasonPlaceholder', { defaultValue: 'Enter rejection reason...' })}
+            placeholder={t('returnsPage.rejectReasonPlaceholder', {
+              defaultValue: 'Enter rejection reason...',
+            })}
             className="w-full h-24 p-3 border border-gray-300 rounded-xl text-xs outline-none focus:border-red-500 transition-colors resize-none"
           />
         </div>
@@ -54,12 +59,20 @@ export default function RejectReturnModal({
         {/* Details Box */}
         <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 space-y-2 mb-6 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">{t('returnsPage.returnId', { defaultValue: 'Return ID' })}</span>
-            <span className="font-semibold text-gray-900 font-mono">{item.id}</span>
+            <span className="text-gray-500">
+              {t('returnsPage.returnId', { defaultValue: 'Return ID' })}
+            </span>
+            <span className="font-semibold text-gray-900 font-mono">
+              {item.id}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">{t('returnsPage.customer', { defaultValue: 'Customer' })}</span>
-            <span className="font-semibold text-gray-900">{item.customerName}</span>
+            <span className="text-gray-500">
+              {t('returnsPage.customer', { defaultValue: 'Customer' })}
+            </span>
+            <span className="font-semibold text-gray-900">
+              {item.customerName}
+            </span>
           </div>
         </div>
 

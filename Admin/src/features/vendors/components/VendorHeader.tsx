@@ -82,14 +82,14 @@ export default function VendorHeader({
               {isSuspended ? (
                 <button
                   onClick={onActivate}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow-sm cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-sm cursor-pointer"
                 >
                   {t('vendors.details.activateVendor', 'Activate Vendor')}
                 </button>
               ) : (
                 <button
                   onClick={onSuspend}
-                  className="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors cursor-pointer"
                 >
                   {t('vendors.details.suspendVendor', 'Suspend Vendor')}
                 </button>

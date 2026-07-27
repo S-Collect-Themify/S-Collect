@@ -95,7 +95,7 @@ export default function TopPerformingVendorsSection() {
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 ${v.bgColor}`}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${v.bgColor}`}
                       >
                         {v.initials}
                       </div>
@@ -135,14 +135,14 @@ export default function TopPerformingVendorsSection() {
             <div key={v.id} className="p-4 flex items-center justify-between gap-3 hover:bg-gray-50/40 transition-colors">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 ${v.bgColor}`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${v.bgColor}`}
                 >
                   {v.initials}
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-xs font-bold text-gray-900 truncate">{v.name}</span>
-                    <span className={`inline-flex px-2 py-0.2 rounded-full text-[10px] font-semibold flex-shrink-0 ${v.badgeColor}`}>
+                    <span className={`inline-flex px-2 py-0.2 rounded-full text-[10px] font-semibold shrink-0 ${v.badgeColor}`}>
                       {t(`dashboardOverview.tableHeaders.${v.badgeKey}`, v.defaultBadge)}
                     </span>
                   </div>
@@ -153,7 +153,7 @@ export default function TopPerformingVendorsSection() {
               </div>
               <button
                 onClick={() => navigate(`/vendors/${v.id}`)}
-                className="text-blue-600 font-semibold text-xs hover:underline flex-shrink-0 cursor-pointer"
+                className="text-blue-600 font-semibold text-xs hover:underline shrink-0 cursor-pointer"
               >
                 {t('dashboardOverview.tableHeaders.view', 'View')}
               </button>

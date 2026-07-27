@@ -44,11 +44,11 @@ export default function AccountSettingsPage({
   return (
     <>
       <div className="border-b border-gray-200 sidebar-page-container-header">
-        <h1 className="heading-page-title">
-          {t('settings.accountSettings')}
-        </h1>
+        <h1 className="heading-page-title">{t('settings.accountSettings')}</h1>
         <nav className="mt-3 text-sm flex items-center gap-1">
-          <span className="text-[#090909]">{t('settings.accountSettings')}</span>
+          <span className="text-[#090909]">
+            {t('settings.accountSettings')}
+          </span>
           <span className="mx-0.5 text-[#737373]">
             <ChevronsRight size={16} />
           </span>
@@ -58,7 +58,9 @@ export default function AccountSettingsPage({
         </nav>
       </div>
       <div className="settings-page-enter min-h-screen bg-gray-100">
-        {toast && <SuccessToast message={toast} onClose={() => setToast(null)} />}
+        {toast && (
+          <SuccessToast message={toast} onClose={() => setToast(null)} />
+        )}
 
         <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180">
           {loading ? (

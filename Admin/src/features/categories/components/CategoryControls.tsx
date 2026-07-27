@@ -19,6 +19,8 @@ export const Pagination = ({
   onPageChange,
 }: PaginationProps) => {
   const { t } = useTranslation();
+
+  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, totalItems);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);

@@ -72,10 +72,10 @@ export default function ProductInfo({
     <div className="w-full  rounded-2xl border border-gray-200 bg-white p-4 lg:p-6">
       <div className="flex gap-6 flex-col lg:flex-row ">
         {/* Image gallery: main image + thumbnails */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-col-reverse md:flex-row">
           {/* Thumbnails column */}
           {imageUrls.length > 1 && (
-            <div className="flex flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
+            <div className="flex flex-row md:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
               {imageUrls.map((url, i) => (
                 <button
                   key={i}
@@ -98,7 +98,7 @@ export default function ProductInfo({
           )}
 
           {/* Main image */}
-          <div className="h-70 w-70 lg:h-100 lg:w-100 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+          <div className="lg:h-100 lg:w-100 shrink-0 overflow-hidden rounded-xl bg-gray-100">
             {mainImage ? (
               <img
                 src={mainImage}

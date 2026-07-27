@@ -173,7 +173,7 @@ function PeriodDropdown({
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body,
+        document.body
       )}
     </>
   );

@@ -11,21 +11,21 @@ import MobileSubOrderDetails from './MobileSubOrderDetails';
 const ITEMS_PER_PAGE = 8;
 
 const TAB_TO_STATUS: Record<string, SubOrderStatus | undefined> = {
-  allOrders:  undefined,
-  PENDING:    'PENDING',
+  allOrders: undefined,
+  PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
-  SHIPPED:    'SHIPPED',
-  DELIVERED:  'DELIVERED',
-  CANCELLED:  'CANCELLED',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
 };
 
 const FILTER_TABS = [
-  { key: 'allOrders',  label: 'ordersPage.allOrders' },
-  { key: 'PENDING',    label: 'ordersPage.pending' },
+  { key: 'allOrders', label: 'ordersPage.allOrders' },
+  { key: 'PENDING', label: 'ordersPage.pending' },
   { key: 'PROCESSING', label: 'ordersPage.processing' },
-  { key: 'SHIPPED',    label: 'ordersPage.shipped' },
-  { key: 'DELIVERED',  label: 'ordersPage.delivered' },
-  { key: 'CANCELLED',  label: 'ordersPage.cancelled' },
+  { key: 'SHIPPED', label: 'ordersPage.shipped' },
+  { key: 'DELIVERED', label: 'ordersPage.delivered' },
+  { key: 'CANCELLED', label: 'ordersPage.cancelled' },
 ];
 
 const MobileIncomingOrders = () => {
@@ -47,8 +47,6 @@ const MobileIncomingOrders = () => {
   const totalItems = data?.pagination?.totalItems ?? 0;
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const end = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
-
-
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -91,7 +89,12 @@ const MobileIncomingOrders = () => {
               <motion.div
                 layoutId="mobile-orders-active-tab"
                 className="absolute inset-0 bg-gray-900 rounded-xl"
-                transition={{ type: 'spring', stiffness: 400, damping: 35, mass: 0.8 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 400,
+                  damping: 35,
+                  mass: 0.8,
+                }}
               />
             )}
             <span className="relative z-10">{t(tab.label)}</span>
@@ -122,18 +125,28 @@ const MobileIncomingOrders = () => {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center justify-center py-24 text-center"
             >
-              <Package size={48} strokeWidth={1.2} className="text-gray-300 mb-4" />
+              <Package
+                size={48}
+                strokeWidth={1.2}
+                className="text-gray-300 mb-4"
+              />
               <h2 className="text-base font-semibold text-gray-700 mb-1">
                 {t('ordersPage.noOrders', 'No orders yet')}
               </h2>
               <p className="text-sm text-gray-400">
-                {t('ordersPage.noOrdersDesc', 'They will appear here once you receive your first order')}
+                {t(
+                  'ordersPage.noOrdersDesc',
+                  'They will appear here once you receive your first order'
+                )}
               </p>
             </motion.div>
           ) : (
             <div className="flex flex-col gap-3">
               {orders.map((order, index) => {
-                const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
+                const itemsTotal = order.items.reduce(
+                  (s, i) => s + i.lineTotal,
+                  0
+                );
                 const grandTotal = itemsTotal + order.shippingRateApplied;
 
                 return (
@@ -159,9 +172,11 @@ const MobileIncomingOrders = () => {
 
                     {/* Items */}
                     <p className="text-xs text-gray-500 mb-1">
-                      {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                      {order.items.length}{' '}
+                      {order.items.length === 1 ? 'item' : 'items'}
                       {order.items[0] && ` · ${order.items[0].productName}`}
-                      {order.items.length > 1 && ` +${order.items.length - 1} more`}
+                      {order.items.length > 1 &&
+                        ` +${order.items.length - 1} more`}
                     </p>
 
                     {/* Footer */}

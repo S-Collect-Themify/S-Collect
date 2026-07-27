@@ -137,13 +137,13 @@ export default function VendorMobileList({
                   <div className="flex items-center gap-2.5 pt-2">
                     <button
                       onClick={() => openConfirm('approve', [vendor.id], vendor.businessName)}
-                      className="flex-1 py-2.5 rounded-xl bg-[#1e8528] text-white text-xs font-semibold hover:bg-green-800 transition-colors shadow-2xs"
+                      className="flex-1 py-2.5 rounded-lg bg-[#1e8528] text-white text-xs font-semibold hover:bg-green-800 transition-colors shadow-2xs"
                     >
                       {t('vendors.table.approve')}
                     </button>
                     <button
                       onClick={() => openConfirm('reject', [vendor.id], vendor.businessName)}
-                      className="flex-1 py-2.5 rounded-xl border border-red-300 text-red-700 bg-white text-xs font-semibold hover:bg-red-50 transition-colors shadow-2xs"
+                      className="flex-1 py-2.5 rounded-lg border border-red-300 text-red-700 bg-white text-xs font-semibold hover:bg-red-50 transition-colors shadow-2xs"
                     >
                       {t('vendors.table.reject')}
                     </button>

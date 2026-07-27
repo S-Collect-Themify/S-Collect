@@ -47,7 +47,7 @@ const MobileImageUploader = () => {
       const key = `${file.name}-${file.size}`;
       if (progressMap[key] === undefined) {
         setProgressMap((prev) => ({ ...prev, [key]: 0 }));
-        
+
         let current = 0;
         const timer = setInterval(() => {
           current += Math.floor(Math.random() * 15) + 10;
@@ -120,7 +120,8 @@ const MobileImageUploader = () => {
         <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
           {previews.map((image, index) => {
             const key = `${image.file.name}-${image.file.size}`;
-            const currentProgress = progressMap[key] !== undefined ? progressMap[key] : 100;
+            const currentProgress =
+              progressMap[key] !== undefined ? progressMap[key] : 100;
             const isUploading = currentProgress < 100;
 
             return (
@@ -137,7 +138,9 @@ const MobileImageUploader = () => {
                 {/* Progress Overlay */}
                 {isUploading && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/55 text-white p-1">
-                    <span className="text-[10px] font-semibold">{currentProgress}%</span>
+                    <span className="text-[10px] font-semibold">
+                      {currentProgress}%
+                    </span>
                     <div className="mt-1 h-1 w-4/5 overflow-hidden rounded-full bg-white/20">
                       <div
                         className="h-full bg-white transition-all duration-150"

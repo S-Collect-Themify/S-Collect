@@ -5,7 +5,10 @@ interface ReturnActionsBarProps {
   onApprove: () => void;
 }
 
-export function ReturnActionsBar({ onReject, onApprove }: ReturnActionsBarProps) {
+export function ReturnActionsBar({
+  onReject,
+  onApprove,
+}: ReturnActionsBarProps) {
   const { t } = useTranslation();
 
   return (

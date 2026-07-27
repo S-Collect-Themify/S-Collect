@@ -41,12 +41,18 @@ const SuccessPopup = ({ onClose, thumbnailUrl, isEdit }: SuccessPopupProps) => {
 
         <h3 className="text-2xl font-bold">
           {isEdit
-            ? t('addProduct.productUpdatedSuccessfully', 'Product Updated Successfully')
+            ? t(
+                'addProduct.productUpdatedSuccessfully',
+                'Product Updated Successfully'
+              )
             : t('addProduct.productAddedSuccessfully')}
         </h3>
         <p className="mt-2 text-gray-500">
           {isEdit
-            ? t('addProduct.productUpdatedMessage', 'Your product has been updated successfully.')
+            ? t(
+                'addProduct.productUpdatedMessage',
+                'Your product has been updated successfully.'
+              )
             : t('addProduct.productAddedMessage')}
         </p>
 

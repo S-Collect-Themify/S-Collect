@@ -33,7 +33,10 @@ export type ApiAxiosError = AxiosError<ApiErrorResponseBody>;
 /**
  * Safely extracts a user-friendly error message from any caught error (unknown/AxiosError/Error).
  */
-export function getErrorMessage(error: unknown, defaultMessage = 'An unexpected error occurred'): string {
+export function getErrorMessage(
+  error: unknown,
+  defaultMessage = 'An unexpected error occurred'
+): string {
   if (!error) return defaultMessage;
 
   if (axios.isAxiosError(error)) {
@@ -41,13 +44,19 @@ export function getErrorMessage(error: unknown, defaultMessage = 'An unexpected 
     const responseData = axiosError.response?.data;
 
     if (responseData) {
-      if (typeof responseData.message === 'string' && responseData.message.trim()) {
+      if (
+        typeof responseData.message === 'string' &&
+        responseData.message.trim()
+      ) {
         return responseData.message;
       }
       if (typeof responseData.error === 'string' && responseData.error.trim()) {
         return responseData.error;
       }
-      if (typeof responseData.error === 'object' && responseData.error?.message) {
+      if (
+        typeof responseData.error === 'object' &&
+        responseData.error?.message
+      ) {
         return responseData.error.message;
       }
     }
@@ -71,7 +80,9 @@ export function getErrorMessage(error: unknown, defaultMessage = 'An unexpected 
 /**
  * Safely extracts backend API error details from an unknown error object.
  */
-export function getApiErrorResponse(error: unknown): ApiErrorResponseBody | null {
+export function getApiErrorResponse(
+  error: unknown
+): ApiErrorResponseBody | null {
   if (axios.isAxiosError(error)) {
     const axiosError = error as ApiAxiosError;
     return axiosError.response?.data || null;

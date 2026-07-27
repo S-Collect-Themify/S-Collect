@@ -22,6 +22,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
+  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
+
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 

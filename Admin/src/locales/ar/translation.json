@@ -367,6 +367,23 @@
     "totalShippingColon": "إجمالي الشحن:",
     "grandTotalColon": "الإجمالي النهائي:",
     "updateFailed": "فشل تحديث الطلب.",
+    "updatingSubOrder": "جاري تحديث الطلب الفرعي...",
+    "modal": {
+      "updateStatusTitle": "تحديث حالة الطلب الفرعي",
+      "newStatus": "الحالة الجديدة:",
+      "reasonLabel": "سبب تعديل الحالة",
+      "reasonRequiredError": "السبب مطلوب",
+      "reasonPlaceholder": "مثال: التاجر لا يستجيب بعد 5 أيام عمل",
+      "suggestions": "الاقتراحات:",
+      "suggestionsList": {
+        "unresponsive": "التاجر لا يستجيب بعد 5 أيام عمل",
+        "outOfStock": "المنتج غير متوفر في المخزون",
+        "shippingDelay": "تأخير من شركة الشحن",
+        "manualUpdate": "تحديث يدوي من الإدارة"
+      },
+      "cancel": "إلغاء",
+      "confirmStatusUpdate": "تأكيد تحديث الحالة"
+    },
     "pending": "قيد الانتظار",
     "processing": "قيد المعالجة",
     "shipped": "تم الشحن",

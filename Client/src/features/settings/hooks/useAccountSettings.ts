@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAccountSettings, type AccountSettings } from '../../../services/account';
+import {
+  getAccountSettings,
+  type AccountSettings,
+} from '../../../services/account';
 
 export const ACCOUNT_SETTINGS_QUERY_KEY = ['accountSettings'];
 

@@ -16,19 +16,31 @@ export function ReturnSummaryCard({ item }: ReturnSummaryCardProps) {
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs sm:text-sm">
         <div>
-          <p className="text-gray-400 text-xs mb-1">{t('returnsPage.returnId', { defaultValue: 'Return ID' })}</p>
-          <p className="font-bold text-gray-900 font-mono text-sm sm:text-base">{item.id}</p>
+          <p className="text-gray-400 text-xs mb-1">
+            {t('returnsPage.returnId', { defaultValue: 'Return ID' })}
+          </p>
+          <p className="font-bold text-gray-900 font-mono text-sm sm:text-base">
+            {item.id}
+          </p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-1">{t('returnsPage.orderId', { defaultValue: 'Order ID' })}</p>
-          <p className="font-semibold text-gray-700 font-mono">{item.orderId}</p>
+          <p className="text-gray-400 text-xs mb-1">
+            {t('returnsPage.orderId', { defaultValue: 'Order ID' })}
+          </p>
+          <p className="font-semibold text-gray-700 font-mono">
+            {item.orderId}
+          </p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-1">{t('returnsPage.status', { defaultValue: 'Status' })}</p>
+          <p className="text-gray-400 text-xs mb-1">
+            {t('returnsPage.status', { defaultValue: 'Status' })}
+          </p>
           <StatusBadge status={item.status} />
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-1">{t('returnsPage.requestedDate', { defaultValue: 'Request Date' })}</p>
+          <p className="text-gray-400 text-xs mb-1">
+            {t('returnsPage.requestedDate', { defaultValue: 'Request Date' })}
+          </p>
           <p className="font-medium text-gray-800">{item.requestedDate}</p>
         </div>
       </div>

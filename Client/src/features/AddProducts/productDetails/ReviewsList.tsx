@@ -1,17 +1,17 @@
-import { Star, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { Star, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export type ReviewFilter =
-  | "all"
-  | "5"
-  | "4"
-  | "3"
-  | "2"
-  | "1"
-  | "photos"
-  | "newest"
-  | "highest"
-  | "lowest";
+  | 'all'
+  | '5'
+  | '4'
+  | '3'
+  | '2'
+  | '1'
+  | 'photos'
+  | 'newest'
+  | 'highest'
+  | 'lowest';
 
 export interface Review {
   id: string;
@@ -36,16 +36,16 @@ export interface ReviewsListProps {
 }
 
 const FILTERS: ReviewFilter[] = [
-  "all",
-  "5",
-  "4",
-  "3",
-  "2",
-  "1",
-  "photos",
-  "newest",
-  "highest",
-  "lowest",
+  'all',
+  '5',
+  '4',
+  '3',
+  '2',
+  '1',
+  'photos',
+  'newest',
+  'highest',
+  'lowest',
 ];
 
 function StarRow({ rating }: { rating: number }) {
@@ -57,8 +57,8 @@ function StarRow({ rating }: { rating: number }) {
           size={14}
           className={
             i < rating
-              ? "fill-amber-400 text-amber-400"
-              : "fill-gray-200 text-gray-200"
+              ? 'fill-amber-400 text-amber-400'
+              : 'fill-gray-200 text-gray-200'
           }
         />
       ))}
@@ -89,10 +89,10 @@ function ReviewCard({
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs font-medium text-gray-500">
                 {review.authorName
-                  .split(" ")
+                  .split(' ')
                   .map((n) => n[0])
                   .slice(0, 2)
-                  .join("")}
+                  .join('')}
               </div>
             )}
           </div>
@@ -106,7 +106,7 @@ function ReviewCard({
         <button
           type="button"
           onClick={() => onDelete?.(review.id)}
-          aria-label={t("productDetails.reviews.deleteReview")}
+          aria-label={t('productDetails.reviews.deleteReview')}
           className="text-red-400 hover:text-red-500"
         >
           <Trash2 size={16} />
@@ -133,7 +133,7 @@ function ReviewCard({
             >
               <img
                 src={url}
-                alt={t("productDetails.reviews.reviewPhoto", {
+                alt={t('productDetails.reviews.reviewPhoto', {
                   author: review.authorName,
                   index: i + 1,
                 })}
@@ -165,7 +165,7 @@ function Pagination({
         type="button"
         onClick={() => onPageChange?.(Math.max(1, page - 1))}
         disabled={page <= 1}
-        aria-label={t("productDetails.reviews.previousPage")}
+        aria-label={t('productDetails.reviews.previousPage')}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
       >
         <ChevronLeft size={16} />
@@ -176,10 +176,11 @@ function Pagination({
           key={p}
           type="button"
           onClick={() => onPageChange?.(p)}
-          className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${p === page
-            ? "bg-gray-900 text-white"
-            : "border border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
+          className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${
+            p === page
+              ? 'bg-gray-900 text-white'
+              : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+          }`}
         >
           {p}
         </button>
@@ -189,7 +190,7 @@ function Pagination({
         type="button"
         onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
         disabled={page >= totalPages}
-        aria-label={t("productDetails.reviews.nextPage")}
+        aria-label={t('productDetails.reviews.nextPage')}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
       >
         <ChevronRight size={16} />
@@ -221,10 +222,11 @@ export default function ReviewsList({
             key={key}
             type="button"
             onClick={() => onFilterChange?.(key)}
-            className={`whitespace-nowrap shrink-0 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors sm:shrink ${activeFilter === key
-              ? "bg-gray-900 text-white"
-              : "border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
+            className={`whitespace-nowrap shrink-0 rounded-lg px-4 py-1.5 text-sm font-medium transition-colors sm:shrink ${
+              activeFilter === key
+                ? 'bg-gray-900 text-white'
+                : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
           >
             {t(`productDetails.reviews.filters.${key}`)}
           </button>
@@ -241,7 +243,7 @@ export default function ReviewsList({
       {/* Footer */}
       <div className="flex items-center justify-between px-1 pt-1">
         <p className="text-sm text-gray-400">
-          {t("productDetails.reviews.showingRange", {
+          {t('productDetails.reviews.showingRange', {
             start: rangeStart,
             end: Math.min(rangeEnd, totalReviews),
             total: totalReviews,
