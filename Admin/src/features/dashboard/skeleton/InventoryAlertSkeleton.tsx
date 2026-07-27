@@ -2,7 +2,7 @@ import InventoryCardSkeleton from './InventoryCardSkeleton';
 
 const InventoryAlertSkeleton = () => {
   return (
-    <div className="w-full rounded-lg bg-white p-8 shadow h-[512px]">
+    <div className="w-full rounded-lg bg-white p-8 shadow h-128">
       {/* Header */}
       <div className="flex gap-2 items-center mb-6 animate-pulse">
         <div className="w-6 h-6 rounded bg-gray-200" />

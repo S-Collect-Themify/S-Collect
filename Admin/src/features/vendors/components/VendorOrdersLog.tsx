@@ -236,7 +236,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full h-10 border border-gray-200 rounded-xl px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
+            className="w-full h-10 border border-gray-200 rounded-lg px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
           />
         </div>
         <div className="w-35">
@@ -247,7 +247,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="w-full h-10 border border-gray-200 rounded-xl px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
+            className="w-full h-10 border border-gray-200 rounded-lg px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
           >
             <option value="all">{t('vendors.ordersLog.allStatuses', 'All Statuses')}</option>
             <option value="delivered">{t('vendors.ordersLog.statusDelivered', 'Delivered')}</option>
@@ -261,7 +261,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="w-full h-10 border border-gray-200 rounded-xl px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
+            className="w-full h-10 border border-gray-200 rounded-lg px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
           />
         </div>
         <div className="flex-1 min-w-40">
@@ -270,18 +270,18 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="w-full h-10 border border-gray-200 rounded-xl px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
+            className="w-full h-10 border border-gray-200 rounded-lg px-3 text-xs text-gray-700 outline-none focus:border-gray-400 transition-colors bg-gray-50/50"
           />
         </div>
         <button
           onClick={handleFilter}
-          className="h-10 px-6 rounded-xl bg-black text-white text-xs font-semibold hover:bg-gray-800 transition-colors shrink-0 cursor-pointer"
+          className="h-10 px-6 rounded-lg bg-black text-white text-xs font-semibold hover:bg-gray-800 transition-colors shrink-0 cursor-pointer"
         >
           {t('vendors.ordersLog.filter', 'Filter')}
         </button>
         <button
           onClick={handleReset}
-          className="h-10 px-4 rounded-xl border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 transition-colors shrink-0 cursor-pointer"
+          className="h-10 px-4 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 transition-colors shrink-0 cursor-pointer"
         >
           {t('vendors.ordersLog.reset', 'Reset')}
         </button>

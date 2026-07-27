@@ -20,7 +20,7 @@ export default function PayoutVendorSummaryBlock({ item }: PayoutVendorSummaryBl
         <span className="text-gray-500 font-medium">
           {t('payouts.bankAccountLabel', 'Bank Account')}
         </span>
-        <span className="font-bold text-gray-900 text-xs sm:text-sm font-mono truncate max-w-[200px]">
+        <span className="font-bold text-gray-900 text-xs sm:text-sm font-mono truncate max-w-50">
           {item.bankAccount}
         </span>
       </div>

@@ -95,7 +95,7 @@ const DashboardGrid = () => {
           <div
             key={metric.title}
             // Added the animation class
-            className={`bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm h-30 md:h-33.75 lg:h-38.75 flex flex-col justify-between  animate-fade-in-up  ${(isMobile || isTablet) &&
+            className={`bg-white border border-gray-100 rounded-lg p-3 lg:p-5 shadow-sm h-30 md:h-33.75 lg:h-38.75 flex flex-col justify-between  animate-fade-in-up  ${(isMobile || isTablet) &&
               index === dashboardMetrics.length - 1 &&
               dashboardMetrics.length > 4
               ? "col-span-2"

@@ -31,7 +31,7 @@ export default function PayoutAmountField({
         required
         value={amountInput}
         onChange={(e) => onChangeAmount(e.target.value)}
-        className={`w-full h-12 px-4 border rounded-xl text-sm font-semibold transition-colors ${
+        className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors ${
           hasValidationError
             ? 'border-rose-600 bg-rose-50/50 text-rose-900 focus:outline-none focus:border-rose-600'
             : 'border-gray-200 text-gray-900 focus:outline-none focus:border-black'

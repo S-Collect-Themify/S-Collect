@@ -168,7 +168,7 @@ export default function ReturnRequestsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('returnsPage.searchPlaceholder', { defaultValue: 'Search by ID or Customer...' })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-900 transition-colors bg-gray-50/50"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-900 transition-colors bg-gray-50/50"
           />
         </div>
 
@@ -178,7 +178,7 @@ export default function ReturnRequestsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-lg py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
             >
               <option value="ALL">{t('returnsPage.allStatuses', { defaultValue: 'Status: All Statuses' })}</option>
               <option value="PENDING_REVIEW">Pending Review</option>
@@ -191,7 +191,7 @@ export default function ReturnRequestsPage() {
           </div>
 
           <div className="relative flex-1 sm:flex-initial">
-            <select className="w-full appearance-none bg-white border border-gray-200 rounded-xl py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer">
+            <select className="w-full appearance-none bg-white border border-gray-200 rounded-lg py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer">
               <option>{t('returnsPage.last30Days', { defaultValue: 'Date: Last 30 Days' })}</option>
               <option>Last 7 Days</option>
               <option>Last 90 Days</option>
@@ -305,7 +305,7 @@ export default function ReturnRequestsPage() {
                   <img
                     src={item.productImage}
                     alt={item.productTitle}
-                    className="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0"
+                    className="w-14 h-14 rounded-lg object-cover border border-gray-200 shrink-0"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-gray-900 truncate">{item.productTitle}</p>
@@ -326,7 +326,7 @@ export default function ReturnRequestsPage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/returns/${encodeURIComponent(item.id)}`)}
-                    className="py-2 px-4 rounded-xl bg-gray-950 text-white text-xs font-semibold hover:bg-gray-800 transition-all cursor-pointer shadow-xs active:scale-95"
+                    className="py-2 px-4 rounded-lg bg-gray-950 text-white text-xs font-semibold hover:bg-gray-800 transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     {t('returnsPage.review', { defaultValue: 'Review' })}
                   </button>
@@ -352,7 +352,7 @@ export default function ReturnRequestsPage() {
             type="button"
             disabled={activePage === 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
+            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
             aria-label="Previous Page"
           >
             <ChevronLeft size={18} />
@@ -366,7 +366,7 @@ export default function ReturnRequestsPage() {
                 key={page}
                 type="button"
                 onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm font-mono transition-all cursor-pointer active:scale-95 ${
+                className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs sm:text-sm font-mono transition-all cursor-pointer active:scale-95 ${
                   isActive
                     ? 'bg-gray-950 text-white shadow-md'
                     : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
@@ -382,7 +382,7 @@ export default function ReturnRequestsPage() {
             type="button"
             disabled={activePage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
+            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
             aria-label="Next Page"
           >
             <ChevronRight size={18} />

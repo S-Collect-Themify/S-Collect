@@ -73,7 +73,7 @@ const MobileOrderCards = ({ getStatusLabel, t }: MobileOrdersProps) => (
       return (
         <div
           key={`${order.id}-${index}`}
-          className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm tbl-animate-in"
+          className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm tbl-animate-in"
           style={{ animationDelay: `${index * 70}ms` }}
         >
           {/* Top row: status badge + view button */}

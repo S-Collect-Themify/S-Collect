@@ -19,6 +19,8 @@ export default function PayoutPagination({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
+  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
+
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 

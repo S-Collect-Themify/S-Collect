@@ -5,3 +5,5 @@ export * from './components/OrdersSkeleton';
 export * from './components/OrdersTable';
 export * from './components/Pagination';
 export * from './components/MobileOrderCard';
+export * from './hooks/useAdminOrders';
+export * from './hooks/useOrdersLogic';

@@ -21,6 +21,8 @@ export default function VendorReportOrdersPagination({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
+  if (totalOrdersCount <= itemsPerPage || totalPages <= 1) return null;
+
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalOrdersCount);
 

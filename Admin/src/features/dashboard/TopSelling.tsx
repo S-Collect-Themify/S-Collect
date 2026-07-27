@@ -141,7 +141,7 @@ const TopSelling = () => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-4 overflow-hidden bg-white p-4 rounded-xl shadow h-[550px]"
+      className="flex flex-col gap-4 overflow-hidden bg-white p-4 rounded-lg shadow h-[550px]"
     >
       {/* Header appears with container */}
       <motion.div

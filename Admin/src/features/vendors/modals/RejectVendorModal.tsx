@@ -89,7 +89,7 @@ export default function RejectVendorModal({
                 onBlur={() => setTouched(true)}
                 placeholder={t('vendors.modals.rejectReasonPlaceholder', 'Reason for rejection...')}
                 rows={4}
-                className={`w-full rounded-xl border px-3 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 resize-none outline-none transition-colors ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 resize-none outline-none transition-colors ${
                   hasError
                     ? 'border-red-400 focus:border-red-500 bg-red-50/30'
                     : 'border-gray-200 focus:border-gray-400 bg-white'
@@ -129,13 +129,13 @@ export default function RejectVendorModal({
             <div className="flex items-center gap-3">
               <button
                 onClick={handleCancel}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 {t('vendors.table.cancel', 'Cancel')}
               </button>
               <button
                 onClick={handleConfirm}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors"
               >
                 {t('vendors.modals.rejectBtn', 'Reject Vendor')}
               </button>

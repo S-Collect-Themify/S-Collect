@@ -57,7 +57,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
       <button
         type="button"
         onClick={() => onRegisterPayout(item)}
-        className="w-full h-11 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-2xs flex items-center justify-center cursor-pointer"
+        className="w-full h-11 bg-black text-white hover:bg-gray-800 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-2xs flex items-center justify-center cursor-pointer"
       >
         {t('payouts.registerPayoutAction', 'Register Payout')}
       </button>

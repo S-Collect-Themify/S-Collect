@@ -47,7 +47,7 @@ export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardPr
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm"
+      className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm"
     >
       <div className="flex items-start gap-4">
         <div className="w-14 h-14 rounded-full bg-gray-800 text-white font-bold text-lg flex items-center justify-center shrink-0">

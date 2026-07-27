@@ -71,7 +71,7 @@ export default function RegisterPayoutModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in-up">
-      <div className="bg-white rounded-3xl p-6 md:p-7 w-full max-w-[440px] shadow-2xl border border-gray-100 space-y-5">
+      <div className="bg-white rounded-3xl p-6 md:p-7 w-full max-w-110 shadow-2xl border border-gray-100 space-y-5">
         {/* Header Title & Close Button */}
         <div className="flex items-center justify-between">
           <h3 className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
@@ -110,7 +110,7 @@ export default function RegisterPayoutModal({
               type="text"
               value={notesInput}
               onChange={(e) => setNotesInput(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors"
+              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors"
               placeholder={t('payouts.notesPlaceholder', 'e.g. Transfer #12345')}
             />
           </div>
@@ -125,13 +125,13 @@ export default function RegisterPayoutModal({
               required
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors bg-white"
+              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors bg-white"
             />
           </div>
 
           {/* Amber Manual Record Warning Notice Box (Shown when NO validation error) */}
           {!hasValidationError && (
-            <div className="bg-amber-50/80 border border-amber-100/50 rounded-xl p-3.5 text-xs text-amber-700 font-medium leading-relaxed">
+            <div className="bg-amber-50/80 border border-amber-100/50 rounded-lg p-3.5 text-xs text-amber-700 font-medium leading-relaxed">
               {t(
                 'payouts.manualRecordNotice',
                 'This is a manual record only. No bank transfer will be initiated by the platform.'
@@ -144,14 +144,14 @@ export default function RegisterPayoutModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-1/2 h-11 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer flex items-center justify-center order-2 sm:order-1"
+              className="w-full sm:w-1/2 h-11 border border-gray-200 rounded-lg text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer flex items-center justify-center order-2 sm:order-1"
             >
               {t('payouts.cancel', 'Cancel')}
             </button>
             <button
               type="submit"
               disabled={hasValidationError}
-              className={`w-full sm:w-1/2 h-11 rounded-xl text-sm font-bold transition-all flex items-center justify-center order-1 sm:order-2 ${
+              className={`w-full sm:w-1/2 h-11 rounded-lg text-sm font-bold transition-all flex items-center justify-center order-1 sm:order-2 ${
                 hasValidationError
                   ? 'bg-gray-200 text-gray-400 border border-transparent shadow-none cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-2xs active:scale-95'

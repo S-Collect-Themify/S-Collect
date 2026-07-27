@@ -86,12 +86,12 @@ export default function VendorReports() {
             minWidth={160}
             align={isRtl ? 'left' : 'right'}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden py-1 z-50"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden py-1 z-50"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center gap-2 h-9 px-3.5 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink-0"
+                className="flex items-center gap-2 h-9 px-3.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink-0"
               >
                 <Calendar size={14} className="text-gray-400 shrink-0" />
                 <span>{t(`vendorReports.${currentOption.key}`, currentOption.defaultLabel)}</span>

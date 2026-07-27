@@ -32,7 +32,7 @@ export default function BuyerMobileList({
     <div className="md:hidden space-y-3">
       {/* Mobile Select All Bar */}
       {paginated.length > 0 && !isLoading && (
-        <div className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-4 py-2.5 shadow-2xs mb-2">
+        <div className="flex items-center justify-between bg-white border border-gray-100 rounded-lg px-4 py-2.5 shadow-2xs mb-2">
           <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-gray-800">
             <input
               type="checkbox"

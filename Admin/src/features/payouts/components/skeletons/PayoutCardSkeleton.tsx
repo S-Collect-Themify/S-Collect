@@ -37,7 +37,7 @@ export default function PayoutCardSkeleton({ cardCount = 5 }: PayoutCardSkeleton
           </div>
 
           {/* Action button */}
-          <div className="h-10 bg-gray-200 rounded-xl w-full" />
+          <div className="h-10 bg-gray-200 rounded-lg w-full" />
         </div>
       ))}
     </div>

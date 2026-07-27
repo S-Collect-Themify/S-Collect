@@ -14,23 +14,29 @@ interface OrdersTableProps {
 
 export const StatusBadge = ({ status }: { status: string }) => {
   const { t } = useTranslation();
+  const upper = (status || '').toUpperCase();
   let badgeStyle = 'bg-gray-100 text-gray-700';
 
-  if (status === 'Delivered' || status === 'Approved' || status === 'Paid') {
+  if (['DELIVERED', 'APPROVED', 'PAID', 'COMPLETED'].includes(upper)) {
     badgeStyle = 'bg-emerald-100/70 text-emerald-700';
-  } else if (status === 'Canceled' || status === 'Cancelled' || status === 'Rejected') {
+  } else if (['CANCELED', 'CANCELLED', 'REJECTED', 'FAILED'].includes(upper)) {
     badgeStyle = 'bg-rose-100/70 text-rose-700';
-  } else if (status === 'Shipped' || status === 'Pending') {
+  } else if (['PENDING', 'PARTIALLY_SHIPPED', 'UNPAID'].includes(upper)) {
     badgeStyle = 'bg-amber-100/70 text-amber-700';
-  } else if (status === 'Processing') {
+  } else if (['PROCESSING', 'SHIPPED'].includes(upper)) {
     badgeStyle = 'bg-blue-100/70 text-blue-700';
-  } else if (status === 'Returned') {
-    badgeStyle = 'bg-amber-100/70 text-amber-700';
   }
+
+  const defaultLabel = status
+    ? status
+        .split('_')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ')
+    : 'Pending';
 
   return (
     <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${badgeStyle}`}>
-      {t(`ordersPage.statuses.${status}`, status)}
+      {t(`ordersPage.statuses.${status}`, defaultLabel)}
     </span>
   );
 };

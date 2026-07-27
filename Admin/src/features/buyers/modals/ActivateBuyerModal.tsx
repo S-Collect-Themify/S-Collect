@@ -60,7 +60,7 @@ export default function ActivateBuyerModal({
             </h2>
 
             {/* Buyer name highlight */}
-            <div className="w-full bg-gray-50/80 border border-gray-100 rounded-xl px-4 py-3 mb-3">
+            <div className="w-full bg-gray-50/80 border border-gray-100 rounded-lg px-4 py-3 mb-3">
               <p className="text-sm font-normal text-gray-700">
                 {t('buyers.modals.activatingPrefix', 'You are activating')}{' '}
                 <strong className="font-bold text-gray-900">{buyerName}</strong>
@@ -77,13 +77,13 @@ export default function ActivateBuyerModal({
             <div className="flex flex-col gap-2.5 w-full">
               <button
                 onClick={onConfirm}
-                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-xl bg-gray-950 hover:bg-gray-800 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-lg bg-gray-950 hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 {t('buyers.modals.activateBtn', 'Activate Buyer')}
               </button>
               <button
                 onClick={onCancel}
-                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 {t('buyers.modals.cancel', 'Cancel')}
               </button>
