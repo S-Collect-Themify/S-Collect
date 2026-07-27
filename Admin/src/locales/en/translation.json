@@ -368,6 +368,23 @@
     "totalShippingColon": "Total Shipping:",
     "grandTotalColon": "Grand Total:",
     "updateFailed": "Failed to update order.",
+    "updatingSubOrder": "Updating sub-order...",
+    "modal": {
+      "updateStatusTitle": "Update Sub-Order Status",
+      "newStatus": "New Status:",
+      "reasonLabel": "Reason for Status Override",
+      "reasonRequiredError": "Reason is required",
+      "reasonPlaceholder": "e.g. Vendor unresponsive after 5 business days",
+      "suggestions": "Suggestions:",
+      "suggestionsList": {
+        "unresponsive": "Vendor unresponsive after 5 business days",
+        "outOfStock": "Item out of stock",
+        "shippingDelay": "Courier shipping delay",
+        "manualUpdate": "Manual admin status update"
+      },
+      "cancel": "Cancel",
+      "confirmStatusUpdate": "Confirm Status Update"
+    },
     "pending": "Pending",
     "processing": "Processing",
     "shipped": "Shipped",

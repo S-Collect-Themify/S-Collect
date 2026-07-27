@@ -33,14 +33,15 @@ export const SubOrderCard = ({
   const [reasonModalOpen, setReasonModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [reasonText, setReasonText] = useState(defaultReason);
+  const [reasonError, setReasonError] = useState(false);
 
   const statusOptions = ['PENDING', 'PROCESSING', 'PARTIALLY_SHIPPED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
   const quickReasons = [
-    'Vendor unresponsive after 5 business days',
-    'Item out of stock',
-    'Courier shipping delay',
-    'Manual admin status update',
+    { key: 'ordersPage.modal.suggestionsList.unresponsive', defaultText: 'Vendor unresponsive after 5 business days' },
+    { key: 'ordersPage.modal.suggestionsList.outOfStock', defaultText: 'Item out of stock' },
+    { key: 'ordersPage.modal.suggestionsList.shippingDelay', defaultText: 'Courier shipping delay' },
+    { key: 'ordersPage.modal.suggestionsList.manualUpdate', defaultText: 'Manual admin status update' },
   ];
 
   const handleSaveTracking = async () => {
@@ -55,16 +56,22 @@ export const SubOrderCard = ({
   const handleStatusSelect = (st: string) => {
     if (st === subOrder.status) return;
     setPendingStatus(st);
+    setReasonError(false);
     setReasonModalOpen(true);
   };
 
   const handleConfirmStatusChange = async () => {
     if (!pendingStatus) return;
+    if (!reasonText.trim()) {
+      setReasonError(true);
+      return;
+    }
     setReasonModalOpen(false);
+    setReasonError(false);
     await onUpdateStatus({
       status: pendingStatus,
       trackingNumber,
-      reason: reasonText || undefined,
+      reason: reasonText.trim(),
     });
     setPendingStatus(null);
   };
@@ -77,7 +84,7 @@ export const SubOrderCard = ({
       {isUpdating && (
         <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-2xl z-20 flex items-center justify-center gap-2 text-xs font-semibold text-blue-600">
           <Loader2 className="animate-spin" size={18} />
-          <span>Updating sub-order...</span>
+          <span>{t('ordersPage.updatingSubOrder', 'Updating sub-order...')}</span>
         </div>
       )}
 
@@ -91,7 +98,7 @@ export const SubOrderCard = ({
 
       {/* Status Override Reason display if available */}
       {Boolean(subOrder.statusOverrideReason) && (
-        <div className="bg-amber-50/70 border border-amber-200/60 rounded-xl p-2.5 flex items-start gap-2 text-xs text-amber-800">
+        <div className="bg-amber-50/70 border border-amber-200/60 rounded-lg p-2.5 flex items-start gap-2 text-xs text-amber-800">
           <MessageSquare size={14} className="shrink-0 text-amber-600 mt-0.5" />
           <div>
             <span className="font-semibold">{t('ordersPage.reason', 'Reason')}: </span>
@@ -118,7 +125,7 @@ export const SubOrderCard = ({
                   handleSaveTracking();
                 }
               }}
-              className={`w-full py-2 rounded-xl border text-xs font-mono transition-colors ${
+              className={`w-full py-2 rounded-lg border text-xs font-mono transition-colors ${
                 isEditingTracking
                   ? 'border-blue-500 bg-white text-gray-900 focus:outline-none ring-2 ring-blue-100'
                   : 'border-gray-200 text-gray-800 bg-gray-50/50'
@@ -169,12 +176,12 @@ export const SubOrderCard = ({
           <PortalDropdown
             minWidth={160}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50 py-1"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
-                className="w-full flex items-center justify-between py-2 px-3 rounded-xl border border-gray-200 text-xs text-gray-800 bg-gray-50/50 hover:bg-white focus:outline-none cursor-pointer transition-colors"
+                className="w-full flex items-center justify-between py-2 px-3 rounded-lg border border-gray-200 text-xs text-gray-800 bg-gray-50/50 hover:bg-white focus:outline-none cursor-pointer transition-colors"
               >
                 <span>{t(`ordersPage.statuses.${subOrder.status}`, subOrder.status)}</span>
                 <ChevronDown
@@ -253,7 +260,9 @@ export const SubOrderCard = ({
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-5 max-w-md w-full shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900 text-base">Update Sub-Order Status</h3>
+              <h3 className="font-bold text-gray-900 text-base">
+                {t('ordersPage.modal.updateStatusTitle', 'Update Sub-Order Status')}
+              </h3>
               <button
                 type="button"
                 onClick={() => {
@@ -267,38 +276,66 @@ export const SubOrderCard = ({
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
-                <span className="text-gray-500 font-medium">New Status:</span>
+              <div className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+                <span className="text-gray-500 font-medium">
+                  {t('ordersPage.modal.newStatus', 'New Status:')}
+                </span>
                 {pendingStatus && <StatusBadge status={pendingStatus} />}
               </div>
 
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
-                  Reason for Status Override (Optional)
+                  {t('ordersPage.modal.reasonLabel', 'Reason for Status Override')}{' '}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   rows={3}
                   value={reasonText}
-                  onChange={(e) => setReasonText(e.target.value)}
-                  placeholder="e.g. Vendor unresponsive after 5 business days"
-                  className="w-full p-3 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                  onChange={(e) => {
+                    setReasonText(e.target.value);
+                    if (reasonError && e.target.value.trim()) {
+                      setReasonError(false);
+                    }
+                  }}
+                  placeholder={t(
+                    'ordersPage.modal.reasonPlaceholder',
+                    'e.g. Vendor unresponsive after 5 business days'
+                  )}
+                  className={`w-full p-3 rounded-lg border text-xs focus:outline-none resize-none transition-colors ${
+                    reasonError
+                      ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 bg-rose-50/20'
+                      : 'border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+                  }`}
                 />
+                {reasonError && (
+                  <p className="text-rose-500 text-[11px] font-medium mt-1">
+                    {t('ordersPage.modal.reasonRequiredError', 'Reason is required')}
+                  </p>
+                )}
               </div>
 
               {/* Quick suggestions */}
               <div>
-                <span className="block text-[11px] text-gray-400 mb-1 font-medium">Suggestions:</span>
+                <span className="block text-[11px] text-gray-400 mb-1 font-medium">
+                  {t('ordersPage.modal.suggestions', 'Suggestions:')}
+                </span>
                 <div className="flex flex-wrap gap-1.5">
-                  {quickReasons.map((qr) => (
-                    <button
-                      key={qr}
-                      type="button"
-                      onClick={() => setReasonText(qr)}
-                      className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] rounded-lg transition-colors cursor-pointer"
-                    >
-                      {qr}
-                    </button>
-                  ))}
+                  {quickReasons.map((qr) => {
+                    const text = t(qr.key, qr.defaultText);
+                    return (
+                      <button
+                        key={qr.key}
+                        type="button"
+                        onClick={() => {
+                          setReasonText(text);
+                          setReasonError(false);
+                        }}
+                        className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] rounded-lg transition-colors cursor-pointer"
+                      >
+                        {text}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -308,17 +345,18 @@ export const SubOrderCard = ({
                   onClick={() => {
                     setReasonModalOpen(false);
                     setPendingStatus(null);
+                    setReasonError(false);
                   }}
-                  className="px-4 py-2 rounded-xl text-gray-600 bg-gray-100 hover:bg-gray-200 font-semibold cursor-pointer"
+                  className="px-4 py-2 rounded-lg text-gray-600 bg-gray-100 hover:bg-gray-200 font-semibold cursor-pointer"
                 >
-                  Cancel
+                  {t('ordersPage.modal.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmStatusChange}
-                  className="px-4 py-2 rounded-xl text-white bg-blue-600 hover:bg-blue-700 font-semibold cursor-pointer shadow-xs"
+                  className="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Confirm Status Update
+                  {t('ordersPage.modal.confirmStatusUpdate', 'Confirm Status Update')}
                 </button>
               </div>
             </div>

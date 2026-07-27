@@ -116,7 +116,7 @@ export default function Transactions() {
             <div className="p-5 space-y-4 animate-pulse">
               <div className="h-4 w-48 bg-gray-200 rounded-md" />
               {Array.from({ length: 5 }).map((_, idx) => (
-                <div key={idx} className="h-12 w-full bg-gray-100 rounded-xl" />
+                <div key={idx} className="h-12 w-full bg-gray-100 rounded-lg" />
               ))}
             </div>
           ) : (

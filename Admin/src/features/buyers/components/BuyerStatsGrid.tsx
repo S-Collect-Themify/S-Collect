@@ -66,7 +66,7 @@ export default function BuyerStatsGrid({
   return (
     <motion.div variants={cardVariants} className="grid grid-cols-4 gap-4">
       {stats.map((stat) => (
-        <div key={stat.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+        <div key={stat.label} className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-500 mb-2">{stat.label}</p>
           <p className="text-xl font-bold text-gray-900">
             {stat.value}

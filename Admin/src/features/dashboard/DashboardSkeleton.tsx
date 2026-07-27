@@ -8,7 +8,7 @@ export default function DashboardSkeleton() {
           <div className="h-3 w-40 bg-gray-200 rounded-md" />
           <div className="h-6 w-36 bg-gray-300 rounded-lg mt-2" />
         </div>
-        <div className="h-9 w-32 bg-gray-200 rounded-xl" />
+        <div className="h-9 w-32 bg-gray-200 rounded-lg" />
       </div>
 
       {/* 4 Stat Cards Grid Skeleton (Mobile 2-col, Desktop 4-col) */}
@@ -39,9 +39,9 @@ export default function DashboardSkeleton() {
               <div className="h-3.5 w-24 bg-gray-200 rounded-md" />
               <div className="h-6 w-36 bg-gray-300 rounded-lg" />
             </div>
-            <div className="h-8 w-24 bg-gray-200 rounded-xl" />
+            <div className="h-8 w-24 bg-gray-200 rounded-lg" />
           </div>
-          <div className="h-48 w-full bg-gray-100 rounded-xl" />
+          <div className="h-48 w-full bg-gray-100 rounded-lg" />
         </div>
 
         {/* Orders Donut Skeleton */}
@@ -88,7 +88,7 @@ export default function DashboardSkeleton() {
         {/* Table / Cards Skeleton */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
           {Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="h-10 w-full bg-gray-100 rounded-xl" />
+            <div key={idx} className="h-10 w-full bg-gray-100 rounded-lg" />
           ))}
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function DashboardSkeleton() {
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="h-12 w-full bg-gray-100 rounded-xl" />
+            <div key={idx} className="h-12 w-full bg-gray-100 rounded-lg" />
           ))}
         </div>
       </div>

@@ -5,7 +5,7 @@ const DashboardGridSkeleton = () => {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm max-sm:h-[120px] lg:h-[155px] flex flex-col lg:justify-between justify-evenly animate-pulse"
+            className="bg-white border border-gray-100 rounded-lg p-3 lg:p-5 shadow-sm max-sm:h-30 lg:h-38.75 flex flex-col lg:justify-between justify-evenly animate-pulse"
           >
             {/* Header */}
             <div className="flex items-center gap-2">

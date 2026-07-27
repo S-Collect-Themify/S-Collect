@@ -1,13 +1,13 @@
 const SalesChartSkeleton = () => {
   return (
-    <div className="w-full rounded-xl bg-white p-6 shadow h-[512px] animate-pulse">
+    <div className="w-full rounded-lg bg-white p-6 shadow h-128 animate-pulse">
       {/* Header */}
       <div className="mb-4 flex items-center gap-3">
         <div className="h-5 w-32 bg-gray-200 rounded" />
       </div>
 
       {/* Chart Area */}
-      <div className="h-[450px] relative">
+      <div className="h-112.5 relative">
         {/* Y-axis labels */}
         <div className="absolute left-0 top-0 flex h-full flex-col justify-between">
           {Array.from({ length: 6 }).map((_, i) => (

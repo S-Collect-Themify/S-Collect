@@ -201,7 +201,7 @@ export default function OrderDetailsPage() {
     return (
       <div className="flex-1 p-6 bg-gray-50/80 min-h-screen">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded-xl w-64" />
+          <div className="h-8 bg-gray-200 rounded-lg w-64" />
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
             <div className="space-y-6">
               <div className="h-48 bg-gray-200 rounded-2xl" />
@@ -226,7 +226,7 @@ export default function OrderDetailsPage() {
         <button
           type="button"
           onClick={() => navigate('/incoming-orders')}
-          className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-xl"
+          className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-lg"
         >
           Back to Orders
         </button>
@@ -407,7 +407,7 @@ export default function OrderDetailsPage() {
                           <tr key={it.id}>
                             <td className="py-4 text-start">
                               <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-xl bg-amber-900/10 border border-gray-100 shrink-0 flex items-center justify-center text-xl">
+                                <div className="w-11 h-11 rounded-lg bg-amber-900/10 border border-gray-100 shrink-0 flex items-center justify-center text-xl">
                                   {getProductThumbnail(it.productName)}
                                 </div>
                                 <div>
@@ -494,7 +494,7 @@ export default function OrderDetailsPage() {
 
                 {/* Out of stock / refund warning notice */}
                 {allOrderItems.some((it) => it.isRefunded) && (
-                  <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 flex items-center gap-2 text-xs text-rose-600">
+                  <div className="bg-rose-50 border border-rose-100 rounded-lg p-3.5 flex items-center gap-2 text-xs text-rose-600">
                     <AlertTriangle size={15} className="shrink-0 text-rose-500" />
                     <span>
                       {t(

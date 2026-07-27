@@ -120,7 +120,7 @@ export default function BuyerTable() {
       {/* Filters (Matching Image 1 layout with larger search bar on mobile) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-5 w-full">
         {/* Search */}
-        <div className="flex items-center gap-2.5 border border-gray-200/90 rounded-2xl sm:rounded-xl px-4 py-2.5 bg-white flex-1 sm:max-w-xs shadow-2xs transition-colors focus-within:border-gray-400">
+        <div className="flex items-center gap-2.5 border border-gray-200/90 rounded-2xl sm:rounded-lg px-4 py-2.5 bg-white flex-1 sm:max-w-xs shadow-2xs transition-colors focus-within:border-gray-400">
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
             type="text"
@@ -135,11 +135,11 @@ export default function BuyerTable() {
         <PortalDropdown
           minWidth={160}
           animate={false}
-          menuClassName="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 py-1"
+          menuClassName="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50 py-1"
           trigger={({ isOpen, toggle }) => (
             <button
               type="button"
-              className="flex items-center justify-between sm:justify-start gap-1.5 h-12 sm:h-9 px-4 border border-gray-200/90 rounded-2xl sm:rounded-xl bg-white text-sm cursor-pointer hover:bg-gray-50 whitespace-nowrap shadow-2xs w-full sm:w-auto"
+              className="flex items-center justify-between sm:justify-start gap-1.5 h-12 sm:h-9 px-4 border border-gray-200/90 rounded-2xl sm:rounded-lg bg-white text-sm cursor-pointer hover:bg-gray-50 whitespace-nowrap shadow-2xs w-full sm:w-auto"
               onClick={toggle}
             >
               <span className="font-medium text-gray-700">

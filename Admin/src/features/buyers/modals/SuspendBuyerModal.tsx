@@ -79,7 +79,7 @@ export default function SuspendBuyerModal({
             </h2>
 
             {/* Buyer name highlight (red box) */}
-            <div className="w-full bg-red-50/80 border border-red-100/60 rounded-xl p-3 mb-4 text-center">
+            <div className="w-full bg-red-50/80 border border-red-100/60 rounded-lg p-3 mb-4 text-center">
               <p className="text-sm font-semibold text-red-600">
                 {t('buyers.modals.suspendingName', {
                   name: buyerName,
@@ -99,7 +99,7 @@ export default function SuspendBuyerModal({
                 onBlur={() => setTouched(true)}
                 placeholder={t('buyers.modals.reasonPlaceholder', 'Provide detailed reason...')}
                 rows={4}
-                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 resize-none outline-none transition-colors ${
+                className={`w-full rounded-lg border px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 resize-none outline-none transition-colors ${
                   hasError
                     ? 'border-red-400 focus:border-red-500 bg-red-50/30'
                     : 'border-gray-200 focus:border-gray-400 bg-white'
@@ -116,13 +116,13 @@ export default function SuspendBuyerModal({
             <div className="flex flex-col gap-2.5 w-full">
               <button
                 onClick={handleConfirm}
-                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-lg bg-red-600 hover:bg-red-700 transition-colors cursor-pointer"
               >
                 {t('buyers.modals.suspendBtn', 'Suspend Buyer')}
               </button>
               <button
                 onClick={handleCancel}
-                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 {t('buyers.modals.cancel', 'Cancel')}
               </button>

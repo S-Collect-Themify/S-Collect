@@ -1,6 +1,6 @@
 const RecentOrdersTableSkeleton = () => {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white h-[550px]">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white h-137.5">
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6 animate-pulse">
         <div className="h-8 w-48 bg-gray-200 rounded" />

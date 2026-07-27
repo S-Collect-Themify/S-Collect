@@ -44,7 +44,7 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
   return (
     <motion.div
       variants={cardVariants}
-      className={`bg-white rounded-xl border border-gray-100 shadow-sm ${className}`}
+      className={`bg-white rounded-lg border border-gray-100 shadow-sm ${className}`}
     >
       {children}
     </motion.div>
@@ -65,7 +65,7 @@ function StatCard({
   highlight?: boolean;
 }) {
   return (
-    <div className="flex-1 min-w-0 bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+    <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 shadow-sm p-4">
       <p className="text-xs text-gray-500 mb-2">{label}</p>
       <p
         className={`text-xl font-bold truncate ${
@@ -385,7 +385,7 @@ export default function VendorDetails() {
                 return (
                   <div
                     key={order.id}
-                    className="bg-gray-50 rounded-xl border border-gray-100 p-3.5 space-y-2"
+                    className="bg-gray-50 rounded-lg border border-gray-100 p-3.5 space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-indigo-600">{order.id}</span>
@@ -500,7 +500,7 @@ export default function VendorDetails() {
               products.map((product, idx) => (
                 <div
                   key={`${product.name}-${idx}`}
-                  className="bg-gray-50 rounded-xl border border-gray-100 p-3.5 space-y-2"
+                  className="bg-gray-50 rounded-lg border border-gray-100 p-3.5 space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-bold text-gray-800 truncate">
@@ -623,7 +623,7 @@ export default function VendorDetails() {
                 return (
                   <div
                     key={payout.id}
-                    className="bg-gray-50 rounded-xl border border-gray-100 p-3.5 space-y-2"
+                    className="bg-gray-50 rounded-lg border border-gray-100 p-3.5 space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-amber-600">{payout.id}</span>

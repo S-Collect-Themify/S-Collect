@@ -105,7 +105,7 @@ export default function ReturnRequestDetailsPage() {
             {/* 2. Customer Explanation Card */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <h2 className="font-bold text-gray-900 text-sm mb-3">Customer Explanation</h2>
-              <div className="bg-gray-50/80 border border-gray-100 rounded-xl p-3.5 text-xs text-gray-700 leading-relaxed font-medium italic">
+              <div className="bg-gray-50/80 border border-gray-100 rounded-lg p-3.5 text-xs text-gray-700 leading-relaxed font-medium italic">
                 "The keyboard layout is different from what was advertised. I requested the English/Arabic dual layout version, but I received the English-only layout. The seal is still intact and keyboard is completely unused."
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function ReturnRequestDetailsPage() {
                   <img
                     src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=100"
                     alt="Keyboard"
-                    className="w-12 h-12 rounded-xl object-cover border border-gray-100 shrink-0"
+                    className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0"
                   />
                   <div>
                     <p className="font-bold text-gray-900 text-xs">
@@ -200,7 +200,7 @@ export default function ReturnRequestDetailsPage() {
                     onChange={(e) => setAdminNote(e.target.value)}
                     disabled={status !== 'Pending Review'}
                     placeholder="Add a reason or note for this decision (visible to internal teams)..."
-                    className="w-full border border-gray-200 rounded-xl p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
 
@@ -209,7 +209,7 @@ export default function ReturnRequestDetailsPage() {
                     <button
                       type="button"
                       onClick={() => setShowApproveModal(true)}
-                      className="w-full bg-gray-950 text-white hover:bg-gray-800 font-semibold py-3 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
+                      className="w-full bg-gray-950 text-white hover:bg-gray-800 font-semibold py-3 rounded-lg shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
                     >
                       <Check size={15} />
                       <span>Approve Refund</span>
@@ -217,7 +217,7 @@ export default function ReturnRequestDetailsPage() {
                     <button
                       type="button"
                       onClick={() => setShowRejectModal(true)}
-                      className="w-full bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-3 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
+                      className="w-full bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-3 rounded-lg shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
                     >
                       <X size={15} />
                       <span>Reject Refund</span>
@@ -225,7 +225,7 @@ export default function ReturnRequestDetailsPage() {
                   </>
                 ) : (
                   <div
-                    className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center gap-2 justify-center ${
+                    className={`p-3.5 rounded-lg border text-xs font-semibold flex items-center gap-2 justify-center ${
                       status === 'Approved'
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                         : 'bg-rose-50 border-rose-200 text-rose-700'
@@ -336,7 +336,7 @@ export default function ReturnRequestDetailsPage() {
                       <img
                         src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=100"
                         alt="Keyboard"
-                        className="w-12 h-12 rounded-xl object-cover border border-gray-100 shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0"
                       />
                       <div>
                         <p className="font-bold text-gray-900 text-sm">
@@ -366,7 +366,7 @@ export default function ReturnRequestDetailsPage() {
                   <h2 className="font-bold text-gray-900 text-base mb-3">
                     Customer Explanation
                   </h2>
-                  <div className="bg-gray-50/80 border border-gray-100 rounded-xl p-4 text-xs text-gray-700 leading-relaxed font-medium italic">
+                  <div className="bg-gray-50/80 border border-gray-100 rounded-lg p-4 text-xs text-gray-700 leading-relaxed font-medium italic">
                     "The keyboard layout is different from what was advertised. I requested the English/Arabic dual layout version, but I received the English-only layout. The seal is still intact and keyboard is completely unused."
                   </div>
                 </div>
@@ -384,7 +384,7 @@ export default function ReturnRequestDetailsPage() {
                         onChange={(e) => setAdminNote(e.target.value)}
                         disabled={status !== 'Pending Review'}
                         placeholder="Add a reason or note for this decision (visible to internal teams)..."
-                        className="w-full border border-gray-200 rounded-xl p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none disabled:bg-gray-50 disabled:text-gray-500"
+                        className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none disabled:bg-gray-50 disabled:text-gray-500"
                       />
                     </div>
 
@@ -393,7 +393,7 @@ export default function ReturnRequestDetailsPage() {
                         <button
                           type="button"
                           onClick={() => setShowApproveModal(true)}
-                          className="w-full bg-gray-950 text-white hover:bg-gray-800 font-semibold py-3 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
+                          className="w-full bg-gray-950 text-white hover:bg-gray-800 font-semibold py-3 rounded-lg shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
                         >
                           <Check size={15} />
                           <span>Approve Refund</span>
@@ -401,7 +401,7 @@ export default function ReturnRequestDetailsPage() {
                         <button
                           type="button"
                           onClick={() => setShowRejectModal(true)}
-                          className="w-full bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-3 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
+                          className="w-full bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold py-3 rounded-lg shadow-xs flex items-center justify-center gap-2 text-xs cursor-pointer transition-all active:scale-98"
                         >
                           <X size={15} />
                           <span>Reject Refund</span>
@@ -409,7 +409,7 @@ export default function ReturnRequestDetailsPage() {
                       </>
                     ) : (
                       <div
-                        className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 ${
+                        className={`p-3.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-2 ${
                           status === 'Approved'
                             ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                             : 'bg-rose-50 border-rose-200 text-rose-700'
@@ -441,7 +441,7 @@ export default function ReturnRequestDetailsPage() {
             <p className="text-xs text-gray-500 text-center leading-relaxed mb-5">
               Are you sure you want to approve this refund request? Once approved, the refund status will change to Approved and the refund amount of <strong className="text-gray-900">450.00 SAR</strong> will be processed.
             </p>
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 space-y-2 mb-6 text-xs">
+            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3.5 space-y-2 mb-6 text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Refund ID</span>
                 <span className="font-semibold text-gray-900 font-mono">{refundIdCode}</span>
@@ -459,7 +459,7 @@ export default function ReturnRequestDetailsPage() {
               <button
                 type="button"
                 onClick={() => setShowApproveModal(false)}
-                className="py-2.5 px-4 rounded-xl border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -469,7 +469,7 @@ export default function ReturnRequestDetailsPage() {
                   handleApprove();
                   setShowApproveModal(false);
                 }}
-                className="py-2.5 px-4 rounded-xl bg-gray-950 text-white text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer"
+                className="py-2.5 px-4 rounded-lg bg-gray-950 text-white text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 Approve Refund
               </button>
@@ -493,7 +493,7 @@ export default function ReturnRequestDetailsPage() {
             <p className="text-xs text-gray-500 text-center leading-relaxed mb-4">
               Are you sure you want to reject this refund request for customer <strong className="text-gray-900">Yousef Al-Harbi</strong>?
             </p>
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 space-y-2 mb-6 text-xs">
+            <div className="bg-gray-50 border border-gray-100 rounded-lg p-3.5 space-y-2 mb-6 text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Refund ID</span>
                 <span className="font-semibold text-gray-900 font-mono">{refundIdCode}</span>
@@ -507,7 +507,7 @@ export default function ReturnRequestDetailsPage() {
               <button
                 type="button"
                 onClick={() => setShowRejectModal(false)}
-                className="py-2.5 px-4 rounded-xl border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
+                className="py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -517,7 +517,7 @@ export default function ReturnRequestDetailsPage() {
                   handleReject();
                   setShowRejectModal(false);
                 }}
-                className="py-2.5 px-4 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition-colors cursor-pointer"
+                className="py-2.5 px-4 rounded-lg bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition-colors cursor-pointer"
               >
                 Reject Refund
               </button>

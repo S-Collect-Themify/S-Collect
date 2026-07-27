@@ -45,11 +45,11 @@ export default function RevenueSalesChartHeader({
       <PortalDropdown
         minWidth={110}
         animate={false}
-        menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50"
+        menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
         trigger={({ isOpen, toggle }) => (
           <button
             onClick={toggle}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
           >
             <span>{t(`dashboardOverview.${periodKey}`, activePeriodLabel)}</span>
             <ChevronDown

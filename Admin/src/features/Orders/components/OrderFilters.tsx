@@ -74,7 +74,7 @@ export const OrderFilters = ({
         <button
           type="button"
           onClick={() => onMainTabChange('allOrders')}
-          className={`px-6 py-2.5 rounded-xl text-body-sm font-bold transition-all cursor-pointer ${
+          className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
             activeMainTab === 'allOrders'
               ? 'bg-black text-white shadow-2xs'
               : 'bg-transparent text-gray-500 hover:text-gray-900'
@@ -85,7 +85,7 @@ export const OrderFilters = ({
         <button
           type="button"
           onClick={() => onMainTabChange('refunds')}
-          className={`px-6 py-2.5 rounded-xl text-body-sm font-bold transition-all cursor-pointer ${
+          className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
             activeMainTab === 'refunds'
               ? 'bg-black text-white shadow-2xs'
               : 'bg-transparent text-gray-500 hover:text-gray-900'
@@ -96,7 +96,7 @@ export const OrderFilters = ({
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-start gap-3 mb-5">
         {/* Search Input */}
         <div className="relative flex-1 max-w-sm">
           <Search
@@ -114,7 +114,7 @@ export const OrderFilters = ({
                 ? t('ordersPage.searchOrders', 'Search orders...')
                 : t('ordersPage.searchRefunds', 'Search refunds...')
             }
-            className={`w-full py-2 rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
+            className={`w-full py-2 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
               isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
             }`}
           />
@@ -126,12 +126,12 @@ export const OrderFilters = ({
           <PortalDropdown
             minWidth={150}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50 py-1"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <span className="truncate">
                   {t('ordersPage.statusFilter', 'Status')}: {currentStatusDisplay}
@@ -175,12 +175,12 @@ export const OrderFilters = ({
           <PortalDropdown
             minWidth={165}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50 py-1"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <span className="truncate">
                   {t('ordersPage.dateFilter', 'Date')}: {currentDateDisplay}
@@ -221,12 +221,12 @@ export const OrderFilters = ({
           <PortalDropdown
             minWidth={160}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50 py-1"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <span className="truncate">
                   {t('ordersPage.vendorFilter', 'Vendor')}: {currentVendorDisplay}

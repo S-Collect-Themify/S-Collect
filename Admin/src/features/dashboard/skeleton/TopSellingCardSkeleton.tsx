@@ -1,6 +1,6 @@
 const TopSellingCardSkeleton = () => {
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-white p-3 animate-pulse">
+    <div className="flex items-center gap-4 rounded-lg bg-white p-3 animate-pulse">
       {/* Product Image */}
       <div className="h-14 w-14 rounded-lg bg-gray-200 shrink-0" />
 
@@ -18,7 +18,7 @@ const TopSellingCardSkeleton = () => {
       </div>
 
       {/* Revenue */}
-      <div className="flex flex-col items-end min-w-[100px]">
+      <div className="flex flex-col items-end min-w-25">
         <div className="h-6 w-24 bg-gray-200 rounded" />
 
         <div className="h-4 w-12 bg-gray-200 rounded mt-2" />

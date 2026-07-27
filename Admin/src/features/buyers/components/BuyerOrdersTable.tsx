@@ -111,7 +111,7 @@ export default function BuyerOrdersTable({ orders, isMobile }: BuyerOrdersTableP
         </>
       ) : (
         /* Desktop Table View */
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
           <div className="w-full overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
