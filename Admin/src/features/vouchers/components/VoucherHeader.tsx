@@ -17,7 +17,7 @@ export const VoucherHeader = ({
   const navigate = useNavigate();
 
   return (
-    <div className="py-2">
+    <div className="py-2 flex flex-col-reverse">
       {/* Breadcrumb navigation */}
       <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
         <Link to="/" className="hover:text-gray-600 transition-colors">

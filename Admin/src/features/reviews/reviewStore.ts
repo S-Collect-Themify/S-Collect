@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { INITIAL_REVIEWS } from './data';
 import type { ReviewItem, DeleteReviewModalState } from './types';
 
-interface ReviewStore {
+interface ReviewStoreState {
   reviews: ReviewItem[];
   search: string;
   vendorFilter: string;
@@ -10,18 +10,21 @@ interface ReviewStore {
   productFilter: string;
   currentPage: number;
   deleteModal: DeleteReviewModalState;
+}
 
+interface ReviewStoreActions {
   setReviews: (reviews: ReviewItem[]) => void;
   setSearch: (search: string) => void;
   setVendorFilter: (vendor: string) => void;
   setRatingFilter: (rating: string) => void;
   setProductFilter: (product: string) => void;
   setCurrentPage: (page: number) => void;
-
   openDeleteModal: (review: ReviewItem) => void;
   closeDeleteModal: () => void;
   removeReview: (id: string) => void;
 }
+
+export type ReviewStore = ReviewStoreState & ReviewStoreActions;
 
 export const useReviewStore = create<ReviewStore>((set) => ({
   reviews: INITIAL_REVIEWS,
