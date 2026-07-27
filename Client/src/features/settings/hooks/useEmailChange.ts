@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { changeEmail, confirmChangeEmail } from '../../../services/auth';
 import { ACCOUNT_SETTINGS_QUERY_KEY } from './useAccountSettings';
-import { getErrorMessage } from '../../../types/api';
 
 export const useRequestEmailChange = () => {
   return useMutation({
