@@ -32,7 +32,9 @@ interface InventoryItem {
   theme: {
     text: 'var(--red)' | 'var(--yellow)' | 'var(--green)';
     background:
-      'var(--red-light)' | 'var(--yellow-light)' | 'var(--green-light)';
+      | 'var(--red-light)'
+      | 'var(--yellow-light)'
+      | 'var(--green-light)';
   };
 }
 

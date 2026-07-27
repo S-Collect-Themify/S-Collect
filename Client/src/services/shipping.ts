@@ -18,15 +18,17 @@ export const zoneCodeToRegionId = (code: string): string => {
   return code.toLowerCase().replace(/_/g, '-');
 };
 
-export const getVendorShippingSettings = async (): Promise<VendorShippingSettings> => {
-  try {
-    const { data } = await api.get('/vendor/shipping');
-    const unwrapped = data && typeof data === 'object' && 'data' in data ? data.data : data;
-    return unwrapped;
-  } catch (err) {
-    throw handleServiceError(err, 'Failed to fetch shipping settings');
-  }
-};
+export const getVendorShippingSettings =
+  async (): Promise<VendorShippingSettings> => {
+    try {
+      const { data } = await api.get('/vendor/shipping');
+      const unwrapped =
+        data && typeof data === 'object' && 'data' in data ? data.data : data;
+      return unwrapped;
+    } catch (err) {
+      throw handleServiceError(err, 'Failed to fetch shipping settings');
+    }
+  };
 
 export const updateFlatShippingRate = async (rate: number): Promise<void> => {
   try {
@@ -36,11 +38,17 @@ export const updateFlatShippingRate = async (rate: number): Promise<void> => {
   }
 };
 
-export const upsertZoneShippingRate = async (code: string, rate: number): Promise<void> => {
+export const upsertZoneShippingRate = async (
+  code: string,
+  rate: number
+): Promise<void> => {
   try {
     await api.put(`/vendor/shipping/zones/${code}`, { rate });
   } catch (err) {
-    throw handleServiceError(err, `Failed to update regional shipping rate for ${code}`);
+    throw handleServiceError(
+      err,
+      `Failed to update regional shipping rate for ${code}`
+    );
   }
 };
 
@@ -49,7 +57,9 @@ export interface UpdateShippingPayload {
   regionalRates?: Record<string, number | undefined>;
 }
 
-export const updateVendorShippingSettings = async (payload: UpdateShippingPayload): Promise<void> => {
+export const updateVendorShippingSettings = async (
+  payload: UpdateShippingPayload
+): Promise<void> => {
   try {
     if (payload.flatRate !== undefined && payload.flatRate !== null) {
       await updateFlatShippingRate(payload.flatRate);

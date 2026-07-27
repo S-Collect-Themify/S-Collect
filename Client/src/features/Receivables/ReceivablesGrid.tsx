@@ -18,14 +18,14 @@ const ICONS: Record<PayoutIconName, LucideIcon> = {
   Clock,
 };
 
-const COLOR_THEME: Record<
-  PayoutColor,
-  { primary: string; light: string }
-> = {
+const COLOR_THEME: Record<PayoutColor, { primary: string; light: string }> = {
   green: { primary: 'var(--green)', light: 'var(--green-light)' },
   orange: { primary: 'var(--orange)', light: 'var(--orange-light)' },
   blue: { primary: 'var(--blue, #3b82f6)', light: 'var(--blue-light)' },
-  purple: { primary: 'var(--purple, #9333ea)', light: 'var(--purple-light, #faf5ff)' },
+  purple: {
+    primary: 'var(--purple, #9333ea)',
+    light: 'var(--purple-light, #faf5ff)',
+  },
 };
 
 const isPositiveTrend = (trend: string) => trend.trim().startsWith('+');
@@ -62,8 +62,9 @@ const ReceivablesGrid = () => {
           return (
             <div
               key={item.id}
-              className={`bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm h-[130px] md:h-[145px] lg:h-[165px] flex flex-col justify-between animate-receivables-fade-in-up ${isLastSpanning ? 'col-span-2' : ''
-                }`}
+              className={`bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm h-[130px] md:h-[145px] lg:h-[165px] flex flex-col justify-between animate-receivables-fade-in-up ${
+                isLastSpanning ? 'col-span-2' : ''
+              }`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Header */}
@@ -100,17 +101,18 @@ const ReceivablesGrid = () => {
                     <span
                       className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium"
                       style={{
-                        color: trendColor
+                        color: trendColor,
                       }}
                     >
                       <TrendIcon size={12} color={trendColor} />
                       {item.trend}
                     </span>
                   )}
-                  <span className="text-xs text-gray-400">{item.trendLabel}</span>
+                  <span className="text-xs text-gray-400">
+                    {item.trendLabel}
+                  </span>
                 </div>
               </div>
-
             </div>
           );
         })}

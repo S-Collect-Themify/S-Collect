@@ -9,10 +9,16 @@ interface MobileOrderCardsProps {
   onViewDetails: (id: string) => void;
 }
 
-const MobileOrderCards = ({ orders, getStatusLabel, t, onViewDetails }: MobileOrderCardsProps) => (
+const MobileOrderCards = ({
+  orders,
+  getStatusLabel,
+  t,
+  onViewDetails,
+}: MobileOrderCardsProps) => (
   <div className="flex flex-col gap-3">
     {orders.map((order, index) => {
-      const itemsTotal = order.items?.reduce((s, i) => s + (i.lineTotal ?? 0), 0) ?? 0;
+      const itemsTotal =
+        order.items?.reduce((s, i) => s + (i.lineTotal ?? 0), 0) ?? 0;
       const grandTotal = itemsTotal + (order.shippingRateApplied ?? 0);
       const firstProduct = order.items?.[0]?.productName ?? '—';
       const formattedId = `#${order.id.slice(0, 8).toUpperCase()}`;
@@ -25,7 +31,9 @@ const MobileOrderCards = ({ orders, getStatusLabel, t, onViewDetails }: MobileOr
         >
           {/* Top row: status badge + order ID */}
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-            <span className="text-xs font-semibold text-gray-700">{formattedId}</span>
+            <span className="text-xs font-semibold text-gray-700">
+              {formattedId}
+            </span>
             <span
               className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
                 STATUS_STYLES[order.status] ?? 'bg-gray-100 text-gray-600'
@@ -41,7 +49,9 @@ const MobileOrderCards = ({ orders, getStatusLabel, t, onViewDetails }: MobileOr
               <span className="font-medium text-gray-900 truncate leading-tight">
                 {firstProduct}
                 {order.items?.length > 1 && (
-                  <span className="text-gray-400 text-xs ml-1">+{order.items.length - 1}</span>
+                  <span className="text-gray-400 text-xs ml-1">
+                    +{order.items.length - 1}
+                  </span>
                 )}
               </span>
               <span className="text-xs text-gray-400">

@@ -26,7 +26,11 @@ export const useLogin = () => {
       }
     },
     onSuccess: (data) => {
-      const token = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
+      const token =
+        data?.accessToken ||
+        data?.token ||
+        data?.data?.accessToken ||
+        data?.data?.token;
       const refreshToken = data?.refreshToken || data?.data?.refreshToken;
       if (token) {
         localStorage.setItem('token', token);

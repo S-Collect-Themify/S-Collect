@@ -16,7 +16,13 @@ export const useConfirmEmailChange = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ code, newEmail }: { code: string; newEmail: string }) => {
+    mutationFn: async ({
+      code,
+      newEmail,
+    }: {
+      code: string;
+      newEmail: string;
+    }) => {
       const refreshToken = localStorage.getItem('refreshToken') || '';
       const response = await confirmChangeEmail(code, refreshToken);
       return { response, newEmail };

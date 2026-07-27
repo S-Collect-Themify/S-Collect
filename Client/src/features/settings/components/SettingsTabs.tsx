@@ -44,10 +44,16 @@ export function SettingsTabs({
       className="flex mb-4 md:mb-6 justify-center py-1.5 px-2 w-full md:w-fit bg-[#E9E9E9] rounded-lg transition-all duration-300 ease-out"
       role="tablist"
     >
-      <TabBtn active={tab === 'store-details'} onClick={() => onChange('store-details')}>
+      <TabBtn
+        active={tab === 'store-details'}
+        onClick={() => onChange('store-details')}
+      >
         {t('settings.storeProfile')}
       </TabBtn>
-      <TabBtn active={tab === 'bank-account'} onClick={() => onChange('bank-account')}>
+      <TabBtn
+        active={tab === 'bank-account'}
+        onClick={() => onChange('bank-account')}
+      >
         {t('settings.bankAccount')}
       </TabBtn>
       <TabBtn active={tab === 'shipping'} onClick={() => onChange('shipping')}>

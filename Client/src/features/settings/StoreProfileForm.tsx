@@ -50,7 +50,11 @@ export function StoreProfileForm({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
+      >
         <StorePreviewCard />
         <StoreLogoUpload />
         <StoreBasicInfoSection isPending={isSubmitting} />

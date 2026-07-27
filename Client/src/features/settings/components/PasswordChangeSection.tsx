@@ -2,11 +2,7 @@ import { ChevronDown, Info } from 'lucide-react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import {
-  PasswordInput,
-  PasswordStrengthBar,
-  SectionCard,
-} from '../shared';
+import { PasswordInput, PasswordStrengthBar, SectionCard } from '../shared';
 import { getPasswordStrength, cn } from '../utils';
 import type { AccountSettingsData, PasswordData } from '../types';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
@@ -76,8 +72,8 @@ export function PasswordChangeSection() {
                   validate: (val, formValues) => {
                     const hasPw = Boolean(
                       val ||
-                        formValues.newPassword ||
-                        formValues.confirmPassword
+                      formValues.newPassword ||
+                      formValues.confirmPassword
                     );
                     if (hasPw && !val)
                       return t('settings.errors.currentPasswordRequired');
@@ -102,8 +98,8 @@ export function PasswordChangeSection() {
                     validate: (val, formValues) => {
                       const hasPw = Boolean(
                         val ||
-                          formValues.currentPassword ||
-                          formValues.confirmPassword
+                        formValues.currentPassword ||
+                        formValues.confirmPassword
                       );
                       if (hasPw && getPasswordStrength(val) < 4)
                         return t('settings.errors.newPasswordWeak');
@@ -132,8 +128,8 @@ export function PasswordChangeSection() {
                   validate: (val, formValues) => {
                     const hasPw = Boolean(
                       val ||
-                        formValues.currentPassword ||
-                        formValues.newPassword
+                      formValues.currentPassword ||
+                      formValues.newPassword
                     );
                     if (hasPw && val !== formValues.newPassword)
                       return t('settings.errors.passwordMismatch');

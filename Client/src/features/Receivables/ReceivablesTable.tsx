@@ -26,7 +26,8 @@ export default function ReceivablesTable() {
 
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {
-      if (selectedStatus !== 'all' && tx.status !== selectedStatus) return false;
+      if (selectedStatus !== 'all' && tx.status !== selectedStatus)
+        return false;
       if (selectedDate !== 'all' && getDateKey(tx.date) !== selectedDate)
         return false;
       return true;
@@ -102,7 +103,7 @@ export default function ReceivablesTable() {
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse text-sm  ">
             <thead>
-              <tr className='first:bg-gray-100' >
+              <tr className="first:bg-gray-100">
                 {tableHeaders.map((h) => (
                   <th
                     key={h}
@@ -117,10 +118,7 @@ export default function ReceivablesTable() {
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={4}
-                    className="text-center py-10 text-gray-400"
-                  >
+                  <td colSpan={4} className="text-center py-10 text-gray-400">
                     <i
                       className="ti ti-receipt-off text-2xl block mb-2"
                       aria-hidden="true"
@@ -161,7 +159,11 @@ export default function ReceivablesTable() {
               aria-label="Previous page"
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
             >
-              {isArabic ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              {isArabic ? (
+                <ChevronRight size={16} />
+              ) : (
+                <ChevronLeft size={16} />
+              )}
             </button>
 
             {Array.from({ length: totalPages }).map((_, i) => {
@@ -170,10 +172,11 @@ export default function ReceivablesTable() {
                 <button
                   key={n}
                   onClick={() => setPage(n)}
-                  className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${n === currentPage
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                    }`}
+                  className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
+                    n === currentPage
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
                 >
                   {n}
                 </button>
@@ -187,7 +190,11 @@ export default function ReceivablesTable() {
               aria-label="Next page"
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
             >
-              {isArabic ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+              {isArabic ? (
+                <ChevronLeft size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
             </button>
           </div>
         )}

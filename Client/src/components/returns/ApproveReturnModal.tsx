@@ -31,7 +31,9 @@ export default function ApproveReturnModal({
 
         {/* Header */}
         <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
-          {t('returnsPage.approveModalTitle', { defaultValue: 'Approve Return Request' })}
+          {t('returnsPage.approveModalTitle', {
+            defaultValue: 'Approve Return Request',
+          })}
         </h3>
         <p className="text-xs text-gray-500 text-center leading-relaxed mb-5">
           {t('returnsPage.approveModalMessage', {
@@ -43,16 +45,28 @@ export default function ApproveReturnModal({
         {/* Details Box */}
         <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 space-y-2 mb-6 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">{t('returnsPage.returnId', { defaultValue: 'Return ID' })}</span>
-            <span className="font-semibold text-gray-900 font-mono">{item.id}</span>
+            <span className="text-gray-500">
+              {t('returnsPage.returnId', { defaultValue: 'Return ID' })}
+            </span>
+            <span className="font-semibold text-gray-900 font-mono">
+              {item.id}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">{t('returnsPage.product', { defaultValue: 'Product' })}</span>
-            <span className="font-semibold text-gray-900 truncate max-w-[200px]">{item.productTitle}</span>
+            <span className="text-gray-500">
+              {t('returnsPage.product', { defaultValue: 'Product' })}
+            </span>
+            <span className="font-semibold text-gray-900 truncate max-w-[200px]">
+              {item.productTitle}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">{t('returnsPage.customer', { defaultValue: 'Customer' })}</span>
-            <span className="font-semibold text-gray-900">{item.customerName}</span>
+            <span className="text-gray-500">
+              {t('returnsPage.customer', { defaultValue: 'Customer' })}
+            </span>
+            <span className="font-semibold text-gray-900">
+              {item.customerName}
+            </span>
           </div>
         </div>
 

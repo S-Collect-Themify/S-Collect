@@ -7,7 +7,11 @@ import { FieldWrap, TextInput } from '../shared';
 import type { StoreProfileData } from '../types';
 import { cn, isValidEmail } from '../utils';
 
-export function StoreContactInfoSection({ isPending }: { isPending?: boolean }) {
+export function StoreContactInfoSection({
+  isPending,
+}: {
+  isPending?: boolean;
+}) {
   const { t } = useTranslation();
   const {
     register,

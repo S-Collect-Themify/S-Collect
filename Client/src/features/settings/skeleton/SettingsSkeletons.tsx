@@ -1,4 +1,5 @@
-const cardCls = 'bg-white/50 border border-gray-200 rounded-lg overflow-visible transition-all duration-300 ease-out';
+const cardCls =
+  'bg-white/50 border border-gray-200 rounded-lg overflow-visible transition-all duration-300 ease-out';
 
 function FieldSkeleton({
   labelWidth = 'w-20',
@@ -11,8 +12,12 @@ function FieldSkeleton({
 }) {
   return (
     <div className={className}>
-      <div className={`h-3 ${labelWidth} bg-gray-200 rounded mb-1.5 animate-pulse`} />
-      <div className={`w-full ${inputHeight} bg-gray-200 rounded-lg animate-pulse`} />
+      <div
+        className={`h-3 ${labelWidth} bg-gray-200 rounded mb-1.5 animate-pulse`}
+      />
+      <div
+        className={`w-full ${inputHeight} bg-gray-200 rounded-lg animate-pulse`}
+      />
     </div>
   );
 }

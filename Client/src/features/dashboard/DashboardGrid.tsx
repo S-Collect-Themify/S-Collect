@@ -30,7 +30,7 @@ const DashboardGrid = () => {
       },
     },
     {
-      title: "Commission Rate",
+      title: 'Commission Rate',
       value: '12%',
       unit: t('dashboardMetrics.unit.sar'),
       icon: Box,
@@ -40,7 +40,7 @@ const DashboardGrid = () => {
       },
     },
     {
-      title: "Commission Amount",
+      title: 'Commission Amount',
       value: '41,184',
       unit: t('dashboardMetrics.unit.sar'),
       icon: PackagePlus,
@@ -50,7 +50,7 @@ const DashboardGrid = () => {
       },
     },
     {
-      title: "Net Earnings",
+      title: 'Net Earnings',
       value: '128',
       unit: t('dashboardMetrics.unit.sar'),
       icon: Package,
@@ -59,7 +59,7 @@ const DashboardGrid = () => {
       },
     },
     {
-      title: "Pending Payout",
+      title: 'Pending Payout',
       value: '185,500',
       unit: t('dashboardMetrics.unit.sar'),
       icon: Package,
@@ -76,12 +76,13 @@ const DashboardGrid = () => {
           <div
             key={metric.title}
             // Added the animation class
-            className={`bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm h-[120px] md:h-[135px] lg:h-[155px] flex flex-col justify-between  animate-dashboard-fade-in-up  ${(isMobile || isTablet) &&
+            className={`bg-white border border-gray-100 rounded-xl p-3 lg:p-5 shadow-sm h-[120px] md:h-[135px] lg:h-[155px] flex flex-col justify-between  animate-dashboard-fade-in-up  ${
+              (isMobile || isTablet) &&
               index === dashboardMetrics.length - 1 &&
               dashboardMetrics.length > 4
-              ? "col-span-2"
-              : ""
-              } `}
+                ? 'col-span-2'
+                : ''
+            } `}
             // Stagger the animation delay for each card (0ms, 100ms, 200ms...)
             style={{ animationDelay: `${index * 100}ms` }}
           >

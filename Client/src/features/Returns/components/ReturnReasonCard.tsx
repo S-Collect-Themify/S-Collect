@@ -7,7 +7,11 @@ interface ReturnReasonCardProps {
   setInternalNote: (note: string) => void;
 }
 
-export function ReturnReasonCard({ item, internalNote, setInternalNote }: ReturnReasonCardProps) {
+export function ReturnReasonCard({
+  item,
+  internalNote,
+  setInternalNote,
+}: ReturnReasonCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -15,7 +19,8 @@ export function ReturnReasonCard({ item, internalNote, setInternalNote }: Return
       {/* Return Reason */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs">
         <h2 className="text-base font-bold text-gray-900 mb-3">
-          {t('returnsPage.returnReason', { defaultValue: 'Return Reason' })}: <span className="text-amber-600 font-bold">{item.reason}</span>
+          {t('returnsPage.returnReason', { defaultValue: 'Return Reason' })}:{' '}
+          <span className="text-amber-600 font-bold">{item.reason}</span>
         </h2>
         {item.customerNote && (
           <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 sm:p-5 text-xs sm:text-sm text-gray-700 leading-relaxed italic">
@@ -28,7 +33,9 @@ export function ReturnReasonCard({ item, internalNote, setInternalNote }: Return
       {item.uploadedImages && item.uploadedImages.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs">
           <h2 className="text-base font-bold text-gray-900 mb-4">
-            {t('returnsPage.uploadedImages', { defaultValue: 'Customer Uploaded Images (Product Condition)' })}
+            {t('returnsPage.uploadedImages', {
+              defaultValue: 'Customer Uploaded Images (Product Condition)',
+            })}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
             {item.uploadedImages.map((imgUrl, i) => (
@@ -46,12 +53,16 @@ export function ReturnReasonCard({ item, internalNote, setInternalNote }: Return
       {/* Internal Notes */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs">
         <h2 className="text-base font-bold text-gray-900 mb-3">
-          {t('returnsPage.internalNotes', { defaultValue: 'Internal Notes (Only visible to you)' })}
+          {t('returnsPage.internalNotes', {
+            defaultValue: 'Internal Notes (Only visible to you)',
+          })}
         </h2>
         <textarea
           value={internalNote}
           onChange={(e) => setInternalNote(e.target.value)}
-          placeholder={t('returnsPage.notesPlaceholder', { defaultValue: 'Add notes about this return request...' })}
+          placeholder={t('returnsPage.notesPlaceholder', {
+            defaultValue: 'Add notes about this return request...',
+          })}
           className="w-full h-28 p-3.5 border border-gray-200 rounded-xl text-xs sm:text-sm outline-none focus:border-gray-900 transition-colors resize-none bg-gray-50/50"
         />
       </div>

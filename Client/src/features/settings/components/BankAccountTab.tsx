@@ -9,5 +9,9 @@ export function BankAccountTab({
 }) {
   const { t } = useTranslation();
 
-  return <BankSettings onSave={() => onToast(t('settings.toast.bankAccountSaved'))} />;
+  return (
+    <BankSettings
+      onSave={() => onToast(t('settings.toast.bankAccountSaved'))}
+    />
+  );
 }

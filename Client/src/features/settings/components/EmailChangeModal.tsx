@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { isValidEmail } from '../utils';
 import { getErrorMessage } from '../../../types/api';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
-import { useRequestEmailChange, useConfirmEmailChange } from '../hooks/useEmailChange';
+import {
+  useRequestEmailChange,
+  useConfirmEmailChange,
+} from '../hooks/useEmailChange';
 
 export function EmailChangeModal() {
   const { t } = useTranslation();
@@ -28,13 +31,16 @@ export function EmailChangeModal() {
   const requestEmailMutation = useRequestEmailChange();
   const confirmEmailMutation = useConfirmEmailChange();
 
-  const isLoading = requestEmailMutation.isPending || confirmEmailMutation.isPending;
+  const isLoading =
+    requestEmailMutation.isPending || confirmEmailMutation.isPending;
 
   if (!emailModalOpen) return null;
 
   const handleRequestEmailChange = async () => {
     if (!isValidEmail(newEmail)) {
-      setEmailError(t('settings.errors.invalidEmail') || 'Invalid email address');
+      setEmailError(
+        t('settings.errors.invalidEmail') || 'Invalid email address'
+      );
       return;
     }
     setEmailError(null);
@@ -44,7 +50,9 @@ export function EmailChangeModal() {
         setEmailStep('verify');
       },
       onError: (err: unknown) => {
-        setEmailError(getErrorMessage(err, 'Failed to send email change request'));
+        setEmailError(
+          getErrorMessage(err, 'Failed to send email change request')
+        );
       },
     });
   };

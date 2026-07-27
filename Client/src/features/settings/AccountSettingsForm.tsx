@@ -28,8 +28,12 @@ export function AccountSettingsForm({
   const updateAccountSettingsMutation = useUpdateAccountSettings();
 
   const setPwOpen = useAccountSettingsStore((s) => s.setPwOpen);
-  const currentEmailDisplay = useAccountSettingsStore((s) => s.currentEmailDisplay);
-  const setCurrentEmailDisplay = useAccountSettingsStore((s) => s.setCurrentEmailDisplay);
+  const currentEmailDisplay = useAccountSettingsStore(
+    (s) => s.currentEmailDisplay
+  );
+  const setCurrentEmailDisplay = useAccountSettingsStore(
+    (s) => s.setCurrentEmailDisplay
+  );
 
   useEffect(() => {
     if (initialData?.email) {
@@ -93,7 +97,10 @@ export function AccountSettingsForm({
     }
   };
 
-  const isSubmitting = isPending || updateAccountSettingsMutation.isPending || changePasswordMutation.isPending;
+  const isSubmitting =
+    isPending ||
+    updateAccountSettingsMutation.isPending ||
+    changePasswordMutation.isPending;
 
   return (
     <FormProvider {...methods}>

@@ -44,10 +44,10 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
         const isAx = axios.isAxiosError(error);
         const axiosError = isAx ? (error as ApiAxiosError) : null;
         const responseData = axiosError?.response?.data;
-        
+
         // 1. Try to find the API error object (handling response format with data/error/meta)
         const apiError = responseData?.error || responseData;
-        
+
         // 2. Try to find field-specific errors
         let fieldErrors: Record<string, any> = {} as Record<string, any>;
         if (apiError && typeof apiError === 'object') {
@@ -56,10 +56,18 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
         }
 
         // If it resolved to the top level response wrapper itself, drill down into .error
-        if (fieldErrors && typeof fieldErrors === 'object' && ('data' in fieldErrors || 'error' in fieldErrors)) {
+        if (
+          fieldErrors &&
+          typeof fieldErrors === 'object' &&
+          ('data' in fieldErrors || 'error' in fieldErrors)
+        ) {
           const innerError = (fieldErrors as Record<string, any>).error;
           if (innerError && typeof innerError === 'object') {
-            fieldErrors = innerError.details || innerError.errors || innerError.validation || innerError;
+            fieldErrors =
+              innerError.details ||
+              innerError.errors ||
+              innerError.validation ||
+              innerError;
           }
         }
 
@@ -75,10 +83,16 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
                 if (key === 'firstName') fieldName = 'firstName';
                 else if (key === 'lastName') fieldName = 'lastName';
                 else if (key === 'email') fieldName = 'email';
-                else if (key === 'phoneNumber' || key === 'phone') fieldName = 'phone';
+                else if (key === 'phoneNumber' || key === 'phone')
+                  fieldName = 'phone';
                 else if (key === 'storeName') fieldName = 'storeName';
-                else if (key === 'storeDescription' || key === 'description') fieldName = 'description';
-                else if (key === 'commercialRegisterNumber' || key === 'website') fieldName = 'website';
+                else if (key === 'storeDescription' || key === 'description')
+                  fieldName = 'description';
+                else if (
+                  key === 'commercialRegisterNumber' ||
+                  key === 'website'
+                )
+                  fieldName = 'website';
                 else if (key === 'password') fieldName = 'password';
 
                 if (fieldName && setError) {
@@ -94,22 +108,36 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           } else {
             // Object map
             Object.keys(fieldErrors).forEach((key) => {
-              if (key === 'message' || key === 'success' || key === 'status' || key === 'statusCode' || key === 'data' || key === 'meta' || key === 'error') return;
+              if (
+                key === 'message' ||
+                key === 'success' ||
+                key === 'status' ||
+                key === 'statusCode' ||
+                key === 'data' ||
+                key === 'meta' ||
+                key === 'error'
+              )
+                return;
 
               let fieldName: keyof RegisterFormData | undefined;
               if (key === 'firstName') fieldName = 'firstName';
               else if (key === 'lastName') fieldName = 'lastName';
               else if (key === 'email') fieldName = 'email';
-              else if (key === 'phoneNumber' || key === 'phone') fieldName = 'phone';
+              else if (key === 'phoneNumber' || key === 'phone')
+                fieldName = 'phone';
               else if (key === 'storeName') fieldName = 'storeName';
-              else if (key === 'storeDescription' || key === 'description') fieldName = 'description';
-              else if (key === 'commercialRegisterNumber' || key === 'website') fieldName = 'website';
+              else if (key === 'storeDescription' || key === 'description')
+                fieldName = 'description';
+              else if (key === 'commercialRegisterNumber' || key === 'website')
+                fieldName = 'website';
               else if (key === 'password') fieldName = 'password';
 
               const val = fieldErrors[key];
               const messages = Array.isArray(val) ? val : [val];
               // Filter out nested object strings like "[object Object]"
-              const cleanMessages = messages.map(m => typeof m === 'object' ? JSON.stringify(m) : m);
+              const cleanMessages = messages.map((m) =>
+                typeof m === 'object' ? JSON.stringify(m) : m
+              );
               const messageStr = cleanMessages.join(', ');
 
               if (fieldName && setError) {

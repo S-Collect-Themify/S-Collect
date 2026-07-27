@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSubOrders } from '../features/Orders/useSubOrders';
-import type { SubOrder, SubOrderStatus } from '../features/Orders/types/subOrder';
+import type {
+  SubOrder,
+  SubOrderStatus,
+} from '../features/Orders/types/subOrder';
 import { STATUS_STYLES } from '../features/Orders/types/subOrder';
 import { OrderFilters } from '../features/Orders/components/OrderFilters';
 import { Pagination } from '../features/Orders/components/Pagination';
@@ -14,29 +17,31 @@ import MobileIncomingOrders from '../features/Orders/mobile/MobileIncomingOrders
 const ITEMS_PER_PAGE = 8;
 
 const TAB_TO_STATUS: Record<string, SubOrderStatus | undefined> = {
-  allOrders:  undefined,
-  PENDING:    'PENDING',
+  allOrders: undefined,
+  PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
-  SHIPPED:    'SHIPPED',
-  DELIVERED:  'DELIVERED',
-  CANCELLED:  'CANCELLED',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
 };
 
 // ── Status label map ───────────────────────────────────────────────────────
 const STATUS_LABEL: Record<SubOrderStatus, string> = {
-  PENDING:    'Pending',
+  PENDING: 'Pending',
   PROCESSING: 'Processing',
-  SHIPPED:    'Shipped',
-  DELIVERED:  'Delivered',
-  CANCELLED:  'Cancelled',
+  SHIPPED: 'Shipped',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
 };
-
 
 // ── Skeleton loader ────────────────────────────────────────────────────────
 const TableSkeleton = () => (
   <div className="animate-pulse">
     {Array.from({ length: 6 }).map((_, i) => (
-      <div key={i} className="flex gap-6 items-center px-4 py-4 border-b border-gray-50 animate-pulse">
+      <div
+        key={i}
+        className="flex gap-6 items-center px-4 py-4 border-b border-gray-50 animate-pulse"
+      >
         <div className="h-3.5 w-20 bg-gray-200 rounded" />
         <div className="h-3.5 w-24 bg-gray-200 rounded" />
         <div className="h-3.5 w-36 bg-gray-200 rounded flex-1" />
@@ -102,7 +107,9 @@ const SubOrdersTable = ({
                 {/* Date */}
                 <td className="py-4 px-4 text-gray-500 text-sm whitespace-nowrap">
                   {new Date(order.createdAt).toLocaleDateString('en-US', {
-                    month: 'short', day: 'numeric', year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
                   })}
                 </td>
 
@@ -110,7 +117,9 @@ const SubOrdersTable = ({
                 <td className="py-4 px-4 text-gray-700 text-sm max-w-[200px] truncate">
                   {firstProduct}
                   {order.items.length > 1 && (
-                    <span className="text-gray-400 text-xs ml-1">+{order.items.length - 1}</span>
+                    <span className="text-gray-400 text-xs ml-1">
+                      +{order.items.length - 1}
+                    </span>
                   )}
                 </td>
 
@@ -121,7 +130,9 @@ const SubOrdersTable = ({
 
                 {/* Status dropdown */}
                 <td className="py-4 px-4">
-                  <span className={`px-3 py-1.5 rounded-lg text-xs font-medium ${STATUS_STYLES[order.status]}`}>
+                  <span
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${STATUS_STYLES[order.status]}`}
+                  >
                     {STATUS_LABEL[order.status]}
                   </span>
                 </td>
@@ -173,47 +184,52 @@ const IncomingOrdersDesktop = () => {
 
   return (
     <>
-    <div className="sidebar-page-container-header heading-page-title font-bold">
+      <div className="sidebar-page-container-header heading-page-title font-bold">
         {t('ordersPage.title')}
       </div>
-    <div className="flex-1 overflow-y-auto py-6 sidebar-page-container">
-
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        {/* Filters row */}
-        <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-0">
-          <OrderFilters
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            sortNewest={sortNewest}
-            onSortChange={(v) => setSortNewest(v === 'newest')}
-          />
-        </div>
-
-        {/* Table / states */}
-        {isLoading ? (
-          <TableSkeleton />
-        ) : isError ? (
-          <div className="py-16 text-center text-red-500 text-sm">
-            {t('ordersPage.loadError', 'Failed to load orders. Please try again.')}
+      <div className="flex-1 overflow-y-auto py-6 sidebar-page-container">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+          {/* Filters row */}
+          <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-0">
+            <OrderFilters
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              sortNewest={sortNewest}
+              onSortChange={(v) => setSortNewest(v === 'newest')}
+            />
           </div>
-        ) : sorted.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <>
-            <SubOrdersTable orders={sorted} onViewDetails={(o) => navigate(`/incoming-orders/${o.id}`)} />
-            <div className="px-4 py-3 border-t border-gray-100">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
+
+          {/* Table / states */}
+          {isLoading ? (
+            <TableSkeleton />
+          ) : isError ? (
+            <div className="py-16 text-center text-red-500 text-sm">
+              {t(
+                'ordersPage.loadError',
+                'Failed to load orders. Please try again.'
+              )}
             </div>
-          </>
-        )}
+          ) : sorted.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <>
+              <SubOrdersTable
+                orders={sorted}
+                onViewDetails={(o) => navigate(`/incoming-orders/${o.id}`)}
+              />
+              <div className="px-4 py-3 border-t border-gray-100">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };

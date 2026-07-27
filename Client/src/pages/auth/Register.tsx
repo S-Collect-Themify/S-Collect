@@ -47,7 +47,7 @@ const StepIndicator = ({ current }: { current: number }) => {
           >
             <div className="flex flex-col items-center gap-1 w-[100px] shrink-0">
               {/* Circle */}
-             <motion.div
+              <motion.div
                 layout
                 animate={{
                   scale: active ? [1, 1.15, 1] : 1,
@@ -63,41 +63,39 @@ const StepIndicator = ({ current }: { current: number }) => {
               >
                 {done ? (
                   <motion.svg
-                      initial={{ scale: 0, rotate: -90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 500,
-                        damping: 18,
-                      }}
-                      width="11"
-                      height="11"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="3"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 18,
+                    }}
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="3"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
                   </motion.svg>
                 ) : (
-                  <span className={`text-xs font-semibold ${active ? 'text-gray-50' : 'text-gray-400'}`}>
+                  <span
+                    className={`text-xs font-semibold ${active ? 'text-gray-50' : 'text-gray-400'}`}
+                  >
                     {i + 1}
                   </span>
                 )}
-              </motion.div> 
+              </motion.div>
               {/* Label */}
               <motion.span
                 animate={{
-                  color: done
-                    ? '#22c55e'
-                    : active
-                    ? '#111827'
-                    : '#9ca3af',
+                  color: done ? '#22c55e' : active ? '#111827' : '#9ca3af',
                 }}
                 transition={{ duration: 0.25 }}
                 className={`text-[10px] text-center leading-tight ${
                   active ? 'font-semibold' : ''
-                }`} 
+                }`}
               >
                 {t(key)}
               </motion.span>
@@ -106,23 +104,23 @@ const StepIndicator = ({ current }: { current: number }) => {
             {/* Connector line */}
             {i < STEP_KEYS.length - 1 && (
               <div
-              className="flex-1 flex items-center px-1"
-              style={{ marginTop: '-1.1rem' }}
-            >
-              <div className="relative h-0.5 w-full overflow-hidden rounded-full bg-gray-200">
-                <motion.div
-                  initial={false}
-                  animate={{
-                    width: done ? '100%' : '0%',
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute left-0 top-0 h-full bg-green"
-                />
+                className="flex-1 flex items-center px-1"
+                style={{ marginTop: '-1.1rem' }}
+              >
+                <div className="relative h-0.5 w-full overflow-hidden rounded-full bg-gray-200">
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      width: done ? '100%' : '0%',
+                    }}
+                    transition={{
+                      duration: 0.4,
+                      ease: 'easeInOut',
+                    }}
+                    className="absolute left-0 top-0 h-full bg-green"
+                  />
+                </div>
               </div>
-            </div>
             )}
           </div>
         );
@@ -285,10 +283,11 @@ const Step2 = () => {
         <textarea
           placeholder={t('register.descriptionPlaceholder')}
           rows={1}
-          className={`w-full px-3 py-2.5 border rounded-lg text-body-md text-gray-900 outline-none resize-vertical transition-colors placeholder:text-gray-400 focus:border-gray-900 font-sans ${errors.description
+          className={`w-full px-3 py-2.5 border rounded-lg text-body-md text-gray-900 outline-none resize-vertical transition-colors placeholder:text-gray-400 focus:border-gray-900 font-sans ${
+            errors.description
               ? 'border-red bg-red-light'
               : 'border-gray-300 bg-gray-50'
-            }`}
+          }`}
           {...register('description', {
             required: t('register.errors.descriptionRequired'),
           })}
@@ -336,7 +335,6 @@ const Step2 = () => {
         placeholder={t('register.websitePlaceholder')}
         {...register('website')}
       />
-
     </div>
   );
 };
@@ -530,7 +528,7 @@ const ApplicationSubmitted = ({
     window.open('https://mail.google.com', '_blank');
   };
 
-  const displayVendorId = vendorId || "NEX-2910-VM";
+  const displayVendorId = vendorId || 'NEX-2910-VM';
 
   return (
     <div className="text-center py-6 animate-fade-in-up flex flex-col items-center">
@@ -557,7 +555,9 @@ const ApplicationSubmitted = ({
 
       {/* Subtitle */}
       <p className="text-label-sm font-semibold text-[#c28e2b] mb-6">
-        {isRtl ? 'طلبك قيد المراجعة حالياً' : 'Your request is pending for review'}
+        {isRtl
+          ? 'طلبك قيد المراجعة حالياً'
+          : 'Your request is pending for review'}
       </p>
 
       {/* Description */}
@@ -599,7 +599,9 @@ const ApplicationSubmitted = ({
 
       {/* Reference ID Footer */}
       <div className="w-full bg-[#f8f9fa] border border-gray-100 py-3 mt-8 rounded-lg text-body-sm text-gray-500 font-medium">
-        {isRtl ? `الرقم المرجعي: ${displayVendorId}` : `Reference ID: ${displayVendorId}`}
+        {isRtl
+          ? `الرقم المرجعي: ${displayVendorId}`
+          : `Reference ID: ${displayVendorId}`}
       </div>
     </div>
   );
@@ -616,12 +618,7 @@ const STEP_FIELDS: Record<number, (keyof RegisterFormData)[]> = {
 const Register = () => {
   const { t } = useTranslation();
 
-  const {
-    step,
-    nextStep,
-    previousStep,
-    resetRegister,
-  } = useAuthStore();
+  const { step, nextStep, previousStep, resetRegister } = useAuthStore();
 
   const methods = useForm<RegisterFormData>({
     defaultValues: {
@@ -677,16 +674,24 @@ const Register = () => {
           {submitted ? (
             <ApplicationSubmitted
               email={methods.getValues('email')}
-              vendorId={registrationData?.data?.vendorId || registrationData?.vendorId}
+              vendorId={
+                registrationData?.data?.vendorId || registrationData?.vendorId
+              }
             />
           ) : (
             <>
-            <div className="animate-fade-in-up" style={{ animationDelay: '0s' }}>
-              <StepIndicator current={step} />
-            </div>
+              <div
+                className="animate-fade-in-up"
+                style={{ animationDelay: '0s' }}
+              >
+                <StepIndicator current={step} />
+              </div>
 
               <FormProvider {...methods}>
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: '0.1s' }}
+                >
                   {step === 0 && <Step1 />}
                   {step === 1 && <Step2 />}
                   {step === 2 && <Step3 />}
@@ -700,10 +705,13 @@ const Register = () => {
               )}
 
               {/* Navigation buttons */}
-              <div className="flex gap-3 mt-7 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div
+                className="flex gap-3 mt-7 animate-fade-in-up"
+                style={{ animationDelay: '0.2s' }}
+              >
                 {step > 0 && (
                   <button
-                     onClick={previousStep}
+                    onClick={previousStep}
                     className="flex-1 py-3 bg-gray-50 text-gray-700 border border-gray-300 rounded-lg text-label-md font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     {t('register.back')}
@@ -722,9 +730,12 @@ const Register = () => {
                 </button>
               </div>
 
-              <p className="text-center mt-5 text-body-sm text-gray-500 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <p
+                className="text-center mt-5 text-body-sm text-gray-500 animate-fade-in-up"
+                style={{ animationDelay: '0.3s' }}
+              >
                 {t('register.alreadyHaveAccount')}{' '}
-                <Link 
+                <Link
                   to="/login"
                   className="text-gray-900 font-semibold hover:underline"
                 >

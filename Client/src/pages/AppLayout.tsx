@@ -8,10 +8,7 @@ const AppLayout = () => {
 
   return (
     <main className="flex min-h-screen">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <section className="flex-1 flex flex-col min-w-0">
         <Header onMenuClick={() => setIsSidebarOpen(true)} />
         <Outlet />

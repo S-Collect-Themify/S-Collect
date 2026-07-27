@@ -19,7 +19,9 @@ export function PersonalInfoSection() {
     formState: { errors },
   } = useFormContext<AccountSettingsFormValues>();
 
-  const currentEmailDisplay = useAccountSettingsStore((s) => s.currentEmailDisplay);
+  const currentEmailDisplay = useAccountSettingsStore(
+    (s) => s.currentEmailDisplay
+  );
   const openEmailModal = useAccountSettingsStore((s) => s.openEmailModal);
 
   return (

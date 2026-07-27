@@ -18,9 +18,12 @@ const Dashboard = () => {
         <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mb-4 text-red-500 shadow-sm">
           <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to load dashboard</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">
+          Failed to load dashboard
+        </h2>
         <p className="text-sm text-gray-500 max-w-md mb-6">
-          {error.message || 'An unexpected error occurred while fetching dashboard data.'}
+          {error.message ||
+            'An unexpected error occurred while fetching dashboard data.'}
         </p>
         {refetch && (
           <button

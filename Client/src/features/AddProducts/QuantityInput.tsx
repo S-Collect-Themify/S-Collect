@@ -71,8 +71,8 @@ const QuantityInput = ({ value, onChange }: QuantityInputProps) => {
                   y: direction > 0 ? -20 : 20,
                   opacity: 0,
                 }}
-                transition={{ 
-                  type: 'spring', 
+                transition={{
+                  type: 'spring',
                   stiffness: 800,
                   damping: 55,
                 }}

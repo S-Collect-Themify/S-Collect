@@ -35,7 +35,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           Unable to Load Account Status
         </h2>
         <p className="text-xs text-gray-500 mb-4 max-w-sm">
-          There was an error verifying your account status. Please check your network connection and try again.
+          There was an error verifying your account status. Please check your
+          network connection and try again.
         </p>
         <button
           type="button"

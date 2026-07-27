@@ -24,9 +24,13 @@ export const updateProductFull = async (
   formData: FormData
 ) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}`, formData, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const { data } = await api.patch(
+      `/vendor/products/${productId}`,
+      formData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
 
     return data;
   } catch (err) {
@@ -56,7 +60,10 @@ export const setProductThumbnail = async (
     );
     return data;
   } catch (err: unknown) {
-    const serviceErr = handleServiceError(err, 'Failed to set product thumbnail');
+    const serviceErr = handleServiceError(
+      err,
+      'Failed to set product thumbnail'
+    );
     if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
       try {
         const { data } = await api.put(
@@ -70,7 +77,10 @@ export const setProductThumbnail = async (
           );
           return data;
         } catch (postErr: unknown) {
-          throw handleServiceError(postErr, 'All thumbnail methods failed (PATCH, PUT, POST)');
+          throw handleServiceError(
+            postErr,
+            'All thumbnail methods failed (PATCH, PUT, POST)'
+          );
         }
       }
     }
@@ -99,10 +109,18 @@ export const getCategories = async (): Promise<Category[]> => {
 export const updateProductVariant = async (
   productId: string,
   variantId: string,
-  body: { stock?: number; price?: number; compareAtPrice?: number; isActive?: boolean }
+  body: {
+    stock?: number;
+    price?: number;
+    compareAtPrice?: number;
+    isActive?: boolean;
+  }
 ) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}/variants/${variantId}`, body);
+    const { data } = await api.patch(
+      `/vendor/products/${productId}/variants/${variantId}`,
+      body
+    );
     return data;
   } catch (err) {
     throw handleServiceError(err, `Failed to update variant ${variantId}`);
@@ -114,12 +132,11 @@ export const deleteProductImage = async (
   imageId: string
 ) => {
   try {
-    const { data } = await api.delete(`/vendor/products/${productId}/images/${imageId}`);
+    const { data } = await api.delete(
+      `/vendor/products/${productId}/images/${imageId}`
+    );
     return data;
   } catch (err) {
     throw handleServiceError(err, `Failed to delete product image ${imageId}`);
   }
 };
-
-
-

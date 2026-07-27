@@ -2,7 +2,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronsRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
-import { useSubOrder, useUpdateSubOrder } from '../features/Orders/useSubOrders';
+import {
+  useSubOrder,
+  useUpdateSubOrder,
+} from '../features/Orders/useSubOrders';
 import type { SubOrderStatus } from '../features/Orders/types/subOrder';
 
 // Child components
@@ -15,12 +18,19 @@ import { useTranslation } from 'react-i18next';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.07, delayChildren: 0.04 },
+  },
 };
 
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 16 } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 120, damping: 16 },
+  },
 };
 
 const SubOrderDetails = () => {
@@ -45,7 +55,10 @@ const SubOrderDetails = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
         <p className="text-red-500 text-sm">Failed to load order details.</p>
-        <button onClick={() => refetch()} className="text-sm underline text-gray-600 cursor-pointer">
+        <button
+          onClick={() => refetch()}
+          className="text-sm underline text-gray-600 cursor-pointer"
+        >
           Retry
         </button>
       </div>
@@ -55,7 +68,10 @@ const SubOrderDetails = () => {
   const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
   const grandTotal = itemsTotal + order.shippingRateApplied;
 
-  const handleUpdateStatus = (newStatus: SubOrderStatus | null, tracking: string) => {
+  const handleUpdateStatus = (
+    newStatus: SubOrderStatus | null,
+    tracking: string
+  ) => {
     const body: { status?: SubOrderStatus; trackingNumber?: string } = {};
     if (newStatus && newStatus !== order.status) {
       body.status = newStatus;
@@ -75,7 +91,10 @@ const SubOrderDetails = () => {
       animate="show"
     >
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <motion.div variants={cardVariants} className="flex items-center gap-3 mb-1">
+      <motion.div
+        variants={cardVariants}
+        className="flex items-center gap-3 mb-1"
+      >
         <button
           onClick={goBack}
           className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300"
@@ -90,7 +109,9 @@ const SubOrderDetails = () => {
             </span>
           </h1>
           <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-            <span className="text-gray-800 font-medium">{t('ordersPage.title')}</span>
+            <span className="text-gray-800 font-medium">
+              {t('ordersPage.title')}
+            </span>
             <ChevronsRight size={12} />
             <span>{t('ordersPage.orderDetails')}</span>
           </p>
@@ -99,7 +120,6 @@ const SubOrderDetails = () => {
 
       {/* ── Two-column grid ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-5 mt-5">
-
         {/* ══ LEFT ════════════════════════════════════════════════════════ */}
         <div className="flex flex-col gap-5">
           <motion.div variants={cardVariants}>

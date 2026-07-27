@@ -30,12 +30,16 @@ export const updateAccountSettings = async (
     const { data } = await api.put('/vendor/account/profile', settings);
     return data;
   } catch (err) {
-    const serviceErr = handleServiceError(err, 'Failed to update account settings');
+    const serviceErr = handleServiceError(
+      err,
+      'Failed to update account settings'
+    );
     if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
-      console.warn('Backend endpoint /vendor/account/profile not found; fallback to requested settings.');
+      console.warn(
+        'Backend endpoint /vendor/account/profile not found; fallback to requested settings.'
+      );
       return settings as AccountSettings;
     }
     throw serviceErr;
   }
 };
-

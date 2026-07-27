@@ -38,7 +38,9 @@ export default function SettingsPage() {
         </nav>
       </div>
       <div className="settings-page-enter min-h-screen bg-gray-100">
-        {toast && <SuccessToast message={toast} onClose={() => setToast(null)} />}
+        {toast && (
+          <SuccessToast message={toast} onClose={() => setToast(null)} />
+        )}
 
         <div className="settings-surface-enter settings-stagger-1 p-2 md:p-4 md:px-8 md:py-7 max-w-180">
           <SettingsTabs tab={tab} onChange={setTab} />

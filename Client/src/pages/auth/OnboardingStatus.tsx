@@ -9,7 +9,11 @@ interface OnboardingStatusProps {
   onRetry: () => void;
 }
 
-const OnboardingStatus = ({ status, rejectionReason, onRetry }: OnboardingStatusProps) => {
+const OnboardingStatus = ({
+  status,
+  rejectionReason,
+  onRetry,
+}: OnboardingStatusProps) => {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -31,7 +35,10 @@ const OnboardingStatus = ({ status, rejectionReason, onRetry }: OnboardingStatus
   const isRtl = i18n.language === 'ar';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 font-sans" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div
+      className="min-h-screen flex items-center justify-center bg-gray-50 px-4 font-sans"
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       <div className="w-full max-w-[480px] bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center animate-fade-in-up">
         {status === 'PENDING_APPROVAL' ? (
           <>
@@ -39,7 +46,9 @@ const OnboardingStatus = ({ status, rejectionReason, onRetry }: OnboardingStatus
               <Clock size={32} />
             </div>
             <h2 className="text-h5 font-bold text-gray-900 mb-3">
-              {isRtl ? 'طلبك قيد المراجعة حالياً' : 'Your Application is Under Review'}
+              {isRtl
+                ? 'طلبك قيد المراجعة حالياً'
+                : 'Your Application is Under Review'}
             </h2>
             <p className="text-body-md text-gray-500 leading-relaxed mb-6">
               {isRtl
@@ -62,7 +71,10 @@ const OnboardingStatus = ({ status, rejectionReason, onRetry }: OnboardingStatus
             </p>
             <div className="bg-red-50/50 border border-red-100 rounded-lg p-4 mb-6 text-right">
               <p className="text-body-sm text-red font-semibold leading-relaxed">
-                {rejectionReason || (isRtl ? 'لم يتم تحديد سبب الرفض.' : 'No rejection reason specified.')}
+                {rejectionReason ||
+                  (isRtl
+                    ? 'لم يتم تحديد سبب الرفض.'
+                    : 'No rejection reason specified.')}
               </p>
             </div>
           </>

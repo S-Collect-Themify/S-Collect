@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getVendorSubOrders, updateVendorSubOrderStatus } from '../../../services/returns';
+import {
+  getVendorSubOrders,
+  updateVendorSubOrderStatus,
+} from '../../../services/returns';
 import type { ReturnItem } from '../types';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +38,11 @@ export function useReturnRequests() {
       const dateObj = new Date(sub.createdAt);
       const formattedDate = isNaN(dateObj.getTime())
         ? 'Jun 17, 2027'
-        : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        : dateObj.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
 
       const statusMap: Record<string, ReturnItem['status']> = {
         PENDING: 'PENDING_REVIEW',
@@ -51,29 +58,55 @@ export function useReturnRequests() {
         productImage = firstProduct.productImage;
       } else if (firstProduct.imageUrl) {
         productImage = firstProduct.imageUrl;
-      } else if (firstProduct.productId && typeof firstProduct.productId === 'object') {
+      } else if (
+        firstProduct.productId &&
+        typeof firstProduct.productId === 'object'
+      ) {
         const prod = firstProduct.productId as any;
         if (prod.thumbnailUrl) {
-          productImage = typeof prod.thumbnailUrl === 'string' ? prod.thumbnailUrl : (prod.thumbnailUrl.url || '');
+          productImage =
+            typeof prod.thumbnailUrl === 'string'
+              ? prod.thumbnailUrl
+              : prod.thumbnailUrl.url || '';
         } else if (Array.isArray(prod.images) && prod.images.length > 0) {
           const firstImg = prod.images[0];
-          productImage = typeof firstImg === 'string' ? firstImg : (firstImg.url || '');
+          productImage =
+            typeof firstImg === 'string' ? firstImg : firstImg.url || '';
         }
       }
 
       // Resolve SKU defensively
-      const productSku = firstProduct.sku || 
-        (firstProduct.productId && typeof firstProduct.productId === 'object' ? (firstProduct.productId as any).sku : null) || 
-        (typeof firstProduct.productId === 'string' ? firstProduct.productId : null) || 
+      const productSku =
+        firstProduct.sku ||
+        (firstProduct.productId && typeof firstProduct.productId === 'object'
+          ? (firstProduct.productId as any).sku
+          : null) ||
+        (typeof firstProduct.productId === 'string'
+          ? firstProduct.productId
+          : null) ||
         'SKU-001';
 
       // Resolve customer details defensively
       const orderObj = (sub as any).order;
       const buyerObj = orderObj?.buyer || (sub as any).buyer;
-      const customerName = buyerObj?.name || buyerObj?.nameAr || orderObj?.customerName || (sub as any).customerName || `Customer #${idx + 1}`;
-      const customerEmail = buyerObj?.email || orderObj?.customerEmail || (sub as any).customerEmail || 'customer@example.com';
-      const customerPhone = buyerObj?.phone || orderObj?.customerPhone || (sub as any).customerPhone || '';
-      const shippingAddress = orderObj?.shippingAddress || (sub as any).shippingAddress || '';
+      const customerName =
+        buyerObj?.name ||
+        buyerObj?.nameAr ||
+        orderObj?.customerName ||
+        (sub as any).customerName ||
+        `Customer #${idx + 1}`;
+      const customerEmail =
+        buyerObj?.email ||
+        orderObj?.customerEmail ||
+        (sub as any).customerEmail ||
+        'customer@example.com';
+      const customerPhone =
+        buyerObj?.phone ||
+        orderObj?.customerPhone ||
+        (sub as any).customerPhone ||
+        '';
+      const shippingAddress =
+        orderObj?.shippingAddress || (sub as any).shippingAddress || '';
 
       return {
         id: `#RET-${sub.id.slice(0, 8).toUpperCase()}`,
@@ -104,7 +137,8 @@ export function useReturnRequests() {
         item.id.toLowerCase().includes(search.toLowerCase()) ||
         item.customerName.toLowerCase().includes(search.toLowerCase()) ||
         item.productTitle.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
+      const matchStatus =
+        statusFilter === 'ALL' || item.status === statusFilter;
 
       let matchDate = true;
       if (dateFilter !== 'ALL') {
@@ -123,7 +157,10 @@ export function useReturnRequests() {
 
   // Pagination calculations
   const ITEMS_PER_PAGE = 7;
-  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredItems.length / ITEMS_PER_PAGE)
+  );
   const activePage = Math.min(currentPage, totalPages);
   const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length);
@@ -170,12 +207,27 @@ export function useReturnRequests() {
 
   // Mutation for updating return status
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status, reason }: { id: string; status: string; reason?: string }) => {
+    mutationFn: async ({
+      id,
+      status,
+      reason,
+    }: {
+      id: string;
+      status: string;
+      reason?: string;
+    }) => {
       const rawId = id.replace('#RET-', '').toLowerCase();
-      return updateVendorSubOrderStatus(rawId, { status, trackingNumber: reason });
+      return updateVendorSubOrderStatus(rawId, {
+        status,
+        trackingNumber: reason,
+      });
     },
     onSuccess: () => {
-      toast.success(t('returnsPage.updateSuccess', { defaultValue: 'Status updated successfully!' }));
+      toast.success(
+        t('returnsPage.updateSuccess', {
+          defaultValue: 'Status updated successfully!',
+        })
+      );
       queryClient.invalidateQueries({ queryKey: ['return-requests'] });
     },
     onError: (err: unknown) => {
