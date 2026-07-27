@@ -1,33 +1,67 @@
 // Refunds service
-// This file provides functions to interact with the Refunds API.
-// It follows the same pattern as other service files (e.g., returns.ts).
+// Matches backend response format from /vendor/refunds
 
 import { api, handleServiceError } from './api';
 
-export interface RefundItem {
+export interface VendorRefundProductItem {
   id: string;
-  orderId: string;
+  orderItemId: string;
+  reason: string;
+  refundAmount: number;
+  productNameSnapshot: string;
+  variantLabelSnapshot?: string | null;
+  unitPriceSnapshot: number;
+  thumbnailUrl?: string | null;
   vendorId: string;
-  amount: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  reason?: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
+export interface VendorRefundCustomer {
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phoneNumber?: string | null;
+}
+
+export interface VendorRefundShipping {
+  recipientName?: string | null;
+  recipientPhone?: string | null;
+  shippingCity?: string | null;
+  shippingStreetAddress?: string | null;
+  shippingBuildingNumber?: string | null;
+  shippingAdditionalDirections?: string | null;
+}
+
+export interface VendorRefundItem {
+  id: string;
+  orderId: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | string;
+  rejectionReason?: string | null;
+  items: VendorRefundProductItem[];
+  totalRefundAmount: number;
+  imageUrls?: string[];
+  createdAt: string;
+  internalNotes?: string | null;
+  customer?: VendorRefundCustomer | null;
+  shipping?: VendorRefundShipping | null;
+  vendorStoreName?: string | null;
+}
+
+// Alias for backwards compatibility
+export type RefundItem = VendorRefundItem;
+
 export interface PaginatedRefundList {
-  items: RefundItem[];
+  items: VendorRefundItem[];
   pagination: {
-    totalItems: number;
-    itemCount: number;
-    itemsPerPage: number;
-    totalPages: number;
     currentPage: number;
+    pageSize?: number;
+    itemsPerPage?: number;
+    totalItems: number;
+    totalPages: number;
   };
 }
 
 /**
- * Fetch a paginated list of refunds.
+ * Fetch a paginated list of refunds from /vendor/refunds
  */
 export async function getRefunds(params?: {
   status?: string;
@@ -36,7 +70,17 @@ export async function getRefunds(params?: {
 }): Promise<PaginatedRefundList> {
   try {
     const response = await api.get('/vendor/refunds', { params });
-    return response.data;
+    const payload = response.data?.data || response.data;
+    
+    return {
+      items: payload?.items || [],
+      pagination: payload?.pagination || {
+        currentPage: 1,
+        pageSize: 25,
+        totalItems: (payload?.items || []).length,
+        totalPages: 1,
+      },
+    };
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch refunds');
   }
@@ -45,10 +89,11 @@ export async function getRefunds(params?: {
 /**
  * Fetch details of a single refund by its ID.
  */
-export async function getRefundDetail(id: string): Promise<RefundItem> {
+export async function getRefundDetail(id: string): Promise<VendorRefundItem> {
   try {
     const response = await api.get(`/vendor/refunds/${id}`);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     throw handleServiceError(err, `Failed to fetch refund ${id}`);
   }
@@ -61,10 +106,11 @@ export async function createRefund(data: {
   orderId: string;
   amount: number;
   reason?: string;
-}): Promise<RefundItem> {
+}): Promise<VendorRefundItem> {
   try {
     const response = await api.post('/vendor/refunds', data);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     throw handleServiceError(err, 'Failed to create refund');
   }
@@ -76,14 +122,15 @@ export async function createRefund(data: {
 export async function updateRefund(
   id: string,
   data: Partial<{
-    status: RefundItem['status'];
+    status: VendorRefundItem['status'];
     amount: number;
     reason: string;
   }>
-): Promise<RefundItem> {
+): Promise<VendorRefundItem> {
   try {
     const response = await api.patch(`/vendor/refunds/${id}`, data);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     throw handleServiceError(err, `Failed to update refund ${id}`);
   }
@@ -95,10 +142,11 @@ export async function updateRefund(
 export async function approveRefund(
   id: string,
   data?: { note?: string }
-): Promise<RefundItem> {
+): Promise<VendorRefundItem> {
   try {
     const response = await api.post(`/vendor/refunds/${id}/approve`, data);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     // Fallback to PATCH status if endpoint is patch-based
     try {
@@ -106,7 +154,8 @@ export async function approveRefund(
         status: 'APPROVED',
         ...data,
       });
-      return fallbackResponse.data;
+      const payload = fallbackResponse.data?.data || fallbackResponse.data;
+      return payload;
     } catch {
       throw handleServiceError(err, `Failed to approve refund ${id}`);
     }
@@ -119,10 +168,11 @@ export async function approveRefund(
 export async function rejectRefund(
   id: string,
   data?: { reason?: string }
-): Promise<RefundItem> {
+): Promise<VendorRefundItem> {
   try {
     const response = await api.post(`/vendor/refunds/${id}/reject`, data);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     // Fallback to PATCH status if endpoint is patch-based
     try {
@@ -130,7 +180,8 @@ export async function rejectRefund(
         status: 'REJECTED',
         ...data,
       });
-      return fallbackResponse.data;
+      const payload = fallbackResponse.data?.data || fallbackResponse.data;
+      return payload;
     } catch {
       throw handleServiceError(err, `Failed to reject refund ${id}`);
     }
@@ -143,12 +194,12 @@ export async function rejectRefund(
 export async function processRefund(
   id: string,
   data?: { amount?: number; notes?: string }
-): Promise<RefundItem> {
+): Promise<VendorRefundItem> {
   try {
     const response = await api.post(`/vendor/refunds/${id}/process`, data);
-    return response.data;
+    const payload = response.data?.data || response.data;
+    return payload;
   } catch (err) {
     throw handleServiceError(err, `Failed to process refund ${id}`);
   }
 }
-
