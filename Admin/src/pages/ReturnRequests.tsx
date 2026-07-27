@@ -1,18 +1,22 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
-import { MOCK_RETURNS, type ReturnItem } from '../data/mockReturns';
-import { getVendorSubOrders } from '../services/returns';
+import { useAdminRefunds } from '../features/Orders/hooks/useAdminRefunds';
 
 const ITEMS_PER_PAGE = 7;
 
-export function StatusBadge({ status }: { status: ReturnItem['status'] }) {
+export function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
 
-  const config = {
+  const config: Record<string, { labelKey: string; defaultLabel: string; cls: string }> = {
     PENDING_REVIEW: {
+      labelKey: 'returnsPage.statuses.pendingReview',
+      defaultLabel: 'Pending Review',
+      cls: 'bg-amber-100/90 text-amber-900 border-amber-300/70',
+    },
+    PENDING: {
       labelKey: 'returnsPage.statuses.pendingReview',
       defaultLabel: 'Pending Review',
       cls: 'bg-amber-100/90 text-amber-900 border-amber-300/70',
@@ -39,7 +43,7 @@ export function StatusBadge({ status }: { status: ReturnItem['status'] }) {
     },
   };
 
-  const current = config[status] || config.PENDING_REVIEW;
+  const current = config[status] || config.PENDING;
 
   return (
     <span
@@ -54,90 +58,75 @@ export default function ReturnRequestsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [allItems, setAllItems] = useState<ReturnItem[]>(MOCK_RETURNS);
-  const [loading, setLoading] = useState<boolean>(true);
-
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch real sub-orders from API with fallback to MOCK_RETURNS
-  useEffect(() => {
-    let isMounted = true;
-    async function loadData() {
-      try {
-        setLoading(true);
-        const data = await getVendorSubOrders({ limit: 50 });
-        if (isMounted && data?.items && data.items.length > 0) {
-          const apiReturns: ReturnItem[] = data.items.map((sub, idx) => {
-            const firstProduct = sub.items[0] || {};
-            const dateObj = new Date(sub.createdAt);
-            const formattedDate = isNaN(dateObj.getTime())
-              ? 'Jun 17, 2024'
-              : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const statusParam = statusFilter !== 'ALL' ? statusFilter : undefined;
 
-            const statusMap: Record<string, ReturnItem['status']> = {
-              PENDING: 'PENDING_REVIEW',
-              PROCESSING: 'PENDING_REVIEW',
-              SHIPPED: 'AWAITING_ITEM',
-              DELIVERED: 'COMPLETED',
-              CANCELLED: 'REJECTED',
-            };
+  const { data: refundsResponse, isLoading: loading } = useAdminRefunds({
+    pageNum: currentPage,
+    pageSize: ITEMS_PER_PAGE,
+    status: statusParam,
+  });
 
-            return {
-              id: `#RET-${sub.id.slice(0, 8).toUpperCase()}`,
-              orderId: `#ORD-${sub.orderId.slice(0, 8).toUpperCase()}`,
-              customerName: `Customer #${idx + 1}`,
-              productTitle: firstProduct.productName || 'Order Product',
-              productSku: firstProduct.productId || 'SKU-001',
-              productVariant: firstProduct.variantLabel || 'Default',
-              productQty: firstProduct.quantity || 1,
-              productPrice: `SAR ${(firstProduct.lineTotal || 0).toFixed(2)}`,
-              productImage: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=150',
-              reason: sub.statusOverrideReason || "Item doesn't fit",
-              requestedDate: formattedDate,
-              status: statusMap[sub.status] || 'PENDING_REVIEW',
-            };
-          });
-          setAllItems(apiReturns);
-        }
-      } catch (_err) {
-        // Fallback to MOCK_RETURNS on error
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Filter items based on search and status
-  const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
-      const matchSearch =
-        item.id.toLowerCase().includes(search.toLowerCase()) ||
-        item.customerName.toLowerCase().includes(search.toLowerCase()) ||
-        item.productTitle.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === 'ALL' || item.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [allItems, search, statusFilter]);
-
-  // Reset to page 1 when filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter]);
-
-  // Calculate pagination bounds
-  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+  const apiItems = refundsResponse?.items || [];
+  const totalItemsCount = refundsResponse?.pagination?.totalItems ?? apiItems.length;
+  const totalPages = refundsResponse?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalItemsCount / ITEMS_PER_PAGE));
   const activePage = Math.min(currentPage, totalPages);
-  const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
-  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length);
-  const currentItems = filteredItems.slice(startIndex, endIndex);
 
-  // Generate page numbers array
+  const mappedItems = useMemo(() => {
+    return apiItems.map((ref) => {
+      const firstProduct = ref.items?.[0];
+      const customerName = ref.customer
+        ? `${ref.customer.firstName || ''} ${ref.customer.lastName || ''}`.trim() || 'Customer'
+        : ref.shipping?.recipientName || 'Customer';
+
+      const shortId = ref.id ? (ref.id.length > 8 ? ref.id.slice(-6).toUpperCase() : ref.id) : 'N/A';
+      const orderShortId = ref.orderId ? (ref.orderId.length > 8 ? ref.orderId.slice(-6).toUpperCase() : ref.orderId) : 'N/A';
+
+      const dateObj = new Date(ref.createdAt);
+      const formattedDate = isNaN(dateObj.getTime())
+        ? 'Oct 24, 2026'
+        : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      return {
+        rawId: ref.id,
+        id: `#REF-${shortId}`,
+        orderId: `#ORD-${orderShortId}`,
+        customerName,
+        productTitle: firstProduct?.productNameSnapshot || 'Product Item',
+        productQty: firstProduct?.quantity || 1,
+        productPrice: `SAR ${(ref.totalRefundAmount || 0).toFixed(2)}`,
+        productImage: typeof firstProduct?.thumbnailUrl === 'string' && firstProduct.thumbnailUrl
+          ? firstProduct.thumbnailUrl
+          : 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=150',
+        reason: firstProduct?.reason
+          ? firstProduct.reason.replace(/_/g, ' ')
+          : typeof ref.rejectionReason === 'string'
+          ? ref.rejectionReason
+          : 'Return request',
+        requestedDate: formattedDate,
+        status: ref.status || 'PENDING',
+      };
+    });
+  }, [apiItems]);
+
+  const filteredItems = useMemo(() => {
+    if (!search.trim()) return mappedItems;
+    const lower = search.toLowerCase();
+    return mappedItems.filter(
+      (item) =>
+        item.id.toLowerCase().includes(lower) ||
+        item.orderId.toLowerCase().includes(lower) ||
+        item.customerName.toLowerCase().includes(lower) ||
+        item.productTitle.toLowerCase().includes(lower)
+    );
+  }, [mappedItems, search]);
+
+  const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItemsCount);
+
   const pageNumbers = useMemo(() => {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }, [totalPages]);
@@ -224,10 +213,10 @@ export default function ReturnRequestsPage() {
               </tr>
             ) : (
               <AnimatePresence mode="wait">
-                {currentItems.length > 0 ? (
-                  currentItems.map((item, idx) => (
+                {filteredItems.length > 0 ? (
+                  filteredItems.map((item, idx) => (
                     <motion.tr
-                      key={item.id}
+                      key={item.rawId}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
@@ -243,7 +232,7 @@ export default function ReturnRequestsPage() {
                             alt={item.productTitle}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
                           />
-                          <span className="font-semibold text-gray-900 truncate max-w-[220px]">
+                          <span className="font-semibold text-gray-900 truncate max-w-55">
                             {item.productTitle}
                           </span>
                         </div>
@@ -256,7 +245,7 @@ export default function ReturnRequestsPage() {
                       <td className="py-4 px-4 text-right">
                         <button
                           type="button"
-                          onClick={() => navigate(`/returns/${encodeURIComponent(item.id)}`)}
+                          onClick={() => navigate(`/returns/${encodeURIComponent(item.rawId)}`)}
                           className="font-bold text-gray-900 hover:text-gray-600 underline cursor-pointer transition-colors"
                         >
                           {t('returnsPage.review', { defaultValue: 'Review' })}
@@ -285,9 +274,9 @@ export default function ReturnRequestsPage() {
           </div>
         ) : (
           <AnimatePresence mode="wait">
-            {currentItems.map((item, idx) => (
+            {filteredItems.map((item, idx) => (
               <motion.div
-                key={item.id}
+                key={item.rawId}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -325,7 +314,7 @@ export default function ReturnRequestsPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => navigate(`/returns/${encodeURIComponent(item.id)}`)}
+                    onClick={() => navigate(`/returns/${encodeURIComponent(item.rawId)}`)}
                     className="py-2 px-4 rounded-lg bg-gray-950 text-white text-xs font-semibold hover:bg-gray-800 transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     {t('returnsPage.review', { defaultValue: 'Review' })}

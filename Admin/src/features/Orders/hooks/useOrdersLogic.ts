@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBreakpoint } from '../../../hooks/useBreakpoint';
 import { mapAdminOrderToTableItem } from '../../../services/orders';
+import { mapAdminRefundToTableItem } from '../../../services/refunds';
 import { useAdminOrders } from './useAdminOrders';
-import { MOCK_REFUNDS } from '../data/mockRefunds';
+import { useAdminRefunds } from './useAdminRefunds';
 import type { TableItem, OrderMainTab } from '../types';
 
 export const useOrdersLogic = () => {
@@ -27,17 +28,37 @@ export const useOrdersLogic = () => {
   // React Query Hook for API Orders
   const {
     orders,
-    pagination,
-    isLoading: isApiLoading,
+    pagination: ordersPagination,
+    isLoading: isOrdersLoading,
   } = useAdminOrders(page, itemsPerPage, activeMainTab === 'allOrders');
 
-  const isLoading = isApiLoading;
+  // React Query Hook for API Refunds
+  const refundStatusParam = statusFilter !== 'All' ? statusFilter.toUpperCase() : undefined;
+  const {
+    data: refundsData,
+    isLoading: isRefundsLoading,
+  } = useAdminRefunds(
+    {
+      pageNum: page,
+      pageSize: itemsPerPage,
+      status: refundStatusParam,
+    },
+    activeMainTab === 'refunds'
+  );
+
+  const isLoading = activeMainTab === 'allOrders' ? isOrdersLoading : isRefundsLoading;
 
   // Convert raw API orders to UI TableItem objects
   const liveOrders = useMemo(() => {
     const rawItems = orders || [];
     return rawItems.map((order) => mapAdminOrderToTableItem(order));
   }, [orders]);
+
+  // Convert raw API refunds to UI TableItem objects
+  const liveRefunds = useMemo(() => {
+    const rawItems = refundsData?.items || [];
+    return rawItems.map((refund) => mapAdminRefundToTableItem(refund));
+  }, [refundsData]);
 
   // Filter Data
   const filteredOrders = useMemo(() => {
@@ -60,7 +81,7 @@ export const useOrdersLogic = () => {
   }, [liveOrders, search, statusFilter, vendorFilter]);
 
   const filteredRefunds = useMemo(() => {
-    return MOCK_REFUNDS.filter((item) => {
+    return liveRefunds.filter((item) => {
       const searchLower = search.toLowerCase();
       const matchesSearch =
         !searchLower ||
@@ -71,31 +92,31 @@ export const useOrdersLogic = () => {
         (item.reason && item.reason.toLowerCase().includes(searchLower));
 
       const matchesStatus =
-        statusFilter === 'All' || item.status === statusFilter;
+        statusFilter === 'All' || item.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesVendor =
         vendorFilter === 'All' || item.vendor === vendorFilter;
 
       return matchesSearch && matchesStatus && matchesVendor;
     });
-  }, [search, statusFilter, vendorFilter]);
+  }, [liveRefunds, search, statusFilter, vendorFilter]);
 
   const activeDataset = activeMainTab === 'allOrders' ? filteredOrders : filteredRefunds;
   const totalCount =
     activeMainTab === 'allOrders'
-      ? (pagination?.totalItems ?? filteredOrders.length)
-      : filteredRefunds.length;
+      ? (ordersPagination?.totalItems ?? filteredOrders.length)
+      : (refundsData?.pagination?.totalItems ?? filteredRefunds.length);
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+  const totalPages =
+    activeMainTab === 'allOrders'
+      ? (ordersPagination?.totalPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage)))
+      : (refundsData?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalCount / itemsPerPage)));
+
   const safePage = Math.min(page, totalPages);
 
   const paginatedData = useMemo(() => {
-    if (activeMainTab === 'allOrders') {
-      return activeDataset;
-    }
-    const start = (safePage - 1) * itemsPerPage;
-    return activeDataset.slice(start, start + itemsPerPage);
-  }, [activeMainTab, activeDataset, safePage, itemsPerPage]);
+    return activeDataset;
+  }, [activeDataset]);
 
   const handleMainTabChange = (tab: OrderMainTab) => {
     setActiveMainTab(tab);
