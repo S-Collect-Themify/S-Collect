@@ -1,6 +1,7 @@
-import { Trash, Star } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ReviewItem } from '../types';
+import { StarRating } from './StarRating';
 
 interface ReviewTableProps {
   reviews: ReviewItem[];
@@ -9,20 +10,6 @@ interface ReviewTableProps {
 
 export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
   const { t } = useTranslation();
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        size={15}
-        className={
-          i < rating
-            ? 'fill-amber-400 text-amber-400'
-            : 'fill-gray-200 text-gray-200'
-        }
-      />
-    ));
-  };
 
   return (
     <div className="w-full overflow-x-auto">
@@ -49,14 +36,9 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
                 {review.reviewId}
               </td>
 
-              {/* Product Name & Comment */}
+              {/* Product Name */}
               <td className="py-4 px-6 font-medium text-gray-900 max-w-xs">
                 <div>{review.product}</div>
-                {review.comment && (
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 font-normal italic">
-                    "{review.comment}"
-                  </p>
-                )}
               </td>
 
               {/* Buyer Name */}
@@ -67,9 +49,7 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
 
               {/* Rating Stars */}
               <td className="py-4 px-6">
-                <div className="flex items-center gap-0.5">
-                  {renderStars(review.rating)}
-                </div>
+                <StarRating rating={review.rating} size={15} />
               </td>
 
               {/* Date */}

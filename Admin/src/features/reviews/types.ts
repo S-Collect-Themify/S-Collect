@@ -7,8 +7,7 @@ export interface ReviewItem {
   buyerAccountId?: string;
   vendor: string;
   rating: number; // 1 to 5
-  comment?: string;
-  date: string; // e.g. '2026-07-19'
+  date: string;
 }
 
 export interface DeleteReviewModalState {
