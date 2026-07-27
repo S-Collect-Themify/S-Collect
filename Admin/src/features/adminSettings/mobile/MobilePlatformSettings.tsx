@@ -6,10 +6,6 @@ import { useAdminSettingsStore } from '../store';
 import type { PlatformSettings } from '../types';
 import i18n from '../../../i18n';
 
-const CURRENCIES = [
-  { value: 'SAR - Saudi Riyal', labelKey: 'adminSettings.currencies.sar' },
-];
-
 const LANGUAGES = [
   { value: 'Arabic', labelKey: 'adminSettings.languages.arabic' },
   { value: 'English', labelKey: 'adminSettings.languages.english' },
@@ -45,38 +41,6 @@ export const MobilePlatformSettings: React.FC = () => {
       {/* Main Platform Settings Form Card */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-xs">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Currency */}
-          <div>
-            <label
-              htmlFor="mob-currency"
-              className="text-sm font-semibold text-gray-900 mb-2 block"
-            >
-              {t('adminSettings.currency', { defaultValue: 'Currency' })}{' '}
-              <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <select
-                id="mob-currency"
-                {...register('currency', {
-                  required: isArabic ? 'العملة مطلوبة' : 'Currency is required',
-                })}
-                className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent pr-10 cursor-pointer"
-              >
-                {CURRENCIES.map((curr) => (
-                  <option key={curr.value} value={curr.value}>
-                    {curr.value}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 rtl:right-auto rtl:left-0">
-                <ChevronDown size={16} />
-              </div>
-            </div>
-            {errors.currency && (
-              <p className="text-xs text-red-500 mt-1.5">{errors.currency.message}</p>
-            )}
-          </div>
-
           {/* Default Language */}
           <div>
             <label
