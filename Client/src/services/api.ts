@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getErrorMessage, ApiErrorResponseBody } from "../types/api";
+import { getErrorMessage, type ApiErrorResponseBody } from "../types/api";
 
 export class ServiceError extends Error {
   public readonly statusCode?: number;
