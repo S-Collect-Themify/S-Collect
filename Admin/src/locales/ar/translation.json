@@ -1211,7 +1211,7 @@
     "form": {
       "voucherCode": "كود القسيمة *",
       "voucherCodePlaceholder": "أدخل كود القسيمة أو اتركه فارغاً للتوليد التلقائي",
-      "category": "الفئة",
+      "category": "الفئة *",
       "categoryPlaceholder": "اختر الفئة",
       "scope": "النطاق *",
       "scopePlaceholder": "اختر النطاق",
@@ -1233,6 +1233,7 @@
       "saveChanges": "حفظ التغييرات",
       "errors": {
         "voucherCodeRequired": "كود القسيمة مطلوب",
+        "categoryRequired": "الفئة مطلوبة",
         "discountValueRequired": "قيمة الخصم مطلوبة",
         "discountValueInvalid": "أدخل قيمة خصم موجبة صالحة",
         "minOrderInvalid": "أدخل حداً أدنى صالحاً",

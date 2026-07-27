@@ -25,8 +25,8 @@ export const useVouchersData = () => {
             return {
               id: v.id || v._id || String(idx + 1),
               code: v.code || `VOUCHER-${idx + 1}`,
-              category: v.category || 'Food',
-              scope: v.scope || 'Percentage',
+              category: Array.isArray(v.category) ? v.category : (v.category ? [v.category] : (Array.isArray(v.categories) ? v.categories : [])),
+              scope: v.scope || 'All',
               type: v.type || 'Percentage',
               discount: v.discount || (v.type === 'Percentage' ? `${v.discountValue || 20}%` : `SAR ${v.discountValue || 50}`),
               discountValue: v.discountValue,
@@ -70,8 +70,8 @@ export const useVouchersData = () => {
       const newVoucher: VoucherItem = {
         id: String(Date.now()),
         code: variables.code || `VOUCHER-${Math.floor(Math.random() * 1000)}`,
-        category: variables.category || 'Food',
-        scope: variables.scope || 'Percentage',
+        category: Array.isArray(variables.category) ? variables.category : (variables.category ? [variables.category] : []),
+        scope: variables.scope || 'All',
         type: variables.type,
         discount: discountText,
         discountValue: variables.discountValue,

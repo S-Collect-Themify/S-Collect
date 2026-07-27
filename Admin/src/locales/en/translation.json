@@ -1215,7 +1215,7 @@
     "form": {
       "voucherCode": "Voucher Code *",
       "voucherCodePlaceholder": "Enter voucher code or leave empty to auto-generate",
-      "category": "Category",
+      "category": "Category *",
       "categoryPlaceholder": "Select Category",
       "scope": "Scope *",
       "scopePlaceholder": "Select Scope",
@@ -1237,6 +1237,7 @@
       "saveChanges": "Save Changes",
       "errors": {
         "voucherCodeRequired": "Voucher code is required",
+        "categoryRequired": "Category is required",
         "discountValueRequired": "Discount value is required",
         "discountValueInvalid": "Enter a valid positive discount value",
         "minOrderInvalid": "Enter a valid minimum order amount",

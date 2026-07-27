@@ -42,7 +42,11 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
 
               {/* Category */}
               <td className="py-4 px-6 text-gray-700 font-medium">
-                {voucher.category || '—'}
+                {Array.isArray(voucher.category)
+                  ? voucher.category.length > 0
+                    ? voucher.category.join(', ')
+                    : '—'
+                  : voucher.category || '—'}
               </td>
 
               {/* Scope */}
