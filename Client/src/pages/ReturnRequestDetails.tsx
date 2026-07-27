@@ -17,7 +17,9 @@ export default function ReturnRequestDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
   const decodedId = id ? decodeURIComponent(id) : '';
-  const rawId = decodedId.startsWith('#RET-') ? decodedId.replace('#RET-', '') : decodedId;
+  const rawId = decodedId.startsWith('#RET-')
+    ? decodedId.replace('#RET-', '')
+    : decodedId;
 
   const {
     item,
@@ -53,12 +55,18 @@ export default function ReturnRequestDetailsPage() {
           {t('returnsPage.title', { defaultValue: 'Return Requests' })}
         </h1>
         <div className="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm text-gray-500 mt-1.5">
-          <Link to="/returns" className="hover:text-gray-900 transition-colors font-medium">
+          <Link
+            to="/returns"
+            className="hover:text-gray-900 transition-colors font-medium"
+          >
             {t('returnsPage.title', { defaultValue: 'Return Requests' })}
           </Link>
           <ChevronRight size={16} className="text-gray-400 shrink-0" />
           <span className="text-gray-800 font-semibold">
-            {t('returnsPage.breadcrumb', { defaultValue: 'Return Request Details' })} {item.id}
+            {t('returnsPage.breadcrumb', {
+              defaultValue: 'Return Request Details',
+            })}{' '}
+            {item.id}
           </span>
         </div>
       </motion.div>

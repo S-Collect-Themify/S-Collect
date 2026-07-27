@@ -45,7 +45,8 @@ const RecentOrdersDesktopTable = ({
 
       <tbody>
         {orders.map((order, index) => {
-          const itemsTotal = order.items?.reduce((s, i) => s + (i.lineTotal ?? 0), 0) ?? 0;
+          const itemsTotal =
+            order.items?.reduce((s, i) => s + (i.lineTotal ?? 0), 0) ?? 0;
           const grandTotal = itemsTotal + (order.shippingRateApplied ?? 0);
           const firstProduct = order.items?.[0]?.productName ?? '—';
           const formattedId = `#${order.id.slice(0, 8).toUpperCase()}`;
@@ -56,7 +57,9 @@ const RecentOrdersDesktopTable = ({
               className="border-t border-gray-200 transition-colors hover:bg-gray-50 tbl-animate-in"
               style={{ animationDelay: `${200 + index * 60}ms` }}
             >
-              <td className="px-8 py-6 font-medium text-amber-700">{formattedId}</td>
+              <td className="px-8 py-6 font-medium text-amber-700">
+                {formattedId}
+              </td>
 
               <td className="px-8 py-6 text-gray-500 whitespace-nowrap">
                 {new Date(order.createdAt).toLocaleDateString('en-US', {
@@ -76,7 +79,8 @@ const RecentOrdersDesktopTable = ({
               </td>
 
               <td className="px-8 py-6 text-gray-900 whitespace-nowrap">
-                {grandTotal.toLocaleString()} {t('dashboardMetrics.unit.sar', 'SAR')}
+                {grandTotal.toLocaleString()}{' '}
+                {t('dashboardMetrics.unit.sar', 'SAR')}
               </td>
 
               <td className="px-8 py-6">

@@ -27,12 +27,19 @@ export const useUpdateProduct = () => {
   const isRtl = i18n.language === 'ar';
 
   return useMutation({
-    mutationFn: async ({ productId, formData, variants }: UpdateProductArgs) => {
+    mutationFn: async ({
+      productId,
+      formData,
+      variants,
+    }: UpdateProductArgs) => {
       // 1. Update product basic info (name, description, category, images, ...)
       const rawResponse = await updateProductFull(productId, formData);
 
       const unwrapped =
-        rawResponse && typeof rawResponse === 'object' && 'success' in rawResponse && 'data' in rawResponse
+        rawResponse &&
+        typeof rawResponse === 'object' &&
+        'success' in rawResponse &&
+        'data' in rawResponse
           ? rawResponse.data
           : rawResponse;
 
@@ -53,7 +60,9 @@ export const useUpdateProduct = () => {
       }
 
       // 3. Set the thumbnail (prefer the image marked asThumbnail)
-      const thumbnailImg = unwrapped?.images?.find((img: any) => img.isThumbnail);
+      const thumbnailImg = unwrapped?.images?.find(
+        (img: any) => img.isThumbnail
+      );
       const thumbnailImageId = thumbnailImg?.id || unwrapped?.images?.[0]?.id;
       if (productId && thumbnailImageId) {
         try {
@@ -67,12 +76,14 @@ export const useUpdateProduct = () => {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['product', variables.productId] });
-      queryClient.invalidateQueries({ queryKey: ['product-details', variables.productId] });
+      queryClient.invalidateQueries({
+        queryKey: ['product', variables.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['product-details', variables.productId],
+      });
       toast.success(
-        isRtl
-          ? 'تم تحديث المنتج بنجاح!'
-          : 'Product updated successfully!'
+        isRtl ? 'تم تحديث المنتج بنجاح!' : 'Product updated successfully!'
       );
     },
     onError: (error: unknown) => {
@@ -84,15 +95,27 @@ export const useUpdateProduct = () => {
       let detailsMsg = '';
 
       if (apiError && typeof apiError === 'object') {
-        const details = apiError.validation || apiError.details || apiError.errors;
+        const details =
+          apiError.validation || apiError.details || apiError.errors;
         if (Array.isArray(details)) {
-          detailsMsg = details.map((d: ValidationErrorItem) => `${d.field || d.property || 'field'}: ${d.issue || d.message || 'invalid'}`).join(', ');
+          detailsMsg = details
+            .map(
+              (d: ValidationErrorItem) =>
+                `${d.field || d.property || 'field'}: ${d.issue || d.message || 'invalid'}`
+            )
+            .join(', ');
         } else if (details && typeof details === 'object') {
-          detailsMsg = Object.entries(details).map(([k, v]) => `${k}: ${v}`).join(', ');
+          detailsMsg = Object.entries(details)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ');
         }
       }
 
-      const mainMsg = (typeof apiError === 'object' ? apiError?.message : null) || responseData?.message || detailsMsg || (error instanceof Error ? error.message : '');
+      const mainMsg =
+        (typeof apiError === 'object' ? apiError?.message : null) ||
+        responseData?.message ||
+        detailsMsg ||
+        (error instanceof Error ? error.message : '');
       const fallbackMsg = isRtl
         ? 'فشل تحديث المنتج. يرجى التحقق من المدخلات.'
         : 'Failed to update product. Please verify inputs.';

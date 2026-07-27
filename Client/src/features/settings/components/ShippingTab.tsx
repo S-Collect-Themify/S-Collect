@@ -9,12 +9,8 @@ import { useCooldown } from '../../../hooks/useCooldown';
 import { ShippingSettingsFormSkeleton } from '../skeleton/SettingsSkeletons';
 
 export function ShippingTab() {
-  const {
-    shippingValues,
-    regions,
-    isConfigured,
-    isLoading,
-  } = useVendorShipping();
+  const { shippingValues, regions, isConfigured, isLoading } =
+    useVendorShipping();
   const updateShippingMutation = useUpdateVendorShipping();
   const { active: cooldown, trigger: triggerCooldown } = useCooldown(3000);
 

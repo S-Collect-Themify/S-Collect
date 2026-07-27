@@ -51,8 +51,8 @@ const Login = ({ onGoToRegister }: LoginProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [remainingTime, setRemainingTime] = useState<number>(14 * 60); 
-  
+  const [remainingTime, setRemainingTime] = useState<number>(14 * 60);
+
   const initialState: LoginState =
     searchParams.get('state') === 'locked'
       ? 'locked'
@@ -152,29 +152,42 @@ const Login = ({ onGoToRegister }: LoginProps) => {
       <div className="flex-1 bg-gray-50 flex items-start justify-center px-5 py-8 lg:px-10 lg:py-12">
         <div className="container flex justify-center">
           <div className="w-full max-w-[380px] mt-6 lg:mt-32">
-            <div className="flex justify-center mb-6 animate-fade-in-up" style={{ animationDelay: '0s' }}>
+            <div
+              className="flex justify-center mb-6 animate-fade-in-up"
+              style={{ animationDelay: '0s' }}
+            >
               <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-800">
                 {icon}
               </div>
             </div>
 
-            <h2 className="lg:text-h3 text-h5 font-semibold text-gray-900 text-center animate-fade-in-up"
-            style={{ animationDelay: '0.1s' }}>
+            <h2
+              className="lg:text-h3 text-h5 font-semibold text-gray-900 text-center animate-fade-in-up"
+              style={{ animationDelay: '0.1s' }}
+            >
               {title}
             </h2>
-            <p className="text-body-md text-gray-500 text-center leading-relaxed mb-6 animate-fade-in-up"
-            style={{ animationDelay: '0.15s' }}>
+            <p
+              className="text-body-md text-gray-500 text-center leading-relaxed mb-6 animate-fade-in-up"
+              style={{ animationDelay: '0.15s' }}
+            >
               {subtitle}
             </p>
 
             {isExpired && (
-              <div className="flex items-center gap-2 bg-orange-light text-orange text-body-sm rounded-lg px-3.5 py-3 mb-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div
+                className="flex items-center gap-2 bg-orange-light text-orange text-body-sm rounded-lg px-3.5 py-3 mb-4 animate-fade-in-up"
+                style={{ animationDelay: '0.2s' }}
+              >
                 <AlertTriangle size={15} />
                 {t('login.expiredAlert')}
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 animate-fade-in-up">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 animate-fade-in-up"
+            >
               <div>
                 <label className="block text-label-sm text-gray-700 mb-1.5">
                   {t('login.emailLabel')}

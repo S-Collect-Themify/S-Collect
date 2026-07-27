@@ -12,10 +12,16 @@ const RecentOrdersTable = () => {
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
 
-  const { data, isLoading, isError } = useSubOrders({ pageNum: 1, pageSize: 5 });
+  const { data, isLoading, isError } = useSubOrders({
+    pageNum: 1,
+    pageSize: 5,
+  });
 
   const recentOrders = [...(data?.items ?? [])]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
     .slice(0, 5);
 
   const getStatusLabel = (status: SubOrderStatus) => {

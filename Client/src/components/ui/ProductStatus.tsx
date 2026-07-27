@@ -124,7 +124,6 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
             />
           </Switch>
         </div>
-
       </div>
     </div>
   );

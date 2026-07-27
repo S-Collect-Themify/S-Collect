@@ -1,34 +1,53 @@
-import { api } from './api';
-import axios from 'axios';
+import { api, handleServiceError } from './api';
 
 export const getAllProducts = async () => {
-  const { data } = await api.get('/vendor/products');
+  try {
+    const { data } = await api.get('/vendor/products');
 
-  return data;
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch products');
+  }
 };
 
 export const getProductById = async (productId: string) => {
-  const { data } = await api.get(`/vendor/products/${productId}`);
-  return data;
+  try {
+    const { data } = await api.get(`/vendor/products/${productId}`);
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to fetch product ${productId}`);
+  }
 };
 
 export const updateProductFull = async (
   productId: string,
   formData: FormData
 ) => {
-  const { data } = await api.patch(`/vendor/products/${productId}`, formData, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    const { data } = await api.patch(
+      `/vendor/products/${productId}`,
+      formData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
 
-  return data;
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to update product ${productId}`);
+  }
 };
 
 export const createProductFull = async (formData: FormData) => {
-  const { data } = await api.post('/vendor/products/full', formData, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    const { data } = await api.post('/vendor/products/full', formData, {
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-  return data;
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to create product');
+  }
 };
 
 export const setProductThumbnail = async (
@@ -41,8 +60,11 @@ export const setProductThumbnail = async (
     );
     return data;
   } catch (err: unknown) {
-    const status = axios.isAxiosError(err) ? err.response?.status : undefined;
-    if (status === 404 || status === 405) {
+    const serviceErr = handleServiceError(
+      err,
+      'Failed to set product thumbnail'
+    );
+    if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
       try {
         const { data } = await api.put(
           `/vendor/products/${productId}/images/${imageId}/thumbnail`
@@ -55,15 +77,14 @@ export const setProductThumbnail = async (
           );
           return data;
         } catch (postErr: unknown) {
-          console.error(
-            'All thumbnail methods failed (PATCH, PUT, POST):',
-            postErr
+          throw handleServiceError(
+            postErr,
+            'All thumbnail methods failed (PATCH, PUT, POST)'
           );
-          throw postErr;
         }
       }
     }
-    throw err;
+    throw serviceErr;
   }
 };
 
@@ -77,26 +98,45 @@ export interface Category {
 }
 
 export const getCategories = async (): Promise<Category[]> => {
-  const { data } = await api.get('/vendor/categories');
-  return data;
+  try {
+    const { data } = await api.get('/vendor/categories');
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch categories');
+  }
 };
 
 export const updateProductVariant = async (
   productId: string,
   variantId: string,
-  body: { stock?: number; price?: number; compareAtPrice?: number; isActive?: boolean }
+  body: {
+    stock?: number;
+    price?: number;
+    compareAtPrice?: number;
+    isActive?: boolean;
+  }
 ) => {
-  const { data } = await api.patch(`/vendor/products/${productId}/variants/${variantId}`, body);
-  return data;
+  try {
+    const { data } = await api.patch(
+      `/vendor/products/${productId}/variants/${variantId}`,
+      body
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to update variant ${variantId}`);
+  }
 };
 
 export const deleteProductImage = async (
   productId: string,
   imageId: string
 ) => {
-  const { data } = await api.delete(`/vendor/products/${productId}/images/${imageId}`);
-  return data;
+  try {
+    const { data } = await api.delete(
+      `/vendor/products/${productId}/images/${imageId}`
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to delete product image ${imageId}`);
+  }
 };
-
-
-

@@ -38,11 +38,17 @@ export const useAddProductPage = () => {
 
   const { isMobile } = useBreakpoint();
   const { categories: categoriesList } = useCategories();
-  const { data: fetchedProductData, isLoading: isProductLoading } = useProduct(productId);
-  const { mutate: saveProduct, isPending } = useSaveProduct({ isEdit, productId });
+  const { data: fetchedProductData, isLoading: isProductLoading } =
+    useProduct(productId);
+  const { mutate: saveProduct, isPending } = useSaveProduct({
+    isEdit,
+    productId,
+  });
 
   const [step, setStep] = useState<AddProductStep>('form');
-  const [createdThumbnail, setCreatedThumbnail] = useState<string | undefined>(undefined);
+  const [createdThumbnail, setCreatedThumbnail] = useState<string | undefined>(
+    undefined
+  );
 
   const methods = useForm<ProductFormData>({
     defaultValues: defaultFormValues,
@@ -75,15 +81,20 @@ export const useAddProductPage = () => {
   }, [selectedCategory, isArabic]);
 
   // Helper creators for array fields
-  const makeAdder = (fieldName: 'categories' | 'sizes' | 'colors') => (value: string) => {
-    const prev = methods.getValues(fieldName) || [];
-    methods.setValue(fieldName, [...prev, value]);
-  };
+  const makeAdder =
+    (fieldName: 'categories' | 'sizes' | 'colors') => (value: string) => {
+      const prev = methods.getValues(fieldName) || [];
+      methods.setValue(fieldName, [...prev, value]);
+    };
 
-  const makeRemover = (fieldName: 'categories' | 'sizes' | 'colors') => (index: number) => {
-    const prev = methods.getValues(fieldName) || [];
-    methods.setValue(fieldName, prev.filter((_, i) => i !== index));
-  };
+  const makeRemover =
+    (fieldName: 'categories' | 'sizes' | 'colors') => (index: number) => {
+      const prev = methods.getValues(fieldName) || [];
+      methods.setValue(
+        fieldName,
+        prev.filter((_, i) => i !== index)
+      );
+    };
 
   // Form submission handler
   // - In edit mode: update the product immediately and show success popup
@@ -103,7 +114,9 @@ export const useAddProductPage = () => {
 
     // Build variant updates for the dedicated variant endpoint (price/stock)
     const price = parseFloat(data.basePrice) || 0;
-    const compareAtPrice = data.comparePrice ? parseFloat(data.comparePrice) : 0;
+    const compareAtPrice = data.comparePrice
+      ? parseFloat(data.comparePrice)
+      : 0;
     const stock = data.quantity || 0;
     const variants = (data.variantsMeta || [])
       .filter((vm) => vm.id)

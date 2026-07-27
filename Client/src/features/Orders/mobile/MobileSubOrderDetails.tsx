@@ -1,13 +1,26 @@
 // features/Orders/mobile/MobileSubOrderDetails.tsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Package, Check, Truck, Circle, Ban } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Package,
+  Check,
+  Truck,
+  Circle,
+  Ban,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSubOrder, useUpdateSubOrder } from '../useSubOrders';
 import type { SubOrderStatus } from '../types/subOrder';
 import { STATUS_STYLES, NEXT_STATUS } from '../types/subOrder';
 
-const TIMELINE_STEPS: SubOrderStatus[] = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
+const TIMELINE_STEPS: SubOrderStatus[] = [
+  'PENDING',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+];
 
 interface Props {
   subOrderId: string;
@@ -32,7 +45,10 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
     return (
       <div className="flex flex-col items-center gap-3 py-40 text-center px-4">
         <p className="text-red-500 text-sm">Failed to load order details.</p>
-        <button onClick={() => refetch()} className="text-sm underline text-gray-600 cursor-pointer">
+        <button
+          onClick={() => refetch()}
+          className="text-sm underline text-gray-600 cursor-pointer"
+        >
           Retry
         </button>
       </div>
@@ -50,7 +66,12 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
     if (!nextStatus) return;
     updateOrder({
       id: order.id,
-      body: { status: nextStatus, ...(trackingInput.trim() ? { trackingNumber: trackingInput.trim() } : {}) },
+      body: {
+        status: nextStatus,
+        ...(trackingInput.trim()
+          ? { trackingNumber: trackingInput.trim() }
+          : {}),
+      },
     });
     setTrackingInput('');
   };
@@ -81,7 +102,6 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
-
         {/* Items */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
           <h6 className="font-semibold text-gray-900 mb-3 text-sm">
@@ -93,7 +113,9 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
               className="flex justify-between gap-2 py-2 border-b border-gray-50 last:border-none"
             >
               <div>
-                <p className="text-sm font-medium text-gray-900">{item.productName}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {item.productName}
+                </p>
                 {item.variantLabel && (
                   <p className="text-xs text-gray-400">{item.variantLabel}</p>
                 )}
@@ -112,14 +134,21 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
             {t('ordersPage.orderSummary')}
           </h6>
           <div className="flex justify-between text-gray-500 py-1">
-            <span>Items</span><span>SAR {itemsTotal.toLocaleString()}</span>
+            <span>Items</span>
+            <span>SAR {itemsTotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-gray-500 py-1">
-            <span>Shipping</span><span>SAR {order.shippingRateApplied.toLocaleString()}</span>
+            <span>Shipping</span>
+            <span>SAR {order.shippingRateApplied.toLocaleString()}</span>
           </div>
           <div className="flex justify-between font-semibold text-gray-900 pt-2 border-t border-gray-100 mt-1">
             <span>Total</span>
-            <span>SAR {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span>
+              SAR{' '}
+              {grandTotal.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </span>
           </div>
         </div>
 
@@ -132,9 +161,14 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
             ['Order ID', `#${order.orderId.slice(0, 8)}…`],
             ['Tracking', order.trackingNumber ?? '—'],
           ].map(([l, v]) => (
-            <div key={l} className="flex justify-between py-1 border-b border-gray-50 last:border-none">
+            <div
+              key={l}
+              className="flex justify-between py-1 border-b border-gray-50 last:border-none"
+            >
               <span className="text-gray-400">{l}</span>
-              <span className="font-medium text-gray-700 text-right break-all max-w-[60%]">{v}</span>
+              <span className="font-medium text-gray-700 text-right break-all max-w-[60%]">
+                {v}
+              </span>
             </div>
           ))}
         </div>
@@ -156,16 +190,37 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
               return (
                 <div key={step} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <div className={`w-6 h-6 flex items-center justify-center rounded-full ${
-                      done ? isCurrent ? 'bg-amber-500 text-white' : 'bg-green-600 text-white' : 'border border-gray-300 bg-white text-gray-400'
-                    }`}>
-                      {done ? isCurrent ? <Truck size={12} /> : <Check size={12} strokeWidth={3} /> : <Circle size={8} fill="currentColor" />}
+                    <div
+                      className={`w-6 h-6 flex items-center justify-center rounded-full ${
+                        done
+                          ? isCurrent
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-green-600 text-white'
+                          : 'border border-gray-300 bg-white text-gray-400'
+                      }`}
+                    >
+                      {done ? (
+                        isCurrent ? (
+                          <Truck size={12} />
+                        ) : (
+                          <Check size={12} strokeWidth={3} />
+                        )
+                      ) : (
+                        <Circle size={8} fill="currentColor" />
+                      )}
                     </div>
                     {i < TIMELINE_STEPS.length - 1 && (
-                      <div className={`w-0.5 flex-1 ${done ? 'bg-green-500' : 'bg-gray-200'}`} style={{ minHeight: 20 }} />
+                      <div
+                        className={`w-0.5 flex-1 ${done ? 'bg-green-500' : 'bg-gray-200'}`}
+                        style={{ minHeight: 20 }}
+                      />
                     )}
                   </div>
-                  <p className={`text-sm pb-4 ${done ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>{step}</p>
+                  <p
+                    className={`text-sm pb-4 ${done ? 'text-gray-900 font-medium' : 'text-gray-400'}`}
+                  >
+                    {step}
+                  </p>
                 </div>
               );
             })
@@ -192,7 +247,11 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
                 disabled={isPending}
                 className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-xl text-sm font-medium disabled:opacity-60"
               >
-                {isPending ? <Loader2 size={15} className="animate-spin" /> : <Package size={15} />}
+                {isPending ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Package size={15} />
+                )}
                 Mark as {nextStatus}
               </motion.button>
             )}

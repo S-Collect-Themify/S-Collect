@@ -40,10 +40,13 @@ export default function ReturnRequestsPage() {
     <>
       {/* Title */}
       <Helmet>
-  <title>طلبات الإرجاع – S‑Collect</title>
-  <meta name="description" content="قائمة طلبات الإرجاع للباعة. إدارة ومراجعة الطلبات بسهولة." />
-</Helmet>
-<h1 className="sidebar-page-container-header heading-page-title">
+        <title>طلبات الإرجاع – S‑Collect</title>
+        <meta
+          name="description"
+          content="قائمة طلبات الإرجاع للباعة. إدارة ومراجعة الطلبات بسهولة."
+        />
+      </Helmet>
+      <h1 className="sidebar-page-container-header heading-page-title">
         {t('returnsPage.title', { defaultValue: 'Return Requests' })}
       </h1>
       <div className="sidebar-page-container min-h-screen">
@@ -61,7 +64,10 @@ export default function ReturnRequestsPage() {
         <ReturnRequestsTable items={currentItems} onReview={handleReview} />
 
         {/* Mobile Card List View (Optimized for Mobile) */}
-        <ReturnRequestsMobileList items={currentItems} onReview={handleReview} />
+        <ReturnRequestsMobileList
+          items={currentItems}
+          onReview={handleReview}
+        />
 
         {/* Pagination Footer */}
         <ReturnPagination

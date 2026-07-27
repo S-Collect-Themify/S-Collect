@@ -112,7 +112,7 @@ export default function PortalDropdown({
             </div>
           )
         ),
-        document.body,
+        document.body
       )}
     </>
   );

@@ -56,7 +56,10 @@ interface MobileSuccessPopupProps {
   thumbnailUrl?: string;
 }
 
-export const MobileSuccessPopup = ({ onClose, thumbnailUrl }: MobileSuccessPopupProps) => {
+export const MobileSuccessPopup = ({
+  onClose,
+  thumbnailUrl,
+}: MobileSuccessPopupProps) => {
   const { t } = useTranslation();
 
   return (

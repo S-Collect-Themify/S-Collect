@@ -35,7 +35,11 @@ export const getProductThumbnail = (
     const resObj = response as Record<string, unknown>;
     if (Array.isArray(resObj.images)) {
       const thumbnailImg = resObj.images.find(
-        (img) => img && typeof img === 'object' && 'isThumbnail' in img && Boolean(img.isThumbnail)
+        (img) =>
+          img &&
+          typeof img === 'object' &&
+          'isThumbnail' in img &&
+          Boolean(img.isThumbnail)
       ) as { url?: string } | undefined;
 
       if (thumbnailImg?.url) return thumbnailImg.url;
@@ -103,18 +107,13 @@ export const mapProductToFormData = async (
 
   let quantity = 0;
   if (Array.isArray(raw.variants)) {
-    quantity = raw.variants.reduce(
-      (sum: number, v) => sum + (v.stock ?? 0),
-      0
-    );
+    quantity = raw.variants.reduce((sum: number, v) => sum + (v.stock ?? 0), 0);
   }
 
   // Preserve real variant IDs matched by their option value combination
   const variantsMeta: VariantMeta[] = (raw.variants || []).map((v) => ({
     id: v.id || '',
-    optionValueIds: (v.optionValues || []).map(
-      (ov: any) => ov.valueId || ''
-    ),
+    optionValueIds: (v.optionValues || []).map((ov: any) => ov.valueId || ''),
   }));
 
   // Store existing images with their real IDs (don't re-upload them)
@@ -159,7 +158,10 @@ export const mapFormToMultipartFormData = (
 
   // 2. Optional description fields
   multipart.append('description', formData.description || '');
-  multipart.append('descriptionAr', formData.descriptionAr || formData.description || '');
+  multipart.append(
+    'descriptionAr',
+    formData.descriptionAr || formData.description || ''
+  );
 
   // Helper: find real option meta by name
   const findOptionMeta = (name: string) =>
@@ -168,8 +170,10 @@ export const mapFormToMultipartFormData = (
     );
 
   // Helper: find real value ID for a given option meta and value string
-  const findValueId = (meta: { values: { id: string; value: string }[] }, val: string) =>
-    meta.values.find((v) => v.value === val)?.id || '';
+  const findValueId = (
+    meta: { values: { id: string; value: string }[] },
+    val: string
+  ) => meta.values.find((v) => v.value === val)?.id || '';
 
   // Helper: find real variant ID by matching option value IDs
   const findVariantId = (valueIds: string[]): string => {

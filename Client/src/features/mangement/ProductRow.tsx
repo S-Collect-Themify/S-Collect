@@ -67,10 +67,11 @@ export default function ProductRow({
 
   return (
     <tr
-      className={`transition-all bg-white ${!product.enabled ? 'opacity-50' : ''} ${selected
-        ? 'hover:bg-gray-50 shadow-[inset_3px_0_0_0_#111827]'
-        : 'hover:bg-gray-50'
-        }`}
+      className={`transition-all bg-white ${!product.enabled ? 'opacity-50' : ''} ${
+        selected
+          ? 'hover:bg-gray-50 shadow-[inset_3px_0_0_0_#111827]'
+          : 'hover:bg-gray-50'
+      }`}
     >
       <td className="px-3 py-3 border-b border-gray-100 text-start">
         <label className="inline-flex items-center justify-center w-4 h-4 cursor-pointer">
@@ -86,7 +87,9 @@ export default function ProductRow({
                        peer-checked:bg-gray-900 peer-checked:border-gray-900
                        transition-colors"
           >
-            {selected && <Check className="text-white" size={11} strokeWidth={3} />}
+            {selected && (
+              <Check className="text-white" size={11} strokeWidth={3} />
+            )}
           </span>
         </label>
       </td>
@@ -128,7 +131,6 @@ export default function ProductRow({
 
       <td className="px-3 py-3 border-b border-gray-100">
         <StatusBadge status={product.status} />
-
       </td>
 
       <td className="px-3 py-3 border-b border-gray-100">

@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, handleServiceError } from './api';
 
 export interface VendorSubOrderItem {
   id: string;
@@ -42,16 +42,29 @@ export async function getVendorSubOrders(params?: {
   page?: number;
   limit?: number;
 }): Promise<PaginatedSubOrderList> {
-  const response = await api.get('/vendor/sub-orders', { params });
-  return response.data;
+  try {
+    const response = await api.get('/vendor/sub-orders', { params });
+    return response.data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch vendor sub-orders');
+  }
 }
 
 /**
  * Fetch a single sub-order details by ID
  */
-export async function getVendorSubOrderDetails(id: string): Promise<VendorSubOrderItem> {
-  const response = await api.get(`/vendor/sub-orders/${id}`);
-  return response.data;
+export async function getVendorSubOrderDetails(
+  id: string
+): Promise<VendorSubOrderItem> {
+  try {
+    const response = await api.get(`/vendor/sub-orders/${id}`);
+    return response.data;
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to fetch sub-order details for ${id}`
+    );
+  }
 }
 
 /**
@@ -61,6 +74,13 @@ export async function updateVendorSubOrderStatus(
   id: string,
   data: { status: string; trackingNumber?: string }
 ): Promise<VendorSubOrderItem> {
-  const response = await api.patch(`/vendor/sub-orders/${id}`, data);
-  return response.data;
+  try {
+    const response = await api.patch(`/vendor/sub-orders/${id}`, data);
+    return response.data;
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to update sub-order status for ${id}`
+    );
+  }
 }

@@ -8,7 +8,10 @@ interface ReturnRequestsMobileListProps {
   onReview: (id: string) => void;
 }
 
-export function ReturnRequestsMobileList({ items, onReview }: ReturnRequestsMobileListProps) {
+export function ReturnRequestsMobileList({
+  items,
+  onReview,
+}: ReturnRequestsMobileListProps) {
   const { t } = useTranslation();
 
   return (
@@ -25,7 +28,9 @@ export function ReturnRequestsMobileList({ items, onReview }: ReturnRequestsMobi
           >
             {/* Top row: ID + Status */}
             <div className="flex items-center justify-between">
-              <span className="font-bold text-amber-600 font-mono text-base">{item.id}</span>
+              <span className="font-bold text-amber-600 font-mono text-base">
+                {item.id}
+              </span>
               <StatusBadge status={item.status} />
             </div>
 
@@ -37,9 +42,14 @@ export function ReturnRequestsMobileList({ items, onReview }: ReturnRequestsMobi
                 className="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-gray-900 truncate">{item.productTitle}</p>
+                <p className="text-sm font-bold text-gray-900 truncate">
+                  {item.productTitle}
+                </p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Customer: <span className="font-medium text-gray-700">{item.customerName}</span>
+                  Customer:{' '}
+                  <span className="font-medium text-gray-700">
+                    {item.customerName}
+                  </span>
                 </p>
               </div>
             </div>
@@ -48,9 +58,14 @@ export function ReturnRequestsMobileList({ items, onReview }: ReturnRequestsMobi
             <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
               <div>
                 <p className="text-gray-500">
-                  Reason: <span className="text-gray-800 font-semibold">{item.reason}</span>
+                  Reason:{' '}
+                  <span className="text-gray-800 font-semibold">
+                    {item.reason}
+                  </span>
                 </p>
-                <p className="text-gray-400 text-[11px] mt-0.5">{item.requestedDate}</p>
+                <p className="text-gray-400 text-[11px] mt-0.5">
+                  {item.requestedDate}
+                </p>
               </div>
               <button
                 type="button"
@@ -64,7 +79,9 @@ export function ReturnRequestsMobileList({ items, onReview }: ReturnRequestsMobi
         ))
       ) : (
         <div className="p-8 text-center bg-white rounded-2xl border border-gray-200 text-gray-400 text-sm">
-          {t('returnsPage.noRequests', { defaultValue: 'No return requests found.' })}
+          {t('returnsPage.noRequests', {
+            defaultValue: 'No return requests found.',
+          })}
         </div>
       )}
     </div>

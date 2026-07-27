@@ -12,7 +12,6 @@ const Receivables = () => {
           <h1 className="heading-page-title py-2">{t('receivables.title')}</h1>
           <p className="text-gray-500 pb-2 ">{t('receivables.description')}</p>
         </div>
-
       </div>
       <div className="sidebar-page-container">
         <ReceivablesGrid />

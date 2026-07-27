@@ -7,7 +7,10 @@ import { getErrorMessage } from '../../../types/api';
 import { ITEMS_PER_PAGE, type ProductRow } from '../types';
 import { getStatus } from '../utils';
 import type { FilterKey } from '../constants';
-import { getAllProducts, updateProductVariant } from '../../../services/products';
+import {
+  getAllProducts,
+  updateProductVariant,
+} from '../../../services/products';
 
 export function useInventory() {
   const { t } = useTranslation();
@@ -20,7 +23,9 @@ export function useInventory() {
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   // Keep track of unsaved local stock edits in a ref
-  const pendingChanges = useRef<Record<string, { productId: string; variantId: string; stock: number }>>({});
+  const pendingChanges = useRef<
+    Record<string, { productId: string; variantId: string; stock: number }>
+  >({});
 
   // Query real products from the API
   const { data: rawProducts } = useQuery({
@@ -33,15 +38,22 @@ export function useInventory() {
   // Extract products array from response envelope
   const products = useMemo(() => {
     const responseData = rawProducts;
-    const productsEnvelope = responseData && typeof responseData === 'object' && 'success' in responseData && 'data' in responseData
-      ? responseData.data
-      : responseData;
-    
+    const productsEnvelope =
+      responseData &&
+      typeof responseData === 'object' &&
+      'success' in responseData &&
+      'data' in responseData
+        ? responseData.data
+        : responseData;
+
     return Array.isArray(productsEnvelope)
       ? productsEnvelope
-      : (productsEnvelope && typeof productsEnvelope === 'object' && 'items' in productsEnvelope && Array.isArray(productsEnvelope.items)
+      : productsEnvelope &&
+          typeof productsEnvelope === 'object' &&
+          'items' in productsEnvelope &&
+          Array.isArray(productsEnvelope.items)
         ? productsEnvelope.items
-        : []);
+        : [];
   }, [rawProducts]);
 
   // Convert raw products & their variants to flat rows
@@ -50,20 +62,27 @@ export function useInventory() {
     products.forEach((p: any) => {
       const name = p.name || '';
       const productId = String(p.id);
-      const updatedAt = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '';
+      const updatedAt = p.updatedAt
+        ? new Date(p.updatedAt).toLocaleDateString()
+        : '';
 
       if (p.variants && Array.isArray(p.variants) && p.variants.length > 0) {
         p.variants.forEach((v: any) => {
           // Format option values string, e.g. "M / Blue"
-          const variantStr = v.optionValues && Array.isArray(v.optionValues)
-            ? v.optionValues.map((ov: any) => ov.value || ov.valueAr).filter(Boolean).join(' / ')
-            : '';
-          
+          const variantStr =
+            v.optionValues && Array.isArray(v.optionValues)
+              ? v.optionValues
+                  .map((ov: any) => ov.value || ov.valueAr)
+                  .filter(Boolean)
+                  .join(' / ')
+              : '';
+
           const uniqueId = `${productId}::${v.id}`;
           // Use pending change stock if user edited it, otherwise backend stock
-          const stock = pendingChanges.current[uniqueId] !== undefined
-            ? pendingChanges.current[uniqueId].stock
-            : (v.stock || 0);
+          const stock =
+            pendingChanges.current[uniqueId] !== undefined
+              ? pendingChanges.current[uniqueId].stock
+              : v.stock || 0;
 
           mappedRows.push({
             id: uniqueId,
@@ -78,9 +97,10 @@ export function useInventory() {
       } else {
         // Fallback for product summary items without variants
         const uniqueId = `${productId}::default`;
-        const stock = pendingChanges.current[uniqueId] !== undefined
-          ? pendingChanges.current[uniqueId].stock
-          : (p.stock || 0);
+        const stock =
+          pendingChanges.current[uniqueId] !== undefined
+            ? pendingChanges.current[uniqueId].stock
+            : p.stock || 0;
 
         mappedRows.push({
           id: uniqueId,
@@ -166,11 +186,17 @@ export function useInventory() {
     // Update query cache so that the new stock reflects immediately in the UI (0 useState!)
     queryClient.setQueryData(['products'], (old: any) => {
       if (!old) return old;
-      
-      const isEnveloped = old && typeof old === 'object' && 'success' in old && 'data' in old;
+
+      const isEnveloped =
+        old && typeof old === 'object' && 'success' in old && 'data' in old;
       const rawData = isEnveloped ? old.data : old;
-      const isPaginated = rawData && typeof rawData === 'object' && 'items' in rawData;
-      const items = isPaginated ? rawData.items : (Array.isArray(rawData) ? rawData : []);
+      const isPaginated =
+        rawData && typeof rawData === 'object' && 'items' in rawData;
+      const items = isPaginated
+        ? rawData.items
+        : Array.isArray(rawData)
+          ? rawData
+          : [];
 
       const updatedItems = items.map((product: any) => {
         if (String(product.id) === productId) {
@@ -193,19 +219,19 @@ export function useInventory() {
           ...old,
           data: isPaginated
             ? { ...old.data, items: updatedItems }
-            : updatedItems
+            : updatedItems,
         };
       } else {
-        return isPaginated
-          ? { ...old, items: updatedItems }
-          : updatedItems;
+        return isPaginated ? { ...old, items: updatedItems } : updatedItems;
       }
     });
   };
 
   // Mutation to save stock modifications in batch
   const saveMutation = useMutation({
-    mutationFn: async (changesList: { productId: string; variantId: string; stock: number }[]) => {
+    mutationFn: async (
+      changesList: { productId: string; variantId: string; stock: number }[]
+    ) => {
       // Filter out 'default' variant IDs and call patch accordingly
       return Promise.all(
         changesList.map(({ productId, variantId, stock }) => {
@@ -215,14 +241,19 @@ export function useInventory() {
       );
     },
     onSuccess: () => {
-      toast.success(t('inventoryPage.saveSuccess', 'Changes saved successfully!'));
+      toast.success(
+        t('inventoryPage.saveSuccess', 'Changes saved successfully!')
+      );
       pendingChanges.current = {};
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (err: unknown) => {
       console.error('Failed to save stock changes:', err);
       toast.error(
-        getErrorMessage(err, t('inventoryPage.saveFailed', 'Failed to save changes.'))
+        getErrorMessage(
+          err,
+          t('inventoryPage.saveFailed', 'Failed to save changes.')
+        )
       );
     },
   });

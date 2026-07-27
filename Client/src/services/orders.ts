@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, handleServiceError } from './api';
 import type {
   PaginatedSubOrders,
   SubOrder,
@@ -20,19 +20,31 @@ export const getSubOrders = async (params?: {
   pageSize?: number;
   status?: SubOrderStatus;
 }): Promise<PaginatedSubOrders> => {
-  const { data } = await api.get('/vendor/sub-orders', { params });
-  return unwrap<PaginatedSubOrders>(data);
+  try {
+    const { data } = await api.get('/vendor/sub-orders', { params });
+    return unwrap<PaginatedSubOrders>(data);
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch sub-orders');
+  }
 };
 
 export const getSubOrderById = async (id: string): Promise<SubOrder> => {
-  const { data } = await api.get(`/vendor/sub-orders/${id}`);
-  return unwrap<SubOrder>(data);
+  try {
+    const { data } = await api.get(`/vendor/sub-orders/${id}`);
+    return unwrap<SubOrder>(data);
+  } catch (err) {
+    throw handleServiceError(err, `Failed to fetch sub-order ${id}`);
+  }
 };
 
 export const updateSubOrder = async (
   id: string,
   body: UpdateSubOrderDto
 ): Promise<SubOrder> => {
-  const { data } = await api.patch(`/vendor/sub-orders/${id}`, body);
-  return unwrap<SubOrder>(data);
+  try {
+    const { data } = await api.patch(`/vendor/sub-orders/${id}`, body);
+    return unwrap<SubOrder>(data);
+  } catch (err) {
+    throw handleServiceError(err, `Failed to update sub-order ${id}`);
+  }
 };

@@ -154,17 +154,27 @@ export const OrderDetails = ({
               {order.timeline.map((item, i) => {
                 const stepToStatusMap: Record<string, OrderStatus> = {
                   'Order Placed': 'Pending',
-                  'Processing': 'Processing',
-                  'Shipped': 'Shipped',
-                  'Delivered': 'Delivered',
+                  Processing: 'Processing',
+                  Shipped: 'Shipped',
+                  Delivered: 'Delivered',
                 };
                 const isCurrent = order.status === stepToStatusMap[item.step];
 
                 const getStepLabel = (step: string) => {
-                  if (step === 'Order Placed') return t('ordersPage.orderPlaced', { defaultValue: 'Order Placed' });
-                  if (step === 'Processing') return t('ordersPage.processing', { defaultValue: 'Processing' });
-                  if (step === 'Shipped') return t('ordersPage.shipped', { defaultValue: 'Shipped' });
-                  if (step === 'Delivered') return t('ordersPage.delivered', { defaultValue: 'Delivered' });
+                  if (step === 'Order Placed')
+                    return t('ordersPage.orderPlaced', {
+                      defaultValue: 'Order Placed',
+                    });
+                  if (step === 'Processing')
+                    return t('ordersPage.processing', {
+                      defaultValue: 'Processing',
+                    });
+                  if (step === 'Shipped')
+                    return t('ordersPage.shipped', { defaultValue: 'Shipped' });
+                  if (step === 'Delivered')
+                    return t('ordersPage.delivered', {
+                      defaultValue: 'Delivered',
+                    });
                   return step;
                 };
 
@@ -180,8 +190,8 @@ export const OrderDetails = ({
                               ? isCurrent && item.step === 'Shipped'
                                 ? 'bg-amber-500 text-white shadow-sm'
                                 : isCurrent && item.step === 'Processing'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'bg-green-600 text-white shadow-sm'
+                                  ? 'bg-blue-600 text-white shadow-sm'
+                                  : 'bg-green-600 text-white shadow-sm'
                               : 'border border-gray-300 bg-white text-gray-400'
                           }
                         `}
@@ -190,7 +200,11 @@ export const OrderDetails = ({
                           isCurrent && item.step === 'Shipped' ? (
                             <Truck size={14} className="text-white" />
                           ) : (
-                            <Check size={14} strokeWidth={3.5} className="text-white" />
+                            <Check
+                              size={14}
+                              strokeWidth={3.5}
+                              className="text-white"
+                            />
                           )
                         ) : (
                           <span className="w-2 h-2 rounded-full bg-gray-400" />
@@ -221,18 +235,24 @@ export const OrderDetails = ({
                         </h4>
 
                         {item.desc && (
-                          <p className={`text-xs sm:text-sm mt-1 transition-colors duration-200 ${
-                            item.done ? 'text-gray-500' : 'text-gray-300'
-                          }`}>
+                          <p
+                            className={`text-xs sm:text-sm mt-1 transition-colors duration-200 ${
+                              item.done ? 'text-gray-500' : 'text-gray-300'
+                            }`}
+                          >
                             {item.desc}
                           </p>
                         )}
                       </div>
 
-                      <span className={`text-xs sm:text-sm whitespace-nowrap pt-0.5 text-right rtl:text-left transition-colors duration-200 ${
-                        item.done ? 'text-gray-400' : 'text-gray-300'
-                      }`}>
-                        {item.done && item.date ? item.date : t('ordersPage.pendingLabel')}
+                      <span
+                        className={`text-xs sm:text-sm whitespace-nowrap pt-0.5 text-right rtl:text-left transition-colors duration-200 ${
+                          item.done ? 'text-gray-400' : 'text-gray-300'
+                        }`}
+                      >
+                        {item.done && item.date
+                          ? item.date
+                          : t('ordersPage.pendingLabel')}
                       </span>
                     </div>
                   </div>

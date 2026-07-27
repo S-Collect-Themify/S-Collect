@@ -1,6 +1,11 @@
 // Matches SubOrderWithCommissionResponseDto from the API spec
 
-export type SubOrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type SubOrderStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CANCELLED';
 
 export interface OrderItemWithCommission {
   id: string;
@@ -45,16 +50,16 @@ export interface UpdateSubOrderDto {
 
 // UI display helpers
 export const STATUS_STYLES: Record<SubOrderStatus, string> = {
-  PENDING:    'bg-gray-100 text-gray-500',
+  PENDING: 'bg-gray-100 text-gray-500',
   PROCESSING: 'bg-blue-100 text-blue-600',
-  SHIPPED:    'bg-orange-50 text-orange-500',
-  DELIVERED:  'bg-green-50 text-green-600',
-  CANCELLED:  'bg-red-50 text-red-500',
+  SHIPPED: 'bg-orange-50 text-orange-500',
+  DELIVERED: 'bg-green-50 text-green-600',
+  CANCELLED: 'bg-red-50 text-red-500',
 };
 
 // Valid forward transitions the vendor can make
 export const NEXT_STATUS: Partial<Record<SubOrderStatus, SubOrderStatus>> = {
-  PENDING:    'PROCESSING',
+  PENDING: 'PROCESSING',
   PROCESSING: 'SHIPPED',
-  SHIPPED:    'DELIVERED',
+  SHIPPED: 'DELIVERED',
 };
