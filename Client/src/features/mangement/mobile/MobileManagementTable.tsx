@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ProductCard from './ProductCard';
-import { useManagementStore, useManagementTable } from '../managementStore';
+import { useManagementStore, useManagementTable, useManagementActions } from '../managementStore';
 import CategoryDropdown from '../CategoryDropdown';
 import StatusDropdown from '../StatusDropdown';
 
@@ -27,8 +27,8 @@ export default function MobileManagementTable() {
     (state) => state.setSelectedStatus
   );
   const setPage = useManagementStore((state) => state.setPage);
-  const toggleProduct = useManagementStore((state) => state.toggleProduct);
-  const deleteProduct = useManagementStore((state) => state.deleteProduct);
+  
+  const { deleteSingle, toggleSingle } = useManagementActions();
 
   const pageNumbers = Array.from(
     { length: totalPages },
@@ -84,8 +84,8 @@ export default function MobileManagementTable() {
             <ProductCard
               key={product.id}
               product={product}
-              onDelete={() => deleteProduct(product.id)}
-              onToggle={() => toggleProduct(product.id)}
+              onDelete={() => deleteSingle(product.id)}
+              onToggle={() => toggleSingle(product.id, product.enabled)}
             />
           ))}
         </div>
