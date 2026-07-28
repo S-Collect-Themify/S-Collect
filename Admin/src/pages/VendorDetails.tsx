@@ -113,15 +113,15 @@ export default function VendorDetails() {
   const suspendVendor = useVendorStore((s) => s.suspendVendor);
   const activateVendor = useVendorStore((s) => s.activateVendor);
 
-  const vendorId = id ? parseInt(id, 10) : NaN;
+  const vendorId = id ?? '';
   const vendor = vendors.find((v) => v.id === vendorId);
 
   const [showSuspend, setShowSuspend] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
 
-  const orders: MockOrder[] = VENDOR_MOCK_ORDERS[vendorId] ?? [];
-  const products: MockProduct[] = VENDOR_MOCK_PRODUCTS[vendorId] ?? [];
-  const payouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId] ?? [];
+  const orders: MockOrder[] = VENDOR_MOCK_ORDERS[vendorId as unknown as keyof typeof VENDOR_MOCK_ORDERS] ?? [];
+  const products: MockProduct[] = VENDOR_MOCK_PRODUCTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PRODUCTS] ?? [];
+  const payouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PAYOUTS] ?? [];
 
   if (!vendor) {
     return (

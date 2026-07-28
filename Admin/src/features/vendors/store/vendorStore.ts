@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { INITIAL_VENDORS } from '../data/constant';
 import type { Vendor, VendorTab, ActiveFilter } from '../types/vendors';
 
 const ITEMS_PER_PAGE = 8;
@@ -20,27 +19,27 @@ type VendorStore = {
   selectedCategory: string;
   activeFilter: ActiveFilter;
   page: number;
-  selectedRows: number[];
+  selectedRows: string[];
   setActiveTab: (tab: VendorTab) => void;
   setSearch: (search: string) => void;
   setFilterColumn: (col: FilterColumn) => void;
   setSelectedCategory: (category: string) => void;
   setActiveFilter: (filter: ActiveFilter) => void;
   setPage: (page: number) => void;
-  approveVendor: (id: number) => void;
-  rejectVendor: (id: number, reason?: string) => void;
-  suspendVendor: (id: number, reason?: string) => void;
-  activateVendor: (id: number) => void;
-  bulkApprove: (ids: number[]) => void;
-  bulkReject: (ids: number[], reason?: string) => void;
-  toggleVendorActive: (id: number) => void;
-  toggleRow: (id: number) => void;
-  setSelectedRows: (ids: number[]) => void;
+  approveVendor: (id: string) => void;
+  rejectVendor: (id: string, reason?: string) => void;
+  suspendVendor: (id: string, reason?: string) => void;
+  activateVendor: (id: string) => void;
+  bulkApprove: (ids: string[]) => void;
+  bulkReject: (ids: string[], reason?: string) => void;
+  toggleVendorActive: (id: string) => void;
+  toggleRow: (id: string) => void;
+  setSelectedRows: (ids: string[]) => void;
   clearSelection: () => void;
 };
 
 export const useVendorStore = create<VendorStore>((set) => ({
-  vendors: INITIAL_VENDORS,
+  vendors: [],
   activeTab: 'pending',
   search: '',
   filterColumn: 'all',
@@ -115,8 +114,10 @@ export const useVendorStore = create<VendorStore>((set) => ({
   clearSelection: () => set({ selectedRows: [] }),
 }));
 
-export function useVendorTable() {
-  const vendors = useVendorStore((s) => s.vendors);
+export function useVendorTable(fetchedVendors?: Vendor[]) {
+  const storeVendors = useVendorStore((s) => s.vendors);
+  const vendors = fetchedVendors ?? storeVendors;
+
   const activeTab = useVendorStore((s) => s.activeTab);
   const search = useVendorStore((s) => s.search);
   const filterColumn = useVendorStore((s) => s.filterColumn);
@@ -127,11 +128,11 @@ export function useVendorTable() {
 
   const pendingCount = vendors.filter((v) => v.status === 'pending').length;
 
-  // Tab filtering — "all" shows ONLY approved vendors
+  // Filtering
   const tabFiltered = vendors.filter((v) => {
     if (activeTab === 'pending') return v.status === 'pending';
     if (activeTab === 'suspended') return v.status === 'suspended';
-    return v.status === 'approved'; // "all" = approved only
+    return v.status === 'approved' || v.status === 'pending' || v.status === 'suspended'; // Show items returned from query
   });
 
   const filtered = tabFiltered.filter((v) => {

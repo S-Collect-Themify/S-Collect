@@ -5,7 +5,7 @@ import { RefreshCw } from 'lucide-react';
 import Toggle from '../../mangement/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
-type ModalType = 'approve' | 'reject' | 'deactivate';
+type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
 
 interface VendorDesktopTableProps {
   paginated: Vendor[];
@@ -13,12 +13,12 @@ interface VendorDesktopTableProps {
   colSpan: number;
   allChecked: boolean;
   toggleAll: (e: ChangeEvent<HTMLInputElement>) => void;
-  selectedRows: number[];
-  toggleRow: (id: number) => void;
+  selectedRows: string[];
+  toggleRow: (id: string) => void;
   activeTab: VendorTab;
   isAllTab: boolean;
-  openConfirm: (type: ModalType, ids: number[], vendorName?: string) => void;
-  toggleVendorActive: (id: number) => void;
+  openConfirm: (type: ModalType, ids: string[], vendorName?: string) => void;
+  toggleVendorActive: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -163,9 +163,9 @@ export default function VendorDesktopTable({
                       checked={vendor.active ?? true}
                       onChange={() => {
                         if (vendor.active) {
-                          openConfirm('deactivate', [vendor.id]);
+                          openConfirm('deactivate', [vendor.id], vendor.businessName);
                         } else {
-                          toggleVendorActive(vendor.id);
+                          openConfirm('reactivate', [vendor.id], vendor.businessName);
                         }
                       }}
                     />

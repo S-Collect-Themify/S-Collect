@@ -18,7 +18,7 @@ export default function VendorProductsPage() {
   const suspendVendor = useVendorStore((s) => s.suspendVendor);
   const activateVendor = useVendorStore((s) => s.activateVendor);
 
-  const vendorId = id ? parseInt(id, 10) : NaN;
+  const vendorId = id ?? '';
   const vendor = vendors.find((v) => v.id === vendorId);
 
   const [showSuspend, setShowSuspend] = useState(false);

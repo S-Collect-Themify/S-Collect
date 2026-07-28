@@ -15,7 +15,7 @@ export const VENDOR_CATEGORIES = [
 export const INITIAL_VENDORS: Vendor[] = [
   // ── Pending ──────────────────────────────────────
   {
-    id: 1,
+    id: '1',
     businessName: 'Al-Fatah Crafts',
     owner: 'Ibrahim Ali',
     email: 'info@alfatah.sa',
@@ -29,7 +29,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Al-Fatah Crafts specializes in traditional Saudi handicrafts, offering handwoven baskets, pottery, and artisanal woodwork crafted by local artisans.',
   },
   {
-    id: 2,
+    id: '2',
     businessName: 'Desert Bloom',
     owner: 'Sarah Mansour',
     email: 'sarah@desertbloom.com',
@@ -43,7 +43,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Desert Bloom curates premium floral arrangements and dried flower décor inspired by the beauty of the Arabian desert landscape.',
   },
   {
-    id: 3,
+    id: '3',
     businessName: 'Al-Falah Crafts',
     owner: 'Yusuf Al-Falah',
     email: 'yusuf@alfalah.sa',
@@ -57,7 +57,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Al-Falah Crafts is a family business offering curated handicraft products including embroidered textiles and ceramic art, focusing on quality and sustainability.',
   },
   {
-    id: 4,
+    id: '4',
     businessName: 'Oasis Tech',
     owner: 'Khalid Fahad',
     email: 'khalid@oasistech.sa',
@@ -71,7 +71,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Oasis Tech brings cutting-edge consumer electronics and smart home solutions to the Saudi market, focusing on affordable premium tech.',
   },
   {
-    id: 5,
+    id: '5',
     businessName: 'Red Sea Styles',
     owner: 'Layla Hassan',
     email: 'layla@redsea.com',
@@ -85,7 +85,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Red Sea Styles offers contemporary modest fashion for women, blending modern design with cultural values.',
   },
   {
-    id: 6,
+    id: '6',
     businessName: 'Palm Threads',
     owner: 'Hessa Al-Nasser',
     email: 'hessa@palmthreads.sa',
@@ -99,7 +99,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Palm Threads is a sustainable apparel brand crafting high-quality garments using eco-friendly fabrics sourced from across the GCC region.',
   },
   {
-    id: 7,
+    id: '7',
     businessName: 'Dates & Co',
     owner: 'Ahmed Saeed',
     email: 'ahmed@datesco.sa',
@@ -115,7 +115,7 @@ export const INITIAL_VENDORS: Vendor[] = [
 
   // ── Approved (All Vendors) ────────────────────────
   {
-    id: 8,
+    id: '8',
     businessName: 'Urban Elegance',
     owner: 'Noura Al-Said',
     email: 'noura@urban.sa',
@@ -137,7 +137,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Urban Elegance is a premium fashion brand offering content, sun-wear, and style clothing for everyday use. We focus on quality, sustainability, and customer satisfaction.',
   },
   {
-    id: 9,
+    id: '9',
     businessName: 'Sajek Styles',
     owner: 'Ahmed Sajek',
     email: 'ahmed@sajek.sa',
@@ -159,7 +159,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Sajek Styles offers a modern take on traditional Arabic fashion, blending cultural heritage with contemporary design for men and women.',
   },
   {
-    id: 10,
+    id: '10',
     businessName: 'Vintage Vault',
     owner: 'Layla Ibrahim',
     email: 'layla@vintagevault.sa',
@@ -181,7 +181,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Vintage Vault curates rare and antique handicraft items sourced from across the Arab world, giving them a second life in modern homes.',
   },
   {
-    id: 11,
+    id: '11',
     businessName: 'Eco Living',
     owner: 'Khalid Mansour',
     email: 'khalid@ecoliving.sa',
@@ -203,7 +203,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Eco Living offers sustainable home and garden products made from natural materials, promoting eco-conscious living across Saudi Arabia.',
   },
   {
-    id: 12,
+    id: '12',
     businessName: 'Saffron House',
     owner: 'Nora Al-Rashid',
     email: 'nora@saffronhouse.sa',
@@ -225,7 +225,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Saffron House brings the finest saffron-infused products to market — from spice blends to ready-made gourmet sauces — all sourced from trusted farms.',
   },
   {
-    id: 13,
+    id: '13',
     businessName: 'Gulf Gadgets',
     owner: 'Faisal Nasser',
     email: 'faisal@gulfgadgets.com',
@@ -247,7 +247,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Gulf Gadgets is a leading electronics retailer providing the latest consumer gadgets, accessories, and smart devices at competitive prices.',
   },
   {
-    id: 14,
+    id: '14',
     businessName: 'Pearl Beauty',
     owner: 'Hana Al-Amin',
     email: 'hana@pearlbeauty.sa',
@@ -271,7 +271,7 @@ export const INITIAL_VENDORS: Vendor[] = [
 
   // ── Suspended ─────────────────────────────────────
   {
-    id: 21,
+    id: '21',
     businessName: 'Riyadh Rugs',
     owner: 'Omar Khalil',
     email: 'omar@riyadhrugs.sa',
@@ -280,7 +280,7 @@ export const INITIAL_VENDORS: Vendor[] = [
     status: 'suspended',
   },
   {
-    id: 22,
+    id: '22',
     businessName: 'Al-Noor Sports',
     owner: 'Tariq Salam',
     email: 'tariq@alnoor.sa',

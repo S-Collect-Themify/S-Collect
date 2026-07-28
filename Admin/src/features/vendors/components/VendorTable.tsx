@@ -1,7 +1,14 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useVendorStore, useVendorTable } from '../store/vendorStore';
+import {
+  useVendors,
+  useApproveVendor,
+  useRejectVendor,
+  useDeactivateVendor,
+  useReactivateVendor,
+} from '../hooks/useVendors';
 import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
 import RejectVendorModal from '../modals/RejectVendorModal';
@@ -26,13 +33,28 @@ export default function VendorTable() {
   const setSelectedCategory = useVendorStore((s) => s.setSelectedCategory);
   const setActiveFilter = useVendorStore((s) => s.setActiveFilter);
   const setPage = useVendorStore((s) => s.setPage);
-  const bulkApprove = useVendorStore((s) => s.bulkApprove);
-  const bulkReject = useVendorStore((s) => s.bulkReject);
   const suspendVendor = useVendorStore((s) => s.suspendVendor);
-  const toggleVendorActive = useVendorStore((s) => s.toggleVendorActive);
   const toggleRow = useVendorStore((s) => s.toggleRow);
   const setSelectedRows = useVendorStore((s) => s.setSelectedRows);
   const clearSelection = useVendorStore((s) => s.clearSelection);
+
+  // Status query parameter: PENDING_APPROVAL for pending tab, ACTIVE,DEACTIVATED for all vendors tab
+  const statusParam = activeTab === 'pending' ? 'PENDING_APPROVAL' : 'ACTIVE,DEACTIVATED';
+  const { data: fetchedVendors = [], isLoading } = useVendors(statusParam);
+
+  const approveMutation = useApproveVendor();
+  const rejectMutation = useRejectVendor();
+  const deactivateMutation = useDeactivateVendor();
+  const reactivateMutation = useReactivateVendor();
+
+  const handleToggleVendorActive = (id: string) => {
+    const vendor = fetchedVendors.find((v) => v.id === id);
+    if (vendor?.active) {
+      deactivateMutation.mutate(id);
+    } else {
+      reactivateMutation.mutate(id);
+    }
+  };
 
   const {
     paginated,
@@ -45,34 +67,25 @@ export default function VendorTable() {
     selectedCount,
     allChecked,
     paginatedIds,
-  } = useVendorTable();
+  } = useVendorTable(fetchedVendors);
 
-  // ── Page & filter change skeleton loading ──────────────────────────────────
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, [page, activeTab, selectedCategory, activeFilter, search]);
-
-  type ModalType = 'approve' | 'reject' | 'deactivate';
+  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: ModalType;
-    ids: number[];
+    ids: string[];
     vendorName?: string;
   }>({ isOpen: false, type: 'approve', ids: [] });
 
   const [rejectModal, setRejectModal] = useState<{
     isOpen: boolean;
-    ids: number[];
+    ids: string[];
     vendorName: string;
   }>({ isOpen: false, ids: [], vendorName: '' });
 
   const [suspendModal, setSuspendModal] = useState<{
     isOpen: boolean;
-    ids: number[];
+    ids: string[];
     vendorName: string;
   }>({ isOpen: false, ids: [], vendorName: '' });
 
@@ -87,7 +100,6 @@ export default function VendorTable() {
     { key: 'inactive', label: t('vendors.table.inactive') },
   ];
 
-  // Columns differ by tab
   const isAllTab = activeTab === 'all';
 
   const pendingSuspendedHeaders = [
@@ -110,7 +122,7 @@ export default function VendorTable() {
   ];
 
   const tableHeaders = isAllTab ? allVendorHeaders : pendingSuspendedHeaders;
-  const colSpan = tableHeaders.length + 1; // +1 for checkbox
+  const colSpan = tableHeaders.length + 1;
 
   const startItem = totalItems === 0 ? 0 : (page - 1) * itemsPerPage + 1;
   const endItem = Math.min(page * itemsPerPage, totalItems);
@@ -122,7 +134,7 @@ export default function VendorTable() {
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
-  const openConfirm = (type: ModalType, ids: number[], vendorName?: string) => {
+  const openConfirm = (type: ModalType, ids: string[], vendorName?: string) => {
     if (type === 'reject') {
       setRejectModal({
         isOpen: true,
@@ -133,7 +145,7 @@ export default function VendorTable() {
       const vName =
         vendorName ??
         (ids.length === 1
-          ? useVendorStore.getState().vendors.find((v) => v.id === ids[0])?.businessName
+          ? fetchedVendors.find((v) => v.id === ids[0])?.businessName
           : `${ids.length} Vendors`);
       setSuspendModal({
         isOpen: true,
@@ -145,14 +157,17 @@ export default function VendorTable() {
     }
   };
 
-  const handleConfirmReject = (reason: string, _notify: boolean) => {
-    bulkReject(rejectModal.ids, reason);
+  const handleConfirmReject = (reason: string) => {
+    rejectModal.ids.forEach((id) => {
+      rejectMutation.mutate({ id, reason });
+    });
+    clearSelection();
     setRejectModal({ isOpen: false, ids: [], vendorName: '' });
   };
 
-  const handleConfirmSuspend = (reason: string, _notify: boolean) => {
+  const handleConfirmSuspend = (_reason: string) => {
     suspendModal.ids.forEach((id) => {
-      suspendVendor(id, reason);
+      deactivateMutation.mutate(id);
     });
     clearSelection();
     setSuspendModal({ isOpen: false, ids: [], vendorName: '' });
@@ -160,13 +175,19 @@ export default function VendorTable() {
 
   const handleConfirm = () => {
     const { type, ids } = confirmModal;
-    if (type === 'approve') bulkApprove(ids);
-    else if (type === 'reject') bulkReject(ids);
-    else {
+    if (type === 'approve') {
       ids.forEach((id) => {
-        const store = useVendorStore.getState();
-        const vendor = store.vendors.find((v) => v.id === id);
-        if (vendor?.active) store.toggleVendorActive(id);
+        approveMutation.mutate(id);
+      });
+      clearSelection();
+    } else if (type === 'reactivate') {
+      ids.forEach((id) => {
+        reactivateMutation.mutate(id);
+      });
+      clearSelection();
+    } else if (type === 'deactivate') {
+      ids.forEach((id) => {
+        deactivateMutation.mutate(id);
       });
       clearSelection();
     }
@@ -220,7 +241,7 @@ export default function VendorTable() {
           />
         </div>
 
-        {/* Category filter — only for non-all tabs (pending / suspended) */}
+        {/* Category filter — only for non-all tabs */}
         {!isAllTab && (
           <VendorCategoryDropdown
             selected={selectedCategory}
@@ -291,7 +312,7 @@ export default function VendorTable() {
         activeTab={activeTab}
         isAllTab={isAllTab}
         openConfirm={openConfirm}
-        toggleVendorActive={toggleVendorActive}
+        toggleVendorActive={handleToggleVendorActive}
         isLoading={isLoading}
       />
 
@@ -305,7 +326,7 @@ export default function VendorTable() {
         toggleRow={toggleRow}
         activeTab={activeTab}
         openConfirm={openConfirm}
-        toggleVendorActive={toggleVendorActive}
+        toggleVendorActive={handleToggleVendorActive}
         isLoading={isLoading}
       />
 

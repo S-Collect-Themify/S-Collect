@@ -15,7 +15,7 @@ const cardVariants: Variants = {
 
 interface VendorPayoutsLogProps {
   vendor: Vendor;
-  vendorId: number;
+  vendorId: string;
 }
 
 export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogProps) {
@@ -32,7 +32,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     rejected: { label: t('vendors.payoutsLog.statusRejected', 'Rejected'), className: 'bg-red-100 text-red-700' },
   }), [t]);
 
-  const allPayouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId] ?? [];
+  const allPayouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PAYOUTS] ?? [];
 
   // ── Zustand state ──
   const appliedFrom  = useVendorPayoutsStore((s) => s.appliedFrom);

@@ -5,7 +5,7 @@ export type VendorTab = 'pending' | 'all' | 'suspended';
 export type ActiveFilter = 'all' | 'active' | 'inactive';
 
 export interface Vendor {
-  id: number;
+  id: string;
   businessName: string;
   owner: string;
   email: string;
