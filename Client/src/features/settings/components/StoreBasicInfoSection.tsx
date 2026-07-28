@@ -17,23 +17,40 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
 
   return (
     <>
-      <div className="settings-surface-enter settings-stagger-2 mb-4">
-        <FieldWrap
-          label={t('settings.storeName')}
-          required
-          error={errors.storeName?.message}
-        >
-          <TextInput
-            placeholder={t('settings.storeNamePlaceholder')}
-            disabled={isPending}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="settings-surface-enter settings-stagger-2">
+          <FieldWrap
+            label={t('settings.storeName')}
+            required
             error={errors.storeName?.message}
-            {...register('storeName', {
-              required: t('settings.errors.storeNameRequired'),
-              validate: (v) =>
-                v.trim() !== '' || t('settings.errors.storeNameRequired'),
-            })}
-          />
-        </FieldWrap>
+          >
+            <TextInput
+              placeholder={t('settings.storeNamePlaceholder')}
+              disabled={isPending}
+              error={errors.storeName?.message}
+              {...register('storeName', {
+                required: t('settings.errors.storeNameRequired'),
+                validate: (v) =>
+                  v.trim() !== '' || t('settings.errors.storeNameRequired'),
+              })}
+            />
+          </FieldWrap>
+        </div>
+
+        <div className="settings-surface-enter settings-stagger-2">
+          <FieldWrap
+            label={t('settings.storeNameAr')}
+            error={errors.storeNameAr?.message}
+          >
+            <TextInput
+              placeholder={t('settings.storeNameArPlaceholder')}
+              disabled={isPending}
+              error={errors.storeNameAr?.message}
+              dir="rtl"
+              {...register('storeNameAr')}
+            />
+          </FieldWrap>
+        </div>
       </div>
 
       <div className="settings-surface-enter settings-stagger-3 mb-4 md:mb-6">

@@ -1,10 +1,20 @@
 export interface StoreProfileData {
+  id?: string;
   storeName: string;
+  storeNameAr?: string;
   storeDescription: string;
   publicEmail: string;
   phoneNumber: string;
   storeLogoUrl: string | null;
   storeLogoFileName: string | null;
+  logoFile?: File | null;
+}
+
+export interface BankAccountData {
+  bankName: string;
+  iban: string;
+  accountHolderName: string;
+  ibanMasked?: string;
 }
 
 export interface AccountSettingsData {

@@ -14,7 +14,8 @@ export interface BankAccountFormValues {
 
 export interface BankAccountFormProps {
   defaultValues?: Partial<BankAccountFormValues>;
-  onSave?: (values: BankAccountFormValues) => void;
+  onSave?: (values: BankAccountFormValues) => void | Promise<void>;
+  isSubmitting?: boolean;
 }
 
 const EMPTY_VALUES: BankAccountFormValues = {
@@ -33,6 +34,7 @@ type InputFieldProps = {
   error?: FieldError;
   registration: UseFormRegisterReturn;
   maxLength?: number;
+  disabled?: boolean;
 };
 
 function InputField({
@@ -43,6 +45,7 @@ function InputField({
   error,
   registration,
   maxLength,
+  disabled,
 }: InputFieldProps) {
   return (
     <div>
@@ -54,8 +57,9 @@ function InputField({
         id={id}
         placeholder={placeholder}
         maxLength={maxLength}
+        disabled={disabled}
         {...registration}
-        className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${
+        className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400 ${
           error
             ? 'border-red-400 text-red-600 focus:border-red-400'
             : 'border-gray-200 focus:border-gray-400'
@@ -74,6 +78,7 @@ function InputField({
 export default function BankAccountForm({
   defaultValues,
   onSave,
+  isSubmitting = false,
 }: BankAccountFormProps) {
   const { t } = useTranslation();
   const {
@@ -92,8 +97,13 @@ export default function BankAccountForm({
 
   const ibanValue = watch('iban') ?? '';
 
-  const onSubmit = (data: BankAccountFormValues) => {
-    onSave?.(data);
+  const onSubmit = async (data: BankAccountFormValues) => {
+    try {
+      await onSave?.(data);
+      reset(data);
+    } catch (err) {
+      console.error('Failed to save bank info:', err);
+    }
   };
 
   return (
@@ -124,6 +134,7 @@ export default function BankAccountForm({
           placeholder={t('settings.bank.bankNamePlaceholder')}
           hint={t('settings.bank.bankNameHint')}
           registration={register('bankName')}
+          disabled={isSubmitting}
         />
       </div>
 
@@ -136,6 +147,7 @@ export default function BankAccountForm({
           id="iban"
           placeholder={t('settings.bank.ibanPlaceholder')}
           maxLength={IBAN_MAX_LENGTH}
+          disabled={isSubmitting}
           {...register('iban', {
             required: t('settings.bank.ibanRequired'),
             pattern: {
@@ -144,7 +156,7 @@ export default function BankAccountForm({
             },
             setValueAs: (value: string) => value?.toUpperCase() || '',
           })}
-          className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${
+          className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-400 ${
             errors.iban
               ? 'border-red-400 text-red-600 focus:border-red-400'
               : 'border-gray-200 focus:border-gray-400'
@@ -173,6 +185,7 @@ export default function BankAccountForm({
           placeholder={t('settings.bank.accountHolderPlaceholder')}
           hint={t('settings.bank.accountHolderHint')}
           registration={register('accountHolderName')}
+          disabled={isSubmitting}
         />
       </div>
 
@@ -180,7 +193,7 @@ export default function BankAccountForm({
         <button
           type="button"
           onClick={() => reset()}
-          disabled={!isDirty}
+          disabled={!isDirty || isSubmitting}
           className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
         >
           {t('settings.bank.resetChanges')}
@@ -188,14 +201,14 @@ export default function BankAccountForm({
 
         <button
           type="submit"
-          disabled={!isDirty || !isValid}
+          disabled={!isDirty || !isValid || isSubmitting}
           className={`rounded-xl px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold transition-colors cursor-pointer ${
-            isDirty && isValid
+            isDirty && isValid && !isSubmitting
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'cursor-not-allowed bg-gray-100 text-gray-400'
           }`}
         >
-          {t('settings.bank.save')}
+          {isSubmitting ? t('settings.saving') : t('settings.bank.save')}
         </button>
       </div>
     </form>

@@ -370,6 +370,8 @@
     "storePreview": "Store Preview",
     "storeName": "Store Name",
     "storeNamePlaceholder": "Enter store name",
+    "storeNameAr": "Arabic Store Name",
+    "storeNameArPlaceholder": "Enter Arabic store name",
     "storeNameFallback": "Store Name",
     "storeLogo": "Store Logo",
     "storeDescription": "Store Description",

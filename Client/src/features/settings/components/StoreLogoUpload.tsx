@@ -194,11 +194,13 @@ export function StoreLogoUpload() {
         message: t('settings.errors.imageUpload'),
       });
       setValue('storeLogoUrl', null);
+      setValue('logoFile', null);
       return;
     }
     if (storeLogoUrl?.startsWith('blob:')) URL.revokeObjectURL(storeLogoUrl);
     setValue('storeLogoUrl', URL.createObjectURL(file));
     setValue('storeLogoFileName', file.name);
+    setValue('logoFile', file, { shouldDirty: true });
     clearErrors('storeLogoUrl');
   };
 
@@ -206,6 +208,7 @@ export function StoreLogoUpload() {
     if (storeLogoUrl?.startsWith('blob:')) URL.revokeObjectURL(storeLogoUrl);
     setValue('storeLogoUrl', null);
     setValue('storeLogoFileName', null);
+    setValue('logoFile', null, { shouldDirty: true });
     clearErrors('storeLogoUrl');
   };
 

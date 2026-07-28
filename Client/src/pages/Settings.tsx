@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Activity } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronsRight } from 'lucide-react';
 
@@ -45,10 +45,16 @@ export default function SettingsPage() {
         <div className="settings-surface-enter settings-stagger-1 p-2 md:p-4 md:px-8 md:py-7 max-w-180">
           <SettingsTabs tab={tab} onChange={setTab} />
 
-          <div key={tab} className="settings-surface-enter">
-            {tab === 'store-details' && <StoreDetailsTab onToast={setToast} />}
-            {tab === 'bank-account' && <BankAccountTab onToast={setToast} />}
-            {tab === 'shipping' && <ShippingTab />}
+          <div className="settings-surface-enter">
+            <Activity mode={tab === 'store-details' ? 'visible' : 'hidden'}>
+              <StoreDetailsTab onToast={setToast} />
+            </Activity>
+            <Activity mode={tab === 'bank-account' ? 'visible' : 'hidden'}>
+              <BankAccountTab onToast={setToast} />
+            </Activity>
+            <Activity mode={tab === 'shipping' ? 'visible' : 'hidden'}>
+              <ShippingTab />
+            </Activity>
           </div>
         </div>
       </div>

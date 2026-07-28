@@ -370,6 +370,8 @@
     "storePreview": "معاينة المتجر",
     "storeName": "اسم المتجر",
     "storeNamePlaceholder": "أدخل اسم المتجر",
+    "storeNameAr": "اسم المتجر بالعربية",
+    "storeNameArPlaceholder": "أدخل اسم المتجر بالعربية",
     "storeNameFallback": "اسم المتجر",
     "storeLogo": "شعار المتجر",
     "storeDescription": "وصف المتجر",
