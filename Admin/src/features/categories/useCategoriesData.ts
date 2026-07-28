@@ -9,9 +9,8 @@ import {
   deleteAdminCategory,
   type CreateCategoryPayload,
   type UpdateCategoryPayload,
-  type ApiCategoryItem,
 } from '../../services/categories';
-import type { Category } from './types';
+import { mapApiCategoryToCategory } from './utils';
 
 export const CATEGORIES_QUERY_KEY = ['admin-categories'];
 
@@ -23,17 +22,7 @@ export const useCategoriesData = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: async () => {
       const rawList = await getAdminCategories();
-      const formattedList: Category[] = rawList.map((item: ApiCategoryItem) => ({
-        id: String(item.id),
-        name: item.name,
-        nameEn: item.nameEn || item.name || '',
-        nameAr: item.nameAr || item.name || '',
-        slug: item.slug || '',
-        isActive: item.isActive !== undefined ? Boolean(item.isActive) : true,
-        productsCount: item.productsCount ?? 0,
-        createdAt: item.createdAt,
-      }));
-      return formattedList;
+      return rawList.map(mapApiCategoryToCategory);
     },
     refetchOnWindowFocus: false,
     retry: 1,

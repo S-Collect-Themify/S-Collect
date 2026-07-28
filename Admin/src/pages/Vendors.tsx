@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import VendorTable from '../features/vendors/VendorTable';
+import VendorTable from '../features/vendors/components/VendorTable';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 

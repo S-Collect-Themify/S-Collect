@@ -15,25 +15,56 @@ export interface GetVendorsParams {
   status?: string;
 }
 
-/**
- * Fetch vendors list from GET /api/v1/admin/vendors
- */
-export async function getVendors(params?: GetVendorsParams): Promise<BackendVendor[]> {
-  const response = await api.get('/admin/vendors', {
-    params: params?.status ? { status: params.status } : undefined,
-  });
-
-  const resData = response.data;
+function extractVendorArray(resData: unknown): BackendVendor[] {
   if (Array.isArray(resData)) {
     return resData;
   }
-  if (resData?.data && Array.isArray(resData.data)) {
-    return resData.data;
+  const obj = resData as { data?: unknown; items?: unknown };
+  if (obj?.data && Array.isArray(obj.data)) {
+    return obj.data;
   }
-  if (resData?.items && Array.isArray(resData.items)) {
-    return resData.items;
+  if (obj?.items && Array.isArray(obj.items)) {
+    return obj.items;
   }
   return [];
+}
+
+/**
+ * Fetch vendors list from GET /api/v1/admin/vendors
+ * Supports single status or comma-separated status strings (e.g. 'ACTIVE,DEACTIVATED')
+ * Automatically sorts results by createdAt timestamp descending (latest updated first).
+ */
+export async function getVendors(params?: GetVendorsParams): Promise<BackendVendor[]> {
+  const statusParam = params?.status;
+  let rawVendors: BackendVendor[] = [];
+
+  if (statusParam && statusParam.includes(',')) {
+    const statusList = statusParam.split(',').map((s) => s.trim());
+    const results = await Promise.all(
+      statusList.map(async (status) => {
+        const response = await api.get('/admin/vendors', { params: { status } });
+        return extractVendorArray(response.data);
+      })
+    );
+    rawVendors = results.flat();
+  } else {
+    const response = await api.get('/admin/vendors', {
+      params: statusParam ? { status: statusParam } : undefined,
+    });
+    rawVendors = extractVendorArray(response.data);
+  }
+
+  // Sort by creation / update date descending (latest first)
+  rawVendors.sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return b.id.localeCompare(a.id);
+  });
+
+  return rawVendors;
 }
 
 /**

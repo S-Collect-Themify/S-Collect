@@ -6,83 +6,20 @@ import {
   rejectVendor,
   deactivateVendor,
   reactivateVendor,
-  type BackendVendor,
 } from '../../../services/vendors';
-import type { Vendor, VendorStatus } from '../types/vendors';
-
-export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
-  const ownerName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim() || 'N/A';
-  const businessName = v.storeName || ownerName || 'Vendor';
-
-  let status: VendorStatus = 'pending';
-  let active = false;
-
-  if (v.status === 'ACTIVE') {
-    status = 'approved';
-    active = true;
-  } else if (v.status === 'DEACTIVATED') {
-    status = 'approved';
-    active = false;
-  } else if (v.status === 'REJECTED') {
-    status = 'suspended';
-    active = false;
-  } else if (v.status === 'PENDING_APPROVAL') {
-    status = 'pending';
-    active = false;
-  }
-
-  const submittedDate = v.createdAt
-    ? new Date(v.createdAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : 'N/A';
-
-  return {
-    id: v.id,
-    businessName,
-    owner: ownerName,
-    email: v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : 'N/A',
-    submittedDate,
-    category: v.isFeatured ? 'Featured' : 'General',
-    status,
-    active,
-    taxId: v.commercialRegisterNumber,
-    revenue: 0,
-    orders: 0,
-    createdAt: v.createdAt,
-  };
-}
+import { mapBackendVendorToVendor } from '../utils/vendorMapper';
 
 export function useVendors(status?: string) {
   return useQuery({
     queryKey: ['vendors', status],
     queryFn: async () => {
-      let rawVendors: BackendVendor[] = [];
-
-      if (status && status.includes(',')) {
-        const statusList = status.split(',').map((s) => s.trim());
-        const results = await Promise.all(
-          statusList.map((s) => getVendors({ status: s }))
-        );
-        rawVendors = results.flat();
-      } else {
-        rawVendors = await getVendors({ status });
-      }
-
-      // Sort by creation / update date descending (latest first)
-      rawVendors.sort((a, b) => {
-        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        if (timeA !== timeB) {
-          return timeB - timeA;
-        }
-        return b.id.localeCompare(a.id);
-      });
-
-      return rawVendors.map(mapBackendVendorToVendor);
+      const data = await getVendors({ status });
+      return data.map(mapBackendVendorToVendor);
     },
+    retry:2 , 
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 }
 

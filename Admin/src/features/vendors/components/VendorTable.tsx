@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useVendorStore, useVendorTable } from '../store/vendorStore';
 import {
@@ -40,7 +40,7 @@ export default function VendorTable() {
 
   // Status query parameter: PENDING_APPROVAL for pending tab, ACTIVE,DEACTIVATED for all vendors tab
   const statusParam = activeTab === 'pending' ? 'PENDING_APPROVAL' : 'ACTIVE,DEACTIVATED';
-  const { data: fetchedVendors = [], isLoading } = useVendors(statusParam);
+  const { data: fetchedVendors = [], isLoading, isFetching, refetch } = useVendors(statusParam);
 
   const approveMutation = useApproveVendor();
   const rejectMutation = useRejectVendor();
@@ -297,6 +297,25 @@ export default function VendorTable() {
               </>
             )}
           </PortalDropdown>
+        )}
+
+        {/* Refetch Data Button — Pending requests tab only */}
+        {!isAllTab && (
+          <div className="ms-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              title={t('vendors.table.refresh', 'Refresh Data')}
+              className="flex items-center gap-2 h-9 px-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-2xs"
+            >
+              <RefreshCw
+                size={15}
+                className={`text-gray-600 ${isFetching ? 'animate-spin' : ''}`}
+              />
+              <span>{t('vendors.table.refresh', 'Refresh')}</span>
+            </button>
+          </div>
         )}
       </div>
 

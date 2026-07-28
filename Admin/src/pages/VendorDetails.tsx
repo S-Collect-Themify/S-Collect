@@ -4,7 +4,7 @@ import { ChevronRight, Phone, Mail, MapPin, Hash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
-import { useVendorStore } from '../features/vendors/vendorStore';
+import { useVendorStore } from '../features/vendors/store/vendorStore';
 import {
   VENDOR_MOCK_ORDERS,
   VENDOR_MOCK_PRODUCTS,
@@ -12,9 +12,9 @@ import {
   type MockOrder,
   type MockProduct,
   type MockPayout,
-} from '../features/vendors/constant';
-import SuspendVendorModal from '../features/vendors/SuspendVendorModal';
-import ActivateVendorModal from '../features/vendors/ActivateVendorModal';
+} from '../features/vendors/data/constant';
+import SuspendVendorModal from '../features/vendors/modals/SuspendVendorModal';
+import ActivateVendorModal from '../features/vendors/modals/ActivateVendorModal';
 
 // ── Motion variants ─────────────────────────────────────────────────────────────
 
