@@ -16,44 +16,44 @@ const defaultStoreProfile: StoreProfileData = {
   originalStoreNameAr: '',
 };
 
-function parseStringValue(val: unknown): string {
-  if (typeof val === 'string') return val;
-  if (val && typeof val === 'object') {
-    const obj = val as Record<string, any>;
-    return obj.en || obj.ar || '';
-  }
-  return '';
-}
-
 export const useStoreProfile = () => {
   return useQuery<StoreProfileData>({
     queryKey: STORE_PROFILE_QUERY_KEY,
     queryFn: async () => {
       const rawData = await getVendorProfile();
-      const data = rawData && typeof rawData === 'object' && 'success' in rawData && 'data' in rawData
-        ? (rawData as any).data
-        : rawData;
-      
+      const data = (
+        rawData &&
+        typeof rawData === 'object' &&
+        'success' in rawData &&
+        'data' in rawData
+          ? (rawData as Record<string, unknown>).data
+          : rawData
+      ) as Record<string, unknown>;
+
+      const logoUrl = typeof data.logoUrl === 'string' ? data.logoUrl : null;
       let logoFileName: string | null = null;
-      if (data.logoUrl) {
+      if (logoUrl) {
         try {
-          const urlParts = data.logoUrl.split('/');
+          const urlParts = logoUrl.split('/');
           logoFileName = urlParts[urlParts.length - 1] || 'logo';
         } catch {
           logoFileName = 'logo';
         }
       }
 
+      const storeName = typeof data.storeName === 'string' ? data.storeName : '';
+      const storeNameAr = typeof data.storeNameAr === 'string' ? data.storeNameAr : '';
+
       return {
         ...defaultStoreProfile,
-        storeName: data.storeName || '',
-        storeNameAr: data.storeNameAr || '',
+        storeName,
+        storeNameAr,
         storeDescription: typeof data.storeDescription === 'string' ? data.storeDescription : '',
         publicEmail: typeof data.publicEmail === 'string' ? data.publicEmail : '',
         phoneNumber: typeof data.publicPhoneNumber === 'string' ? data.publicPhoneNumber : '',
-        storeLogoUrl: data.logoUrl || null,
+        storeLogoUrl: logoUrl,
         storeLogoFileName: logoFileName,
-        originalStoreNameAr: data.storeNameAr || '',
+        originalStoreNameAr: storeNameAr,
       };
     },
     refetchOnWindowFocus: false,

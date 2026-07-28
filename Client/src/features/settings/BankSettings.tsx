@@ -139,7 +139,6 @@ export default function BankAccountForm({
           hint={t('settings.bank.bankNameHint')}
           disabled={isPending}
           registration={register('bankName')}
-          disabled={isSubmitting}
         />
       </div>
 
@@ -195,7 +194,6 @@ export default function BankAccountForm({
           hint={t('settings.bank.accountHolderHint')}
           disabled={isPending}
           registration={register('accountHolderName')}
-          disabled={isSubmitting}
         />
       </div>
 

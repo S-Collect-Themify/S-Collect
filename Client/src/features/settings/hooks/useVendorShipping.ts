@@ -10,7 +10,7 @@ import {
   type VendorShippingSettings,
   type UpdateShippingPayload,
 } from '../../../services/shipping';
-import type { ShippingSettingsValues, Region } from '../Shippingsettingsform';
+import type { ShippingSettingsValues, Region } from '../ShippingSettingsForm';
 import { getErrorMessage } from '../../../types/api';
 
 export const VENDOR_SHIPPING_QUERY_KEY = ['vendorShippingSettings'];

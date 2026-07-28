@@ -421,6 +421,22 @@
       "searchCountry": "Search country",
       "noCountriesFound": "No countries found"
     },
+    "emailModal": {
+      "titleRequest": "Change Email Address",
+      "titleVerify": "Verify OTP Code",
+      "descRequest": "An OTP code will be sent to your phone number on file to confirm this change.",
+      "descVerify": "Enter the 6-digit OTP code sent to your phone to confirm changing your email to {{email}}.",
+      "newEmailLabel": "New Email Address",
+      "newEmailPlaceholder": "new-email@example.com",
+      "otpLabel": "OTP Code (6 Digits)",
+      "otpPlaceholder": "123456",
+      "sendOtp": "Send OTP Code",
+      "sendingOtp": "Sending OTP...",
+      "confirmChange": "Confirm Email Change",
+      "verifying": "Verifying...",
+      "invalidOtp": "Please enter a valid 6-digit OTP code",
+      "successMsg": "Email changed successfully!"
+    },
     "toast": {
       "storeProfileSaved": "Store Profile updated successfully.",
       "accountSettingsSaved": "Account Settings updated successfully.",

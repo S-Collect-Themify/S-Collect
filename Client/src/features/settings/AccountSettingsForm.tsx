@@ -1,5 +1,5 @@
 import { useEffect, useTransition } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import type { AccountSettingsData, PasswordData } from './types';
@@ -87,7 +87,7 @@ export function AccountSettingsForm({
     });
   };
 
-  const onInvalid = (errors: any) => {
+  const onInvalid = (errors: FieldErrors<AccountSettingsFormValues>) => {
     if (
       errors.currentPassword ||
       errors.newPassword ||

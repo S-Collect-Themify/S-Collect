@@ -15,13 +15,19 @@ export const useBankInfo = () => {
     queryKey: BANK_INFO_QUERY_KEY,
     queryFn: async () => {
       const rawData = await getVendorProfile();
-      const data = rawData && typeof rawData === 'object' && 'success' in rawData && 'data' in rawData
-        ? (rawData as any).data
-        : rawData;
+      const data = (
+        rawData &&
+        typeof rawData === 'object' &&
+        'success' in rawData &&
+        'data' in rawData
+          ? (rawData as Record<string, unknown>).data
+          : rawData
+      ) as Record<string, unknown>;
       
-      const bankName = data.bankName || data.bankInfo?.bankName || '';
-      const iban = data.ibanMasked || data.bankInfo?.ibanMasked || '';
-      const accountHolderName = data.accountHolderName || data.bankInfo?.accountHolderName || '';
+      const bankInfo = (data.bankInfo && typeof data.bankInfo === 'object') ? (data.bankInfo as Record<string, unknown>) : null;
+      const bankName = (typeof data.bankName === 'string' ? data.bankName : null) || (typeof bankInfo?.bankName === 'string' ? bankInfo.bankName : '') || '';
+      const iban = (typeof data.ibanMasked === 'string' ? data.ibanMasked : null) || (typeof bankInfo?.ibanMasked === 'string' ? bankInfo.ibanMasked : '') || '';
+      const accountHolderName = (typeof data.accountHolderName === 'string' ? data.accountHolderName : null) || (typeof bankInfo?.accountHolderName === 'string' ? bankInfo.accountHolderName : '') || '';
 
       return {
         ...defaultBankInfo,

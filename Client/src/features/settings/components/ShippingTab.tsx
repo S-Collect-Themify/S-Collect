@@ -1,6 +1,6 @@
 import ShippingSettingsForm, {
   type ShippingSettingsValues,
-} from '../Shippingsettingsform';
+} from '../ShippingSettingsForm';
 import {
   useVendorShipping,
   useUpdateVendorShipping,

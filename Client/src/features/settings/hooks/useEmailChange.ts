@@ -27,8 +27,10 @@ export const useConfirmEmailChange = () => {
       return { response, newEmail };
     },
     onSuccess: ({ newEmail }) => {
-      queryClient.setQueryData(ACCOUNT_SETTINGS_QUERY_KEY, (oldData: any) =>
-        oldData ? { ...oldData, email: newEmail } : oldData
+      queryClient.setQueryData(
+        ACCOUNT_SETTINGS_QUERY_KEY,
+        (oldData: Record<string, unknown> | undefined) =>
+          oldData ? { ...oldData, email: newEmail } : oldData
       );
       queryClient.invalidateQueries({ queryKey: ACCOUNT_SETTINGS_QUERY_KEY });
     },

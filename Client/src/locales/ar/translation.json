@@ -422,6 +422,22 @@
       "searchCountry": "ابحث عن دولة",
       "noCountriesFound": "لا توجد دول"
     },
+    "emailModal": {
+      "titleRequest": "تغيير البريد الإلكتروني",
+      "titleVerify": "التحقق من رمز OTP",
+      "descRequest": "سيتم إرسال رمز OTP إلى رقم هاتفك المسجل لتأكيد هذا التغيير.",
+      "descVerify": "أدخل رمز OTP المكون من 6 أرقام المرسل إلى هاتفك لتأكيد تغيير بريدك إلى {{email}}.",
+      "newEmailLabel": "البريد الإلكتروني الجديد",
+      "newEmailPlaceholder": "new-email@example.com",
+      "otpLabel": "رمز OTP (6 أرقام)",
+      "otpPlaceholder": "123456",
+      "sendOtp": "إرسال رمز OTP",
+      "sendingOtp": "جاري إرسال الرمز...",
+      "confirmChange": "تأكيد تغيير البريد",
+      "verifying": "جاري التحقق...",
+      "invalidOtp": "يرجى إدخال رمز OTP صحيح مكون من 6 أرقام",
+      "successMsg": "تم تغيير البريد الإلكتروني بنجاح!"
+    },
     "toast": {
       "storeProfileSaved": "تم تحديث ملف المتجر بنجاح.",
       "accountSettingsSaved": "تم تحديث إعدادات الحساب بنجاح.",

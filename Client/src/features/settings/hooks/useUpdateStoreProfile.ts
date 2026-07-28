@@ -4,16 +4,6 @@ import type { StoreProfileData } from '../types';
 import { STORE_PROFILE_QUERY_KEY } from './useStoreProfile';
 import { updateVendorProfile } from '../../../services/vendorProfile';
 import { getErrorMessage } from '../../../types/api';
-import { updateVendorProfile } from '../../../services/vendorProfile';
-
-function parseStringValue(val: unknown): string {
-  if (typeof val === 'string') return val;
-  if (val && typeof val === 'object') {
-    const obj = val as Record<string, any>;
-    return obj.en || obj.ar || '';
-  }
-  return '';
-}
 
 export const useUpdateStoreProfile = () => {
   const queryClient = useQueryClient();
@@ -60,29 +50,38 @@ export const useUpdateStoreProfile = () => {
       }
 
       const rawResponse = await updateVendorProfile(formData);
-      const response = rawResponse && typeof rawResponse === 'object' && 'success' in rawResponse && 'data' in rawResponse
-        ? (rawResponse as any).data
-        : rawResponse;
+      const response = (
+        rawResponse &&
+        typeof rawResponse === 'object' &&
+        'success' in rawResponse &&
+        'data' in rawResponse
+          ? (rawResponse as Record<string, unknown>).data
+          : rawResponse
+      ) as Record<string, unknown>;
       
+      const logoUrl = typeof response.logoUrl === 'string' ? response.logoUrl : null;
       let logoFileName: string | null = null;
-      if (response.logoUrl) {
+      if (logoUrl) {
         try {
-          const urlParts = response.logoUrl.split('/');
+          const urlParts = logoUrl.split('/');
           logoFileName = urlParts[urlParts.length - 1] || 'logo';
         } catch {
           logoFileName = 'logo';
         }
       }
 
+      const storeName = typeof response.storeName === 'string' ? response.storeName : '';
+      const storeNameAr = typeof response.storeNameAr === 'string' ? response.storeNameAr : '';
+
       return {
-        storeName: response.storeName || '',
-        storeNameAr: response.storeNameAr || '',
+        storeName,
+        storeNameAr,
         storeDescription: typeof response.storeDescription === 'string' ? response.storeDescription : '',
         publicEmail: typeof response.publicEmail === 'string' ? response.publicEmail : '',
         phoneNumber: typeof response.publicPhoneNumber === 'string' ? response.publicPhoneNumber : '',
-        storeLogoUrl: response.logoUrl || null,
+        storeLogoUrl: logoUrl,
         storeLogoFileName: logoFileName,
-        originalStoreNameAr: response.storeNameAr || '',
+        originalStoreNameAr: storeNameAr,
         logoFile: null,
       } as StoreProfileData;
     },

@@ -59,7 +59,7 @@ export function EmailChangeModal() {
 
   const handleConfirmEmailChange = async () => {
     if (!otpCode || otpCode.length < 6) {
-      setEmailError('Please enter a valid 6-digit OTP code');
+      setEmailError(t('settings.emailModal.invalidOtp'));
       return;
     }
     setEmailError(null);
@@ -69,7 +69,7 @@ export function EmailChangeModal() {
       {
         onSuccess: () => {
           setCurrentEmailDisplay(newEmail);
-          setEmailSuccessMsg('Email changed successfully!');
+          setEmailSuccessMsg(t('settings.emailModal.successMsg'));
           setTimeout(() => {
             closeEmailModal();
           }, 1500);
@@ -93,12 +93,14 @@ export function EmailChangeModal() {
         </button>
 
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          {emailStep === 'request' ? 'Change Email Address' : 'Verify OTP Code'}
+          {emailStep === 'request'
+            ? t('settings.emailModal.titleRequest')
+            : t('settings.emailModal.titleVerify')}
         </h3>
         <p className="text-xs text-gray-500 mb-4">
           {emailStep === 'request'
-            ? 'An OTP code will be sent to your phone number on file to confirm this change.'
-            : `Enter the 6-digit OTP code sent to your phone to confirm changing your email to ${newEmail}.`}
+            ? t('settings.emailModal.descRequest')
+            : t('settings.emailModal.descVerify', { email: newEmail })}
         </p>
 
         {emailError && (
@@ -118,13 +120,13 @@ export function EmailChangeModal() {
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
-                New Email Address
+                {t('settings.emailModal.newEmailLabel')}
               </label>
               <input
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="new-email@example.com"
+                placeholder={t('settings.emailModal.newEmailPlaceholder')}
                 className="w-full h-10 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gray-900"
               />
             </div>
@@ -134,21 +136,23 @@ export function EmailChangeModal() {
               onClick={handleRequestEmailChange}
               className="w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
             >
-              {isLoading ? 'Sending OTP...' : 'Send OTP Code'}
+              {isLoading
+                ? t('settings.emailModal.sendingOtp')
+                : t('settings.emailModal.sendOtp')}
             </button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">
-                OTP Code (6 Digits)
+                {t('settings.emailModal.otpLabel')}
               </label>
               <input
                 type="text"
                 maxLength={6}
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
-                placeholder="123456"
+                placeholder={t('settings.emailModal.otpPlaceholder')}
                 className="w-full h-10 px-3 border border-gray-300 rounded-lg text-sm tracking-widest text-center font-mono focus:outline-none focus:border-gray-900"
               />
             </div>
@@ -158,7 +162,9 @@ export function EmailChangeModal() {
               onClick={handleConfirmEmailChange}
               className="w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
             >
-              {isLoading ? 'Verifying...' : 'Confirm Email Change'}
+              {isLoading
+                ? t('settings.emailModal.verifying')
+                : t('settings.emailModal.confirmChange')}
             </button>
           </div>
         )}

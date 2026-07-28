@@ -38,13 +38,18 @@ export const useUpdateBankInfo = () => {
       }
 
       const rawResponse = await updateVendorBankInfo(params);
-      const response = rawResponse && typeof rawResponse === 'object' && 'success' in rawResponse && 'data' in rawResponse
-        ? (rawResponse as any).data
-        : rawResponse;
+      const response = (
+        rawResponse &&
+        typeof rawResponse === 'object' &&
+        'success' in rawResponse &&
+        'data' in rawResponse
+          ? (rawResponse as Record<string, unknown>).data
+          : rawResponse
+      ) as Record<string, unknown>;
       return {
-        bankName: response.bankName,
-        iban: response.ibanMasked,
-        accountHolderName: response.accountHolderName,
+        bankName: typeof response.bankName === 'string' ? response.bankName : '',
+        iban: typeof response.ibanMasked === 'string' ? response.ibanMasked : '',
+        accountHolderName: typeof response.accountHolderName === 'string' ? response.accountHolderName : '',
       };
     },
     onSuccess: (updatedData) => {
