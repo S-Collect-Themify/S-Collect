@@ -19,3 +19,13 @@ export const getVoucherStatus = (
   }
   return currentStatus === 'Expired' ? 'Expired' : 'Active';
 };
+
+export const parseCategories = (cat?: any): string[] => {
+  if (!cat) return [];
+  if (Array.isArray(cat))
+    return cat.map((item) => (typeof item === 'string' ? item.trim() : String(item))).filter(Boolean);
+  if (typeof cat === 'string') {
+    return cat.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+};
