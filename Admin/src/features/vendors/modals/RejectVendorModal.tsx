@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 interface RejectVendorModalProps {
   isOpen: boolean;
   vendorName: string;
-  onConfirm: (reason: string, notify: boolean) => void;
+  onConfirm: (reason: string) => void;
   onCancel: () => void;
 }
 
@@ -19,23 +19,22 @@ export default function RejectVendorModal({
 }: RejectVendorModalProps) {
   const { t } = useTranslation();
   const [reason, setReason] = useState('');
-  const [notify, setNotify] = useState(true);
   const [touched, setTouched] = useState(false);
 
   const hasError = touched && reason.trim() === '';
 
   const handleConfirm = () => {
-    setTouched(true);
-    if (!reason.trim()) return;
-    onConfirm(reason.trim(), notify);
+    if (reason.trim() === '') {
+      setTouched(true);
+      return;
+    }
+    onConfirm(reason.trim());
     setReason('');
-    setNotify(true);
     setTouched(false);
   };
 
   const handleCancel = () => {
     setReason('');
-    setNotify(true);
     setTouched(false);
     onCancel();
   };
@@ -78,7 +77,7 @@ export default function RejectVendorModal({
             </div>
 
             {/* Reason textarea */}
-            <div className="mb-5">
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 {t('vendors.modals.rejectReasonLabel', 'Reason for rejection')}{' '}
                 <span className="text-red-500">*</span>
@@ -100,29 +99,6 @@ export default function RejectVendorModal({
                   {t('vendors.modals.reasonRequired', 'Reason is required.')}
                 </p>
               )}
-            </div>
-
-            {/* Send notification toggle */}
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-sm text-gray-700">
-                {t('vendors.modals.sendNotification', 'Send notification to vendor')}
-              </span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={notify}
-                dir="ltr"
-                onClick={() => setNotify((v) => !v)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${
-                  notify ? 'bg-green-500' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
-                    notify ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
             </div>
 
             {/* Buttons */}

@@ -6,9 +6,9 @@ type ModalType = 'approve' | 'reject' | 'deactivate';
 
 interface VendorBulkActionBarProps {
   selectedCount: number;
-  selectedRows: number[];
+  selectedRows: string[];
   activeTab: VendorTab;
-  openConfirm: (type: ModalType, ids: number[]) => void;
+  openConfirm: (type: ModalType, ids: string[]) => void;
   clearSelection: () => void;
 }
 

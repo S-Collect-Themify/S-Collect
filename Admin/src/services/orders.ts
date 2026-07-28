@@ -110,6 +110,7 @@ export interface AdminOrderDetailResponse {
 export async function getAdminOrders(params?: {
   pageNum?: number;
   pageSize?: number;
+  vendorId?: string;
 }): Promise<AdminOrdersResponse> {
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 20;
@@ -118,6 +119,7 @@ export async function getAdminOrders(params?: {
     params: {
       pageNum,
       pageSize,
+      vendorId: params?.vendorId,
     },
   });
 
@@ -177,6 +179,63 @@ export async function updateAdminSubOrderStatus(
   const response = await api.patch(`/admin/sub-orders/${subOrderId}/status`, payload);
   const data = response.data;
   return data?.data || data;
+}
+
+export interface GetAdminSubOrdersParams {
+  vendorId?: string;
+  pageNum?: number;
+  pageSize?: number;
+  status?: string;
+}
+
+export interface AdminSubOrderItem {
+  id: string;
+  orderId?: string;
+  vendorId?: string;
+  status?: string;
+  shippingRateApplied?: number;
+  totalAmount?: number;
+  trackingNumber?: string | null;
+  statusOverrideReason?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  items?: Array<{
+    id?: string;
+    productId?: string;
+    productName?: string;
+    unitPrice?: number;
+    quantity?: number;
+    lineTotal?: number;
+  }>;
+  customer?: {
+    buyerAccountId?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  createdAt?: string;
+}
+
+export interface AdminSubOrdersResponse {
+  items: AdminSubOrderItem[];
+  pagination?: {
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * Fetch sub-orders list GET /api/v1/admin/sub-orders
+ */
+export async function getAdminSubOrders(params?: GetAdminSubOrdersParams): Promise<any> {
+  try {
+    const response = await api.get('/admin/sub-orders', { params });
+    return response.data;
+  } catch (err) {
+    console.warn('API getAdminSubOrders error:', err);
+    return null;
+  }
 }
 
 /**

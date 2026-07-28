@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle, PowerOff } from 'lucide-react';
 
 interface VendorConfirmModalProps {
   isOpen: boolean;
-  type: 'approve' | 'reject' | 'deactivate';
+  type: 'approve' | 'reject' | 'deactivate' | 'reactivate';
   count: number;
   vendorName?: string;
   onConfirm: () => void;
@@ -35,36 +35,52 @@ export default function VendorConfirmModal({
 
   const configs = {
     approve: {
-      title: t('vendors.table.confirmApproveTitle'),
+      title: t('vendors.table.confirmApproveTitle', 'Approve Vendor'),
       message: isSingle
-        ? t('vendors.table.confirmApproveMessage', { name: vendorName })
-        : t('vendors.table.confirmApproveBulkMessage', { count }),
+        ? t('vendors.table.confirmApproveMessage', { name: vendorName, defaultValue: `Are you sure you want to approve ${vendorName}?` })
+        : t('vendors.table.confirmApproveBulkMessage', { count, defaultValue: `Are you sure you want to approve ${count} vendors?` }),
       icon: <CheckCircle size={28} className="text-green-600" strokeWidth={2} />,
       iconBg: 'bg-green-50',
       btnClass: 'bg-green-700 hover:bg-green-800',
       btnLabel: isSingle
-        ? t('vendors.table.confirmApproveBtn')
-        : t('vendors.table.approveSelected'),
+        ? t('vendors.table.confirmApproveBtn', 'Approve')
+        : t('vendors.table.approveSelected', 'Approve Selected'),
+    },
+    reactivate: {
+      title: t('vendors.table.confirmReactivateTitle', 'Reactivate Vendor'),
+      message: isSingle
+        ? t('vendors.table.confirmReactivateMessage', { name: vendorName, defaultValue: `Are you sure you want to reactivate ${vendorName}?` })
+        : t('vendors.table.confirmReactivateBulkMessage', { count, defaultValue: `Are you sure you want to reactivate ${count} vendors?` }),
+      icon: <CheckCircle size={28} className="text-green-600" strokeWidth={2} />,
+      iconBg: 'bg-green-50',
+      btnClass: 'bg-green-700 hover:bg-green-800',
+      btnLabel: isSingle
+        ? t('vendors.table.confirmReactivateBtn', 'Reactivate')
+        : t('vendors.table.reactivateSelected', 'Reactivate Selected'),
     },
     reject: {
-      title: t('vendors.table.confirmRejectTitle'),
+      title: t('vendors.table.confirmRejectTitle', 'Reject Vendor'),
       message: isSingle
-        ? t('vendors.table.confirmRejectMessage', { name: vendorName })
-        : t('vendors.table.confirmRejectBulkMessage', { count }),
+        ? t('vendors.table.confirmRejectMessage', { name: vendorName, defaultValue: `Are you sure you want to reject ${vendorName}?` })
+        : t('vendors.table.confirmRejectBulkMessage', { count, defaultValue: `Are you sure you want to reject ${count} vendors?` }),
       icon: <AlertTriangle size={28} className="text-red-500" strokeWidth={2} />,
       iconBg: 'bg-red-50',
       btnClass: 'bg-red-500 hover:bg-red-600',
       btnLabel: isSingle
-        ? t('vendors.table.confirmRejectBtn')
-        : t('vendors.table.rejectSelected'),
+        ? t('vendors.table.confirmRejectBtn', 'Reject')
+        : t('vendors.table.rejectSelected', 'Reject Selected'),
     },
     deactivate: {
-      title: t('vendors.table.confirmDeactivateTitle'),
-      message: t('vendors.table.confirmDeactivateMessage', { count }),
+      title: t('vendors.table.confirmDeactivateTitle', 'Deactivate Vendor'),
+      message: isSingle
+        ? t('vendors.table.confirmDeactivateSingleMessage', { name: vendorName, defaultValue: `Are you sure you want to deactivate ${vendorName}?` })
+        : t('vendors.table.confirmDeactivateMessage', { count, defaultValue: `Are you sure you want to deactivate ${count} vendors?` }),
       icon: <PowerOff size={28} className="text-red-500" strokeWidth={2} />,
       iconBg: 'bg-red-50',
       btnClass: 'bg-red-600 hover:bg-red-700',
-      btnLabel: t('vendors.table.deactivateSelected'),
+      btnLabel: isSingle
+        ? t('vendors.table.confirmDeactivateBtn', 'Deactivate')
+        : t('vendors.table.deactivateSelected', 'Deactivate Selected'),
     },
   };
 
@@ -126,7 +142,7 @@ export default function VendorConfirmModal({
                 onClick={onCancel}
                 className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                {t('vendors.table.cancel')}
+                {t('vendors.table.cancel', 'Cancel')}
               </button>
               <button
                 onClick={onConfirm}

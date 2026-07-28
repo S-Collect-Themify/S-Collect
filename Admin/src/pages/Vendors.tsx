@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import VendorTable from '../features/vendors/VendorTable';
+import VendorTable from '../features/vendors/components/VendorTable';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 
@@ -25,11 +25,11 @@ const Vendors = () => {
 
   return (
     <>
-      <div className="sidebar-page-container flex items-center justify-between mb-6 bg-gray-50">
-        <h1 className="text-h4 py-5">{t('vendors.title')}</h1>
+      <div className="sidebar-page-container-header border-b border-gray-100/80">
+        <h1 className="font-bold text-gray-900 heading-page-title ">{t('vendors.title')}</h1>
       </div>
       <motion.div
-        className="sidebar-page-container flex-1 overflow-y-auto pt-0"
+        className="sidebar-page-container py-6 md:py-8 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"

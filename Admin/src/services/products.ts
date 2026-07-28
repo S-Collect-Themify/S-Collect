@@ -94,9 +94,48 @@ export const getVendorsList = async (): Promise<VendorOption[]> => {
   }
 };
 
-export const getAdminProducts = async () => {
+export interface GetAdminProductsParams {
+  vendorId?: string;
+  categoryId?: string;
+  isDisabled?: boolean;
+  pageNum?: number;
+  pageSize?: number;
+}
+
+export interface AdminProductItem {
+  id: string;
+  vendorId: string;
+  category?: {
+    id: string;
+    name: string;
+    nameAr: string;
+  };
+  name: string;
+  nameAr?: string;
+  thumbnailUrl?: string | Record<string, any>;
+  minPrice?: number | Record<string, any>;
+  compareAtPrice?: number | Record<string, any>;
+  discountPercent?: number | Record<string, any>;
+  isActive?: boolean;
+  isDisabled?: boolean;
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
+  createdAt?: string;
+}
+
+export interface AdminProductsResponse {
+  items: AdminProductItem[];
+  pagination?: {
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+export const getAdminProducts = async (params?: GetAdminProductsParams): Promise<AdminProductsResponse | null> => {
   try {
-    const { data } = await api.get('/admin/products');
+    const { data } = await api.get('/admin/products', { params });
     return data;
   } catch (err) {
     console.warn('API getAdminProducts error:', err);

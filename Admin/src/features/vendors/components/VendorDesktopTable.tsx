@@ -1,11 +1,10 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
 import Toggle from '../../mangement/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
-type ModalType = 'approve' | 'reject' | 'deactivate';
+type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
 
 interface VendorDesktopTableProps {
   paginated: Vendor[];
@@ -13,12 +12,12 @@ interface VendorDesktopTableProps {
   colSpan: number;
   allChecked: boolean;
   toggleAll: (e: ChangeEvent<HTMLInputElement>) => void;
-  selectedRows: number[];
-  toggleRow: (id: number) => void;
+  selectedRows: string[];
+  toggleRow: (id: string) => void;
   activeTab: VendorTab;
   isAllTab: boolean;
-  openConfirm: (type: ModalType, ids: number[], vendorName?: string) => void;
-  toggleVendorActive: (id: number) => void;
+  openConfirm: (type: ModalType, ids: string[], vendorName?: string) => void;
+  toggleVendorActive?: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -33,7 +32,6 @@ export default function VendorDesktopTable({
   activeTab,
   isAllTab,
   openConfirm,
-  toggleVendorActive,
   isLoading,
 }: VendorDesktopTableProps) {
   const { t } = useTranslation();
@@ -97,13 +95,7 @@ export default function VendorDesktopTable({
                         {t('vendors.table.noPendingSubtext')}
                       </p>
                     </div>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                    >
-                      <RefreshCw size={14} />
-                      {t('vendors.table.refresh')}
-                    </button>
+                  
                   </div>
                 ) : (
                   /* ── Generic empty state ── */
@@ -163,9 +155,9 @@ export default function VendorDesktopTable({
                       checked={vendor.active ?? true}
                       onChange={() => {
                         if (vendor.active) {
-                          openConfirm('deactivate', [vendor.id]);
+                          openConfirm('deactivate', [vendor.id], vendor.businessName);
                         } else {
-                          toggleVendorActive(vendor.id);
+                          openConfirm('reactivate', [vendor.id], vendor.businessName);
                         }
                       }}
                     />

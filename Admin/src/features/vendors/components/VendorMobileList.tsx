@@ -4,18 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import Toggle from '../../mangement/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
-type ModalType = 'approve' | 'reject' | 'deactivate';
+type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
 
 interface VendorMobileListProps {
   paginated: Vendor[];
   allChecked: boolean;
   toggleAll: (e: ChangeEvent<HTMLInputElement>) => void;
   selectedCount: number;
-  selectedRows: number[];
-  toggleRow: (id: number) => void;
+  selectedRows: string[];
+  toggleRow: (id: string) => void;
   activeTab: VendorTab;
-  openConfirm: (type: ModalType, ids: number[], vendorName?: string) => void;
-  toggleVendorActive: (id: number) => void;
+  openConfirm: (type: ModalType, ids: string[], vendorName?: string) => void;
+  toggleVendorActive?: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -28,7 +28,6 @@ export default function VendorMobileList({
   toggleRow,
   activeTab,
   openConfirm,
-  toggleVendorActive,
   isLoading,
 }: VendorMobileListProps) {
   const { t } = useTranslation();
@@ -174,8 +173,8 @@ export default function VendorMobileList({
                       <Toggle
                         checked={vendor.active ?? true}
                         onChange={() => {
-                          if (vendor.active) openConfirm('deactivate', [vendor.id]);
-                          else toggleVendorActive(vendor.id);
+                          if (vendor.active) openConfirm('deactivate', [vendor.id], vendor.businessName);
+                          else openConfirm('reactivate', [vendor.id], vendor.businessName);
                         }}
                       />
                     </div>
