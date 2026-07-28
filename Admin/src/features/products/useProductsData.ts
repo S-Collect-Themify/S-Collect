@@ -58,6 +58,19 @@ const getVendorDisplayName = (vId: string | undefined, vendorsList: any[], vendo
   return '—';
 };
 
+const isProductActive = (p: any): boolean => {
+  if (p.isDisabled !== undefined && p.isDisabled !== null) {
+    if (typeof p.isDisabled === 'boolean') return !p.isDisabled;
+    if (typeof p.isDisabled === 'string') return p.isDisabled.toLowerCase() !== 'true';
+    if (typeof p.isDisabled === 'number') return p.isDisabled === 0;
+  }
+  if (p.isActive !== undefined && p.isActive !== null) {
+    if (typeof p.isActive === 'boolean') return p.isActive;
+    if (typeof p.isActive === 'string') return p.isActive.toLowerCase() === 'true';
+  }
+  return true;
+};
+
 export const useProductsData = () => {
   const queryClient = useQueryClient();
   const setProducts = useProductStore((s) => s.setProducts);
@@ -98,7 +111,7 @@ export const useProductsData = () => {
             categoryAr: categoryNameAr,
             price: Number(p.minPrice ?? p.price ?? 0),
             stock: p.stock !== undefined && p.stock !== null ? p.stock : '',
-            isActive: p.isActive !== undefined ? Boolean(p.isActive) : !p.isDisabled,
+            isActive: isProductActive(p),
             image: p.thumbnailUrl || p.images?.[0]?.url || p.image || p.thumbnail || '',
           };
         });
