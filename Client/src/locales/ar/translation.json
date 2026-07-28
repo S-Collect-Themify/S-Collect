@@ -167,7 +167,9 @@
       "passwordRequired": "كلمة المرور مطلوبة",
       "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
       "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
-      "passwordsMismatch": "كلمتا المرور غير متطابقتين"
+      "passwordsMismatch": "كلمتا المرور غير متطابقتين",
+      "websiteRequired": "رقم السجل التجاري مطلوب",
+      "websiteInvalid": "رقم السجل التجاري يجب أن يتكون من 10 أرقام"
     },
     "passwordStrength": {
       "weak": "ضعيف",

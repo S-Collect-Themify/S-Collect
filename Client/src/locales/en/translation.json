@@ -168,7 +168,9 @@
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 8 characters",
       "confirmPasswordRequired": "Please confirm your password",
-      "passwordsMismatch": "Passwords do not match"
+      "passwordsMismatch": "Passwords do not match",
+      "websiteRequired": "Commercial Registration Number is required",
+      "websiteInvalid": "Commercial Registration Number must be 10 digits"
     },
     "passwordStrength": {
       "weak": "Weak",
