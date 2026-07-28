@@ -7,6 +7,35 @@ interface VoucherMobileListProps {
   onDeleteClick: (voucher: VoucherItem) => void;
 }
 
+const renderCategoryBadges = (catData: any) => {
+  const catArray: string[] = Array.isArray(catData)
+    ? catData.map((c) => String(c).trim()).filter(Boolean)
+    : typeof catData === 'string' && catData.trim()
+    ? catData.split(',').map((c) => c.trim()).filter(Boolean)
+    : [];
+
+  if (catArray.length === 0) {
+    return <span className="text-gray-400 font-normal">—</span>;
+  }
+
+  const firstCat = catArray[0];
+  const extraCount = catArray.length - 1;
+  const fullTooltip = catArray.join(', ');
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap" title={fullTooltip}>
+      <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gray-100 text-gray-800 text-[11px] font-medium border border-gray-200 truncate max-w-[120px]">
+        {firstCat}
+      </span>
+      {extraCount > 0 && (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded-lg bg-gray-900 text-white text-[10px] font-bold border border-gray-900 shrink-0">
+          +{extraCount}
+        </span>
+      )}
+    </div>
+  );
+};
+
 export const VoucherMobileList = ({
   vouchers,
   onDeleteClick,
@@ -23,16 +52,21 @@ export const VoucherMobileList = ({
         >
           {/* Top Row: Code + Status Badge */}
           <div className="flex items-center justify-between mb-3">
-            <span className="font-bold text-gray-900 text-base">
+            <span className="inline-block px-2.5 py-1 rounded-xl bg-gray-900 text-white font-mono text-xs font-bold tracking-wide shadow-2xs">
               {voucher.code}
             </span>
             <span
-              className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border ${
                 voucher.status === 'Active'
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                  : 'bg-red-50 text-red-600 border-red-100'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-rose-50 text-rose-700 border-rose-200'
               }`}
             >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  voucher.status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500'
+                }`}
+              />
               {voucher.status === 'Active'
                 ? t('vouchersListing.statuses.active')
                 : t('vouchersListing.statuses.expired')}
@@ -40,14 +74,10 @@ export const VoucherMobileList = ({
           </div>
 
           {/* Key-Value Details List */}
-          <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-500">
+          <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-500 items-center">
             <span className="text-gray-400">{t('vouchersListing.table.category')}:</span>
             <span className="font-medium text-gray-800">
-              {Array.isArray(voucher.category)
-                ? voucher.category.length > 0
-                  ? voucher.category.join(', ')
-                  : '—'
-                : voucher.category || '—'}
+              {renderCategoryBadges(voucher.category)}
             </span>
 
             <span className="text-gray-400">{t('vouchersListing.table.scope')}:</span>
