@@ -330,10 +330,20 @@ const Step2 = () => {
       </div>
 
       <Input
-        type="number"
+        type="text"
+        inputMode="numeric"
         label={t('register.websiteLabel')}
         placeholder={t('register.websitePlaceholder')}
-        {...register('website')}
+        required
+        maxLength={10}
+        error={errors.website?.message}
+        {...register('website', {
+          required: t('register.errors.websiteRequired'),
+          pattern: {
+            value: /^\d{10}$/,
+            message: t('register.errors.websiteInvalid'),
+          },
+        })}
       />
     </div>
   );
@@ -611,7 +621,7 @@ const ApplicationSubmitted = ({
 
 const STEP_FIELDS: Record<number, (keyof RegisterFormData)[]> = {
   0: ['firstName', 'lastName', 'email', 'phone'],
-  1: ['storeName', 'category', 'description'],
+  1: ['storeName', 'category', 'description', 'website'],
   2: ['password', 'confirmPassword'],
 };
 
