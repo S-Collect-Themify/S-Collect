@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 
+import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
+
 interface HeaderProps {
   onMenuClick: () => void;
 }
@@ -88,6 +90,11 @@ const LanguageDropdown = () => {
 
 const Header = ({ onMenuClick }: HeaderProps) => {
   const { t, i18n } = useTranslation();
+  const { data: profile } = useStoreProfile();
+
+  const logoUrl = profile?.storeLogoUrl;
+  console.log('Header Logo URL:', logoUrl);
+  console.log('Full Profile:', profile);
 
   const today = new Date().toLocaleDateString(
     i18n.language === 'ar' ? 'ar-EG' : 'en-US',
@@ -127,7 +134,15 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               className="inline-flex h-11 w-11 items-center justify-center text-gray-50 transition-colors"
               aria-label="Account"
             >
-              <User size={24} />
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt="Store Logo"
+                  className="h-8 w-8 rounded-full object-cover border border-white/20"
+                />
+              ) : (
+                <User size={24} />
+              )}
             </Link>
           </div>
         </div>
@@ -157,7 +172,15 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             aria-label={t('header.account')}
             className="hidden text-2xl hover:text-gray-300 sidebar:block focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
           >
-            <User />
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Store Logo"
+                className="h-7 w-7 rounded-full object-cover border border-white/20"
+              />
+            ) : (
+              <User />
+            )}
           </Link>
         </div>
       </div>

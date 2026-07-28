@@ -1,10 +1,14 @@
 export interface StoreProfileData {
   storeName: string;
+  storeNameAr: string;
   storeDescription: string;
   publicEmail: string;
   phoneNumber: string;
   storeLogoUrl: string | null;
   storeLogoFileName: string | null;
+  logoFile?: File | null;
+  originalStoreNameAr?: string | null;
+  originalStoreDescriptionAr?: string | null;
 }
 
 export interface AccountSettingsData {
