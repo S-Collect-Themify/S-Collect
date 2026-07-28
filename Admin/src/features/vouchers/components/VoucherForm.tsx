@@ -126,7 +126,7 @@ function CategoryMultiSelect({
     <div ref={containerRef} className="relative w-full">
       <div
         onClick={() => !isLoading && setIsOpen(!isOpen)}
-        className={`w-full min-h-[42px] px-3 py-1.5 bg-white border rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-all ${
+        className={`w-full min-h-10.5 px-3 py-1.5 bg-white border rounded-xl flex items-center justify-between gap-2 cursor-pointer transition-all ${
           error
             ? 'border-red-500 ring-2 ring-red-500/10'
             : isOpen
