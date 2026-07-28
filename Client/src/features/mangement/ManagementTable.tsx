@@ -1,10 +1,10 @@
 import type { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
-import { useManagementStore, useManagementTable } from './managementStore';
+import { useManagementStore, useManagementTable, useManagementActions } from './managementStore';
 import CategoryDropdown from './CategoryDropdown';
 import StatusDropdown from './StatusDropdown';
 
@@ -33,20 +33,17 @@ export default function ProductTable() {
     (state) => state.setSelectedStatus
   );
   const setPage = useManagementStore((state) => state.setPage);
-  const toggleProduct = useManagementStore((state) => state.toggleProduct);
-  const publishSelectedProducts = useManagementStore(
-    (state) => state.publishSelectedProducts
-  );
-  const unpublishSelectedProducts = useManagementStore(
-    (state) => state.unpublishSelectedProducts
-  );
-  const deleteProduct = useManagementStore((state) => state.deleteProduct);
-  const deleteSelectedProducts = useManagementStore(
-    (state) => state.deleteSelectedProducts
-  );
   const toggleRow = useManagementStore((state) => state.toggleRow);
   const setSelectedRows = useManagementStore((state) => state.setSelectedRows);
   const clearSelection = useManagementStore((state) => state.clearSelection);
+
+  const {
+    publishSelected,
+    unpublishSelected,
+    deleteSelected,
+    deleteSingle,
+    toggleSingle,
+  } = useManagementActions();
 
   const pageNumbers = Array.from(
     { length: totalPages },
@@ -57,7 +54,7 @@ export default function ProductTable() {
     showDeleteConfirmation(
       'managementTable.deleteSelectedConfirmMessage',
       { count: selectedCount },
-      deleteSelectedProducts
+      deleteSelected
     );
   };
 
@@ -65,7 +62,7 @@ export default function ProductTable() {
     showDeleteConfirmation(
       'managementTable.publishSelectedConfirmMessage',
       { count: selectedCount },
-      publishSelectedProducts,
+      publishSelected,
       {
         titleKey: 'managementTable.publishConfirmTitle',
         confirmKey: 'managementTable.publish',
@@ -78,7 +75,7 @@ export default function ProductTable() {
     showDeleteConfirmation(
       'managementTable.unpublishSelectedConfirmMessage',
       { count: selectedCount },
-      unpublishSelectedProducts,
+      unpublishSelected,
       {
         titleKey: 'managementTable.unpublishConfirmTitle',
         confirmKey: 'managementTable.unpublish',
@@ -101,62 +98,116 @@ export default function ProductTable() {
   ];
 
   return (
-    <div className="font-sans text-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-2.5 mb-5">
-        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 bg-white h-9 flex-1 max-w-[240px]">
-          <i
-            className="ti ti-search text-gray-400 text-base"
-            aria-hidden="true"
-          />
+    <div className="flex flex-col flex-1 pb-10" dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className="flex items-center gap-2 mb-6 select-none flex-wrap">
+        <div className="relative w-full sm:w-auto">
           <input
             type="text"
+            className="w-full sm:w-48 pl-9 pr-3 h-9 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:border-gray-900 focus:bg-white placeholder:text-gray-400 transition-colors"
             placeholder={t('managementTable.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border-none outline-none bg-transparent text-sm w-full placeholder:text-gray-400"
           />
+          <span className="absolute left-3 top-2.5 text-gray-400">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </span>
         </div>
 
         <CategoryDropdown
           selected={selectedCategories}
           onChange={setSelectedCategories}
         />
+
         <StatusDropdown
           selected={selectedStatus}
           onChange={setSelectedStatus}
         />
+
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-1 sm:ml-auto select-none sm:order-last order-first w-full sm:w-auto justify-between sm:justify-start">
+            <span className="text-body-sm text-gray-400 font-bold px-2 py-1 rounded bg-gray-100 flex items-center gap-2.5">
+              <span>{t('managementTable.selectedCount', { count: selectedCount })}</span>
+              <button
+                onClick={clearSelection}
+                className="cursor-pointer hover:bg-gray-200 rounded p-0.5"
+                title={t('managementTable.clearSelection')}
+              >
+                <X size={14} color="gray" />
+              </button>
+            </span>
+            <div className="flex gap-2">
+              <button
+                className="flex items-center gap-1.5 h-9 px-3 border border-red-200 text-red-600 rounded-lg bg-red-50 text-sm cursor-pointer hover:bg-red-100 whitespace-nowrap font-medium"
+                onClick={handleDeleteSelected}
+              >
+                {t('managementTable.deleteSelected')}
+              </button>
+              <button
+                className="flex items-center gap-1.5 h-9 px-3 border border-green-200 text-green-700 rounded-lg bg-green-50 text-sm cursor-pointer hover:bg-green-100 whitespace-nowrap font-medium"
+                onClick={handlePublishSelected}
+              >
+                {t('managementTable.publishSelected')}
+              </button>
+              <button
+                className="flex items-center gap-1.5 h-9 px-3 border border-amber-200 text-amber-700 rounded-lg bg-amber-50 text-sm cursor-pointer hover:bg-amber-100 whitespace-nowrap font-medium"
+                onClick={handleUnpublishSelected}
+              >
+                {t('managementTable.unpublishSelected')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse text-sm bg-gray-100">
+      <div className="flex-1 overflow-x-auto select-none bg-white rounded-xl border border-gray-100">
+        <table className="w-full min-w-[900px] border-collapse text-start">
           <thead>
-            <tr>
-              {/* Replaced text-left with text-start for RTL support */}
-              <th className="w-9 px-3 py-2.5 border-b border-gray-100 text-start">
-                <input
-                  type="checkbox"
-                  checked={allChecked}
-                  onChange={toggleAll}
-                  className="accent-black w-4 h-4 cursor-pointer"
-                />
+            <tr className="bg-gray-50 border-b border-gray-100 select-none">
+              <th className="w-12 px-3 py-3 text-start">
+                <label className="inline-flex items-center justify-center w-4 h-4 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={allChecked}
+                    onChange={toggleAll}
+                    className="peer sr-only"
+                  />
+                  <span
+                    className="w-4 h-4 rounded-[4px] border border-gray-300 bg-white
+                               flex items-center justify-center
+                               peer-checked:bg-gray-900 peer-checked:border-gray-900
+                               transition-colors"
+                  >
+                    {allChecked && (
+                      <Check className="text-white" size={11} strokeWidth={3} />
+                    )}
+                  </span>
+                </label>
               </th>
-              {tableHeaders.map((h) => (
+              {tableHeaders.map((header) => (
                 <th
-                  key={h}
-                  /* Replaced text-left with text-start for RTL support */
-                  className="px-3 py-2.5 border-b border-gray-100 text-start text-xs font-medium text-gray-500 whitespace-nowrap"
+                  key={header}
+                  className="px-3 py-3 text-body-sm font-bold text-gray-500 uppercase tracking-wider text-start"
                 >
-                  {h}
+                  {header}
                 </th>
               ))}
             </tr>
           </thead>
-
-          <tbody>
+          <tbody className="divide-y divide-gray-100 select-none">
             {paginatedProducts.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-gray-400">
-                  <i
+                <td colSpan={tableHeaders.length + 1} className="py-12 text-center text-gray-400">
+                  <span
                     className="ti ti-package-off text-2xl block mb-2"
                     aria-hidden="true"
                   />
@@ -176,8 +227,8 @@ export default function ProductTable() {
                   product={product}
                   selected={selectedRows.includes(product.id)}
                   onSelect={() => toggleRow(product.id)}
-                  onDelete={() => deleteProduct(product.id)}
-                  onToggle={() => toggleProduct(product.id)}
+                  onDelete={() => deleteSingle(product.id)}
+                  onToggle={() => toggleSingle(product.id, product.enabled)}
                 />
               ))
             )}
