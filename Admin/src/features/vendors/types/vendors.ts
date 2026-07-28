@@ -12,6 +12,7 @@ export interface Vendor {
   submittedDate: string;
   category: string;
   status: VendorStatus;
+  rawStatus?: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   /** Only relevant for approved vendors */
   revenue?: number;
   orders?: number;
@@ -27,4 +28,7 @@ export interface Vendor {
   pendingPayout?: number;
   description?: string;
   suspendReason?: string;
+  rejectionReason?: string;
+  commissionRate?: number;
+  createdAt?: string;
 }

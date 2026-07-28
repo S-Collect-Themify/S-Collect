@@ -2,29 +2,38 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  useVendorStore,
-  VendorHeader,
-  VendorPayoutsLog,
-  SuspendVendorModal,
-  ActivateVendorModal,
-} from '../features/vendors';
+  useVendorDetails,
+  useDeactivateVendor,
+  useReactivateVendor,
+} from '../features/vendors/hooks/useVendors';
+import VendorHeader from '../features/vendors/components/VendorHeader';
+import VendorPayoutsLog from '../features/vendors/components/VendorPayoutsLog';
+import VendorConfirmModal from '../features/vendors/modals/VendorConfirmModal';
 
 export default function VendorPayoutsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const vendors = useVendorStore((s) => s.vendors);
-  const suspendVendor = useVendorStore((s) => s.suspendVendor);
-  const activateVendor = useVendorStore((s) => s.activateVendor);
-
   const vendorId = id ?? '';
-  const vendor = vendors.find((v) => v.id === vendorId);
+  const { data: vendor, isLoading, isError } = useVendorDetails(vendorId);
+
+  const deactivateMutation = useDeactivateVendor();
+  const reactivateMutation = useReactivateVendor();
 
   const [showSuspend, setShowSuspend] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
 
-  if (!vendor) {
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
+        <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-500 text-sm">{t('vendors.details.loading', 'Loading vendor details...')}</p>
+      </div>
+    );
+  }
+
+  if (isError || !vendor) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
         <p className="text-gray-500 text-sm">{t('vendors.details.vendorNotFound', 'Vendor not found.')}</p>
@@ -51,21 +60,25 @@ export default function VendorPayoutsPage() {
         <VendorPayoutsLog vendor={vendor} vendorId={vendorId} />
       </div>
 
-      <SuspendVendorModal
+      <VendorConfirmModal
         isOpen={showSuspend}
+        type="deactivate"
+        count={1}
         vendorName={vendor.businessName}
-        onConfirm={(reason) => {
-          suspendVendor(vendor.id, reason);
+        onConfirm={() => {
+          deactivateMutation.mutate(vendor.id);
           setShowSuspend(false);
         }}
         onCancel={() => setShowSuspend(false)}
       />
 
-      <ActivateVendorModal
+      <VendorConfirmModal
         isOpen={showActivate}
+        type="reactivate"
+        count={1}
         vendorName={vendor.businessName}
         onConfirm={() => {
-          activateVendor(vendor.id);
+          reactivateMutation.mutate(vendor.id);
           setShowActivate(false);
         }}
         onCancel={() => setShowActivate(false)}

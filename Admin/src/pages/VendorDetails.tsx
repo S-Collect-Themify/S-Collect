@@ -1,10 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, Phone, Mail, MapPin, Hash } from 'lucide-react';
+import { ChevronRight, Phone, Mail, MapPin, Hash, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
-import { useVendorStore } from '../features/vendors/store/vendorStore';
+import {
+  useVendorDetails,
+  useDeactivateVendor,
+  useReactivateVendor,
+  useApproveVendor,
+  useRejectVendor,
+} from '../features/vendors/hooks/useVendors';
 import {
   VENDOR_MOCK_ORDERS,
   VENDOR_MOCK_PRODUCTS,
@@ -15,71 +20,16 @@ import {
 } from '../features/vendors/data/constant';
 import SuspendVendorModal from '../features/vendors/modals/SuspendVendorModal';
 import ActivateVendorModal from '../features/vendors/modals/ActivateVendorModal';
-
-// ── Motion variants ─────────────────────────────────────────────────────────────
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 16 } },
-};
-
-// ── Helpers ─────────────────────────────────────────────────────────────────────
-
-function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('');
-}
-
-// ── Card wrapper ────────────────────────────────────────────────────────────────
-
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <motion.div
-      variants={cardVariants}
-      className={`bg-white rounded-lg border border-gray-100 shadow-sm ${className}`}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// ── Stat card ───────────────────────────────────────────────────────────────────
-
-function StatCard({
-  label,
-  value,
-  unit,
-  highlight,
-}: {
-  label: string;
-  value: number | string;
-  unit?: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 shadow-sm p-4">
-      <p className="text-xs text-gray-500 mb-2">{label}</p>
-      <p
-        className={`text-xl font-bold truncate ${
-          highlight ? 'text-amber-600' : 'text-gray-900'
-        }`}
-      >
-        {typeof value === 'number' ? value.toLocaleString() : value}
-        {unit && (
-          <span className="text-xs font-normal text-gray-400 ms-1">{unit}</span>
-        )}
-      </p>
-    </div>
-  );
-}
+import RejectVendorModal from '../features/vendors/modals/RejectVendorModal';
+import VendorConfirmModal from '../features/vendors/modals/VendorConfirmModal';
+import { useVendorDetailsStore } from '../features/vendors/store/useVendorDetailsStore';
+import {
+  Card,
+  StatCard,
+  getInitials,
+  containerVariants,
+  cardVariants,
+} from '../features/vendors/components/VendorDetailsCards';
 
 // ── Main component ──────────────────────────────────────────────────────────────
 
@@ -88,6 +38,21 @@ export default function VendorDetails() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+
+  const {
+    showSuspend,
+    showActivate,
+    showReject,
+    showApprove,
+    openSuspend,
+    closeSuspend,
+    openActivate,
+    closeActivate,
+    openReject,
+    closeReject,
+    openApprove,
+    closeApprove,
+  } = useVendorDetailsStore();
 
   const ORDER_STATUS_STYLES: Record<MockOrder['status'], { label: string; className: string }> = useMemo(
     () => ({
@@ -109,45 +74,160 @@ export default function VendorDetails() {
     [t]
   );
 
-  const vendors = useVendorStore((s) => s.vendors);
-  const suspendVendor = useVendorStore((s) => s.suspendVendor);
-  const activateVendor = useVendorStore((s) => s.activateVendor);
-
   const vendorId = id ?? '';
-  const vendor = vendors.find((v) => v.id === vendorId);
+  const { data: vendor, isLoading, isError } = useVendorDetails(vendorId);
 
-  const [showSuspend, setShowSuspend] = useState(false);
-  const [showActivate, setShowActivate] = useState(false);
+  const approveMutation = useApproveVendor();
+  const rejectMutation = useRejectVendor();
+  const deactivateMutation = useDeactivateVendor();
+  const reactivateMutation = useReactivateVendor();
 
   const orders: MockOrder[] = VENDOR_MOCK_ORDERS[vendorId as unknown as keyof typeof VENDOR_MOCK_ORDERS] ?? [];
   const products: MockProduct[] = VENDOR_MOCK_PRODUCTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PRODUCTS] ?? [];
   const payouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PAYOUTS] ?? [];
 
-  if (!vendor) {
+  if (isLoading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
-        <p className="text-gray-500 text-sm">{t('vendors.details.vendorNotFound')}</p>
+        <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-500 text-sm">{t('vendors.details.loading', 'Loading vendor details...')}</p>
+      </div>
+    );
+  }
+
+  if (isError || !vendor) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
+        <p className="text-gray-500 text-sm">{t('vendors.details.vendorNotFound', 'Vendor not found')}</p>
         <button
           onClick={() => navigate('/vendors')}
           className="text-sm underline text-gray-600 cursor-pointer"
         >
-          {t('vendors.details.backToVendors')}
+          {t('vendors.details.backToVendors', 'Back to Vendors')}
         </button>
       </div>
     );
   }
 
   const initials = getInitials(vendor.businessName);
-  const isActive = vendor.active !== false;
+  const rawStatus = vendor.rawStatus
+    ? String(vendor.rawStatus).toUpperCase()
+    : vendor.active
+    ? 'ACTIVE'
+    : 'PENDING_APPROVAL';
 
-  const handleSuspendConfirm = (reason: string) => {
-    suspendVendor(vendorId, reason);
-    setShowSuspend(false);
+  const isRejected = rawStatus === 'REJECTED';
+
+  const renderHeaderActions = () => {
+    switch (rawStatus) {
+      case 'PENDING_APPROVAL':
+      case 'PENDING':
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => openReject()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 text-red-600 bg-white text-sm font-medium hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              {t('vendors.table.reject', 'Reject')}
+            </button>
+            <button
+              type="button"
+              onClick={() => openApprove()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-700 text-white text-sm font-semibold hover:bg-green-800 transition-colors cursor-pointer"
+            >
+              {t('vendors.table.accept', 'Accept')}
+            </button>
+          </div>
+        );
+
+      case 'ACTIVE':
+      case 'APPROVED':
+        return (
+          <button
+            type="button"
+            onClick={() => openSuspend()}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 text-red-600 bg-white text-sm font-medium hover:bg-red-50 transition-colors cursor-pointer"
+          >
+            {t('vendors.details.suspend', 'Suspend')}
+          </button>
+        );
+
+      case 'DEACTIVATED':
+      case 'SUSPENDED':
+        return (
+          <button
+            type="button"
+            onClick={() => openActivate()}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-green-200 text-green-700 bg-white text-sm font-medium hover:bg-green-50 transition-colors cursor-pointer"
+          >
+            {t('vendors.details.activate', 'Activate')}
+          </button>
+        );
+
+      case 'REJECTED':
+        return (
+          <span className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg">
+            {t('vendors.details.rejectedNotice', 'Vendor is rejected')}
+          </span>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const renderStatusBadge = () => {
+    switch (rawStatus) {
+      case 'ACTIVE':
+      case 'APPROVED':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700">
+            {t('vendors.details.statusActive', 'Active')}
+          </span>
+        );
+      case 'PENDING_APPROVAL':
+      case 'PENDING':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700">
+            {t('vendors.details.statusPending', 'Pending Approval')}
+          </span>
+        );
+      case 'DEACTIVATED':
+      case 'SUSPENDED':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
+            {t('vendors.details.statusDeactivated', 'Deactivated')}
+          </span>
+        );
+      case 'REJECTED':
+      default:
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
+            {t('vendors.details.statusRejected', 'Rejected')}
+          </span>
+        );
+    }
+  };
+
+  const handleSuspendConfirm = (_reason: string) => {
+    deactivateMutation.mutate(vendorId);
+    closeSuspend();
   };
 
   const handleActivateConfirm = () => {
-    activateVendor(vendorId);
-    setShowActivate(false);
+    reactivateMutation.mutate(vendorId);
+    closeActivate();
+  };
+
+  const handleRejectConfirm = (reason: string) => {
+    rejectMutation.mutate({ id: vendorId, reason });
+    closeReject();
+  };
+
+  const handleApproveConfirm = () => {
+    approveMutation.mutate(vendorId);
+    closeApprove();
   };
 
   return (
@@ -168,22 +248,8 @@ export default function VendorDetails() {
           </span>
         </div>
 
-        {/* Single action button: Suspend or Activate */}
-        {isActive ? (
-          <button
-            onClick={() => setShowSuspend(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 text-red-600 bg-white text-sm font-medium hover:bg-red-50 transition-colors"
-          >
-            {t('vendors.details.suspendVendor')}
-          </button>
-        ) : (
-          <button
-            onClick={() => setShowActivate(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-green-200 text-green-700 bg-white text-sm font-medium hover:bg-green-50 transition-colors"
-          >
-            {t('vendors.details.activateVendor', 'Activate Vendor')}
-          </button>
-        )}
+        {/* Action button(s) */}
+        {renderHeaderActions()}
       </div>
 
       {/* ── Scrollable content ── */}
@@ -194,6 +260,24 @@ export default function VendorDetails() {
         animate="show"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
+        {/* Rejected Alert Banner */}
+        {isRejected && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex items-start gap-3">
+            <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
+            <div>
+              <h3 className="text-sm font-bold text-red-800">
+                {t('vendors.details.rejectedNotice', 'Vendor is rejected')}
+              </h3>
+              {vendor.rejectionReason && (
+                <p className="text-xs text-red-700 mt-1">
+                  <span className="font-semibold">{t('vendors.details.reason', 'Reason')}: </span>
+                  {vendor.rejectionReason}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── Vendor header card ── */}
         <Card className="p-5 mb-4">
           <div className="flex items-start gap-4">
@@ -206,18 +290,8 @@ export default function VendorDetails() {
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
                   {vendor.category}
                 </span>
-                {/* Active/Inactive badge */}
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                    isActive
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-50 text-red-600'
-                  }`}
-                >
-                  {isActive
-                    ? t('vendors.details.statusActive', 'Active')
-                    : t('vendors.details.statusInactive', 'Inactive')}
-                </span>
+                {/* Status badge */}
+                {renderStatusBadge()}
               </div>
               <h1 className="text-xl font-bold text-gray-900 leading-tight">
                 {vendor.businessName}
@@ -654,17 +728,35 @@ export default function VendorDetails() {
       </motion.div>
 
       {/* ── Modals ── */}
-      <SuspendVendorModal
+      <VendorConfirmModal
         isOpen={showSuspend}
+        type="deactivate"
+        count={1}
         vendorName={vendor.businessName}
         onConfirm={handleSuspendConfirm}
-        onCancel={() => setShowSuspend(false)}
+        onCancel={closeSuspend}
       />
-      <ActivateVendorModal
+      <VendorConfirmModal
         isOpen={showActivate}
+        type="reactivate"
+        count={1}
         vendorName={vendor.businessName}
         onConfirm={handleActivateConfirm}
-        onCancel={() => setShowActivate(false)}
+        onCancel={closeActivate}
+      />
+      <RejectVendorModal
+        isOpen={showReject}
+        vendorName={vendor.businessName}
+        onConfirm={handleRejectConfirm}
+        onCancel={closeReject}
+      />
+      <VendorConfirmModal
+        isOpen={showApprove}
+        type="approve"
+        count={1}
+        vendorName={vendor.businessName}
+        onConfirm={handleApproveConfirm}
+        onCancel={closeApprove}
       />
     </>
   );

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Vendor, VendorTab, ActiveFilter } from '../types/vendors';
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 20;
 
 export type FilterColumn =
   | 'all'

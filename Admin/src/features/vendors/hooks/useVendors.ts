@@ -2,12 +2,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   getVendors,
+  getVendorById,
   approveVendor,
   rejectVendor,
   deactivateVendor,
   reactivateVendor,
 } from '../../../services/vendors';
-import { mapBackendVendorToVendor } from '../utils/vendorMapper';
+import {
+  mapBackendVendorToVendor,
+  mapBackendVendorDetailToVendor,
+} from '../utils/vendorMapper';
 
 export function useVendors(status?: string) {
   return useQuery({
@@ -16,10 +20,23 @@ export function useVendors(status?: string) {
       const data = await getVendors({ status });
       return data.map(mapBackendVendorToVendor);
     },
-    retry:2 , 
+    retry: 2,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+  });
+}
+
+export function useVendorDetails(id: string) {
+  return useQuery({
+    queryKey: ['vendor', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const data = await getVendorById(id);
+      return mapBackendVendorDetailToVendor(data);
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -30,6 +47,7 @@ export function useApproveVendor() {
     mutationFn: (id: string) => approveVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success('Vendor approved successfully');
     },
     onError: (error: Error) => {
@@ -46,6 +64,7 @@ export function useRejectVendor() {
       rejectVendor(id, { reason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success('Vendor rejected successfully');
     },
     onError: (error: Error) => {
@@ -61,6 +80,7 @@ export function useDeactivateVendor() {
     mutationFn: (id: string) => deactivateVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success('Vendor deactivated successfully');
     },
     onError: (error: Error) => {
@@ -76,6 +96,7 @@ export function useReactivateVendor() {
     mutationFn: (id: string) => reactivateVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success('Vendor reactivated successfully');
     },
     onError: (error: Error) => {

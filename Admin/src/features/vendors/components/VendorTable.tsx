@@ -135,25 +135,25 @@ export default function VendorTable() {
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
   const openConfirm = (type: ModalType, ids: string[], vendorName?: string) => {
+    const vName =
+      vendorName ??
+      (ids.length === 1
+        ? fetchedVendors.find((v) => v.id === ids[0])?.businessName
+        : `${ids.length} Vendors`);
+
     if (type === 'reject') {
       setRejectModal({
-        isOpen: true,
-        ids,
-        vendorName: vendorName ?? (ids.length > 1 ? `${ids.length} Vendors` : ''),
-      });
-    } else if (type === 'deactivate') {
-      const vName =
-        vendorName ??
-        (ids.length === 1
-          ? fetchedVendors.find((v) => v.id === ids[0])?.businessName
-          : `${ids.length} Vendors`);
-      setSuspendModal({
         isOpen: true,
         ids,
         vendorName: vName ?? '',
       });
     } else {
-      setConfirmModal({ isOpen: true, type, ids, vendorName });
+      setConfirmModal({
+        isOpen: true,
+        type,
+        ids,
+        vendorName: vName ?? '',
+      });
     }
   };
 

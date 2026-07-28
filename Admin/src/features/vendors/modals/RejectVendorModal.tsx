@@ -24,8 +24,10 @@ export default function RejectVendorModal({
   const hasError = touched && reason.trim() === '';
 
   const handleConfirm = () => {
-    setTouched(true);
-    if (!reason.trim()) return;
+    if (reason.trim() === '') {
+      setTouched(true);
+      return;
+    }
     onConfirm(reason.trim());
     setReason('');
     setTouched(false);

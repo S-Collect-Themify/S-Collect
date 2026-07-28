@@ -11,6 +11,21 @@ export interface BackendVendor {
   createdAt?: string;
 }
 
+export interface BackendVendorDetail {
+  id: string;
+  commissionRate?: number | null;
+  firstName: string;
+  lastName: string;
+  storeName: string;
+  storeDescription?: string | null;
+  commercialRegisterNumber: string;
+  status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
+  isFeatured?: boolean;
+  approvedAt?: string | null;
+  rejectionReason?: string | null;
+  createdAt?: string;
+}
+
 export interface GetVendorsParams {
   status?: string;
 }
@@ -65,6 +80,18 @@ export async function getVendors(params?: GetVendorsParams): Promise<BackendVend
   });
 
   return rawVendors;
+}
+
+/**
+ * Fetch single vendor details by ID GET /api/v1/admin/vendors/{id}
+ */
+export async function getVendorById(id: string): Promise<BackendVendorDetail> {
+  const response = await api.get(`/admin/vendors/${id}`);
+  const resData = response.data;
+  if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+    return resData.data as BackendVendorDetail;
+  }
+  return resData as BackendVendorDetail;
 }
 
 /**
