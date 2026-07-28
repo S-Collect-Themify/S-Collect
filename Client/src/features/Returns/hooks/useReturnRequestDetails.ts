@@ -29,10 +29,14 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
   }, [decodedId]);
 
   // Fetch refund detail first, or fallback to sub-order details
-  const { data: refundDetail, isLoading: isRefundLoading } = useQuery({
+  const {
+    data: refundDetail,
+    isLoading: isRefundLoading,
+    isError: isRefundError,
+  } = useQuery({
     queryKey: ['vendor-refund-detail', rawId],
     queryFn: () => getRefundDetail(rawId),
-    enabled: isUuid,
+    enabled: Boolean(rawId),
     staleTime: 10_000,
     retry: false,
   });
@@ -40,11 +44,12 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
   const { data: subDetail, isLoading: isSubLoading } = useQuery({
     queryKey: ['returnRequestDetails', rawId],
     queryFn: () => getVendorSubOrderDetails(rawId),
-    enabled: isUuid && !refundDetail,
+    enabled: Boolean(rawId) && isRefundError,
     staleTime: 10_000,
+    retry: false,
   });
 
-  const isLoading = isRefundLoading && isSubLoading;
+  const isLoading = isRefundError ? isSubLoading : isRefundLoading;
 
   // Mutator for approving or rejecting return/refund status
   const updateStatusMutation = useMutation({
@@ -59,7 +64,9 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         try {
           return await approveRefund(rawId, { note: internalNote });
         } catch {
-          return await updateVendorSubOrderStatus(rawId, { status: 'DELIVERED' });
+          return await updateVendorSubOrderStatus(rawId, {
+            status: 'DELIVERED',
+          });
         }
       } else {
         try {
@@ -72,7 +79,10 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         }
       }
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
+      if (res) {
+        queryClient.setQueryData(['vendor-refund-detail', rawId], res);
+      }
       queryClient.invalidateQueries({
         queryKey: ['vendor-refund-detail', rawId],
       });
@@ -86,6 +96,19 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
 
   // Map refundDetail or subDetail to ReturnItem
   const item = useMemo<ReturnItem | null>(() => {
+    const statusMap: Record<string, ReturnItem['status']> = {
+      PENDING: 'PENDING_REVIEW',
+      PENDING_REVIEW: 'PENDING_REVIEW',
+      APPROVED: 'APPROVED',
+      ACCEPT: 'APPROVED',
+      ACCEPTED: 'APPROVED',
+      REJECTED: 'REJECTED',
+      DECLINED: 'REJECTED',
+      PROCESSED: 'COMPLETED',
+      COMPLETED: 'COMPLETED',
+      DELIVERED: 'COMPLETED',
+    };
+
     if (refundDetail) {
       const firstItem = refundDetail.items?.[0] || ({} as any);
       const custName =
@@ -101,13 +124,57 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
           .filter(Boolean)
           .join(', ') || '';
 
-      const statusMap: Record<string, ReturnItem['status']> = {
-        PENDING: 'PENDING_REVIEW',
-        APPROVED: 'APPROVED',
-        REJECTED: 'REJECTED',
-        PROCESSED: 'COMPLETED',
-        COMPLETED: 'COMPLETED',
-      };
+      const rawStatusUpper = (refundDetail.status || '').toUpperCase();
+      const currentStatus = statusMap[rawStatusUpper] || 'PENDING_REVIEW';
+
+      const reqDateFormatted = new Date(refundDetail.createdAt).toLocaleDateString(
+        'en-US',
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }
+      );
+
+      const isApproved = currentStatus === 'APPROVED' || currentStatus === 'COMPLETED';
+      const isRejected = currentStatus === 'REJECTED';
+      const isCompleted = currentStatus === 'COMPLETED';
+
+      const timeline = [
+        {
+          title: 'Return Request Submitted',
+          date: reqDateFormatted,
+          subtext: 'Customer submitted a return request',
+          completed: true,
+          active: false,
+        },
+        {
+          title: isRejected
+            ? 'Return Request Rejected'
+            : isApproved
+              ? 'Return Request Approved'
+              : 'Pending Vendor Review',
+          date: isApproved || isRejected ? 'Recorded' : '',
+          subtext: isRejected
+            ? refundDetail.rejectionReason || 'Request rejected by vendor'
+            : isApproved
+              ? 'Vendor approved the request'
+              : 'Waiting for vendor review',
+          completed: isApproved || isRejected,
+          active: currentStatus === 'PENDING_REVIEW',
+        },
+        {
+          title: 'Refund Processing',
+          date: isCompleted ? 'Completed' : '',
+          subtext: isCompleted
+            ? 'Refund issued to customer'
+            : isRejected
+              ? 'No refund processed'
+              : 'Pending admin refund processing',
+          completed: isCompleted,
+          active: isApproved && !isCompleted,
+        },
+      ];
 
       return {
         id: `#RET-${refundDetail.id.slice(0, 8).toUpperCase()}`,
@@ -121,23 +188,18 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         productVariant: firstItem.variantLabelSnapshot || 'Default',
         productQty: 1,
         productPrice: `SAR ${(firstItem.refundAmount || refundDetail.totalRefundAmount || 0).toFixed(2)}`,
-        productImage: firstItem.thumbnailUrl || refundDetail.imageUrls?.[0] || '',
+        productImage:
+          firstItem.thumbnailUrl || refundDetail.imageUrls?.[0] || '',
         reason:
           firstItem.reason ||
-          refundDetail.rejectionReason ||
-          'Damaged / Defective',
-        requestedDate: new Date(refundDetail.createdAt).toLocaleDateString(
-          'en-US',
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          }
-        ),
-        status: statusMap[refundDetail.status] || 'PENDING_REVIEW',
+          'DAMAGED_DEFECTIVE',
+        rejectionReason: refundDetail.rejectionReason || undefined,
+        requestedDate: reqDateFormatted,
+        status: currentStatus,
         rawId: refundDetail.id,
         rawStatus: refundDetail.status,
         uploadedImages: refundDetail.imageUrls || [],
+        timeline,
       };
     }
 
@@ -151,6 +213,23 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         orderObj?.customerName ||
         (subDetail as any).customerName ||
         'Customer';
+
+      const rawStatusUpper = (subDetail.status || '').toUpperCase();
+      const currentStatus =
+        rawStatusUpper === 'DELIVERED'
+          ? 'COMPLETED'
+          : rawStatusUpper === 'CANCELLED'
+            ? 'REJECTED'
+            : statusMap[rawStatusUpper] || 'PENDING_REVIEW';
+
+      const reqDateFormatted = new Date(subDetail.createdAt).toLocaleDateString(
+        'en-US',
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }
+      );
 
       return {
         id: `#RET-${subDetail.id.slice(0, 8).toUpperCase()}`,
@@ -170,23 +249,10 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         productVariant: firstProduct.variantLabel || 'Default',
         productQty: firstProduct.quantity || 1,
         productPrice: `SAR ${(firstProduct.unitPrice || firstProduct.lineTotal || 0).toFixed(2)}`,
-        productImage:
-          firstProduct.productImage || firstProduct.imageUrl || '',
+        productImage: firstProduct.productImage || firstProduct.imageUrl || '',
         reason: subDetail.statusOverrideReason || "Item doesn't fit",
-        requestedDate: new Date(subDetail.createdAt).toLocaleDateString(
-          'en-US',
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          }
-        ),
-        status:
-          subDetail.status === 'DELIVERED'
-            ? 'COMPLETED'
-            : subDetail.status === 'CANCELLED'
-              ? 'REJECTED'
-              : 'PENDING_REVIEW',
+        requestedDate: reqDateFormatted,
+        status: currentStatus,
         rawId: subDetail.id,
         rawStatus: subDetail.status,
       };
@@ -197,14 +263,22 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
 
   const handleApprove = async () => {
     setShowApproveModal(false);
-    toast.success('Return Request Approved successfully');
-    updateStatusMutation.mutate({ status: 'APPROVED' });
+    try {
+      await updateStatusMutation.mutateAsync({ status: 'APPROVED' });
+      toast.success('Return Request Approved successfully');
+    } catch {
+      toast.error('Failed to approve return request');
+    }
   };
 
   const handleReject = async (reason: string) => {
     setShowRejectModal(false);
-    toast.success(`Return Request Rejected: ${reason || 'Decision recorded'}`);
-    updateStatusMutation.mutate({ status: 'REJECTED', reason });
+    try {
+      await updateStatusMutation.mutateAsync({ status: 'REJECTED', reason });
+      toast.success(`Return Request Rejected: ${reason || 'Decision recorded'}`);
+    } catch {
+      toast.error('Failed to reject return request');
+    }
   };
 
   return {

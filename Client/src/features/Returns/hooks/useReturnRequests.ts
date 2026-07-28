@@ -46,6 +46,21 @@ export function useReturnRequests() {
   const allItems: ReturnItem[] = useMemo(() => {
     const itemsList: ReturnItem[] = [];
 
+    const statusMap: Record<string, ReturnItem['status']> = {
+      PENDING: 'PENDING_REVIEW',
+      PENDING_REVIEW: 'PENDING_REVIEW',
+      APPROVED: 'APPROVED',
+      ACCEPT: 'APPROVED',
+      ACCEPTED: 'APPROVED',
+      REJECTED: 'REJECTED',
+      DECLINED: 'REJECTED',
+      CANCELLED: 'REJECTED',
+      PROCESSED: 'COMPLETED',
+      COMPLETED: 'COMPLETED',
+      DELIVERED: 'COMPLETED',
+      SHIPPED: 'AWAITING_ITEM',
+    };
+
     // 1. Process refunds from /vendor/refunds (Primary source for refunds)
     if (refundsData?.items && Array.isArray(refundsData.items)) {
       refundsData.items.forEach((rf) => {
@@ -59,14 +74,6 @@ export function useReturnRequests() {
               year: 'numeric',
             });
 
-        const statusMap: Record<string, ReturnItem['status']> = {
-          PENDING: 'PENDING_REVIEW',
-          APPROVED: 'APPROVED',
-          REJECTED: 'REJECTED',
-          PROCESSED: 'COMPLETED',
-          COMPLETED: 'COMPLETED',
-        };
-
         const custName =
           [rf.customer?.firstName, rf.customer?.lastName]
             .filter(Boolean)
@@ -76,6 +83,9 @@ export function useReturnRequests() {
           [rf.shipping?.shippingStreetAddress, rf.shipping?.shippingCity]
             .filter(Boolean)
             .join(', ') || '';
+
+        const rawStatusUpper = (rf.status || '').toUpperCase();
+        const mappedStatus = statusMap[rawStatusUpper] || 'PENDING_REVIEW';
 
         itemsList.push({
           id: `#RET-${rf.id.slice(0, 8).toUpperCase()}`,
@@ -90,9 +100,10 @@ export function useReturnRequests() {
           productQty: 1,
           productPrice: `SAR ${(firstItem.refundAmount || rf.totalRefundAmount || 0).toFixed(2)}`,
           productImage: firstItem.thumbnailUrl || rf.imageUrls?.[0] || '',
-          reason: firstItem.reason || rf.rejectionReason || 'Refund Request',
+          reason: firstItem.reason || 'Refund Request',
+          rejectionReason: rf.rejectionReason || undefined,
           requestedDate: formattedDate,
-          status: statusMap[rf.status] || 'PENDING_REVIEW',
+          status: mappedStatus,
           createdAt: rf.createdAt,
           rawId: rf.id,
           rawStatus: rf.status,
@@ -118,14 +129,6 @@ export function useReturnRequests() {
               day: 'numeric',
               year: 'numeric',
             });
-
-        const statusMap: Record<string, ReturnItem['status']> = {
-          PENDING: 'PENDING_REVIEW',
-          PROCESSING: 'PENDING_REVIEW',
-          SHIPPED: 'AWAITING_ITEM',
-          DELIVERED: 'COMPLETED',
-          CANCELLED: 'REJECTED',
-        };
 
         // Resolve product image URL defensively
         let productImage = '';
@@ -169,6 +172,9 @@ export function useReturnRequests() {
           (sub as any).customerName ||
           `Customer #${idx + 1}`;
 
+        const rawStatusUpper = (sub.status || '').toUpperCase();
+        const mappedStatus = statusMap[rawStatusUpper] || 'PENDING_REVIEW';
+
         itemsList.push({
           id: `#RET-${sub.id.slice(0, 8).toUpperCase()}`,
           orderId: `#ORD-${sub.orderId.slice(0, 8).toUpperCase()}`,
@@ -185,7 +191,7 @@ export function useReturnRequests() {
           productImage,
           reason: sub.statusOverrideReason || "Item doesn't fit",
           requestedDate: formattedDate,
-          status: statusMap[sub.status] || 'PENDING_REVIEW',
+          status: mappedStatus,
           createdAt: sub.createdAt,
           rawId: sub.id,
           rawStatus: sub.status,
@@ -282,24 +288,28 @@ export function useReturnRequests() {
       status: string;
       reason?: string;
     }) => {
-      const rawId = id.replace('#RET-', '').toLowerCase();
+      const matched = allItems.find(
+        (it) => it.id === id || it.rawId === id
+      );
+      const targetId = matched?.rawId || id.replace('#RET-', '');
+
       if (status === 'APPROVED' || status === 'DELIVERED') {
         try {
-          return await approveRefund(rawId);
+          return await approveRefund(targetId);
         } catch {
-          return await updateVendorSubOrderStatus(rawId, { status: 'DELIVERED' });
+          return await updateVendorSubOrderStatus(targetId, { status: 'DELIVERED' });
         }
       } else if (status === 'REJECTED' || status === 'CANCELLED') {
         try {
-          return await rejectRefund(rawId, { reason });
+          return await rejectRefund(targetId, { reason });
         } catch {
-          return await updateVendorSubOrderStatus(rawId, {
+          return await updateVendorSubOrderStatus(targetId, {
             status: 'CANCELLED',
             trackingNumber: reason,
           });
         }
       }
-      return updateVendorSubOrderStatus(rawId, {
+      return updateVendorSubOrderStatus(targetId, {
         status,
         trackingNumber: reason,
       });
