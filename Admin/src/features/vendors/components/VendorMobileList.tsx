@@ -15,7 +15,7 @@ interface VendorMobileListProps {
   toggleRow: (id: string) => void;
   activeTab: VendorTab;
   openConfirm: (type: ModalType, ids: string[], vendorName?: string) => void;
-  toggleVendorActive: (id: string) => void;
+  toggleVendorActive?: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -28,7 +28,6 @@ export default function VendorMobileList({
   toggleRow,
   activeTab,
   openConfirm,
-  toggleVendorActive,
   isLoading,
 }: VendorMobileListProps) {
   const { t } = useTranslation();

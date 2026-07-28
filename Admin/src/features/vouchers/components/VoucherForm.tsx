@@ -347,7 +347,7 @@ export const VoucherForm = ({
             rules={{
               validate: (val) => {
                 if (Array.isArray(val) && val.length > 0) return true;
-                if (typeof val === 'string' && val.trim().length > 0) return true;
+                if (typeof val === 'string' && (val as string).trim().length > 0) return true;
                 return t('vouchersListing.form.errors.categoryRequired');
               },
             }}

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, Phone, Mail, MapPin, Hash, AlertTriangle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
@@ -18,8 +18,6 @@ import {
   type MockProduct,
   type MockPayout,
 } from '../features/vendors/data/constant';
-import SuspendVendorModal from '../features/vendors/modals/SuspendVendorModal';
-import ActivateVendorModal from '../features/vendors/modals/ActivateVendorModal';
 import RejectVendorModal from '../features/vendors/modals/RejectVendorModal';
 import VendorConfirmModal from '../features/vendors/modals/VendorConfirmModal';
 import { useVendorDetailsStore } from '../features/vendors/store/useVendorDetailsStore';
@@ -182,35 +180,94 @@ export default function VendorDetails() {
       case 'ACTIVE':
       case 'APPROVED':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-600 border border-emerald-100/60">
             {t('vendors.details.statusActive', 'Active')}
           </span>
         );
       case 'PENDING_APPROVAL':
       case 'PENDING':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-100">
             {t('vendors.details.statusPending', 'Pending Approval')}
           </span>
         );
       case 'DEACTIVATED':
       case 'SUSPENDED':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-600 border border-red-100">
             {t('vendors.details.statusDeactivated', 'Deactivated')}
           </span>
         );
       case 'REJECTED':
       default:
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-600 border border-red-100">
             {t('vendors.details.statusRejected', 'Rejected')}
           </span>
         );
     }
   };
 
-  const handleSuspendConfirm = (_reason: string) => {
+  const renderMobileHeaderActions = () => {
+    switch (rawStatus) {
+      case 'PENDING_APPROVAL':
+      case 'PENDING':
+        return (
+          <div className="flex items-center gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={() => openReject()}
+              className="flex-1 py-2.5 rounded-xl border border-red-200 text-red-600 bg-white text-xs font-semibold hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              {t('vendors.table.reject', 'Reject')}
+            </button>
+            <button
+              type="button"
+              onClick={() => openApprove()}
+              className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-semibold hover:bg-black transition-colors cursor-pointer"
+            >
+              {t('vendors.table.accept', 'Accept')}
+            </button>
+          </div>
+        );
+
+      case 'ACTIVE':
+      case 'APPROVED':
+        return (
+          <button
+            type="button"
+            onClick={() => openSuspend()}
+            className="w-full py-2.5 rounded-xl border border-red-200 text-red-600 bg-white text-xs font-semibold hover:bg-red-50 transition-colors cursor-pointer text-center"
+          >
+            {t('vendors.details.suspend', 'Suspend')}
+          </button>
+        );
+
+      case 'DEACTIVATED':
+      case 'SUSPENDED':
+        return (
+          <button
+            type="button"
+            onClick={() => openActivate()}
+            className="w-full py-2.5 rounded-xl border border-green-200 text-green-700 bg-white text-xs font-semibold hover:bg-green-50 transition-colors cursor-pointer text-center"
+          >
+            {t('vendors.details.activate', 'Activate')}
+          </button>
+        );
+
+      case 'REJECTED':
+        return (
+          <div className="w-full text-center py-2 px-3 bg-red-50 border border-red-200 rounded-xl text-xs font-semibold text-red-600">
+            {t('vendors.details.rejectedNotice', 'Vendor is rejected')}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const handleSuspendConfirm = () => {
     deactivateMutation.mutate(vendorId);
     closeSuspend();
   };
@@ -232,24 +289,44 @@ export default function VendorDetails() {
 
   return (
     <>
-      {/* ── Page header ── */}
+      {/* ── Desktop Page header ── */}
       <div
-        className="sidebar-page-container flex items-center justify-between mb-6 bg-gray-50"
+        className="hidden md:flex sidebar-page-container items-center justify-between mb-6 bg-gray-50"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 py-5 text-sm text-gray-500">
           <Link to="/vendors" className="hover:text-gray-700 transition-colors">
-            {t('vendors.details.breadcrumbParent')}
+            {t('vendors.details.breadcrumbParent', 'Vendor Management')}
           </Link>
           <ChevronRight size={14} className="text-gray-400 shrink-0" />
           <span className="text-gray-900 font-medium">
-            {t('vendors.details.breadcrumbCurrent')}
+            {t('vendors.details.breadcrumbCurrent', 'Vendor Details')}
           </span>
         </div>
 
         {/* Action button(s) */}
         {renderHeaderActions()}
+      </div>
+
+      {/* ── Mobile Page Header ── */}
+      <div className="md:hidden flex flex-col gap-1 pb-3 pt-2 px-4 bg-gray-50 border-b border-gray-100 mb-4" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <button
+            onClick={() => navigate('/vendors')}
+            className="p-1 -ms-1 text-gray-700 hover:text-gray-900 cursor-pointer"
+            aria-label="Back to vendors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <Link to="/vendors" className="hover:text-gray-700 transition-colors font-medium">
+            {t('vendors.details.breadcrumbParent', 'Vendor Management')}
+          </Link>
+          <ChevronRight size={12} className="text-gray-400 shrink-0" />
+        </div>
+        <h1 className="text-xl font-bold text-gray-900 ms-7">
+          {t('vendors.details.breadcrumbCurrent', 'Vendor Details')}
+        </h1>
       </div>
 
       {/* ── Scrollable content ── */}
@@ -278,73 +355,101 @@ export default function VendorDetails() {
           </div>
         )}
 
-        {/* ── Vendor header card ── */}
-        <Card className="p-5 mb-4">
+        {/* ── Mobile Top Vendor Card ── */}
+        <div className="md:hidden bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-2xs">
+          <div className="flex items-start gap-3">
+            <div className="w-14 h-14 rounded-xl border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-base shrink-0 overflow-hidden">
+              {initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base font-bold text-gray-900 truncate">
+                  {vendor.businessName}
+                </h2>
+                {renderStatusBadge()}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                {vendor.category}
+                {(vendor.joinedDate || vendor.submittedDate) && (
+                  <span> • Joined {vendor.joinedDate || vendor.submittedDate}</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Action buttons row */}
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            {renderMobileHeaderActions()}
+          </div>
+        </div>
+
+        {/* ── Desktop Vendor Header & Contact Info Card ── */}
+        <Card className="hidden md:block p-6 mb-5">
+          {/* Top vendor overview */}
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-full bg-gray-800 flex items-center justify-center text-white text-lg font-bold shrink-0">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-base shrink-0 overflow-hidden shadow-2xs">
               {initials}
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
-                  {vendor.category}
-                </span>
-                {/* Status badge */}
+              <div className="mb-1">
                 {renderStatusBadge()}
               </div>
-              <h1 className="text-xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-xl font-bold text-gray-900 leading-tight mb-1">
                 {vendor.businessName}
               </h1>
-              {vendor.joinedDate && (
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {t('vendors.details.joined')} {vendor.joinedDate}
-                </p>
-              )}
+              <p className="text-xs text-gray-400 mb-2">
+                {vendor.category}
+                {(vendor.joinedDate || vendor.submittedDate) && (
+                  <span> • Joined {vendor.joinedDate || vendor.submittedDate}</span>
+                )}
+              </p>
               {vendor.description && (
-                <p className="text-sm text-gray-500 mt-2 leading-relaxed line-clamp-2">
+                <p className="text-xs text-gray-500 leading-relaxed max-w-4xl">
                   {vendor.description}
                 </p>
               )}
             </div>
           </div>
-        </Card>
 
-        {/* ── Contact information ── */}
-        <Card className="p-5 mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">
-            {t('vendors.details.contactInfo')}
-          </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <Phone size={12} />
-                {t('vendors.details.phone')}
+          {/* Contact Information Section */}
+          <div className="pt-6 border-t border-gray-100 mt-6">
+            <h2 className="text-sm font-bold text-gray-900 mb-4">
+              {t('vendors.details.contactInfo', 'Contact Information')}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {t('vendors.details.owner', 'Owner')}
+                </p>
+                <p className="text-sm font-bold text-gray-900">{vendor.owner || '—'}</p>
               </div>
-              <p className="text-sm font-medium text-gray-800">{vendor.phone ?? '—'}</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <Mail size={12} />
-                {t('vendors.details.email')}
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {t('vendors.details.phone', 'Phone')}
+                </p>
+                <p className="text-sm font-bold text-gray-900">{vendor.phone || '—'}</p>
               </div>
-              <p className="text-sm font-medium text-gray-800 break-all">{vendor.email}</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <MapPin size={12} />
-                {t('vendors.details.location')}
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {t('vendors.details.email', 'Email')}
+                </p>
+                <p className="text-sm font-bold text-gray-900 break-all">{vendor.email}</p>
               </div>
-              <p className="text-sm font-medium text-gray-800">{vendor.location ?? '—'}</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                <Hash size={12} />
-                {t('vendors.details.taxId')}
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {t('vendors.details.location', 'Location')}
+                </p>
+                <p className="text-sm font-bold text-gray-900">{vendor.location || '—'}</p>
               </div>
-              <p className="text-sm font-medium text-gray-800 font-mono">
-                {vendor.taxId ?? '—'}
-              </p>
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {t('vendors.details.commercialRegister', 'Commercial Register')}
+                </p>
+                <p className="text-sm font-bold text-gray-900 font-mono">
+                  {vendor.taxId || '—'}
+                </p>
+              </div>
             </div>
           </div>
         </Card>
@@ -725,6 +830,31 @@ export default function VendorDetails() {
             )}
           </div>
         </Card>
+
+        {/* Mobile Contact Information Card */}
+        <div className="md:hidden bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-2xs">
+          <h2 className="text-sm font-bold text-gray-900 mb-3.5">
+            {t('vendors.details.contactInfo', 'Contact Information')}
+          </h2>
+          <div className="space-y-3 text-xs">
+            <div>
+              <p className="text-gray-400 mb-0.5">{t('vendors.details.owner', 'Owner')}</p>
+              <p className="font-semibold text-gray-900 text-sm">{vendor.owner || '—'}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 mb-0.5">{t('vendors.details.email', 'Email')}</p>
+              <p className="font-semibold text-gray-900 text-sm break-all">{vendor.email}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 mb-0.5">{t('vendors.details.phone', 'Phone')}</p>
+              <p className="font-semibold text-gray-900 text-sm">{vendor.phone || '—'}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 mb-0.5">{t('vendors.details.location', 'Location')}</p>
+              <p className="font-semibold text-gray-900 text-sm">{vendor.location || '—'}</p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* ── Modals ── */}

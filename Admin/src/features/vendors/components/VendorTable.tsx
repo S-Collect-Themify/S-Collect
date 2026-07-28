@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, Activity, type ChangeEvent } from 'react';
 import { ChevronDown, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useVendorStore, useVendorTable } from '../store/vendorStore';
@@ -33,7 +33,6 @@ export default function VendorTable() {
   const setSelectedCategory = useVendorStore((s) => s.setSelectedCategory);
   const setActiveFilter = useVendorStore((s) => s.setActiveFilter);
   const setPage = useVendorStore((s) => s.setPage);
-  const suspendVendor = useVendorStore((s) => s.suspendVendor);
   const toggleRow = useVendorStore((s) => s.toggleRow);
   const setSelectedRows = useVendorStore((s) => s.setSelectedRows);
   const clearSelection = useVendorStore((s) => s.clearSelection);
@@ -319,35 +318,64 @@ export default function VendorTable() {
         )}
       </div>
 
-      {/* Desktop Table View */}
-      <VendorDesktopTable
-        paginated={paginated}
-        tableHeaders={tableHeaders}
-        colSpan={colSpan}
-        allChecked={allChecked}
-        toggleAll={toggleAll}
-        selectedRows={selectedRows}
-        toggleRow={toggleRow}
-        activeTab={activeTab}
-        isAllTab={isAllTab}
-        openConfirm={openConfirm}
-        toggleVendorActive={handleToggleVendorActive}
-        isLoading={isLoading}
-      />
+      {/* Tab Panels wrapped with React 19 Activity component */}
+      <Activity mode={activeTab === 'pending' ? 'visible' : 'hidden'}>
+        <VendorDesktopTable
+          paginated={paginated}
+          tableHeaders={tableHeaders}
+          colSpan={colSpan}
+          allChecked={allChecked}
+          toggleAll={toggleAll}
+          selectedRows={selectedRows}
+          toggleRow={toggleRow}
+          activeTab={activeTab}
+          isAllTab={isAllTab}
+          openConfirm={openConfirm}
+          toggleVendorActive={handleToggleVendorActive}
+          isLoading={isLoading}
+        />
+        <VendorMobileList
+          paginated={paginated}
+          allChecked={allChecked}
+          toggleAll={toggleAll}
+          selectedCount={selectedCount}
+          selectedRows={selectedRows}
+          toggleRow={toggleRow}
+          activeTab={activeTab}
+          openConfirm={openConfirm}
+          toggleVendorActive={handleToggleVendorActive}
+          isLoading={isLoading}
+        />
+      </Activity>
 
-      {/* Mobile Card List View */}
-      <VendorMobileList
-        paginated={paginated}
-        allChecked={allChecked}
-        toggleAll={toggleAll}
-        selectedCount={selectedCount}
-        selectedRows={selectedRows}
-        toggleRow={toggleRow}
-        activeTab={activeTab}
-        openConfirm={openConfirm}
-        toggleVendorActive={handleToggleVendorActive}
-        isLoading={isLoading}
-      />
+      <Activity mode={activeTab === 'all' ? 'visible' : 'hidden'}>
+        <VendorDesktopTable
+          paginated={paginated}
+          tableHeaders={tableHeaders}
+          colSpan={colSpan}
+          allChecked={allChecked}
+          toggleAll={toggleAll}
+          selectedRows={selectedRows}
+          toggleRow={toggleRow}
+          activeTab={activeTab}
+          isAllTab={isAllTab}
+          openConfirm={openConfirm}
+          toggleVendorActive={handleToggleVendorActive}
+          isLoading={isLoading}
+        />
+        <VendorMobileList
+          paginated={paginated}
+          allChecked={allChecked}
+          toggleAll={toggleAll}
+          selectedCount={selectedCount}
+          selectedRows={selectedRows}
+          toggleRow={toggleRow}
+          activeTab={activeTab}
+          openConfirm={openConfirm}
+          toggleVendorActive={handleToggleVendorActive}
+          isLoading={isLoading}
+        />
+      </Activity>
 
       {/* Pagination */}
       <VendorPagination

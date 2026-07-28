@@ -96,7 +96,7 @@ export default function ReturnRequestsPage() {
         orderId: `#ORD-${orderShortId}`,
         customerName,
         productTitle: firstProduct?.productNameSnapshot || 'Product Item',
-        productQty: firstProduct?.quantity || 1,
+        productQty: (firstProduct as any)?.quantity || 1,
         productPrice: `SAR ${(ref.totalRefundAmount || 0).toFixed(2)}`,
         productImage: typeof firstProduct?.thumbnailUrl === 'string' && firstProduct.thumbnailUrl
           ? firstProduct.thumbnailUrl

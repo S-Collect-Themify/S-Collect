@@ -75,7 +75,7 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
   let status: VendorStatus = 'pending';
   let active = false;
 
-  switch (rawStatus) {
+  switch (rawStatus as string) {
     case 'ACTIVE':
     case 'APPROVED':
       status = 'approved';
@@ -123,7 +123,7 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
     joinedDate,
     category: target.isFeatured ? 'Featured' : 'General',
     status,
-    rawStatus,
+    rawStatus: (rawStatus as Vendor['rawStatus']) || 'PENDING_APPROVAL',
     active,
     taxId: target.commercialRegisterNumber,
     description: target.storeDescription || undefined,
