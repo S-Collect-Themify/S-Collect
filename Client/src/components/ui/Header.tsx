@@ -6,6 +6,7 @@ import { Globe, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
+import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -88,6 +89,7 @@ const LanguageDropdown = () => {
 
 const Header = ({ onMenuClick }: HeaderProps) => {
   const { t, i18n } = useTranslation();
+  const { data: profile } = useStoreProfile();
 
   const today = new Date().toLocaleDateString(
     i18n.language === 'ar' ? 'ar-EG' : 'en-US',
@@ -99,7 +101,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     }
   );
 
-  const userName = 'Ahmed';
+  const storeDisplayName =
+    i18n.language === 'ar' && profile?.storeNameAr
+      ? profile.storeNameAr
+      : profile?.storeName || (i18n.language === 'ar' ? 'المتجر' : 'Store');
 
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
@@ -118,16 +123,24 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <Menu size={24} />
             </button>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <div className="sidebar:hidden block">
               <InputSearch />
             </div>
             <Link
-              to="/login"
-              className="inline-flex h-11 w-11 items-center justify-center text-gray-50 transition-colors"
-              aria-label="Account"
+              to="/settings"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full overflow-hidden border border-gray-700 bg-gray-800 text-gray-50 transition-colors shrink-0"
+              aria-label={t('header.account')}
             >
-              <User size={24} />
+              {profile?.storeLogoUrl ? (
+                <img
+                  src={profile.storeLogoUrl}
+                  alt={storeDisplayName}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <User size={20} />
+              )}
             </Link>
           </div>
         </div>
@@ -136,8 +149,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <div>
             <h1 className="text-2xl font-bold">
               {i18n.language === 'ar'
-                ? `مرحباً, ${userName} 👋`
-                : `Hello, ${userName} 👋`}
+                ? `مرحباً, ${storeDisplayName} 👋`
+                : `Hello, ${storeDisplayName} 👋`}
             </h1>
             <p className="text-sm text-gray-200">{today}</p>
           </div>
@@ -153,11 +166,19 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           </div>
 
           <Link
-            to="/login"
+            to="/settings"
             aria-label={t('header.account')}
-            className="hidden text-2xl hover:text-gray-300 sidebar:block focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
+            className="hidden sidebar:flex h-10 w-10 items-center justify-center rounded-full overflow-hidden border border-gray-700 bg-gray-800 text-gray-200 hover:border-gray-500 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white shrink-0"
           >
-            <User />
+            {profile?.storeLogoUrl ? (
+              <img
+                src={profile.storeLogoUrl}
+                alt={storeDisplayName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <User size={20} />
+            )}
           </Link>
         </div>
       </div>

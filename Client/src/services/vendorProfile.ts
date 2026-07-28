@@ -38,6 +38,7 @@ export interface BankInfoResponse {
 export const getVendorProfile = async (): Promise<VendorProfileApiResponse> => {
   try {
     const { data } = await api.get('/vendor/profile');
+    console.log('[Vendor Profile] GET /api/v1/vendor/profile response:', data);
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch vendor profile');
@@ -67,6 +68,7 @@ export const updateVendorProfile = async (
         'Content-Type': 'multipart/form-data',
       },
     });
+    console.log('[Vendor Profile] PATCH /api/v1/vendor/profile response:', data);
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to update vendor profile');
@@ -82,6 +84,7 @@ export const updateBankInfo = async (
 ): Promise<BankInfoResponse> => {
   try {
     const { data } = await api.patch('/vendor/profile/bank-info', payload);
+    console.log('[Vendor Profile] PATCH /api/v1/vendor/profile/bank-info response:', data);
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to update bank info');
