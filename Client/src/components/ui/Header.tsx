@@ -8,6 +8,8 @@ import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
 
+import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
+
 interface HeaderProps {
   onMenuClick: () => void;
 }
@@ -91,6 +93,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   const { t, i18n } = useTranslation();
   const { data: profile } = useStoreProfile();
 
+  const logoUrl = profile?.storeLogoUrl;
+  console.log('Header Logo URL:', logoUrl);
+  console.log('Full Profile:', profile);
+
   const today = new Date().toLocaleDateString(
     i18n.language === 'ar' ? 'ar-EG' : 'en-US',
     {
@@ -132,14 +138,14 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               className="inline-flex h-9 w-9 items-center justify-center rounded-full overflow-hidden border border-gray-700 bg-gray-800 text-gray-50 transition-colors shrink-0"
               aria-label={t('header.account')}
             >
-              {profile?.storeLogoUrl ? (
+              {logoUrl ? (
                 <img
-                  src={profile.storeLogoUrl}
-                  alt={storeDisplayName}
-                  className="h-full w-full object-cover"
+                  src={logoUrl}
+                  alt="Store Logo"
+                  className="h-8 w-8 rounded-full object-cover border border-white/20"
                 />
               ) : (
-                <User size={20} />
+                <User size={24} />
               )}
             </Link>
           </div>
@@ -170,14 +176,14 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             aria-label={t('header.account')}
             className="hidden sidebar:flex h-10 w-10 items-center justify-center rounded-full overflow-hidden border border-gray-700 bg-gray-800 text-gray-200 hover:border-gray-500 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white shrink-0"
           >
-            {profile?.storeLogoUrl ? (
+            {logoUrl ? (
               <img
-                src={profile.storeLogoUrl}
-                alt={storeDisplayName}
-                className="h-full w-full object-cover"
+                src={logoUrl}
+                alt="Store Logo"
+                className="h-7 w-7 rounded-full object-cover border border-white/20"
               />
             ) : (
-              <User size={20} />
+              <User />
             )}
           </Link>
         </div>

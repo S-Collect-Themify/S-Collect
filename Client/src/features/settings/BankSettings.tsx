@@ -5,6 +5,7 @@ import {
 } from 'react-hook-form';
 import { Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { mapServiceErrorsToForm } from './utils';
 
 export interface BankAccountFormValues {
   bankName: string;
@@ -14,8 +15,8 @@ export interface BankAccountFormValues {
 
 export interface BankAccountFormProps {
   defaultValues?: Partial<BankAccountFormValues>;
-  onSave?: (values: BankAccountFormValues) => void | Promise<void>;
-  isSubmitting?: boolean;
+  onSave?: (values: BankAccountFormValues) => Promise<void> | void;
+  isPending?: boolean;
 }
 
 const EMPTY_VALUES: BankAccountFormValues = {
@@ -63,7 +64,7 @@ function InputField({
           error
             ? 'border-red-400 text-red-600 focus:border-red-400'
             : 'border-gray-200 focus:border-gray-400'
-        }`}
+        } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
       />
 
       <p
@@ -78,7 +79,7 @@ function InputField({
 export default function BankAccountForm({
   defaultValues,
   onSave,
-  isSubmitting = false,
+  isPending = false,
 }: BankAccountFormProps) {
   const { t } = useTranslation();
   const {
@@ -86,9 +87,10 @@ export default function BankAccountForm({
     handleSubmit,
     reset,
     watch,
+    setError,
     formState: { errors, isDirty, isValid },
   } = useForm<BankAccountFormValues>({
-    defaultValues: {
+    values: {
       ...EMPTY_VALUES,
       ...defaultValues,
     },
@@ -99,10 +101,12 @@ export default function BankAccountForm({
 
   const onSubmit = async (data: BankAccountFormValues) => {
     try {
-      await onSave?.(data);
-      reset(data);
+      if (onSave) {
+        await onSave(data);
+      }
     } catch (err) {
-      console.error('Failed to save bank info:', err);
+      console.error('Submission error in BankAccountForm:', err);
+      mapServiceErrorsToForm(err, setError);
     }
   };
 
@@ -133,6 +137,7 @@ export default function BankAccountForm({
           label={t('settings.bank.bankName')}
           placeholder={t('settings.bank.bankNamePlaceholder')}
           hint={t('settings.bank.bankNameHint')}
+          disabled={isPending}
           registration={register('bankName')}
           disabled={isSubmitting}
         />
@@ -147,12 +152,16 @@ export default function BankAccountForm({
           id="iban"
           placeholder={t('settings.bank.ibanPlaceholder')}
           maxLength={IBAN_MAX_LENGTH}
-          disabled={isSubmitting}
+          disabled={isPending}
           {...register('iban', {
             required: t('settings.bank.ibanRequired'),
-            pattern: {
-              value: /^SA\d{22}$/,
-              message: t('settings.bank.ibanInvalid'),
+            validate: (value) => {
+              // If it's a masked IBAN (contains *), it's clean and unmodified, so it is valid
+              if (value.includes('*')) {
+                return true;
+              }
+              // Otherwise, it must match the pattern /^SA\d{22}$/
+              return /^SA\d{22}$/.test(value) || t('settings.bank.ibanInvalid');
             },
             setValueAs: (value: string) => value?.toUpperCase() || '',
           })}
@@ -160,7 +169,7 @@ export default function BankAccountForm({
             errors.iban
               ? 'border-red-400 text-red-600 focus:border-red-400'
               : 'border-gray-200 focus:border-gray-400'
-          }`}
+          } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
         />
 
         <div className="mt-1.5 flex items-center justify-between">
@@ -184,6 +193,7 @@ export default function BankAccountForm({
           label={t('settings.bank.accountHolderName')}
           placeholder={t('settings.bank.accountHolderPlaceholder')}
           hint={t('settings.bank.accountHolderHint')}
+          disabled={isPending}
           registration={register('accountHolderName')}
           disabled={isSubmitting}
         />
@@ -193,22 +203,22 @@ export default function BankAccountForm({
         <button
           type="button"
           onClick={() => reset()}
-          disabled={!isDirty || isSubmitting}
-          className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-50 cursor-pointer"
+          disabled={!isDirty || isPending}
+          className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {t('settings.bank.resetChanges')}
         </button>
 
         <button
           type="submit"
-          disabled={!isDirty || !isValid || isSubmitting}
+          disabled={!isDirty || !isValid || isPending}
           className={`rounded-xl px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold transition-colors cursor-pointer ${
-            isDirty && isValid && !isSubmitting
+            isDirty && isValid && !isPending
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'cursor-not-allowed bg-gray-100 text-gray-400'
           }`}
         >
-          {isSubmitting ? t('settings.saving') : t('settings.bank.save')}
+          {isPending ? t('settings.saving') : t('settings.bank.save')}
         </button>
       </div>
     </form>

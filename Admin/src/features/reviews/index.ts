@@ -9,3 +9,4 @@ export * from './components/ReviewMobileList';
 export * from './components/ReviewDeleteModal';
 export * from './components/ReviewEmptyState';
 export * from './components/ReviewPagination';
+export * from './components/StarRating';

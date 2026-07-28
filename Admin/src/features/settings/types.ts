@@ -1,12 +1,3 @@
-export interface StoreProfileData {
-  storeName: string;
-  storeDescription: string;
-  publicEmail: string;
-  phoneNumber: string;
-  storeLogoUrl: string | null;
-  storeLogoFileName: string | null;
-}
-
 export interface AccountSettingsData {
   firstName: string;
   lastName: string;

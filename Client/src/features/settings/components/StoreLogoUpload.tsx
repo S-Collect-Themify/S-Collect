@@ -189,10 +189,16 @@ export function StoreLogoUpload() {
   const storeLogoFileName = watch('storeLogoFileName');
 
   const handleLogoUpload = (file: File) => {
-    if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    const lastDotIndex = file.name.lastIndexOf('.');
+    const extension = lastDotIndex !== -1 ? file.name.substring(lastDotIndex).toLowerCase() : '';
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+
+    if (!validTypes.includes(file.type) || !validExtensions.includes(extension)) {
       setError('storeLogoUrl', {
-        message: t('settings.errors.imageUpload'),
+        message: t('settings.errors.imageUpload', 'Only JPG, JPEG, PNG, or WEBP images are allowed'),
       });
+<<<<<<< HEAD
       setValue('storeLogoUrl', null);
       setValue('logoFile', null);
       return;
@@ -200,14 +206,40 @@ export function StoreLogoUpload() {
     if (storeLogoUrl?.startsWith('blob:')) URL.revokeObjectURL(storeLogoUrl);
     setValue('storeLogoUrl', URL.createObjectURL(file));
     setValue('storeLogoFileName', file.name);
+=======
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError('storeLogoUrl', {
+        message: t('settings.errors.imageTooLarge', 'Image size must be less than 2MB'),
+      });
+      return;
+    }
+
+    if (storeLogoUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(storeLogoUrl);
+    }
+
+    setValue('storeLogoUrl', URL.createObjectURL(file), { shouldDirty: true });
+    setValue('storeLogoFileName', file.name, { shouldDirty: true });
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
     setValue('logoFile', file, { shouldDirty: true });
     clearErrors('storeLogoUrl');
   };
 
   const handleLogoRemove = () => {
+<<<<<<< HEAD
     if (storeLogoUrl?.startsWith('blob:')) URL.revokeObjectURL(storeLogoUrl);
     setValue('storeLogoUrl', null);
     setValue('storeLogoFileName', null);
+=======
+    if (storeLogoUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(storeLogoUrl);
+    }
+    setValue('storeLogoUrl', null, { shouldDirty: true });
+    setValue('storeLogoFileName', null, { shouldDirty: true });
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
     setValue('logoFile', null, { shouldDirty: true });
     clearErrors('storeLogoUrl');
   };

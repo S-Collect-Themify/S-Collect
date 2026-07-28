@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { getVendorProfile } from '../../../services/vendorProfile';
+<<<<<<< HEAD
 import { getVendorOnboardingStatus } from '../../../services/auth';
+=======
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
 import type { StoreProfileData } from '../types';
 
 export const STORE_PROFILE_QUERY_KEY = ['storeProfile'];
@@ -13,6 +16,8 @@ const defaultStoreProfile: StoreProfileData = {
   phoneNumber: '',
   storeLogoUrl: null,
   storeLogoFileName: null,
+  logoFile: null,
+  originalStoreNameAr: '',
 };
 
 function parseStringValue(val: unknown): string {
@@ -28,6 +33,7 @@ export const useStoreProfile = () => {
   return useQuery<StoreProfileData>({
     queryKey: STORE_PROFILE_QUERY_KEY,
     queryFn: async () => {
+<<<<<<< HEAD
       try {
         const data = await getVendorProfile();
         const logoUrlStr = parseStringValue(data.logoUrl) || null;
@@ -64,6 +70,34 @@ export const useStoreProfile = () => {
           return defaultStoreProfile;
         }
       }
+=======
+      const rawData = await getVendorProfile();
+      const data = rawData && typeof rawData === 'object' && 'success' in rawData && 'data' in rawData
+        ? (rawData as any).data
+        : rawData;
+      
+      let logoFileName: string | null = null;
+      if (data.logoUrl) {
+        try {
+          const urlParts = data.logoUrl.split('/');
+          logoFileName = urlParts[urlParts.length - 1] || 'logo';
+        } catch {
+          logoFileName = 'logo';
+        }
+      }
+
+      return {
+        ...defaultStoreProfile,
+        storeName: data.storeName || '',
+        storeNameAr: data.storeNameAr || '',
+        storeDescription: typeof data.storeDescription === 'string' ? data.storeDescription : '',
+        publicEmail: typeof data.publicEmail === 'string' ? data.publicEmail : '',
+        phoneNumber: typeof data.publicPhoneNumber === 'string' ? data.publicPhoneNumber : '',
+        storeLogoUrl: data.logoUrl || null,
+        storeLogoFileName: logoFileName,
+        originalStoreNameAr: data.storeNameAr || '',
+      };
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
     },
     refetchOnWindowFocus: false,
     retry: 1,

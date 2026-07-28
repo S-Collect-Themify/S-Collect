@@ -6,7 +6,7 @@ import type { StoreProfileData } from '../types';
 import { cn } from '../utils';
 
 export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     register,
     watch,
@@ -14,9 +14,11 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
   } = useFormContext<StoreProfileData>();
 
   const storeDescription = watch('storeDescription');
+  const isAr = i18n.language === 'ar';
 
   return (
     <>
+<<<<<<< HEAD
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="settings-surface-enter settings-stagger-2">
           <FieldWrap
@@ -32,11 +34,29 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
                 required: t('settings.errors.storeNameRequired'),
                 validate: (v) =>
                   v.trim() !== '' || t('settings.errors.storeNameRequired'),
+=======
+      <div className="settings-surface-enter settings-stagger-2 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="order-1 rtl:order-2">
+          <FieldWrap
+            label={t('settings.storeNameEn')}
+            required={!isAr}
+            error={errors.storeName?.message}
+          >
+            <TextInput
+              placeholder={t('settings.storeNamePlaceholderEn')}
+              disabled={isPending}
+              error={errors.storeName?.message}
+              {...register('storeName', {
+                required: !isAr ? t('settings.errors.storeNameRequired') : false,
+                validate: (v) =>
+                  isAr || (v && v.trim() !== '') || t('settings.errors.storeNameRequired'),
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
               })}
             />
           </FieldWrap>
         </div>
 
+<<<<<<< HEAD
         <div className="settings-surface-enter settings-stagger-2">
           <FieldWrap
             label={t('settings.storeNameAr')}
@@ -48,6 +68,24 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
               error={errors.storeNameAr?.message}
               dir="rtl"
               {...register('storeNameAr')}
+=======
+        <div className="order-2 rtl:order-1">
+          <FieldWrap
+            label={t('settings.storeNameAr')}
+            required={isAr}
+            error={errors.storeNameAr?.message}
+          >
+            <TextInput
+              placeholder={t('settings.storeNamePlaceholderAr')}
+              disabled={isPending}
+              error={errors.storeNameAr?.message}
+              dir="rtl"
+              {...register('storeNameAr', {
+                required: isAr ? t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب') : false,
+                validate: (v) =>
+                  !isAr || (v && v.trim() !== '') || t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب'),
+              })}
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
             />
           </FieldWrap>
         </div>

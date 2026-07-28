@@ -1198,6 +1198,8 @@
     },
     "table": {
       "code": "Code",
+      "category": "Category",
+      "scope": "Scope",
       "type": "Type",
       "discount": "Discount",
       "minOrder": "Min Order",
@@ -1212,6 +1214,13 @@
       "amount": "Amount",
       "freeShipping": "Free Shipping"
     },
+    "scopes": {
+      "percentage": "Percentage",
+      "all": "All",
+      "category": "Category",
+      "vendor": "Vendor",
+      "product": "Product"
+    },
     "statuses": {
       "active": "Active",
       "expired": "Expired"
@@ -1223,6 +1232,10 @@
     "form": {
       "voucherCode": "Voucher Code *",
       "voucherCodePlaceholder": "Enter voucher code or leave empty to auto-generate",
+      "category": "Category *",
+      "categoryPlaceholder": "Select Category",
+      "scope": "Scope *",
+      "scopePlaceholder": "Select Scope",
       "voucherType": "Voucher Type *",
       "discountValue": "Discount Value *",
       "discountValuePlaceholder": "Enter discount value (e.g. 20 for 20%)",
@@ -1241,6 +1254,7 @@
       "saveChanges": "Save Changes",
       "errors": {
         "voucherCodeRequired": "Voucher code is required",
+        "categoryRequired": "Category is required",
         "discountValueRequired": "Discount value is required",
         "discountValueInvalid": "Enter a valid positive discount value",
         "minOrderInvalid": "Enter a valid minimum order amount",

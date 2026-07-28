@@ -167,7 +167,9 @@
       "passwordRequired": "كلمة المرور مطلوبة",
       "passwordMinLength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
       "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
-      "passwordsMismatch": "كلمتا المرور غير متطابقتين"
+      "passwordsMismatch": "كلمتا المرور غير متطابقتين",
+      "websiteRequired": "رقم السجل التجاري مطلوب",
+      "websiteInvalid": "رقم السجل التجاري يجب أن يتكون من 10 أرقام"
     },
     "passwordStrength": {
       "weak": "ضعيف",
@@ -369,9 +371,16 @@
     "shipping": "الشحن",
     "storePreview": "معاينة المتجر",
     "storeName": "اسم المتجر",
+    "storeNameEn": "اسم المتجر (بالإنجليزية)",
+    "storeNameAr": "اسم المتجر (بالعربية)",
     "storeNamePlaceholder": "أدخل اسم المتجر",
+<<<<<<< HEAD
     "storeNameAr": "اسم المتجر بالعربية",
     "storeNameArPlaceholder": "أدخل اسم المتجر بالعربية",
+=======
+    "storeNamePlaceholderEn": "أدخل الاسم بالإنجليزية",
+    "storeNamePlaceholderAr": "أدخل الاسم بالعربية",
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
     "storeNameFallback": "اسم المتجر",
     "storeLogo": "شعار المتجر",
     "storeDescription": "وصف المتجر",

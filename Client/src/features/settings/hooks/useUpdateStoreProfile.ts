@@ -4,6 +4,7 @@ import type { StoreProfileData } from '../types';
 import { STORE_PROFILE_QUERY_KEY } from './useStoreProfile';
 import { updateVendorProfile } from '../../../services/vendorProfile';
 import { getErrorMessage } from '../../../types/api';
+import { updateVendorProfile } from '../../../services/vendorProfile';
 
 function parseStringValue(val: unknown): string {
   if (typeof val === 'string') return val;
@@ -18,6 +19,7 @@ export const useUpdateStoreProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+<<<<<<< HEAD
     mutationFn: async (data: StoreProfileData): Promise<StoreProfileData> => {
       const logoFile = data.logoFile instanceof File ? data.logoFile : null;
 
@@ -46,6 +48,74 @@ export const useUpdateStoreProfile = () => {
         storeLogoUrl: logoUrlStr,
         storeLogoFileName: logoFileName,
       };
+=======
+    mutationFn: async (data: StoreProfileData) => {
+      const cached = queryClient.getQueryData<StoreProfileData>(STORE_PROFILE_QUERY_KEY);
+      const formData = new FormData();
+      let hasChanges = false;
+
+      if (!cached || data.storeName !== cached.storeName) {
+        formData.append('storeName', data.storeName || data.storeNameAr);
+        hasChanges = true;
+      }
+
+      if (!cached || data.storeNameAr !== cached.storeNameAr) {
+        formData.append('storeNameAr', data.storeNameAr || data.storeName);
+        hasChanges = true;
+      }
+
+      if (!cached || data.storeDescription !== cached.storeDescription) {
+        formData.append('storeDescription', data.storeDescription);
+        hasChanges = true;
+      }
+
+      if (!cached || data.publicEmail !== cached.publicEmail) {
+        formData.append('publicEmail', data.publicEmail);
+        hasChanges = true;
+      }
+
+      if (!cached || data.phoneNumber !== cached.phoneNumber) {
+        formData.append('publicPhoneNumber', data.phoneNumber);
+        hasChanges = true;
+      }
+
+      // Do not upload or send the logo field unless the user selects a new image
+      if (data.logoFile instanceof File) {
+        formData.append('logo', data.logoFile);
+        hasChanges = true;
+      }
+
+      if (!hasChanges) {
+        return cached || data;
+      }
+
+      const rawResponse = await updateVendorProfile(formData);
+      const response = rawResponse && typeof rawResponse === 'object' && 'success' in rawResponse && 'data' in rawResponse
+        ? (rawResponse as any).data
+        : rawResponse;
+      
+      let logoFileName: string | null = null;
+      if (response.logoUrl) {
+        try {
+          const urlParts = response.logoUrl.split('/');
+          logoFileName = urlParts[urlParts.length - 1] || 'logo';
+        } catch {
+          logoFileName = 'logo';
+        }
+      }
+
+      return {
+        storeName: response.storeName || '',
+        storeNameAr: response.storeNameAr || '',
+        storeDescription: typeof response.storeDescription === 'string' ? response.storeDescription : '',
+        publicEmail: typeof response.publicEmail === 'string' ? response.publicEmail : '',
+        phoneNumber: typeof response.publicPhoneNumber === 'string' ? response.publicPhoneNumber : '',
+        storeLogoUrl: response.logoUrl || null,
+        storeLogoFileName: logoFileName,
+        originalStoreNameAr: response.storeNameAr || '',
+        logoFile: null,
+      } as StoreProfileData;
+>>>>>>> 4f2a744b5a6cfedce0edc3751dc4020621939ed8
     },
     onSuccess: (updatedData) => {
       queryClient.setQueryData(STORE_PROFILE_QUERY_KEY, updatedData);

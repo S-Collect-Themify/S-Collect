@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from './types';
+import { useAddProductPage } from './useAddProductPage';
 
 const PricingFields = () => {
   const { t } = useTranslation();
@@ -8,6 +9,10 @@ const PricingFields = () => {
     register,
     formState: { errors },
   } = useFormContext<ProductFormData>();
+
+    const {
+      isEdit,
+    } = useAddProductPage();
 
   const inputCls = (hasError?: string) =>
     `w-full rounded-lg border px-4 py-3 focus:outline-none ${
@@ -67,21 +72,25 @@ const PricingFields = () => {
         </div>
       </div>
 
-      <div className="max-w-md">
-        <label className="mb-2 block font-medium">
-          {t('addProduct.sku')} <span className="text-red-500">*</span>
-        </label>
-        <input
-          className={inputCls(errors.sku?.message)}
-          placeholder="SKU-001"
-          {...register('sku', {
-            required: t('addProduct.errors.skuRequired'),
-          })}
-        />
-        {errors.sku && (
-          <p className="mt-1 text-sm text-red-500">{errors.sku.message}</p>
-        )}
-      </div>
+      {isEdit ? (
+        ''
+      ) : (
+        <div className="max-w-md">
+          <label className="mb-2 block font-medium">
+            {t('addProduct.sku')} <span className="text-red-500">*</span>
+          </label>
+          <input
+            className={inputCls(errors.sku?.message)}
+            placeholder="SKU-001"
+            {...register('sku', {
+              required: t('addProduct.errors.skuRequired'),
+            })}
+          />
+          {errors.sku && (
+            <p className="mt-1 text-sm text-red-500">{errors.sku.message}</p>
+          )}
+        </div>
+      )}
     </>
   );
 };

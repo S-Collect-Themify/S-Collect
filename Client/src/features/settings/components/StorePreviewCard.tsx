@@ -4,14 +4,18 @@ import { useTranslation } from 'react-i18next';
 import type { StoreProfileData } from '../types';
 
 export function StorePreviewCard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { watch } = useFormContext<StoreProfileData>();
 
   const storeName = watch('storeName');
+  const storeNameAr = watch('storeNameAr');
   const storeDescription = watch('storeDescription');
   const publicEmail = watch('publicEmail');
   const phoneNumber = watch('phoneNumber');
   const storeLogoUrl = watch('storeLogoUrl');
+
+  const isRtl = i18n.language === 'ar';
+  const displayName = isRtl ? (storeNameAr || storeName) : (storeName || storeNameAr);
 
   return (
     <div className="settings-surface-enter settings-stagger-1 mb-5">
@@ -36,7 +40,7 @@ export function StorePreviewCard() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-base font-medium text-[#090909]">
-              {storeName || t('settings.storeNameFallback')}
+              {displayName || t('settings.storeNameFallback')}
             </p>
             <p className="text-sm font-medium text-[#969696] mt-0.5 line-clamp-1 md:line-clamp-2">
               {storeDescription || t('settings.storeDescriptionFallback')}
