@@ -15,7 +15,7 @@ export const Pagination = ({
   currentPage,
   totalPages,
   totalItems,
-  itemsPerPage,
+  itemsPerPage = 20,
   onPageChange,
 }: PaginationProps) => {
   const { t } = useTranslation();

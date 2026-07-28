@@ -1,8 +1,62 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getAllProducts, getCategories, getVendorsList, updateProductStatus } from '../../services/products';
+import { getAdminProducts, getAdminVendors, getCategories, updateProductStatus } from '../../services/products';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
+
+const extractProductsArray = (response: any): any[] => {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (typeof response === 'object') {
+    if (Array.isArray(response.items)) return response.items;
+    if (Array.isArray(response.products)) return response.products;
+    if (Array.isArray(response.data)) return response.data;
+    if (response.data && typeof response.data === 'object') {
+      if (Array.isArray(response.data.items)) return response.data.items;
+    }
+  }
+  return [];
+};
+
+const extractVendorsArray = (response: any): any[] => {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (typeof response === 'object') {
+    if (Array.isArray(response.items)) return response.items;
+    if (Array.isArray(response.vendors)) return response.vendors;
+    if (Array.isArray(response.data)) return response.data;
+    if (response.data && typeof response.data === 'object') {
+      if (Array.isArray(response.data.items)) return response.data.items;
+      if (Array.isArray(response.data.vendors)) return response.data.vendors;
+    }
+  }
+  return [];
+};
+
+const getVendorDisplayName = (vId: string | undefined, vendorsList: any[], vendorProp: any): string => {
+  if (vendorProp) {
+    if (typeof vendorProp === 'string') return vendorProp;
+    if (vendorProp.businessName) return vendorProp.businessName;
+    if (vendorProp.storeName) return vendorProp.storeName;
+    if (vendorProp.name) return vendorProp.name;
+  }
+  if (vId && vendorsList.length > 0) {
+    const matched = vendorsList.find(
+      (v: any) => String(v.id || v._id).toLowerCase() === String(vId).toLowerCase()
+    );
+    if (matched) {
+      if (matched.businessName) return matched.businessName;
+      if (matched.storeName) return matched.storeName;
+      if (matched.name) return matched.name;
+      if (matched.owner) return matched.owner;
+      if (matched.firstName || matched.lastName) {
+        return `${matched.firstName || ''} ${matched.lastName || ''}`.trim();
+      }
+    }
+  }
+  if (vId) return `Vendor (${String(vId).slice(0, 8)})`;
+  return '—';
+};
 
 export const useProductsData = () => {
   const queryClient = useQueryClient();
@@ -15,26 +69,47 @@ export const useProductsData = () => {
     queryKey: ['products'],
     queryFn: async () => {
       try {
-        const response = await getAllProducts();
-        if (Array.isArray(response)) {
-          const mapped: ProductItem[] = response.map((p: any) => ({
+        const [productsRes, vendorsRes] = await Promise.allSettled([
+          getAdminProducts(),
+          getAdminVendors(),
+        ]);
+
+        const prodData = productsRes.status === 'fulfilled' ? productsRes.value : null;
+        const vendData = vendorsRes.status === 'fulfilled' ? vendorsRes.value : null;
+
+        const itemsArray = extractProductsArray(prodData);
+        const vendorsList = extractVendorsArray(vendData);
+
+        const mapped: ProductItem[] = itemsArray.map((p: any) => {
+          const vId = p.vendorId || p.vendor?.id;
+          const vName = getVendorDisplayName(vId, vendorsList, p.vendor);
+
+          const catObj = typeof p.category === 'object' ? p.category : null;
+          const categoryName = catObj?.name || (typeof p.category === 'string' ? p.category : 'General');
+          const categoryNameAr = catObj?.nameAr || p.categoryAr || '';
+
+          return {
             id: p.id || p._id,
-            name: p.title || p.name || 'Product',
-            nameAr: p.titleAr || p.nameAr,
-            vendor: p.vendor?.businessName || p.vendor?.name || p.vendor || 'Vendor',
-            category: p.category?.name || p.category?.nameEn || p.category || 'General',
-            price: Number(p.price) || 0,
-            stock: Number(p.stock || p.inventory || 0),
-            isActive: p.isActive !== undefined ? Boolean(p.isActive) : p.status === 'active',
-            image: p.images?.[0]?.url || p.image || p.thumbnail || 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150',
-          }));
-          setProducts(mapped);
-          return mapped;
-        }
+            name: p.name || p.title || 'Product',
+            nameAr: p.nameAr || p.titleAr,
+            vendor: vName,
+            vendorId: vId,
+            category: categoryName,
+            categoryAr: categoryNameAr,
+            price: Number(p.minPrice ?? p.price ?? 0),
+            stock: p.stock !== undefined && p.stock !== null ? p.stock : '',
+            isActive: p.isActive !== undefined ? Boolean(p.isActive) : !p.isDisabled,
+            image: p.thumbnailUrl || p.images?.[0]?.url || p.image || p.thumbnail || '',
+          };
+        });
+
+        setProducts(mapped);
+        return mapped;
       } catch (e) {
-        console.warn('API products query fallback to initial store state');
+        console.warn('API products query error:', e);
+        setProducts([]);
+        return [];
       }
-      return null;
     },
     refetchOnWindowFocus: false,
     retry: 1,
@@ -44,13 +119,6 @@ export const useProductsData = () => {
   const categoriesQuery = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
-    refetchOnWindowFocus: false,
-  });
-
-  // ── Fetch Vendors Query ──
-  const vendorsQuery = useQuery({
-    queryKey: ['admin-vendors'],
-    queryFn: getVendorsList,
     refetchOnWindowFocus: false,
   });
 
@@ -68,7 +136,6 @@ export const useProductsData = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (_err, { id, isActive }) => {
-      // Revert store state on error
       toggleProductStatusInStore(id, !isActive);
       toast.error('Failed to update status');
     },
@@ -77,7 +144,6 @@ export const useProductsData = () => {
   return {
     productsQuery,
     categoriesQuery,
-    vendorsQuery,
     statusMutation,
   };
 };

@@ -1,8 +1,7 @@
 import { api } from './api';
 
 export const getAllProducts = async () => {
-  const { data } = await api.get('/vendor/products');
-
+  const { data } = await api.get('/admin/products');
   return data;
 };
 
@@ -54,13 +53,26 @@ export const getCategories = async (): Promise<Category[]> => {
   return data;
 };
 
+export const enableProduct = async (id: string | number) => {
+  const { data } = await api.post(`/admin/products/${id}/enable`);
+  return data;
+};
+
+export const disableProduct = async (id: string | number) => {
+  const { data } = await api.post(`/admin/products/${id}/disable`);
+  return data;
+};
+
 export const updateProductStatus = async (productId: string | number, isActive: boolean) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}/status`, { isActive });
-    return data;
+    if (isActive) {
+      return await enableProduct(productId);
+    } else {
+      return await disableProduct(productId);
+    }
   } catch (err) {
     try {
-      const { data } = await api.put(`/vendor/products/${productId}`, { isActive });
+      const { data } = await api.patch(`/admin/products/${productId}/status`, { isActive });
       return data;
     } catch {
       return { success: true, productId, isActive };

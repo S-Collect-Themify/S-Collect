@@ -3,9 +3,11 @@ export interface ProductItem {
   name: string;
   nameAr?: string;
   vendor: string;
+  vendorId?: string;
   category: string;
+  categoryAr?: string;
   price: number;
-  stock: number;
+  stock?: number | string;
   isActive: boolean;
   image: string;
 }
