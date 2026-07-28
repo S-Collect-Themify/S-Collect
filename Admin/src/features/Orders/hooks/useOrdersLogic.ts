@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from '../../../hooks/useBreakpoint';
 import { mapAdminOrderToTableItem } from '../../../services/orders';
 import { mapAdminRefundToTableItem } from '../../../services/refunds';
@@ -9,6 +9,8 @@ import type { TableItem, OrderMainTab } from '../types';
 
 export const useOrdersLogic = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlVendorParam = searchParams.get('vendorId') || searchParams.get('vendor') || searchParams.get('vendorName');
   const { isMobile } = useBreakpoint();
 
   // Tab State
@@ -18,7 +20,13 @@ export const useOrdersLogic = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('all');
-  const [vendorFilter, setVendorFilter] = useState('All');
+  const [vendorFilter, setVendorFilter] = useState(urlVendorParam || 'All');
+
+  useEffect(() => {
+    if (urlVendorParam) {
+      setVendorFilter(urlVendorParam);
+    }
+  }, [urlVendorParam]);
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -30,7 +38,12 @@ export const useOrdersLogic = () => {
     orders,
     pagination: ordersPagination,
     isLoading: isOrdersLoading,
-  } = useAdminOrders(page, itemsPerPage, activeMainTab === 'allOrders');
+  } = useAdminOrders(
+    page,
+    itemsPerPage,
+    activeMainTab === 'allOrders',
+    vendorFilter !== 'All' ? vendorFilter : undefined
+  );
 
   // React Query Hook for API Refunds
   const refundStatusParam = statusFilter !== 'All' ? statusFilter.toUpperCase() : undefined;

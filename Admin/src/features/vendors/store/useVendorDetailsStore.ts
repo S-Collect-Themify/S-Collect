@@ -14,6 +14,7 @@ interface VendorDetailsState {
   openApprove: () => void;
   closeApprove: () => void;
   reset: () => void;
+  handleNavigate: (productId: string , navigate:any) => void;
 }
 
 export const useVendorDetailsStore = create<VendorDetailsState>((set) => ({
@@ -36,4 +37,7 @@ export const useVendorDetailsStore = create<VendorDetailsState>((set) => ({
       showReject: false,
       showApprove: false,
     }),
+    handleNavigate: (productId: string , navigate: any) => {
+      navigate(`/products/${productId}`);
+    },
 }));

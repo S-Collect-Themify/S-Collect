@@ -125,3 +125,47 @@ export async function deactivateVendor(id: string): Promise<void> {
 export async function reactivateVendor(id: string): Promise<void> {
   await api.post(`/admin/vendors/${id}/reactivate`);
 }
+
+export interface GetVendorPayoutsParams {
+  pageNum?: number;
+  pageSize?: number;
+}
+
+export interface BackendVendorPayoutItem {
+  id: string;
+  vendorId: string;
+  amount: string | number;
+  isAdjustment?: boolean;
+  referenceNote?: string | Record<string, any> | null;
+  transferDate?: string;
+  recordedByAdminId?: string;
+  clarifyingNote?: string | Record<string, any> | null;
+  createdAt?: string;
+  status?: string;
+}
+
+export interface VendorPayoutsResponse {
+  items: BackendVendorPayoutItem[];
+  pagination?: {
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * Fetch vendor payouts list GET /api/v1/admin/vendors/{vendorId}/payouts
+ */
+export async function getVendorPayouts(
+  vendorId: string,
+  params?: GetVendorPayoutsParams
+): Promise<any> {
+  try {
+    const response = await api.get(`/admin/vendors/${vendorId}/payouts`, { params });
+    return response.data;
+  } catch (err) {
+    console.warn(`API getVendorPayouts (${vendorId}) error:`, err);
+    return null;
+  }
+}

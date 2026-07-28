@@ -7,7 +7,10 @@ import {
   rejectVendor,
   deactivateVendor,
   reactivateVendor,
+  getVendorPayouts,
 } from '../../../services/vendors';
+import { getAdminProducts } from '../../../services/products';
+import { getAdminSubOrders } from '../../../services/orders';
 import {
   mapBackendVendorToVendor,
   mapBackendVendorDetailToVendor,
@@ -37,6 +40,45 @@ export function useVendorDetails(id: string) {
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useVendorProducts(vendorId: string, pageNum = 1, pageSize = 5) {
+  return useQuery({
+    queryKey: ['vendor-products', vendorId, pageNum, pageSize],
+    queryFn: async () => {
+      if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+      const data = await getAdminProducts({ vendorId, pageNum, pageSize });
+      return data || { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+    },
+    enabled: !!vendorId,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useVendorSubOrders(vendorId: string, pageNum = 1, pageSize = 5, status?: string) {
+  return useQuery({
+    queryKey: ['vendor-sub-orders', vendorId, pageNum, pageSize, status],
+    queryFn: async () => {
+      if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+      const data = await getAdminSubOrders({ vendorId, pageNum, pageSize, status });
+      return data || { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+    },
+    enabled: !!vendorId,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useVendorPayouts(vendorId: string, pageNum = 1, pageSize = 5) {
+  return useQuery({
+    queryKey: ['vendor-payouts', vendorId, pageNum, pageSize],
+    queryFn: async () => {
+      if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+      const data = await getVendorPayouts(vendorId, { pageNum, pageSize });
+      return data || { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+    },
+    enabled: !!vendorId,
+    staleTime: 2 * 60 * 1000,
   });
 }
 

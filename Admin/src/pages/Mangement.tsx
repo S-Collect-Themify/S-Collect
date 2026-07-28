@@ -51,7 +51,7 @@ const Management = () => {
         )}
       </div>
       <motion.div
-        className="sidebar-page-container flex-1 overflow-y-auto pt-0"
+        className="sidebar-page-container py-6 md:py-8 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"
