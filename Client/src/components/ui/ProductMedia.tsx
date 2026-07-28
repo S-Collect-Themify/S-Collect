@@ -175,7 +175,7 @@ const ProductMedia = () => {
 
         <label
           htmlFor="images"
-          className="flex h-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 sm:h-24"
+          className="flex h-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 sm:h-24 bg-[#E9E9E9]"
         >
           <Plus />
         </label>

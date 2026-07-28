@@ -41,6 +41,18 @@ export const VoucherMobileList = ({
 
           {/* Key-Value Details List */}
           <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-500">
+            <span className="text-gray-400">{t('vouchersListing.table.category')}:</span>
+            <span className="font-medium text-gray-800">
+              {Array.isArray(voucher.category)
+                ? voucher.category.length > 0
+                  ? voucher.category.join(', ')
+                  : '—'
+                : voucher.category || '—'}
+            </span>
+
+            <span className="text-gray-400">{t('vouchersListing.table.scope')}:</span>
+            <span className="font-medium text-gray-800">{voucher.scope || '—'}</span>
+
             <span className="text-gray-400">{t('vouchersListing.table.type')}:</span>
             <span className="font-medium text-gray-800">{voucher.type}</span>
 

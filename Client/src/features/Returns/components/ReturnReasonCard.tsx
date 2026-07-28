@@ -29,6 +29,18 @@ export function ReturnReasonCard({
         )}
       </div>
 
+      {/* Rejection Reason (If Rejected) */}
+      {item.rejectionReason && (
+        <div className="bg-red-50/80 border border-red-200 rounded-2xl p-5 sm:p-6 shadow-xs">
+          <h2 className="text-base font-bold text-red-900 mb-2">
+            {t('returnsPage.rejectionReason', { defaultValue: 'Rejection Reason' })}:
+          </h2>
+          <p className="text-xs sm:text-sm text-red-700 font-semibold leading-relaxed">
+            {item.rejectionReason}
+          </p>
+        </div>
+      )}
+
       {/* Customer Uploaded Images */}
       {item.uploadedImages && item.uploadedImages.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs">

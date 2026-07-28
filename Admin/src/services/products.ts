@@ -82,5 +82,45 @@ export const getVendorsList = async (): Promise<VendorOption[]> => {
   }
 };
 
+export const getAdminProducts = async () => {
+  try {
+    const { data } = await api.get('/admin/products');
+    return data;
+  } catch (err) {
+    console.warn('API getAdminProducts error:', err);
+    return null;
+  }
+};
+
+export const getAdminProductById = async (id: string) => {
+  try {
+    const { data } = await api.get(`/admin/products/${id}`);
+    return data;
+  } catch (err) {
+    console.warn(`API getAdminProductById (${id}) error:`, err);
+    return null;
+  }
+};
+
+export const getAdminVendors = async () => {
+  try {
+    const { data } = await api.get('/admin/vendors');
+    return data;
+  } catch (err) {
+    console.warn('API getAdminVendors error:', err);
+    return null;
+  }
+};
+
+export const getAdminVendorById = async (id: string) => {
+  try {
+    const { data } = await api.get(`/admin/vendors/${id}`);
+    return data;
+  } catch (err) {
+    console.warn(`API getAdminVendorById (${id}) error:`, err);
+    return null;
+  }
+};
+
 
 

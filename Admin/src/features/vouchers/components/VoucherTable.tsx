@@ -17,6 +17,8 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50/30 text-sm font-semibold text-gray-800">
             <th className="py-4 px-6">{t('vouchersListing.table.code')}</th>
+            <th className="py-4 px-6">{t('vouchersListing.table.category')}</th>
+            <th className="py-4 px-6">{t('vouchersListing.table.scope')}</th>
             <th className="py-4 px-6">{t('vouchersListing.table.type')}</th>
             <th className="py-4 px-6">{t('vouchersListing.table.discount')}</th>
             <th className="py-4 px-6">{t('vouchersListing.table.minOrder')}</th>
@@ -36,6 +38,20 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
               {/* Voucher Code */}
               <td className="py-4 px-6 font-semibold text-gray-900">
                 {voucher.code}
+              </td>
+
+              {/* Category */}
+              <td className="py-4 px-6 text-gray-700 font-medium">
+                {Array.isArray(voucher.category)
+                  ? voucher.category.length > 0
+                    ? voucher.category.join(', ')
+                    : '—'
+                  : voucher.category || '—'}
+              </td>
+
+              {/* Scope */}
+              <td className="py-4 px-6 text-gray-700 font-medium">
+                {voucher.scope || '—'}
               </td>
 
               {/* Voucher Type */}
@@ -97,7 +113,7 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
 
           {vouchers.length === 0 && (
             <tr>
-              <td colSpan={9} className="py-12 text-center text-gray-400 text-sm">
+              <td colSpan={11} className="py-12 text-center text-gray-400 text-sm">
                 {t('vouchersListing.emptyState.title')}
               </td>
             </tr>

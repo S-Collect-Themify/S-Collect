@@ -49,7 +49,7 @@ const TagInput = ({
             {items.map((item, index) => (
               <span
                 key={index}
-                className="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-2 text-sm"
+                className="inline-flex items-center gap-1 rounded-lg bg-[#E9E9E9] px-3 py-2 text-sm"
               >
                 {item}
                 <button

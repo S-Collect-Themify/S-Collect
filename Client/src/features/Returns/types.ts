@@ -12,6 +12,7 @@ export interface ReturnItem {
   productPrice: string;
   productImage: string;
   reason: string;
+  rejectionReason?: string;
   customerNote?: string;
   uploadedImages?: string[];
   requestedDate: string;

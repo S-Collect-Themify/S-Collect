@@ -6,7 +6,7 @@ import type { StoreProfileData } from '../types';
 import { cn } from '../utils';
 
 export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     register,
     watch,
@@ -14,40 +14,46 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
   } = useFormContext<StoreProfileData>();
 
   const storeDescription = watch('storeDescription');
+  const isAr = i18n.language === 'ar';
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className="settings-surface-enter settings-stagger-2">
+      <div className="settings-surface-enter settings-stagger-2 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="order-1 rtl:order-2">
           <FieldWrap
-            label={t('settings.storeName')}
-            required
+            label={t('settings.storeNameEn')}
+            required={!isAr}
             error={errors.storeName?.message}
           >
             <TextInput
-              placeholder={t('settings.storeNamePlaceholder')}
+              placeholder={t('settings.storeNamePlaceholderEn')}
               disabled={isPending}
               error={errors.storeName?.message}
               {...register('storeName', {
-                required: t('settings.errors.storeNameRequired'),
+                required: !isAr ? t('settings.errors.storeNameRequired') : false,
                 validate: (v) =>
-                  v.trim() !== '' || t('settings.errors.storeNameRequired'),
+                  isAr || (v && v.trim() !== '') || t('settings.errors.storeNameRequired'),
               })}
             />
           </FieldWrap>
         </div>
 
-        <div className="settings-surface-enter settings-stagger-2">
+        <div className="order-2 rtl:order-1">
           <FieldWrap
             label={t('settings.storeNameAr')}
+            required={isAr}
             error={errors.storeNameAr?.message}
           >
             <TextInput
-              placeholder={t('settings.storeNameArPlaceholder')}
+              placeholder={t('settings.storeNamePlaceholderAr')}
               disabled={isPending}
               error={errors.storeNameAr?.message}
               dir="rtl"
-              {...register('storeNameAr')}
+              {...register('storeNameAr', {
+                required: isAr ? t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب') : false,
+                validate: (v) =>
+                  !isAr || (v && v.trim() !== '') || t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب'),
+              })}
             />
           </FieldWrap>
         </div>

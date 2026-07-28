@@ -32,6 +32,7 @@ export default function ReturnRequestDetailsPage() {
     setShowRejectModal,
     handleApprove,
     handleReject,
+    isUpdating,
   } = useReturnRequestDetails(rawId, decodedId);
 
   if (isLoading || !item) {
@@ -118,6 +119,8 @@ export default function ReturnRequestDetailsPage() {
             <ReturnActionsBar
               onReject={() => setShowRejectModal(true)}
               onApprove={() => setShowApproveModal(true)}
+              isUpdating={isUpdating}
+              status={item.status}
             />
           </motion.div>
         </div>

@@ -3,6 +3,8 @@ import { api } from './api';
 export interface VoucherApiData {
   id?: string;
   code: string;
+  category?: string[] | string;
+  scope?: string;
   type: 'Percentage' | 'Amount' | 'Free Shipping';
   discountValue: string;
   minOrder: string;

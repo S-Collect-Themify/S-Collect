@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { getVendorProfile } from '../../../services/vendorProfile';
-import { getVendorOnboardingStatus } from '../../../services/auth';
 import type { StoreProfileData } from '../types';
 
 export const STORE_PROFILE_QUERY_KEY = ['storeProfile'];
@@ -13,6 +12,8 @@ const defaultStoreProfile: StoreProfileData = {
   phoneNumber: '',
   storeLogoUrl: null,
   storeLogoFileName: null,
+  logoFile: null,
+  originalStoreNameAr: '',
 };
 
 function parseStringValue(val: unknown): string {
@@ -28,42 +29,32 @@ export const useStoreProfile = () => {
   return useQuery<StoreProfileData>({
     queryKey: STORE_PROFILE_QUERY_KEY,
     queryFn: async () => {
-      try {
-        const data = await getVendorProfile();
-        const logoUrlStr = parseStringValue(data.logoUrl) || null;
-        const logoFileName = logoUrlStr
-          ? logoUrlStr.split('/').pop() || null
-          : null;
-
-        return {
-          ...defaultStoreProfile,
-          id: data.id,
-          storeName: parseStringValue(data.storeName),
-          storeNameAr: parseStringValue(data.storeNameAr),
-          storeDescription: parseStringValue(data.storeDescription),
-          publicEmail: parseStringValue(data.publicEmail),
-          phoneNumber: parseStringValue(data.publicPhoneNumber),
-          storeLogoUrl: logoUrlStr,
-          storeLogoFileName: logoFileName,
-        };
-      } catch (err) {
-        // Fallback to onboarding status if profile endpoint returns empty or is not initialized
+      const rawData = await getVendorProfile();
+      const data = rawData && typeof rawData === 'object' && 'success' in rawData && 'data' in rawData
+        ? (rawData as any).data
+        : rawData;
+      
+      let logoFileName: string | null = null;
+      if (data.logoUrl) {
         try {
-          const onboarding = await getVendorOnboardingStatus();
-          return {
-            ...defaultStoreProfile,
-            storeName: onboarding.storeName || '',
-            storeDescription:
-              typeof onboarding.storeDescription === 'string'
-                ? onboarding.storeDescription
-                : '',
-            publicEmail: onboarding.email || '',
-            phoneNumber: onboarding.phoneNumber || '',
-          };
+          const urlParts = data.logoUrl.split('/');
+          logoFileName = urlParts[urlParts.length - 1] || 'logo';
         } catch {
-          return defaultStoreProfile;
+          logoFileName = 'logo';
         }
       }
+
+      return {
+        ...defaultStoreProfile,
+        storeName: data.storeName || '',
+        storeNameAr: data.storeNameAr || '',
+        storeDescription: typeof data.storeDescription === 'string' ? data.storeDescription : '',
+        publicEmail: typeof data.publicEmail === 'string' ? data.publicEmail : '',
+        phoneNumber: typeof data.publicPhoneNumber === 'string' ? data.publicPhoneNumber : '',
+        storeLogoUrl: data.logoUrl || null,
+        storeLogoFileName: logoFileName,
+        originalStoreNameAr: data.storeNameAr || '',
+      };
     },
     refetchOnWindowFocus: false,
     retry: 1,

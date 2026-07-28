@@ -134,17 +134,25 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <div
-            className={`w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 ${thumb.bg}`}
+            className="w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50"
           >
-            <i
-              className={`ti ${product.icon} text-xl ${thumb.icon}`}
-              aria-hidden="true"
-            />
+            {product.icon.startsWith('http') ? (
+              <img
+                src={product.icon}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <i
+                className={`ti ${product.icon} text-xl ${thumb.icon}`}
+                aria-hidden="true"
+              />
+            )}
           </div>
           <div className="flex flex-col">
             <span className="font-medium">{product.name}</span>
             <span className="text-sm text-gray-500">
-              {t(`managementTable.categories.${product.category}`)}
+              {product.categoryName || product.category}
             </span>
             <span className="font-medium">
               {product.price} {t('dashboardMetrics.unit.sar')}

@@ -1,13 +1,8 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { StoreProfileForm } from '../StoreProfileForm';
 import { StoreProfileFormSkeleton } from '../skeleton/SettingsSkeletons';
-import {
-  useStoreProfile,
-  STORE_PROFILE_QUERY_KEY,
-} from '../hooks/useStoreProfile';
-import type { StoreProfileData } from '../types';
+import { useStoreProfile } from '../hooks/useStoreProfile';
 
 export function StoreDetailsTab({
   onToast,
@@ -15,11 +10,10 @@ export function StoreDetailsTab({
   onToast: (message: string) => void;
 }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const { data, isLoading } = useStoreProfile();
 
-  const handleSave = async (data: StoreProfileData) => {
-    queryClient.setQueryData(STORE_PROFILE_QUERY_KEY, data);
+  const handleSave = async () => {
+    // Cache invalidation is handled by the mutation hook automatically on success
   };
 
   if (isLoading || !data) {

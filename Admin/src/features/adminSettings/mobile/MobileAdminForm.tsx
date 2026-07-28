@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight, ChevronLeft, Upload, X, User } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Upload, X, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAdminSettingsStore } from '../store';
 import i18n from '../../../i18n';
@@ -18,7 +18,6 @@ interface AdminFormInputs {
   avatarUrl?: string;
 }
 
-const ROLES = ['Admin', 'Super Admin'];
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
 export const MobileAdminForm: React.FC<MobileAdminFormProps> = ({ mode }) => {
@@ -261,7 +260,7 @@ export const MobileAdminForm: React.FC<MobileAdminFormProps> = ({ mode }) => {
           </div>
 
           {/* Role */}
-          <div>
+          {/* <div>
             <label
               htmlFor="mob-admin-role"
               className="text-sm font-semibold text-gray-900 mb-2 block"
@@ -290,7 +289,7 @@ export const MobileAdminForm: React.FC<MobileAdminFormProps> = ({ mode }) => {
             {errors.role && (
               <p className="text-xs text-red-500 mt-1.5">{errors.role.message}</p>
             )}
-          </div>
+          </div> */}
 
           {/* Phone Number (Optional) */}
           <div>

@@ -26,6 +26,8 @@ const CreateVoucher = () => {
   const handleSubmit = (formData: VoucherFormData) => {
     const payload: VoucherApiData = {
       code: formData.code,
+      category: formData.category,
+      scope: formData.scope,
       type: formData.type,
       discountValue: formData.discountValue,
       minOrder: formData.minOrder,

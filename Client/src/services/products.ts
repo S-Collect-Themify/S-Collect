@@ -140,3 +140,33 @@ export const deleteProductImage = async (
     throw handleServiceError(err, `Failed to delete product image ${imageId}`);
   }
 };
+
+export const searchVendorProducts = async (query: {
+  pageNum?: number;
+  pageSize?: number;
+  search?: string;
+  categoryId?: string;
+  isActive?: boolean;
+}) => {
+  try {
+    const { data } = await api.post('/vendor/products/search', query);
+    const unwrapped = data && typeof data === 'object' && 'success' in data && 'data' in data
+      ? (data as any).data
+      : data;
+    return unwrapped;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to search vendor products');
+  }
+};
+
+export const bulkUpdateProductStatus = async (params: {
+  productIds: string[];
+  status: 'PUBLISH' | 'UNPUBLISH' | 'DELETE';
+}) => {
+  try {
+    const { data } = await api.post('/vendor/products/bulk-status', params);
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to bulk update product status');
+  }
+};
