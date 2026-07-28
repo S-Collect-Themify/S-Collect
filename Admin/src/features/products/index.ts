@@ -1,5 +1,5 @@
 export * from './types';
-export * from './data';
+export * from './constants';
 export * from './productStore';
 export * from './useProductsData';
 export * from './components/ProductHeader';

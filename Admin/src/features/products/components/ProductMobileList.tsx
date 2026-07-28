@@ -39,7 +39,7 @@ export const ProductMobileList = ({
                 {isAr && product.nameAr ? product.nameAr : product.name}
               </h3>
               <p className="text-xs text-gray-400 mt-1 truncate">
-                {product.vendor} · {product.category}
+                {product.vendor} · {isAr && product.categoryAr ? product.categoryAr : product.category}
               </p>
             </div>
           </div>
@@ -61,12 +61,10 @@ export const ProductMobileList = ({
               <span className="block text-gray-400 text-[11px]">
                 {t('productsListing.mobile.stock')}
               </span>
-              <span
-                className={`font-semibold text-sm ${
-                  product.stock === 0 ? 'text-red-500' : 'text-gray-900'
-                }`}
-              >
-                {product.stock}
+              <span className="font-semibold text-sm text-gray-700">
+                {product.stock !== undefined && product.stock !== null && product.stock !== ''
+                  ? product.stock
+                  : '-'}
               </span>
             </div>
 

@@ -21,9 +21,9 @@ export const VoucherPagination = ({
 
   const limit = itemsPerPage > 0 ? itemsPerPage : 20;
 
-  if (totalItems <= limit || totalPages <= 1) return null;
+  if (totalItems === 0) return null;
 
-  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const startItem = (currentPage - 1) * limit + 1;
   const endItem = Math.min(currentPage * limit, totalItems);
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);

@@ -54,7 +54,9 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
               <td className="py-4 px-6 text-gray-700">{product.vendor}</td>
 
               {/* Category */}
-              <td className="py-4 px-6 text-gray-700">{product.category}</td>
+              <td className="py-4 px-6 text-gray-700">
+                {isAr && product.categoryAr ? product.categoryAr : product.category}
+              </td>
 
               {/* Price */}
               <td className="py-4 px-6 font-medium text-gray-900">
@@ -63,14 +65,10 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
 
               {/* Stock */}
               <td className="py-4 px-6">
-                <span
-                  className={
-                    product.stock === 0
-                      ? 'text-red-500 font-semibold'
-                      : 'text-gray-900 font-medium'
-                  }
-                >
-                  {product.stock}
+                <span className="text-gray-700 font-medium">
+                  {product.stock !== undefined && product.stock !== null && product.stock !== ''
+                    ? product.stock
+                    : '-'}
                 </span>
               </td>
 

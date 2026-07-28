@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { INITIAL_PRODUCTS } from './data';
 import type { ProductItem, StatusFilter, DisableModalState } from './types';
 
 interface ProductStore {
@@ -24,7 +23,7 @@ interface ProductStore {
 }
 
 export const useProductStore = create<ProductStore>((set) => ({
-  products: INITIAL_PRODUCTS,
+  products: [],
   search: '',
   vendorFilter: 'all',
   categoryFilter: 'all',
