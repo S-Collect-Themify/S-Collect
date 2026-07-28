@@ -181,3 +181,26 @@ export function AccountSettingsFormSkeleton() {
     </div>
   );
 }
+
+export function BankAccountFormSkeleton() {
+  return (
+    <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 animate-pulse">
+      <div className="h-6 w-48 bg-gray-200 rounded" />
+      <div className="mt-2 h-4 w-72 bg-gray-200 rounded" />
+      <div className="mt-4 h-16 w-full bg-gray-100 rounded-xl" />
+      <div className="mt-6">
+        <FieldSkeleton labelWidth="w-24" />
+      </div>
+      <div className="mt-6">
+        <FieldSkeleton labelWidth="w-16" />
+      </div>
+      <div className="mt-6">
+        <FieldSkeleton labelWidth="w-36" />
+      </div>
+      <div className="mt-8 flex justify-center md:justify-end gap-3">
+        <div className="h-10 w-32 bg-gray-200 rounded-xl" />
+        <div className="h-10 w-24 bg-gray-200 rounded-xl" />
+      </div>
+    </div>
+  );
+}
