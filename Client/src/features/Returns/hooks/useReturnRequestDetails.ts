@@ -14,11 +14,6 @@ import type { ReturnItem } from '../types';
 
 export function useReturnRequestDetails(rawId: string, decodedId: string) {
   const queryClient = useQueryClient();
-  const isUuid =
-    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
-      rawId
-    );
-
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [internalNote, setInternalNote] = useState('');
