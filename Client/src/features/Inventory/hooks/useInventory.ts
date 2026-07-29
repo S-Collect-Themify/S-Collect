@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -53,6 +53,7 @@ export function useInventory() {
         maxStock,
       }),
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 
@@ -95,6 +96,25 @@ export function useInventory() {
   const totalItems = rawInventory?.pagination?.totalItems || 0;
   const totalPages = rawInventory?.pagination?.totalPages || 0;
   const paginatedData = rows;
+
+  // Prefetch the next page data in background
+  useEffect(() => {
+    if (currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      queryClient.prefetchQuery({
+        queryKey: ['inventory', nextPage, activeTab, search],
+        queryFn: () =>
+          getVendorInventory({
+            pageNum: nextPage,
+            pageSize: ITEMS_PER_PAGE,
+            search: search || undefined,
+            minStock,
+            maxStock,
+          }),
+        staleTime: 5 * 60 * 1000,
+      });
+    }
+  }, [currentPage, totalPages, activeTab, search, minStock, maxStock, queryClient]);
 
   const pageNumbers = useMemo(
     () => Array.from({ length: totalPages }, (_, i) => i + 1),

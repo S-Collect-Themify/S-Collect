@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ProductCard from './ProductCard';
-import { useManagementStore, useManagementTable, useManagementActions } from '../managementStore';
+import { useManagementStore } from '../managementStore';
+import { useManagementTable, useManagementActions } from '../useManagementHooks';
 import CategoryDropdown from '../CategoryDropdown';
 import StatusDropdown from '../StatusDropdown';
 

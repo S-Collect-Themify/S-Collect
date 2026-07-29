@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { X, Check } from 'lucide-react';
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
-import { useManagementStore, useManagementTable, useManagementActions } from './managementStore';
+import { useManagementStore } from './managementStore';
+import { useManagementTable, useManagementActions } from './useManagementHooks';
 import CategoryDropdown from './CategoryDropdown';
 import StatusDropdown from './StatusDropdown';
 
