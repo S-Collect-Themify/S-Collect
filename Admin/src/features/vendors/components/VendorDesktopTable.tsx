@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Inbox } from 'lucide-react';
 import Toggle from '../../mangement/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
@@ -83,19 +84,16 @@ export default function VendorDesktopTable({
               <td colSpan={colSpan} className="text-center py-16 text-gray-400">
                 {activeTab === 'pending' ? (
                   /* ── "No Pending Requests" empty state ── */
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
-                      <i className="ti ti-mail text-2xl text-gray-400" aria-hidden="true" />
+                  <div className="flex flex-col items-center justify-center text-center py-12 sm:py-16 px-4">
+                    <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#F5F5F6] flex items-center justify-center mb-5 text-gray-900 shadow-2xs">
+                      <Inbox size={32} strokeWidth={1.5} className="text-gray-900" />
                     </div>
-                    <div>
-                      <p className="text-base font-semibold text-gray-700 mb-1">
-                        {t('vendors.table.noPendingRequests')}
-                      </p>
-                      <p className="text-sm text-gray-400 max-w-xs mx-auto">
-                        {t('vendors.table.noPendingSubtext')}
-                      </p>
-                    </div>
-                  
+                    <h3 className="font-bold text-gray-900 text-xl sm:text-2xl mb-2.5 tracking-tight">
+                      {t('vendors.table.noPendingRequests', 'No Pending Requests')}
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-500 max-w-sm mx-auto font-normal leading-relaxed">
+                      {t('vendors.table.noPendingSubtext', 'All vendor applications have been reviewed. New requests will appear here.')}
+                    </p>
                   </div>
                 ) : (
                   /* ── Generic empty state ── */

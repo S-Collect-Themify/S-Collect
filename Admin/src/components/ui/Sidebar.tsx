@@ -20,8 +20,7 @@ import Logo from '../ui/Logo';
 import LogoutModal from '../auth/LogoutModal';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import type { Variants } from 'motion/react';
+import { motion } from 'motion/react';
 import { Globe, Check } from 'lucide-react';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
@@ -136,12 +135,12 @@ const NavItem = ({
   const { t } = useTranslation();
 
   return (
-    <motion.div variants={navItemVariants}>
+    <div>
       <NavLink
         to={to ?? '#'}
         onClick={onClick}
         className={({ isActive }) =>
-          `group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 ease-in-out relative overflow-hidden text-label-md
+          `group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-label-md
           ${isActive
             ? 'bg-gray-800 text-gray-50 font-medium'
             : danger
@@ -152,9 +151,8 @@ const NavItem = ({
       >
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{t(labelKey)}</span>
-        <span className="absolute left-0 top-0 h-full w-0 bg-gray-700/20 group-hover:w-full transition-all duration-300" />
       </NavLink>
-    </motion.div>
+    </div>
   );
 };
 
@@ -186,19 +184,18 @@ const LogoutNavItem = () => {
 
   return (
     <>
-      <motion.div variants={navItemVariants}>
+      <div>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 ease-in-out relative overflow-hidden text-label-md text-gray-400 hover:bg-red-500/10 hover:text-red-500 w-full"
+          className="group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-label-md text-gray-400 hover:bg-red-500/10 hover:text-red-500 w-full text-start"
         >
           <span className="shrink-0">
             <LogOut size={18} />
           </span>
           <span className="truncate">{t('sidebar.items.logout')}</span>
-          <span className="absolute left-0 top-0 h-full w-0 bg-gray-700/20 group-hover:w-full transition-all duration-300" />
         </button>
-      </motion.div>
+      </div>
 
       <LogoutModal
         open={open}
@@ -215,14 +212,11 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
   const { t } = useTranslation();
 
   return (
-    <motion.div variants={navListVariants} className="px-3 mt-5">
-      <motion.p
-        variants={navItemVariants}
-        className="text-caption font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2"
-      >
+    <div className="px-3 mt-5">
+      <p className="text-caption font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
         {t(titleKey)}
-      </motion.p>
-      <motion.div variants={navListVariants} className="flex flex-col gap-0.5">
+      </p>
+      <div className="flex flex-col gap-0.5">
         {items.map((item) =>
           item.isLogout ? (
             <LogoutNavItem key="logout" />
@@ -230,8 +224,8 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
             <NavItem key={item.to} {...item} onClick={onItemClick} />
           )
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 
@@ -324,48 +318,6 @@ const NAV_SECTIONS: NavSectionProps[] = [
   },
 ];
 
-// ─── Animation Variants ───────────────────────────────────────────────────────
-const getSidebarVariants = (isArabic: boolean): Variants => ({
-  open: {
-    clipPath: `circle(150% at ${isArabic ? '100%' : '0%'} 0%)`,
-    transition: {
-      type: 'spring',
-      stiffness: 50,
-      damping: 18,
-    },
-  },
-  closed: {
-    clipPath: `circle(0% at ${isArabic ? '100%' : '0%'} 0%)`,
-    transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 40,
-    },
-  },
-});
-
-const navListVariants: Variants = {
-  open: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.15 },
-  },
-  closed: {
-    transition: { staggerChildren: 0.04, staggerDirection: -1 },
-  },
-};
-
-const navItemVariants: Variants = {
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 300, damping: 24 },
-  },
-  closed: {
-    opacity: 0,
-    y: 10,
-    transition: { duration: 0.2 },
-  },
-};
-
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   useEffect(() => {
@@ -382,8 +334,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const isArabic = i18n.language === 'ar';
 
-  const sidebarVariants = getSidebarVariants(isArabic);
-
   const SidebarContent = (
     <>
       <div className="shrink-0 flex items-center justify-between pt-5 px-5 sidebar:justify-start">
@@ -398,10 +348,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         </button>
       </div>
 
-      <motion.nav
-        variants={navListVariants}
-        className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-800"
-      >
+      <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-800">
         {NAV_SECTIONS.map((section) => (
           <NavSection
             key={section.titleKey}
@@ -413,46 +360,36 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div className="px-3 mt-5 sidebar:hidden">
           <LanguageDropdown />
         </div>
-      </motion.nav>
+      </nav>
     </>
   );
 
   return (
     <>
       <aside
-        className={`hidden sidebar:flex w-64 h-dvh bg-(--gray-950) flex-col sticky top-0 z-70 ${isArabic ? 'right-0' : 'left-0'
-          }`}
+        className={`hidden sidebar:flex w-64 h-dvh bg-(--gray-950) flex-col sticky top-0 z-70 ${
+          isArabic ? 'right-0' : 'left-0'
+        }`}
       >
         {SidebarContent}
       </aside>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              key="sidebar-overlay"
-              className="fixed inset-0 bg-black/70 z-60 sidebar:hidden overscroll-none"
-              onClick={onClose}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            />
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/70 z-60 sidebar:hidden overscroll-none"
+            onClick={onClose}
+          />
 
-            <motion.aside
-              key="sidebar-mobile"
-              className={`w-64 h-dvh bg-(--gray-950) flex flex-col fixed top-0 z-70 sidebar:hidden ${isArabic ? 'right-0' : 'left-0'
-                }`}
-              variants={sidebarVariants}
-              initial="closed"
-              animate="open"
-              exit="closed"
-            >
-              <motion.div className="contents">{SidebarContent}</motion.div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+          <aside
+            className={`w-64 h-dvh bg-(--gray-950) flex flex-col fixed top-0 z-70 sidebar:hidden ${
+              isArabic ? 'right-0' : 'left-0'
+            }`}
+          >
+            <div className="contents">{SidebarContent}</div>
+          </aside>
+        </>
+      )}
     </>
   );
 };
