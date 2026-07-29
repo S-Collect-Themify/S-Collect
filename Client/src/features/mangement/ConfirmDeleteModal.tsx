@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { Check, AlertTriangle, Trash2 } from 'lucide-react';
@@ -39,11 +40,19 @@ export function ConfirmDeleteModal({
   onClose,
 }: ConfirmDeleteModalProps) {
   const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { bg, icon: Icon, iconClass } = iconConfig[iconVariant];
 
   const handleClose = () => {
     toast.dismiss();
     onClose?.();
+  };
+
+  const handleConfirmClick = () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    onConfirm();
+    handleClose();
   };
 
   return (
@@ -76,19 +85,18 @@ export function ConfirmDeleteModal({
         <div className="mt-8 flex gap-3">
           <button
             type="button"
-            onClick={() => {
-              onConfirm();
-              handleClose();
-            }}
-            className={`flex-1 cursor-pointer rounded-lg py-3 text-sm font-medium text-white transition ${confirmClassName}`}
+            disabled={isSubmitting}
+            onClick={handleConfirmClick}
+            className={`flex-1 cursor-pointer rounded-lg py-3 text-sm font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${confirmClassName}`}
           >
             {t(confirmKey)}
           </button>
 
           <button
             type="button"
+            disabled={isSubmitting}
             onClick={handleClose}
-            className="flex-1 cursor-pointer rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            className="flex-1 cursor-pointer rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('managementTable.cancel')}
           </button>

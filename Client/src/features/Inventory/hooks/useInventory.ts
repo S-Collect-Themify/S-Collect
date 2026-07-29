@@ -212,7 +212,15 @@ export function useInventory() {
     },
   });
 
+  const lastSaveClickRef = useRef<number>(0);
+
   const handleSave = async () => {
+    const now = Date.now();
+    if (saveMutation.isPending || now - lastSaveClickRef.current < 600) {
+      return;
+    }
+    lastSaveClickRef.current = now;
+
     const changesList = Object.values(pendingChanges.current);
     if (changesList.length === 0) {
       toast.error(t('inventoryPage.noChanges', 'No changes to save.'));

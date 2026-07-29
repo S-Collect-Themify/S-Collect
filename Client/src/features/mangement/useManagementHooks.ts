@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -125,6 +125,7 @@ export function useManagementActions() {
   const queryClient = useQueryClient();
   const selectedRows = useManagementStore((s) => s.selectedRows);
   const clearSelection = useManagementStore((s) => s.clearSelection);
+  const lastClickRef = useRef<number>(0);
 
   const bulkStatusMutation = useMutation({
     mutationFn: (params: {
@@ -148,29 +149,41 @@ export function useManagementActions() {
     },
   });
 
+  const safeMutate = (params: {
+    productIds: string[];
+    status: 'PUBLISH' | 'UNPUBLISH' | 'DELETE';
+  }) => {
+    const now = Date.now();
+    if (bulkStatusMutation.isPending || now - lastClickRef.current < 600) {
+      return;
+    }
+    lastClickRef.current = now;
+    bulkStatusMutation.mutate(params);
+  };
+
   return {
     publishSelected: () =>
-      bulkStatusMutation.mutate({
+      safeMutate({
         productIds: selectedRows.map(String),
         status: 'PUBLISH',
       }),
     unpublishSelected: () =>
-      bulkStatusMutation.mutate({
+      safeMutate({
         productIds: selectedRows.map(String),
         status: 'UNPUBLISH',
       }),
     deleteSelected: () =>
-      bulkStatusMutation.mutate({
+      safeMutate({
         productIds: selectedRows.map(String),
         status: 'DELETE',
       }),
     deleteSingle: (id: string | number) =>
-      bulkStatusMutation.mutate({
+      safeMutate({
         productIds: [String(id)],
         status: 'DELETE',
       }),
     toggleSingle: (id: string | number, currentEnabled: boolean) =>
-      bulkStatusMutation.mutate({
+      safeMutate({
         productIds: [String(id)],
         status: currentEnabled ? 'UNPUBLISH' : 'PUBLISH',
       }),

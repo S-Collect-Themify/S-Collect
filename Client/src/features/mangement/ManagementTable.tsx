@@ -44,6 +44,7 @@ export default function ProductTable() {
     deleteSelected,
     deleteSingle,
     toggleSingle,
+    isPending,
   } = useManagementActions();
 
   const pageNumbers = Array.from(
@@ -149,19 +150,22 @@ export default function ProductTable() {
             </span>
             <div className="flex gap-2">
               <button
-                className="flex items-center gap-1.5 h-9 px-3 border border-red-200 text-red-600 rounded-lg bg-red-50 text-sm cursor-pointer hover:bg-red-100 whitespace-nowrap font-medium"
+                disabled={isPending}
+                className="flex items-center gap-1.5 h-9 px-3 border border-red-200 text-red-600 rounded-lg bg-red-50 text-sm cursor-pointer hover:bg-red-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleDeleteSelected}
               >
                 {t('managementTable.deleteSelected')}
               </button>
               <button
-                className="flex items-center gap-1.5 h-9 px-3 border border-green-200 text-green-700 rounded-lg bg-green-50 text-sm cursor-pointer hover:bg-green-100 whitespace-nowrap font-medium"
+                disabled={isPending}
+                className="flex items-center gap-1.5 h-9 px-3 border border-green-200 text-green-700 rounded-lg bg-green-50 text-sm cursor-pointer hover:bg-green-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handlePublishSelected}
               >
                 {t('managementTable.publishSelected')}
               </button>
               <button
-                className="flex items-center gap-1.5 h-9 px-3 border border-amber-200 text-amber-700 rounded-lg bg-amber-50 text-sm cursor-pointer hover:bg-amber-100 whitespace-nowrap font-medium"
+                disabled={isPending}
+                className="flex items-center gap-1.5 h-9 px-3 border border-amber-200 text-amber-700 rounded-lg bg-amber-50 text-sm cursor-pointer hover:bg-amber-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleUnpublishSelected}
               >
                 {t('managementTable.unpublishSelected')}
@@ -283,24 +287,27 @@ export default function ProductTable() {
           </span>
           <button
             type="button"
+            disabled={isPending}
             onClick={handlePublishSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-green-600 text-green-600 transition-colors hover:bg-green-300 text-sm font-medium"
+            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-green-600 text-green-600 transition-colors hover:bg-green-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={t('managementTable.publishSelected')}
           >
             {t('managementTable.publish')}
           </button>
           <button
             type="button"
+            disabled={isPending}
             onClick={handleUnpublishSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-black text-black transition-colors hover:bg-gray-100 text-sm font-medium"
+            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-black text-black transition-colors hover:bg-gray-100 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={t('managementTable.unpublishSelected')}
           >
             {t('managementTable.unpublish')}
           </button>
           <button
             type="button"
+            disabled={isPending}
             onClick={handleDeleteSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-red-600 text-white bg-red-600 hover:bg-red-700 text-sm font-medium"
+            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-red-600 text-white bg-red-600 hover:bg-red-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={t('managementTable.deleteSelected')}
           >
             {t('managementTable.delete')}
