@@ -1,13 +1,22 @@
 import { create } from 'zustand';
 import { arrayMove } from '@dnd-kit/sortable';
 import type { PlatformSettings, BannerItem, AdminAccount, ShippingZoneItem, VendorShippingRate, AdminSettingsViewMode } from './types';
-import { INITIAL_PLATFORM_SETTINGS, INITIAL_BANNERS, INITIAL_ADMINS, INITIAL_SHIPPING_ZONES, INITIAL_VENDOR_RATES } from './data';
+import { INITIAL_PLATFORM_SETTINGS, INITIAL_ADMINS, INITIAL_SHIPPING_ZONES, INITIAL_VENDOR_RATES } from './data';
 import toast from 'react-hot-toast';
 import i18n from '../../i18n';
+import {
+  getAdminBanners,
+  createAdminBanner,
+  updateAdminBanner,
+  deleteAdminBanner,
+  type BannerLinkType as ApiLinkType,
+} from '../../services/banners';
 
 interface AdminSettingsStore {
   platformSettings: PlatformSettings;
   banners: BannerItem[];
+  bannersLoading: boolean;
+  bannersError: string | null;
   admins: AdminAccount[];
   shippingZones: ShippingZoneItem[];
   vendorRates: VendorShippingRate[];
@@ -38,7 +47,32 @@ interface AdminSettingsStore {
   setEditingAdmin: (admin: AdminAccount | null) => void;
   updatePlatformSettings: (settings: Partial<PlatformSettings>) => void;
   
-  // Banner Actions
+  // Banner API Actions
+  fetchBanners: () => Promise<void>;
+  createBannerApi: (data: {
+    title: string;
+    linkType: ApiLinkType;
+    image: File;
+    linkTargetId?: string;
+    externalUrl?: string;
+    startsAt?: string;
+    endsAt?: string;
+    sortOrder?: number;
+  }) => Promise<boolean>;
+  updateBannerApi: (id: string, data: {
+    title?: string;
+    linkType?: ApiLinkType;
+    image?: File | null;
+    linkTargetId?: string | null;
+    externalUrl?: string | null;
+    startsAt?: string | null;
+    endsAt?: string | null;
+    sortOrder?: number | null;
+    isActive?: boolean;
+  }) => Promise<boolean>;
+  deleteBannerApi: (id: string) => Promise<void>;
+
+  // Legacy Banner Actions (kept for compatibility)
   addBanner: (banner: Omit<BannerItem, 'id' | 'dateAdded'>) => boolean;
   updateBanner: (id: string, banner: Partial<BannerItem>) => boolean;
   toggleBannerStatus: (id: string) => void;
@@ -67,7 +101,9 @@ export const MAX_ACTIVE_BANNERS = 5;
 
 export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   platformSettings: INITIAL_PLATFORM_SETTINGS,
-  banners: INITIAL_BANNERS,
+  banners: [],
+  bannersLoading: false,
+  bannersError: null,
   admins: INITIAL_ADMINS,
   shippingZones: INITIAL_SHIPPING_ZONES,
   vendorRates: INITIAL_VENDOR_RATES,
@@ -93,10 +129,122 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   },
 
   setViewMode: (mode) => set({ viewMode: mode }),
-
   setEditingBanner: (banner) => set({ editingBanner: banner }),
-
   setEditingAdmin: (admin) => set({ editingAdmin: admin }),
+
+  // ── Banner API Actions ──────────────────────────────────────────────────────
+  fetchBanners: async () => {
+    set({ bannersLoading: true, bannersError: null });
+    try {
+      const raw = await getAdminBanners();
+      const mapped: BannerItem[] = raw.map((b) => ({
+        id: b.id,
+        name: b.title,
+        redirectUrl: b.externalUrl || '',
+        isActive: b.isActive,
+        dateAdded: b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+        imageUrl: b.imageUrl,
+        linkType: b.linkType,
+        linkTargetId: b.linkTargetId,
+        externalUrl: b.externalUrl,
+        startsAt: b.startsAt,
+        endsAt: b.endsAt,
+        sortOrder: b.sortOrder,
+      }));
+      set({ banners: mapped, bannersLoading: false });
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to load banners';
+      set({ bannersError: msg, bannersLoading: false });
+    }
+  },
+
+  createBannerApi: async (data) => {
+    try {
+      const created = await createAdminBanner({
+        title: data.title,
+        linkType: data.linkType,
+        image: data.image,
+        linkTargetId: data.linkTargetId,
+        externalUrl: data.externalUrl,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
+        sortOrder: data.sortOrder,
+      });
+      const newBanner: BannerItem = {
+        id: created.id,
+        name: created.title,
+        redirectUrl: created.externalUrl || '',
+        isActive: created.isActive,
+        dateAdded: created.createdAt ? new Date(created.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+        imageUrl: created.imageUrl,
+        linkType: created.linkType,
+        linkTargetId: created.linkTargetId,
+        externalUrl: created.externalUrl,
+        startsAt: created.startsAt,
+        endsAt: created.endsAt,
+        sortOrder: created.sortOrder,
+      };
+      set((state) => ({ banners: [newBanner, ...state.banners], viewMode: 'banners' }));
+      toast.success(i18n.language === 'ar' ? 'تم إضافة البنر بنجاح' : 'Banner added successfully');
+      return true;
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to create banner');
+      return false;
+    }
+  },
+
+  updateBannerApi: async (id, data) => {
+    try {
+      const updated = await updateAdminBanner(id, {
+        title: data.title,
+        linkType: data.linkType,
+        image: data.image ?? undefined,
+        linkTargetId: data.linkTargetId,
+        externalUrl: data.externalUrl,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
+        sortOrder: data.sortOrder,
+        isActive: data.isActive,
+      });
+      const updatedBanner: BannerItem = {
+        id: updated.id,
+        name: updated.title,
+        redirectUrl: updated.externalUrl || '',
+        isActive: updated.isActive,
+        dateAdded: updated.createdAt ? new Date(updated.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+        imageUrl: updated.imageUrl,
+        linkType: updated.linkType,
+        linkTargetId: updated.linkTargetId,
+        externalUrl: updated.externalUrl,
+        startsAt: updated.startsAt,
+        endsAt: updated.endsAt,
+        sortOrder: updated.sortOrder,
+      };
+      set((state) => ({
+        banners: state.banners.map((b) => (b.id === id ? updatedBanner : b)),
+        viewMode: 'banners',
+        editingBanner: null,
+      }));
+      toast.success(i18n.language === 'ar' ? 'تم تحديث البنر بنجاح' : 'Banner updated successfully');
+      return true;
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to update banner');
+      return false;
+    }
+  },
+
+  deleteBannerApi: async (id) => {
+    try {
+      await deleteAdminBanner(id);
+      set((state) => ({
+        banners: state.banners.filter((b) => b.id !== id),
+        deleteModal: { open: false, banner: null },
+      }));
+      toast.success(i18n.language === 'ar' ? 'تم حذف البنر بنجاح' : 'Banner deleted successfully');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to delete banner');
+    }
+  },
 
   updatePlatformSettings: (newSettings) => {
     set((state) => ({

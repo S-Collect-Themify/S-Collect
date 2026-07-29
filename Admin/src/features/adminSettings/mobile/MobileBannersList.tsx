@@ -1,20 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash2, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
-import type { BannerItem } from '../types';
+import type { BannerItem, BannerLinkType } from '../types';
+
+const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
+  CATEGORY: 'Category',
+  PRODUCT: 'Product',
+  VENDOR: 'Vendor',
+  EXTERNAL_URL: 'External',
+};
+
+const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
+  CATEGORY: 'bg-violet-50 text-violet-700 border-violet-100',
+  PRODUCT: 'bg-blue-50 text-blue-700 border-blue-100',
+  VENDOR: 'bg-amber-50 text-amber-700 border-amber-100',
+  EXTERNAL_URL: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+};
 
 export const MobileBannersList: React.FC = () => {
   const { t } = useTranslation();
   const {
     banners,
+    fetchBanners,
     setViewMode,
     setEditingBanner,
     openDeleteModal,
   } = useAdminSettingsStore();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
+
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]);
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
@@ -89,14 +108,11 @@ export const MobileBannersList: React.FC = () => {
                   <h3 className="font-bold text-gray-900 text-sm mb-0.5 truncate">
                     {banner.name}
                   </h3>
-                  <a
-                    href={banner.redirectUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-gray-400 font-normal hover:underline hover:text-black transition-colors block truncate"
-                  >
-                    {banner.redirectUrl}
-                  </a>
+                  {banner.linkType && (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${LINK_TYPE_COLOR[banner.linkType]}`}>
+                      {LINK_TYPE_LABEL[banner.linkType]}
+                    </span>
+                  )}
                 </div>
               </div>
 
