@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, TrendingUp } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
@@ -20,58 +18,18 @@ import {
   type ChartConfig,
 } from '../../components/ui/chart';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSubOrders } from '../Orders/useSubOrders';
 
 type Period = 'month' | 'week' | 'day';
 
-const monthlyData = [
-  { label: 'January', desktop: 186 },
-  { label: 'February', desktop: 305 },
-  { label: 'March', desktop: 237 },
-  { label: 'April', desktop: 73 },
-  { label: 'May', desktop: 209 },
-  { label: 'June', desktop: 214 },
-  { label: 'July', desktop: 168 },
-  { label: 'August', desktop: 295 },
-  { label: 'September', desktop: 232 },
-  { label: 'October', desktop: 182 },
-  { label: 'November', desktop: 276 },
-  { label: 'December', desktop: 312 },
-];
-
-const weeklyData = [
-  { label: 'Sat', desktop: 124 },
-  { label: 'Sun', desktop: 198 },
-  { label: 'Mon', desktop: 156 },
-  { label: 'Tue', desktop: 241 },
-  { label: 'Wed', desktop: 178 },
-  { label: 'Thu', desktop: 263 },
-  { label: 'Fri', desktop: 195 },
-];
-
-const dailyData = [
-  { label: '00:00', desktop: 42 },
-  { label: '04:00', desktop: 28 },
-  { label: '08:00', desktop: 67 },
-  { label: '12:00', desktop: 134 },
-  { label: '16:00', desktop: 189 },
-  { label: '20:00', desktop: 112 },
-  { label: '23:59', desktop: 78 },
-];
-
-const dataByPeriod: Record<Period, { label: string; desktop: number }[]> = {
-  month: monthlyData,
-  week: weeklyData,
-  day: dailyData,
-};
-
 const chartConfig = {
   desktop: {
-    label: 'Desktop',
+    label: 'Sales (SAR)',
     color: 'var(--chart-1)',
   },
 } satisfies ChartConfig;
 
-// ─── Portal-based dropdown — لا يُضيف overflow-hidden على الـ body ────────────
+// ─── Portal-based dropdown ───────────────────────────────────────────────────
 function PeriodDropdown({
   options,
   value,
@@ -125,7 +83,7 @@ function PeriodDropdown({
       <button
         ref={btnRef}
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 focus:outline-none"
+        className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 focus:outline-none cursor-pointer"
       >
         {selectedLabel}
         <motion.span
@@ -184,6 +142,11 @@ export default function SalesChart() {
   const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>('month');
 
+  const { data: subOrdersData } = useSubOrders({
+    pageNum: 1,
+    pageSize: 100,
+  });
+
   const periodOptions: { value: Period; label: string }[] = [
     { value: 'month', label: t('salesChart.lastMonth') },
     { value: 'week', label: t('salesChart.lastWeek') },
@@ -191,7 +154,68 @@ export default function SalesChart() {
   ];
 
   const selectedOption = periodOptions.find((o) => o.value === period)!;
-  const chartData = dataByPeriod[period];
+
+  const chartData = useMemo(() => {
+    const orders = subOrdersData?.items || [];
+    if (period === 'month') {
+      const monthKeys = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const map: Record<string, number> = {};
+      monthKeys.forEach((m) => (map[m] = 0));
+      orders.forEach((o) => {
+        if (o.createdAt) {
+          const d = new Date(o.createdAt);
+          if (!isNaN(d.getTime())) {
+            const mKey = d.toLocaleString('en-US', { month: 'short' });
+            const amt = typeof o.totalAmount === 'number'
+              ? o.totalAmount
+              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            if (map[mKey] !== undefined) map[mKey] += amt;
+          }
+        }
+      });
+      return monthKeys.map((m) => ({ label: m, desktop: Math.round(map[m]) }));
+    } else if (period === 'week') {
+      const weekKeys = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+      const map: Record<string, number> = {};
+      weekKeys.forEach((w) => (map[w] = 0));
+      orders.forEach((o) => {
+        if (o.createdAt) {
+          const d = new Date(o.createdAt);
+          if (!isNaN(d.getTime())) {
+            const wKey = d.toLocaleString('en-US', { weekday: 'short' });
+            const amt = typeof o.totalAmount === 'number'
+              ? o.totalAmount
+              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            if (map[wKey] !== undefined) map[wKey] += amt;
+          }
+        }
+      });
+      return weekKeys.map((w) => ({ label: w, desktop: Math.round(map[w]) }));
+    } else {
+      const dayKeys = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
+      const map: Record<string, number> = {};
+      dayKeys.forEach((k) => (map[k] = 0));
+      orders.forEach((o) => {
+        if (o.createdAt) {
+          const d = new Date(o.createdAt);
+          if (!isNaN(d.getTime())) {
+            const hr = d.getHours();
+            let k = '00:00';
+            if (hr >= 20) k = '20:00';
+            else if (hr >= 16) k = '16:00';
+            else if (hr >= 12) k = '12:00';
+            else if (hr >= 8) k = '08:00';
+            else if (hr >= 4) k = '04:00';
+            const amt = typeof o.totalAmount === 'number'
+              ? o.totalAmount
+              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            if (map[k] !== undefined) map[k] += amt;
+          }
+        }
+      });
+      return dayKeys.map((k) => ({ label: k, desktop: Math.round(map[k]) }));
+    }
+  }, [subOrdersData?.items, period]);
 
   return (
     <Card className="lg:h-[512px] lg:flex lg:flex-col">

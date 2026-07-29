@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronsRight } from 'lucide-react';
 
-import { SuccessToast } from '../features/settings/shared';
 import {
   SettingsTabs,
   type SettingsTab,
@@ -16,7 +15,6 @@ import { ShippingTab } from '../features/settings/components/ShippingTab';
 export default function SettingsPage() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<SettingsTab>('store-details');
-  const [toast, setToast] = useState<string | null>(null);
 
   const breadcrumb =
     tab === 'store-details'
@@ -38,16 +36,12 @@ export default function SettingsPage() {
         </nav>
       </div>
       <div className="settings-page-enter min-h-screen bg-gray-100">
-        {toast && (
-          <SuccessToast message={toast} onClose={() => setToast(null)} />
-        )}
-
         <div className="settings-surface-enter settings-stagger-1 p-2 md:p-4 md:px-8 md:py-7 max-w-180">
           <SettingsTabs tab={tab} onChange={setTab} />
 
           <div key={tab} className="settings-surface-enter">
-            {tab === 'store-details' && <StoreDetailsTab onToast={setToast} />}
-            {tab === 'bank-account' && <BankAccountTab onToast={setToast} />}
+            {tab === 'store-details' && <StoreDetailsTab />}
+            {tab === 'bank-account' && <BankAccountTab />}
             {tab === 'shipping' && <ShippingTab />}
           </div>
         </div>

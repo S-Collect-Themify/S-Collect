@@ -39,9 +39,14 @@ export const useUpdateStoreProfile = () => {
         hasChanges = true;
       }
 
-      // Do not upload or send the logo field unless the user selects a new image
+      const isLogoRemoved = !data.storeLogoUrl && !!cached?.storeLogoUrl;
+
+      // Do not upload or send the logo field unless the user selects a new image or removes it
       if (data.logoFile instanceof File) {
         formData.append('logo', data.logoFile);
+        hasChanges = true;
+      } else if (isLogoRemoved) {
+        formData.append('logo', '');
         hasChanges = true;
       }
 
@@ -54,31 +59,36 @@ export const useUpdateStoreProfile = () => {
         ? (rawResponse as any).data
         : rawResponse;
       
+      const finalLogoUrl = isLogoRemoved ? null : (response?.logoUrl || null);
+
       let logoFileName: string | null = null;
-      if (response.logoUrl) {
+      if (finalLogoUrl) {
         try {
-          const urlParts = response.logoUrl.split('/');
+          const urlParts = finalLogoUrl.split('/');
           logoFileName = urlParts[urlParts.length - 1] || 'logo';
         } catch {
           logoFileName = 'logo';
         }
       }
 
-      return {
-        storeName: response.storeName || '',
-        storeNameAr: response.storeNameAr || '',
-        storeDescription: typeof response.storeDescription === 'string' ? response.storeDescription : '',
-        publicEmail: typeof response.publicEmail === 'string' ? response.publicEmail : '',
-        phoneNumber: typeof response.publicPhoneNumber === 'string' ? response.publicPhoneNumber : '',
-        storeLogoUrl: response.logoUrl || null,
+      const updatedProfile: StoreProfileData = {
+        storeName: response?.storeName || data.storeName || '',
+        storeNameAr: response?.storeNameAr || data.storeNameAr || '',
+        storeDescription: typeof response?.storeDescription === 'string' ? response.storeDescription : (data.storeDescription || ''),
+        publicEmail: typeof response?.publicEmail === 'string' ? response.publicEmail : (data.publicEmail || ''),
+        phoneNumber: typeof response?.publicPhoneNumber === 'string' ? response.publicPhoneNumber : (data.phoneNumber || ''),
+        storeLogoUrl: finalLogoUrl,
         storeLogoFileName: logoFileName,
-        originalStoreNameAr: response.storeNameAr || '',
+        originalStoreNameAr: response?.storeNameAr || data.storeNameAr || '',
         logoFile: null,
-      } as StoreProfileData;
+      };
+
+      return updatedProfile;
     },
     onSuccess: (updatedData) => {
       queryClient.setQueryData(STORE_PROFILE_QUERY_KEY, updatedData);
       queryClient.invalidateQueries({ queryKey: STORE_PROFILE_QUERY_KEY });
+      toast.success('Store profile updated successfully!');
     },
     onError: (err: unknown) => {
       console.error('Failed to update store profile:', err);

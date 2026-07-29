@@ -155,12 +155,15 @@ export default function BankAccountForm({
           {...register('iban', {
             required: t('settings.bank.ibanRequired'),
             validate: (value) => {
-              // If it's a masked IBAN (contains *), it's clean and unmodified, so it is valid
               if (value.includes('*')) {
-                return true;
+                return (
+                  t('settings.bank.ibanFullRequired') ||
+                  'Please enter full IBAN starting with SA'
+                );
               }
-              // Otherwise, it must match the pattern /^SA\d{22}$/
-              return /^SA\d{22}$/.test(value) || t('settings.bank.ibanInvalid');
+              return (
+                /^SA\d{22}$/.test(value) || t('settings.bank.ibanInvalid')
+              );
             },
             setValueAs: (value: string) => value?.toUpperCase() || '',
           })}

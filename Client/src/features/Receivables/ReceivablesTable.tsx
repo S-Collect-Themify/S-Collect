@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  transactions,
   ITEMS_PER_PAGE,
+  type Transaction,
   type TransactionStatus,
 } from './constants';
-import { getDateKey } from './utils';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useSubOrders } from '../Orders/useSubOrders';
 import DateFilterDropdown from './DateFilterDropdown';
 import StatusFilterDropdown from './StatusFilterDropdown';
 import TransactionRow from './TransactionRow';
@@ -24,24 +24,54 @@ export default function ReceivablesTable() {
   const [selectedDate, setSelectedDate] = useState('all');
   const [page, setPage] = useState(1);
 
+  const { data, isLoading } = useSubOrders({
+    pageNum: page,
+    pageSize: ITEMS_PER_PAGE,
+  });
+
+  const transactions: Transaction[] = useMemo(() => {
+    if (!data?.items) return [];
+    return data.items.map((subOrder) => {
+      const totalAmt =
+        typeof (subOrder as any).totalAmount === 'number'
+          ? (subOrder as any).totalAmount
+          : (subOrder.items?.reduce((acc, item) => acc + (item.lineTotal || 0), 0) || 0) +
+            (subOrder.shippingRateApplied || 0);
+      let statusMapped: TransactionStatus = 'pending';
+      if (subOrder.status === 'DELIVERED') statusMapped = 'paid';
+      else if (subOrder.status === 'PROCESSING' || subOrder.status === 'SHIPPED') statusMapped = 'processing';
+      else if (subOrder.status === 'CANCELLED') statusMapped = 'failed';
+      else statusMapped = 'pending';
+
+      const d = new Date(subOrder.createdAt);
+      const formattedDate = isNaN(d.getTime())
+        ? subOrder.createdAt
+        : d.toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+
+      return {
+        date: formattedDate,
+        referenceNumber: `#${subOrder.id.slice(-8).toUpperCase()}`,
+        status: statusMapped,
+        amount: totalAmt,
+      };
+    });
+  }, [data?.items, isArabic]);
+
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {
       if (selectedStatus !== 'all' && tx.status !== selectedStatus)
         return false;
-      if (selectedDate !== 'all' && getDateKey(tx.date) !== selectedDate)
-        return false;
       return true;
     });
-  }, [selectedStatus, selectedDate]);
+  }, [transactions, selectedStatus]);
 
-  const totalItems = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const totalItems = data?.pagination?.totalItems ?? filtered.length;
+  const totalPages = data?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
-
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, currentPage]);
 
   const rangeStart =
     totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -81,7 +111,11 @@ export default function ReceivablesTable() {
       {/* Table or mobile cards */}
       {isMobile ? (
         <div className="flex flex-col gap-3">
-          {paginatedData.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-10 text-gray-400 animate-pulse">
+              <p>{t('settings.loading') || 'Loading...'}</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-10 text-gray-400">
               <i
                 className="ti ti-receipt-off text-2xl block mb-2"
@@ -90,7 +124,7 @@ export default function ReceivablesTable() {
               <p>{t('receivables.noTransactions')}</p>
             </div>
           ) : (
-            paginatedData.map((tx, i) => (
+            filtered.map((tx, i) => (
               <MobileTransactionCard
                 key={tx.referenceNumber}
                 transaction={tx}
@@ -101,7 +135,7 @@ export default function ReceivablesTable() {
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-sm  ">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="first:bg-gray-100">
                 {tableHeaders.map((h) => (
@@ -116,7 +150,13 @@ export default function ReceivablesTable() {
             </thead>
 
             <tbody>
-              {paginatedData.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-10 text-gray-400 animate-pulse">
+                    <p>{t('settings.loading') || 'Loading...'}</p>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="text-center py-10 text-gray-400">
                     <i
@@ -127,7 +167,7 @@ export default function ReceivablesTable() {
                   </td>
                 </tr>
               ) : (
-                paginatedData.map((tx, i) => (
+                filtered.map((tx, i) => (
                   <TransactionRow
                     key={tx.referenceNumber}
                     transaction={tx}

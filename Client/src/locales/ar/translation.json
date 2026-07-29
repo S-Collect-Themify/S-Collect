@@ -48,7 +48,7 @@
   },
   "inventoryAlerts": "تنبيهات المخزون",
   "inventoryItem": {
-    "alertMessage": "5 منتجات على وشك نفاد المخزون",
+    "alertMessage": "منتجات على وشك نفاد المخزون",
     "lowStock": "مخزون منخفض",
     "outOfStock": "نفاد المخزون",
     "inStock": "متوفر",

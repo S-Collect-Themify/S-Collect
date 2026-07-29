@@ -35,6 +35,10 @@ export const useStoreProfile = () => {
         }
       }
 
+      const isLogoRemoved = typeof window !== 'undefined' && localStorage.getItem('vendor_logo_removed') === 'true';
+      const storeLogoUrl = isLogoRemoved ? null : (data.logoUrl || null);
+      const storeLogoFileName = isLogoRemoved ? null : logoFileName;
+
       return {
         ...defaultStoreProfile,
         storeName: data.storeName || '',
@@ -42,8 +46,8 @@ export const useStoreProfile = () => {
         storeDescription: typeof data.storeDescription === 'string' ? data.storeDescription : '',
         publicEmail: typeof data.publicEmail === 'string' ? data.publicEmail : '',
         phoneNumber: typeof data.publicPhoneNumber === 'string' ? data.publicPhoneNumber : '',
-        storeLogoUrl: data.logoUrl || null,
-        storeLogoFileName: logoFileName,
+        storeLogoUrl,
+        storeLogoFileName,
         originalStoreNameAr: data.storeNameAr || '',
       };
     },

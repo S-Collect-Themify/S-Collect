@@ -19,7 +19,10 @@ const MobileOrderCards = ({
     {orders.map((order, index) => {
       const itemsTotal =
         order.items?.reduce((s, i) => s + (i.lineTotal ?? 0), 0) ?? 0;
-      const grandTotal = itemsTotal + (order.shippingRateApplied ?? 0);
+      const grandTotal =
+        typeof (order as any).totalAmount === 'number'
+          ? (order as any).totalAmount
+          : itemsTotal + (order.shippingRateApplied ?? 0);
       const firstProduct = order.items?.[0]?.productName ?? '—';
       const formattedId = `#${order.id.slice(0, 8).toUpperCase()}`;
 

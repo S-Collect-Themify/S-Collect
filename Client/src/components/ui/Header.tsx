@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu, User } from 'lucide-react';
+import { Menu, User, Store } from 'lucide-react';
 import InputSearch from './InputSearch';
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';
@@ -129,10 +129,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             <div className="sidebar:hidden block">
               <InputSearch />
             </div>
-            <Link
-              to="/login"
-              className="inline-flex h-11 w-11 items-center justify-center text-gray-50 transition-colors"
-              aria-label="Account"
+            <div
+              aria-label={t('header.account')}
+              className="inline-flex h-11 w-11 items-center justify-center text-gray-50"
             >
               {logoUrl ? (
                 <img
@@ -141,9 +140,11 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                   className="h-8 w-8 rounded-full object-cover border border-white/20"
                 />
               ) : (
-                <User size={24} />
+                <div className="h-8 w-8 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shadow-sm">
+                  <Store size={18} />
+                </div>
               )}
-            </Link>
+            </div>
           </div>
         </div>
 
@@ -167,21 +168,22 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             <LanguageDropdown />
           </div>
 
-          <Link
-            to="/login"
+          <div
             aria-label={t('header.account')}
-            className="hidden text-2xl hover:text-gray-300 sidebar:block focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
+            className="hidden text-2xl sidebar:block"
           >
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt="Store Logo"
-                className="h-7 w-7 rounded-full object-cover border border-white/20"
+                className="h-8 w-8 rounded-full object-cover border border-white/20"
               />
             ) : (
-              <User />
+              <div className="h-8 w-8 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shadow-sm">
+                <Store size={18} />
+              </div>
             )}
-          </Link>
+          </div>
         </div>
       </div>
     </header>

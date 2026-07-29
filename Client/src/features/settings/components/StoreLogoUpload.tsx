@@ -212,9 +212,10 @@ export function StoreLogoUpload() {
       URL.revokeObjectURL(storeLogoUrl);
     }
 
-    setValue('storeLogoUrl', URL.createObjectURL(file), { shouldDirty: true });
-    setValue('storeLogoFileName', file.name, { shouldDirty: true });
-    setValue('logoFile', file, { shouldDirty: true });
+    localStorage.removeItem('vendor_logo_removed');
+    setValue('storeLogoUrl', URL.createObjectURL(file), { shouldDirty: true, shouldValidate: true });
+    setValue('storeLogoFileName', file.name, { shouldDirty: true, shouldValidate: true });
+    setValue('logoFile', file, { shouldDirty: true, shouldValidate: true });
     clearErrors('storeLogoUrl');
   };
 
@@ -222,9 +223,10 @@ export function StoreLogoUpload() {
     if (storeLogoUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(storeLogoUrl);
     }
-    setValue('storeLogoUrl', null, { shouldDirty: true });
-    setValue('storeLogoFileName', null, { shouldDirty: true });
-    setValue('logoFile', null, { shouldDirty: true });
+    localStorage.setItem('vendor_logo_removed', 'true');
+    setValue('storeLogoUrl', null, { shouldDirty: true, shouldValidate: true });
+    setValue('storeLogoFileName', null, { shouldDirty: true, shouldValidate: true });
+    setValue('logoFile', null, { shouldDirty: true, shouldValidate: true });
     clearErrors('storeLogoUrl');
   };
 

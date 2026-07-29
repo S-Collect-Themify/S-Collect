@@ -36,6 +36,18 @@ export function handleServiceError(
     return error;
   }
 
+  console.error('>>> [API Error Debug] Raw Error:', error);
+  if (axios.isAxiosError(error)) {
+    console.error(
+      '>>> [API Error Debug] Response Status:',
+      error.response?.status
+    );
+    console.error(
+      '>>> [API Error Debug] Response Data:',
+      error.response?.data
+    );
+  }
+
   const message = getErrorMessage(error, fallbackMessage);
   let statusCode: number | undefined = undefined;
   let details: unknown = undefined;

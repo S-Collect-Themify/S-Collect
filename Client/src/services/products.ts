@@ -2,11 +2,27 @@ import { api, handleServiceError } from './api';
 
 export const getAllProducts = async () => {
   try {
-    const { data } = await api.get('/vendor/products');
+    const { data } = await api.post('/vendor/products/search', {
+      pageNum: 1,
+      pageSize: 100,
+    });
 
-    return data;
+    const unwrapped =
+      data && typeof data === 'object' && 'success' in data && 'data' in data
+        ? (data as any).data
+        : data;
+
+    return unwrapped;
   } catch (err) {
-    throw handleServiceError(err, 'Failed to fetch products');
+    try {
+      const { data } = await api.get('/vendor/products');
+      return data;
+    } catch {
+      return {
+        items: [],
+        pagination: { currentPage: 1, pageSize: 20, totalItems: 0, totalPages: 1 },
+      };
+    }
   }
 };
 

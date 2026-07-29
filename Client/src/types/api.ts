@@ -39,11 +39,24 @@ export function getErrorMessage(
 ): string {
   if (!error) return defaultMessage;
 
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as ApiAxiosError;
+  let targetError = error;
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'originalError' in error &&
+    (error as any).originalError
+  ) {
+    targetError = (error as any).originalError;
+  }
+
+  if (axios.isAxiosError(targetError)) {
+    const axiosError = targetError as ApiAxiosError;
     const responseData = axiosError.response?.data;
 
     if (responseData) {
+      if (Array.isArray(responseData.message)) {
+        return responseData.message.filter(Boolean).join(', ');
+      }
       if (
         typeof responseData.message === 'string' &&
         responseData.message.trim()
@@ -57,6 +70,9 @@ export function getErrorMessage(
         typeof responseData.error === 'object' &&
         responseData.error?.message
       ) {
+        if (Array.isArray(responseData.error.message)) {
+          return responseData.error.message.filter(Boolean).join(', ');
+        }
         return responseData.error.message;
       }
     }
