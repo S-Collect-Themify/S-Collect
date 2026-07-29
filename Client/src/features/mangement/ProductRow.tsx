@@ -46,7 +46,7 @@ export default function ProductRow({
         {
           titleKey: 'managementTable.toggleUnpublishConfirmTitle',
           confirmKey: 'managementTable.unpublish',
-          confirmClassName: 'bg-amber-600 hover:bg-amber-700',
+          confirmClassName: 'bg-red-600 hover:bg-red-700',
           iconVariant: 'unpublish',
         }
       );

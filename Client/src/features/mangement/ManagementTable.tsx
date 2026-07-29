@@ -80,7 +80,8 @@ export default function ProductTable() {
       {
         titleKey: 'managementTable.unpublishConfirmTitle',
         confirmKey: 'managementTable.unpublish',
-        confirmClassName: 'bg-amber-600 hover:bg-amber-700',
+        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        iconVariant: 'unpublish',
       }
     );
   };

@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { Check, Pause, Trash2 } from 'lucide-react';
+import { Check, AlertTriangle, Trash2 } from 'lucide-react';
 
 type IconVariant = 'delete' | 'publish' | 'unpublish';
 
@@ -11,9 +11,9 @@ const iconConfig: Record<
   delete: { bg: 'bg-red-100', icon: Trash2, iconClass: 'text-red-500' },
   publish: { bg: 'bg-green-100', icon: Check, iconClass: 'text-green-500' },
   unpublish: {
-    bg: 'bg-amber-100',
-    icon: Pause,
-    iconClass: 'text-amber-500',
+    bg: 'bg-red-100',
+    icon: AlertTriangle,
+    iconClass: 'text-red-600',
   },
 };
 
@@ -25,6 +25,7 @@ type ConfirmDeleteModalProps = {
   confirmClassName?: string;
   iconVariant?: IconVariant;
   onConfirm: () => void;
+  onClose?: () => void;
 };
 
 export function ConfirmDeleteModal({
@@ -35,13 +36,25 @@ export function ConfirmDeleteModal({
   confirmClassName = 'bg-red-600 hover:bg-red-700',
   iconVariant = 'delete',
   onConfirm,
+  onClose,
 }: ConfirmDeleteModalProps) {
   const { t } = useTranslation();
   const { bg, icon: Icon, iconClass } = iconConfig[iconVariant];
 
+  const handleClose = () => {
+    toast.dismiss();
+    onClose?.();
+  };
+
   return (
-    <div className="fixed -inset-4 z-[9999] h-screen w-screen flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-[420px] rounded-2xl bg-white p-8 shadow-2xl">
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={handleClose}
+    >
+      <div
+        className="w-full max-w-[420px] rounded-2xl bg-white p-8 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Warning Icon */}
         <div
           className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${bg}`}
@@ -65,7 +78,7 @@ export function ConfirmDeleteModal({
             type="button"
             onClick={() => {
               onConfirm();
-              toast.dismiss();
+              handleClose();
             }}
             className={`flex-1 cursor-pointer rounded-lg py-3 text-sm font-medium text-white transition ${confirmClassName}`}
           >
@@ -74,7 +87,7 @@ export function ConfirmDeleteModal({
 
           <button
             type="button"
-            onClick={() => toast.dismiss()}
+            onClick={handleClose}
             className="flex-1 cursor-pointer rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           >
             {t('managementTable.cancel')}

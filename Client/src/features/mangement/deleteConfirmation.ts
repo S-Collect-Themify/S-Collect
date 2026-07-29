@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import toast from 'react-hot-toast';
+import { createRoot } from 'react-dom/client';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
 
 type ConfirmationOptions = {
@@ -15,16 +15,27 @@ export function showDeleteConfirmation(
   onConfirm: () => void,
   options?: ConfirmationOptions
 ) {
-  toast.custom(
-    () =>
-      createElement(ConfirmDeleteModal, {
-        messageKey,
-        messageValues,
-        onConfirm,
-        ...options,
-      }),
-    {
-      duration: Infinity,
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const root = createRoot(container);
+
+  const cleanup = () => {
+    root.unmount();
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
     }
+  };
+
+  root.render(
+    createElement(ConfirmDeleteModal, {
+      messageKey,
+      messageValues,
+      onConfirm: () => {
+        onConfirm();
+        cleanup();
+      },
+      onClose: cleanup,
+      ...options,
+    })
   );
 }
