@@ -200,7 +200,7 @@ export interface CategoryFormModalProps {
   categories: Category[];
   isSubmitting?: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Category, 'id' | 'productsCount'>) => void;
+  onSave: (data: Omit<Category, 'id' | 'productsCount' | 'image'> & { image?: string | File | null }) => void;
 }
 
 export const CategoryFormModal = ({
@@ -218,6 +218,7 @@ export const CategoryFormModal = ({
   const [nameAr, setNameAr] = useState(category?.nameAr ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
   const [image, setImage] = useState(category?.image ?? '');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
@@ -269,6 +270,7 @@ export const CategoryFormModal = ({
       return;
     }
 
+    setImageFile(file);
     const reader = new FileReader();
     reader.onload = (event) => {
       setImageError(null);
@@ -279,6 +281,7 @@ export const CategoryFormModal = ({
 
   const handleRemoveImage = () => {
     setImage('');
+    setImageFile(null);
     setImageError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -287,7 +290,8 @@ export const CategoryFormModal = ({
 
   const handleSave = () => {
     if (!isValid) return;
-    onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, image, isActive });
+    const finalImage = imageFile ? imageFile : (image.trim() ? image.trim() : null);
+    onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, image: finalImage, isActive });
   };
 
   return (
