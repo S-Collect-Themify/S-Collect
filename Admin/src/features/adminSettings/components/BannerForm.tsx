@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ChevronLeft,
   AlertCircle,
-  CheckCircle2,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
@@ -62,7 +61,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const [products, setProducts] = useState<{ id: string; name: string; nameEn?: string }[]>([]);
   const [ddlLoading, setDdlLoading] = useState(false);
 
-  const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
   const [titleError, setTitleError] = useState<string | null>(null);
 
   // ── Populate on open ──
@@ -164,26 +162,19 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   };
 
   // ── Active Toggle ──
-  const handleToggleActive = () => {
-    if (!isActive) {
+  const handleToggleActive = (checked: boolean) => {
+    if (checked) {
       const activeCount = banners.filter(
         (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
       ).length;
       if (activeCount >= MAX_ACTIVE_BANNERS) {
         toast.error(isArabic
-          ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
+          ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
           : 'Cannot activate more than 5 banners at the same time.');
         return;
       }
-      setConfirmEnableModalOpen(true);
-    } else {
-      setIsActive(false);
     }
-  };
-
-  const handleConfirmEnable = () => {
-    setIsActive(true);
-    setConfirmEnableModalOpen(false);
+    setIsActive(checked);
   };
 
   // ── Validation ──
@@ -219,6 +210,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           linkTargetId: linkType !== 'EXTERNAL_URL' ? linkTargetId || undefined : undefined,
           externalUrl: linkType === 'EXTERNAL_URL' ? externalUrl.trim() || undefined : undefined,
           endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
+          sortOrder: banners.length + 1,
         });
       } else if (editingBanner) {
         await updateBannerApi(editingBanner.id, {
@@ -467,43 +459,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           </div>
         </form>
       </div>
-
-      {/* Confirm Enable Banner Modal */}
-      {confirmEnableModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-gray-100 relative">
-            <div className="flex flex-col items-center">
-              <div className="size-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
-                <CheckCircle2 size={26} />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {t('banners.enableModal.title', { defaultValue: 'Enable Banner' })}
-              </h3>
-              <p className="text-xs text-gray-500 leading-relaxed mb-6 max-w-xs">
-                {t('banners.enableModal.message', {
-                  defaultValue: 'Are you sure you want to enable this banner? It will immediately be displayed on the platform home page.',
-                })}
-              </p>
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <button
-                  type="button"
-                  onClick={() => setConfirmEnableModalOpen(false)}
-                  className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer"
-                >
-                  {t('common.cancel', { defaultValue: 'Cancel' })}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmEnable}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs"
-                >
-                  {t('banners.enableModal.confirm', { defaultValue: 'Enable Banner' })}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -71,6 +71,7 @@ interface AdminSettingsStore {
     isActive?: boolean;
   }) => Promise<boolean>;
   deleteBannerApi: (id: string) => Promise<void>;
+  saveBannersOrderApi: () => Promise<boolean>;
 
   // Legacy Banner Actions (kept for compatibility)
   addBanner: (banner: Omit<BannerItem, 'id' | 'dateAdded'>) => boolean;
@@ -243,6 +244,28 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       toast.success(i18n.language === 'ar' ? 'تم حذف البنر بنجاح' : 'Banner deleted successfully');
     } catch (err: any) {
       toast.error(err?.response?.data?.message || err?.message || 'Failed to delete banner');
+    }
+  },
+
+  saveBannersOrderApi: async () => {
+    const { banners } = get();
+    try {
+      await Promise.all(
+        banners.map((b, idx) =>
+          updateAdminBanner(b.id, { sortOrder: idx + 1 })
+        )
+      );
+      toast.success(
+        i18n.language === 'ar'
+          ? 'تم حفظ ترتيب البنرات بنجاح'
+          : 'Banner order saved successfully'
+      );
+      return true;
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'Failed to save banner order'
+      );
+      return false;
     }
   },
 
