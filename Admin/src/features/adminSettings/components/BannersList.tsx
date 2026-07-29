@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   SquarePen,
@@ -32,6 +32,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
+import { getAdminCategories, type ApiCategoryItem } from '../../../services/categories';
+import { getVendors, type BackendVendor } from '../../../services/vendors';
+import { getAllProducts } from '../../../services/products';
 
 // ─── Link Type Badge ───────────────────────────────────────────────────────────
 const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: React.ReactNode; color: string }> = {
@@ -61,6 +64,9 @@ const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: React.Reac
 interface SortableBannerRowProps {
   banner: BannerItem;
   order: number;
+  categoryMap: Map<string, string>;
+  productMap: Map<string, string>;
+  vendorMap: Map<string, string>;
   onEdit: (banner: BannerItem) => void;
   onDelete: (banner: BannerItem) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -69,6 +75,9 @@ interface SortableBannerRowProps {
 const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   banner,
   order,
+  categoryMap,
+  productMap,
+  vendorMap,
   onEdit,
   onDelete,
   t,
@@ -90,6 +99,48 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   };
 
   const linkCfg = banner.linkType ? LINK_TYPE_CONFIG[banner.linkType] : null;
+
+  // Resolve human readable name for linkTargetId
+  const getTargetDisplay = () => {
+    if (banner.linkType === 'EXTERNAL_URL') {
+      const url = banner.externalUrl || banner.redirectUrl;
+      return url ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="hover:underline hover:text-black transition-colors text-sm truncate block"
+        >
+          {url}
+        </a>
+      ) : (
+        <span className="text-xs text-gray-300">—</span>
+      );
+    }
+
+    if (banner.linkType === 'CATEGORY' && banner.linkTargetId) {
+      const catName = categoryMap.get(banner.linkTargetId) || banner.linkTargetId;
+      return <span className="text-sm font-medium text-gray-800 truncate block">{catName}</span>;
+    }
+
+    if (banner.linkType === 'PRODUCT' && banner.linkTargetId) {
+      const prodName = productMap.get(banner.linkTargetId) || banner.linkTargetId;
+      return <span className="text-sm font-medium text-gray-800 truncate block">{prodName}</span>;
+    }
+
+    if (banner.linkType === 'VENDOR' && banner.linkTargetId) {
+      const venName = vendorMap.get(banner.linkTargetId) || banner.linkTargetId;
+      return <span className="text-sm font-medium text-gray-800 truncate block">{venName}</span>;
+    }
+
+    // Fallback if target ID or external URL
+    const fallback = banner.externalUrl || banner.redirectUrl || banner.linkTargetId;
+    return fallback ? (
+      <span className="text-sm text-gray-700 truncate block">{fallback}</span>
+    ) : (
+      <span className="text-xs text-gray-300">—</span>
+    );
+  };
 
   return (
     <tr
@@ -147,22 +198,9 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
         )}
       </td>
 
-      {/* Redirect link */}
-      <td className="py-4 px-6 text-gray-500 font-normal max-w-xs">
-        {banner.linkType === 'EXTERNAL_URL' && banner.externalUrl ? (
-          <a
-            href={banner.externalUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="hover:underline hover:text-black transition-colors text-sm truncate block"
-          >
-            {banner.externalUrl}
-          </a>
-        ) : banner.linkTargetId ? (
-          <span className="text-sm text-gray-400 font-mono truncate block">{banner.linkTargetId}</span>
-        ) : (
-          <span className="text-xs text-gray-300">—</span>
-        )}
+      {/* Redirect link / Target Name */}
+      <td className="py-4 px-6 text-gray-700 font-normal max-w-xs">
+        {getTargetDisplay()}
       </td>
 
       {/* Status */}
@@ -219,10 +257,40 @@ export const BannersList: React.FC = () => {
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
-  // Fetch banners from API on mount
+  const [categories, setCategories] = useState<ApiCategoryItem[]>([]);
+  const [vendors, setVendors] = useState<BackendVendor[]>([]);
+  const [products, setProducts] = useState<{ id: string; name: string; nameEn?: string }[]>([]);
+
+  // Fetch banners and related entities on mount
   useEffect(() => {
     fetchBanners();
+    const loadLookups = async () => {
+      try {
+        const [cats, vens, prods] = await Promise.all([
+          getAdminCategories(),
+          getVendors({ status: 'ACTIVE' }),
+          getAllProducts(),
+        ]);
+        setCategories(cats);
+        setVendors(vens);
+        const prodArr = (() => {
+          if (Array.isArray(prods)) return prods;
+          if (prods?.data && Array.isArray(prods.data)) return prods.data;
+          if (prods?.items && Array.isArray(prods.items)) return prods.items;
+          if (prods?.data?.items && Array.isArray(prods.data.items)) return prods.data.items;
+          return [];
+        })();
+        setProducts(prodArr);
+      } catch {
+        // ignore
+      }
+    };
+    loadLookups();
   }, [fetchBanners]);
+
+  const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c.name || c.nameEn || c.nameAr || ''])), [categories]);
+  const productMap = useMemo(() => new Map(products.map((p) => [p.id, p.nameEn || p.name || ''])), [products]);
+  const vendorMap = useMemo(() => new Map(vendors.map((v) => [v.id, v.storeName || ''])), [vendors]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -370,6 +438,9 @@ export const BannersList: React.FC = () => {
                           key={banner.id}
                           banner={banner}
                           order={index + 1}
+                          categoryMap={categoryMap}
+                          productMap={productMap}
+                          vendorMap={vendorMap}
                           onEdit={handleEdit}
                           onDelete={openDeleteModal}
                           t={t}

@@ -44,9 +44,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const [linkType, setLinkType] = useState<BannerLinkType>('CATEGORY');
   const [linkTargetId, setLinkTargetId] = useState('');
   const [externalUrl, setExternalUrl] = useState('');
-  const [startsAt, setStartsAt] = useState('');
   const [endsAt, setEndsAt] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
   const [isActive, setIsActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,9 +72,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       setLinkType(editingBanner.linkType || 'CATEGORY');
       setLinkTargetId(editingBanner.linkTargetId || '');
       setExternalUrl(editingBanner.externalUrl || '');
-      setStartsAt(editingBanner.startsAt ? editingBanner.startsAt.slice(0, 16) : '');
       setEndsAt(editingBanner.endsAt ? editingBanner.endsAt.slice(0, 16) : '');
-      setSortOrder(editingBanner.sortOrder !== null && editingBanner.sortOrder !== undefined ? String(editingBanner.sortOrder) : '');
       setIsActive(editingBanner.isActive);
       setImagePreview(editingBanner.imageUrl || null);
       setImageFileName(editingBanner.imageFileName || '');
@@ -86,9 +82,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
       setLinkType('CATEGORY');
       setLinkTargetId('');
       setExternalUrl('');
-      setStartsAt('');
       setEndsAt('');
-      setSortOrder('');
       setIsActive(false);
       setImagePreview(null);
       setImageFile(null);
@@ -128,11 +122,14 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
     load();
   }, []);
 
-  // Reset linkTargetId when linkType changes
-  useEffect(() => {
-    setLinkTargetId('');
-    setExternalUrl('');
-  }, [linkType]);
+  // ── Handle link type selection by user ──
+  const handleSelectLinkType = (newType: BannerLinkType) => {
+    if (newType !== linkType) {
+      setLinkType(newType);
+      setLinkTargetId('');
+      setExternalUrl('');
+    }
+  };
 
   // ── Image Handlers ──
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,9 +218,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           image: imageFile!,
           linkTargetId: linkType !== 'EXTERNAL_URL' ? linkTargetId || undefined : undefined,
           externalUrl: linkType === 'EXTERNAL_URL' ? externalUrl.trim() || undefined : undefined,
-          startsAt: startsAt ? new Date(startsAt).toISOString() : undefined,
           endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
-          sortOrder: sortOrder !== '' ? Number(sortOrder) : undefined,
         });
       } else if (editingBanner) {
         await updateBannerApi(editingBanner.id, {
@@ -232,9 +227,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           image: imageFile || null,
           linkTargetId: linkType !== 'EXTERNAL_URL' ? (linkTargetId || null) : null,
           externalUrl: linkType === 'EXTERNAL_URL' ? (externalUrl.trim() || null) : null,
-          startsAt: startsAt ? new Date(startsAt).toISOString() : null,
           endsAt: endsAt ? new Date(endsAt).toISOString() : null,
-          sortOrder: sortOrder !== '' ? Number(sortOrder) : null,
           isActive,
         });
       }
@@ -355,7 +348,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setLinkType(opt.value)}
+                  onClick={() => handleSelectLinkType(opt.value)}
                   className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-sm font-medium transition-all cursor-pointer ${
                     linkType === opt.value
                       ? 'border-gray-900 bg-gray-950 text-white shadow-sm'
@@ -424,37 +417,13 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             </div>
           )}
 
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-semibold text-gray-900 mb-2 block">Starts At</label>
-              <input
-                type="datetime-local"
-                value={startsAt}
-                onChange={(e) => setStartsAt(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-semibold text-gray-900 mb-2 block">Ends At</label>
-              <input
-                type="datetime-local"
-                value={endsAt}
-                onChange={(e) => setEndsAt(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Sort Order */}
+          {/* Expiration Date */}
           <div>
-            <label className="text-sm font-semibold text-gray-900 mb-2 block">Sort Order</label>
+            <label className="text-sm font-semibold text-gray-900 mb-2 block">Ends At</label>
             <input
-              type="number"
-              min="1"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              placeholder="e.g. 1"
+              type="datetime-local"
+              value={endsAt}
+              onChange={(e) => setEndsAt(e.target.value)}
               className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
             />
           </div>

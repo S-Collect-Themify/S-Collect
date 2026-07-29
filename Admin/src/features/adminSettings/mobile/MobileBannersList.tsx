@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash2, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
+import { getAdminCategories, type ApiCategoryItem } from '../../../services/categories';
+import { getVendors, type BackendVendor } from '../../../services/vendors';
+import { getAllProducts } from '../../../services/products';
 
 const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
   CATEGORY: 'Category',
@@ -31,13 +34,59 @@ export const MobileBannersList: React.FC = () => {
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
+  const [categories, setCategories] = useState<ApiCategoryItem[]>([]);
+  const [vendors, setVendors] = useState<BackendVendor[]>([]);
+  const [products, setProducts] = useState<{ id: string; name: string; nameEn?: string }[]>([]);
+
   useEffect(() => {
     fetchBanners();
+    const loadLookups = async () => {
+      try {
+        const [cats, vens, prods] = await Promise.all([
+          getAdminCategories(),
+          getVendors({ status: 'ACTIVE' }),
+          getAllProducts(),
+        ]);
+        setCategories(cats);
+        setVendors(vens);
+        const prodArr = (() => {
+          if (Array.isArray(prods)) return prods;
+          if (prods?.data && Array.isArray(prods.data)) return prods.data;
+          if (prods?.items && Array.isArray(prods.items)) return prods.items;
+          if (prods?.data?.items && Array.isArray(prods.data.items)) return prods.data.items;
+          return [];
+        })();
+        setProducts(prodArr);
+      } catch {
+        // ignore
+      }
+    };
+    loadLookups();
   }, [fetchBanners]);
+
+  const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c.name || c.nameEn || c.nameAr || ''])), [categories]);
+  const productMap = useMemo(() => new Map(products.map((p) => [p.id, p.nameEn || p.name || ''])), [products]);
+  const vendorMap = useMemo(() => new Map(vendors.map((v) => [v.id, v.storeName || ''])), [vendors]);
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
     setViewMode('banners-edit');
+  };
+
+  const getTargetName = (banner: BannerItem) => {
+    if (banner.linkType === 'EXTERNAL_URL') {
+      return banner.externalUrl || banner.redirectUrl || '—';
+    }
+    if (banner.linkType === 'CATEGORY' && banner.linkTargetId) {
+      return categoryMap.get(banner.linkTargetId) || banner.linkTargetId;
+    }
+    if (banner.linkType === 'PRODUCT' && banner.linkTargetId) {
+      return productMap.get(banner.linkTargetId) || banner.linkTargetId;
+    }
+    if (banner.linkType === 'VENDOR' && banner.linkTargetId) {
+      return vendorMap.get(banner.linkTargetId) || banner.linkTargetId;
+    }
+    return banner.externalUrl || banner.redirectUrl || banner.linkTargetId || '—';
   };
 
   return (
@@ -108,11 +157,16 @@ export const MobileBannersList: React.FC = () => {
                   <h3 className="font-bold text-gray-900 text-sm mb-0.5 truncate">
                     {banner.name}
                   </h3>
-                  {banner.linkType && (
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${LINK_TYPE_COLOR[banner.linkType]}`}>
-                      {LINK_TYPE_LABEL[banner.linkType]}
+                  <div className="flex items-center gap-2 mt-1">
+                    {banner.linkType && (
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${LINK_TYPE_COLOR[banner.linkType]}`}>
+                        {LINK_TYPE_LABEL[banner.linkType]}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500 font-medium truncate">
+                      {getTargetName(banner)}
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
 
