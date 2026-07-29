@@ -49,7 +49,7 @@
   },
   "inventoryAlerts": "Inventory Alerts",
   "inventoryItem": {
-    "alertMessage": "5 products are running low on stock.",
+    "alertMessage": "products are running low on stock.",
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock",
     "inStock": "In Stock",

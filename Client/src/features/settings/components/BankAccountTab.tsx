@@ -5,18 +5,12 @@ import { useUpdateBankInfo } from '../hooks/useUpdateBankInfo';
 import { BankAccountFormSkeleton } from '../skeleton/SettingsSkeletons';
 import type { BankAccountFormValues } from '../BankSettings';
 
-export function BankAccountTab({
-  onToast,
-}: {
-  onToast: (message: string) => void;
-}) {
-  const { t } = useTranslation();
+export function BankAccountTab() {
   const { data, isLoading } = useBankInfo();
   const updateBankInfoMutation = useUpdateBankInfo();
 
   const handleSave = async (values: BankAccountFormValues) => {
     await updateBankInfoMutation.mutateAsync(values);
-    onToast(t('settings.toast.bankAccountSaved'));
   };
 
   if (isLoading) {

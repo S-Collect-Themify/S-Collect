@@ -4,12 +4,7 @@ import { StoreProfileForm } from '../StoreProfileForm';
 import { StoreProfileFormSkeleton } from '../skeleton/SettingsSkeletons';
 import { useStoreProfile } from '../hooks/useStoreProfile';
 
-export function StoreDetailsTab({
-  onToast,
-}: {
-  onToast: (message: string) => void;
-}) {
-  const { t } = useTranslation();
+export function StoreDetailsTab() {
   const { data, isLoading } = useStoreProfile();
 
   const handleSave = async () => {
@@ -24,7 +19,6 @@ export function StoreDetailsTab({
     <StoreProfileForm
       initialData={data}
       onSave={handleSave}
-      onSuccess={() => onToast(t('settings.toast.storeProfileSaved'))}
     />
   );
 }

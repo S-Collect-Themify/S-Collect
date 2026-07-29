@@ -10,35 +10,9 @@ import { useProducts } from '../features/AddProducts/useProducts';
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { data, isLoading, error, refetch } = useProducts();
+  const { isLoading } = useProducts();
 
-  if (error) {
-    return (
-      <div className="flex flex-col flex-1 items-center justify-center min-h-[60vh] p-6 text-center">
-        <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mb-4 text-red-500 shadow-sm">
-          <AlertCircle className="w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
-          Failed to load dashboard
-        </h2>
-        <p className="text-sm text-gray-500 max-w-md mb-6">
-          {error.message ||
-            'An unexpected error occurred while fetching dashboard data.'}
-        </p>
-        {refetch && (
-          <button
-            onClick={() => refetch()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-medium text-sm rounded-lg shadow-sm transition-colors cursor-pointer"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Try Again
-          </button>
-        )}
-      </div>
-    );
-  }
-
-  if (isLoading || !data) {
+  if (isLoading) {
     return <DashboardSkeleton />;
   }
   return (

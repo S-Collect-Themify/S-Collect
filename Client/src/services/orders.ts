@@ -37,6 +37,22 @@ export const getSubOrderById = async (id: string): Promise<SubOrder> => {
   }
 };
 
+export interface VendorOrderStats {
+  totalSales: number;
+  totalOrders: number;
+  newOrders: number;
+  activeProducts: number;
+}
+
+export const getVendorOrderStats = async (): Promise<VendorOrderStats> => {
+  try {
+    const { data } = await api.get('/vendor/sub-orders/stats');
+    return unwrap<VendorOrderStats>(data);
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch vendor order stats');
+  }
+};
+
 export const updateSubOrder = async (
   id: string,
   body: UpdateSubOrderDto

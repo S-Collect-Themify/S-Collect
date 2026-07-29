@@ -1,24 +1,12 @@
-import { TrendingUp, TrendingDown, Percent, Wallet, Clock } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Clock, Package } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
-import {
-  payoutSummary,
-  type PayoutColor,
-  type PayoutIconName,
-  type PayoutSummary,
-} from './constants';
+import { useSubOrdersStats } from '../Orders/useSubOrdersStats';
 
 type LucideIcon = ComponentType<{ size?: number; color?: string }>;
 
-const ICONS: Record<PayoutIconName, LucideIcon> = {
-  Chart: TrendingUp,
-  Percent,
-  Wallet,
-  Clock,
-};
-
-const COLOR_THEME: Record<PayoutColor, { primary: string; light: string }> = {
+const COLOR_THEME = {
   green: { primary: 'var(--green)', light: 'var(--green-light)' },
   orange: { primary: 'var(--orange)', light: 'var(--orange-light)' },
   blue: { primary: 'var(--blue, #3b82f6)', light: 'var(--blue-light)' },
@@ -28,13 +16,46 @@ const COLOR_THEME: Record<PayoutColor, { primary: string; light: string }> = {
   },
 };
 
-const isPositiveTrend = (trend: string) => trend.trim().startsWith('+');
-const isNegativeTrend = (trend: string) => trend.trim().startsWith('-');
-
 const ReceivablesGrid = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { isMobile, isTablet } = useBreakpoint();
   const isArabic = i18n.language === 'ar';
+  const { data: stats, isLoading } = useSubOrdersStats();
+
+  const metrics = [
+    {
+      id: 1,
+      title: 'Gross Merchandise Value (GMV)',
+      value: isLoading ? '...' : (stats?.totalSales ?? 0).toLocaleString(),
+      suffix: t('dashboardMetrics.unit.sar') || 'SAR',
+      icon: TrendingUp,
+      theme: COLOR_THEME.green,
+    },
+    {
+      id: 2,
+      title: 'Total Sub-Orders',
+      value: isLoading ? '...' : (stats?.totalOrders ?? 0).toLocaleString(),
+      suffix: t('dashboard.orders') || 'Orders',
+      icon: ShoppingBag,
+      theme: COLOR_THEME.blue,
+    },
+    {
+      id: 3,
+      title: 'New / Pending Orders',
+      value: isLoading ? '...' : (stats?.newOrders ?? 0).toLocaleString(),
+      suffix: t('dashboard.orders') || 'Orders',
+      icon: Clock,
+      theme: COLOR_THEME.orange,
+    },
+    {
+      id: 4,
+      title: 'Active Vendor Products',
+      value: isLoading ? '...' : (stats?.activeProducts ?? 0).toLocaleString(),
+      suffix: t('dashboard.items') || 'Items',
+      icon: Package,
+      theme: COLOR_THEME.purple,
+    },
+  ];
 
   return (
     <div className="mb-6">
@@ -42,22 +63,13 @@ const ReceivablesGrid = () => {
         className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6"
         dir={isArabic ? 'rtl' : 'ltr'}
       >
-        {payoutSummary.map((item: PayoutSummary, index) => {
-          const Icon = ICONS[item.icon];
-          const theme = COLOR_THEME[item.color];
-          const hasTrend = item.trend !== null;
-          const positive = hasTrend && isPositiveTrend(item.trend as string);
-          const negative = hasTrend && isNegativeTrend(item.trend as string);
-          const trendColor = positive
-            ? 'var(--green)'
-            : negative
-              ? 'var(--red)'
-              : 'var(--gray-500, #6b7280)';
-          const TrendIcon = positive ? TrendingUp : TrendingDown;
+        {metrics.map((item, index) => {
+          const Icon = item.icon;
+          const theme = item.theme;
           const isLastSpanning =
             (isMobile || isTablet) &&
-            index === payoutSummary.length - 1 &&
-            payoutSummary.length % 2 !== 0;
+            index === metrics.length - 1 &&
+            metrics.length % 2 !== 0;
 
           return (
             <div
@@ -94,23 +106,6 @@ const ReceivablesGrid = () => {
                       {item.suffix}
                     </span>
                   )}
-                </div>
-                {/* Trend + label */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  {hasTrend && (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium"
-                      style={{
-                        color: trendColor,
-                      }}
-                    >
-                      <TrendIcon size={12} color={trendColor} />
-                      {item.trend}
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-400">
-                    {item.trendLabel}
-                  </span>
                 </div>
               </div>
             </div>
