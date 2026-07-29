@@ -23,6 +23,7 @@ export default function Orders() {
     handleDateFilterChange,
     vendorFilter,
     handleVendorFilterChange,
+    vendorOptions,
     setPage,
     safePage,
     isLoading,
@@ -63,6 +64,7 @@ export default function Orders() {
           onDateFilterChange={handleDateFilterChange}
           vendorFilter={vendorFilter}
           onVendorFilterChange={handleVendorFilterChange}
+          vendorOptions={vendorOptions}
         />
 
         {/* Content Views: Skeleton vs Mobile Cards vs Desktop Table */}

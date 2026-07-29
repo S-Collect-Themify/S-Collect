@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Inbox } from 'lucide-react';
 import Toggle from '../../mangement/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
@@ -73,14 +74,17 @@ export default function VendorMobileList({
             </div>
           ))
         ) : paginated.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-400">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center text-gray-400">
             {activeTab === 'pending' ? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                  <i className="ti ti-mail text-xl text-gray-400" />
+              <div className="flex flex-col items-center justify-center text-center py-6 px-2">
+                <div className="w-16 h-16 rounded-full bg-[#F5F5F6] flex items-center justify-center mb-4 text-gray-900 shadow-2xs">
+                  <Inbox size={30} strokeWidth={1.5} className="text-gray-900" />
                 </div>
-                <p className="text-sm font-semibold text-gray-700">
-                  {t('vendors.table.noPendingRequests')}
+                <h3 className="font-bold text-gray-900 text-lg mb-2 tracking-tight">
+                  {t('vendors.table.noPendingRequests', 'No Pending Requests')}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-500 max-w-xs mx-auto font-normal leading-relaxed">
+                  {t('vendors.table.noPendingSubtext', 'All vendor applications have been reviewed. New requests will appear here.')}
                 </p>
               </div>
             ) : (

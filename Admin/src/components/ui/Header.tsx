@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Menu, User } from 'lucide-react';
 import InputSearch from './InputSearch';
 import { useTranslation } from 'react-i18next';
-import { TypeAnimation } from 'react-type-animation';
 import { Globe, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import i18n from '../../i18n';
@@ -136,12 +135,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
           <div>
             <h1 className="text-2xl font-bold">
-              <TypeAnimation
-                sequence={[`Hello, ${userName} 👋`]}
-                speed={50}
-                repeat={0}
-                cursor={false}
-              />
+              Hello, {userName} 👋
             </h1>
             <p className="text-sm text-gray-400">{today}</p>
           </div>

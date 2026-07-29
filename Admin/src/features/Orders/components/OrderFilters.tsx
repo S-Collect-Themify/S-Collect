@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
@@ -13,6 +14,7 @@ export interface OrderFiltersProps {
   onDateFilterChange: (val: string) => void;
   vendorFilter: string;
   onVendorFilterChange: (val: string) => void;
+  vendorOptions?: string[];
 }
 
 export const OrderFilters = ({
@@ -26,20 +28,20 @@ export const OrderFilters = ({
   onDateFilterChange,
   vendorFilter,
   onVendorFilterChange,
+  vendorOptions: propVendorOptions,
 }: OrderFiltersProps) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const vendorOptions = [
-    'All',
-    'Al-Falah Crafts',
-    'Desert Bloom',
-    'Oasis Tech',
-    'Red Sea Styles',
-    'Dates & Co',
-    'Urban Elegance',
-    'Beauty Lab',
-  ];
+  const vendorOptions = useMemo(() => {
+    if (propVendorOptions && propVendorOptions.length > 0) {
+      return propVendorOptions;
+    }
+    if (vendorFilter && vendorFilter !== 'All') {
+      return ['All', vendorFilter];
+    }
+    return ['All'];
+  }, [propVendorOptions, vendorFilter]);
 
   const dateOptions = [
     { key: 'last7Days', labelKey: 'ordersPage.dateOptions.last7Days', defaultLabel: 'Last 7 Days' },

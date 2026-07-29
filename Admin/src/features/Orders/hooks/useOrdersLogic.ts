@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from '../../../hooks/useBreakpoint';
 import { mapAdminOrderToTableItem } from '../../../services/orders';
 import { mapAdminRefundToTableItem } from '../../../services/refunds';
+import { useVendors } from '../../vendors/hooks/useVendors';
 import { useAdminOrders } from './useAdminOrders';
 import { useAdminRefunds } from './useAdminRefunds';
 import type { TableItem, OrderMainTab } from '../types';
@@ -10,7 +11,8 @@ import type { TableItem, OrderMainTab } from '../types';
 export const useOrdersLogic = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const urlVendorParam = searchParams.get('vendorId') || searchParams.get('vendor') || searchParams.get('vendorName');
+  const urlVendorId = searchParams.get('vendorId');
+  const urlVendorName = searchParams.get('vendorName') || searchParams.get('vendor');
   const { isMobile } = useBreakpoint();
 
   // Tab State
@@ -20,13 +22,22 @@ export const useOrdersLogic = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('all');
-  const [vendorFilter, setVendorFilter] = useState(urlVendorParam || 'All');
+  const [vendorFilter, setVendorFilter] = useState(urlVendorName || urlVendorId || 'All');
+  const [vendorIdFilter, setVendorIdFilter] = useState<string | undefined>(urlVendorId || undefined);
+
+  // Fetch real vendors list from backend
+  const { data: vendorsList } = useVendors();
 
   useEffect(() => {
-    if (urlVendorParam) {
-      setVendorFilter(urlVendorParam);
+    const vName = searchParams.get('vendorName') || searchParams.get('vendor');
+    const vId = searchParams.get('vendorId');
+    if (vName) {
+      setVendorFilter(vName);
+    } else if (vId) {
+      setVendorFilter(vId);
     }
-  }, [urlVendorParam]);
+    setVendorIdFilter(vId || undefined);
+  }, [searchParams]);
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -34,6 +45,7 @@ export const useOrdersLogic = () => {
   const itemsPerPage = isMobile && activeMainTab === 'refunds' ? 10 : 20;
 
   // React Query Hook for API Orders
+  const apiVendorParam = vendorIdFilter || (vendorFilter !== 'All' ? vendorFilter : undefined);
   const {
     orders,
     pagination: ordersPagination,
@@ -42,7 +54,7 @@ export const useOrdersLogic = () => {
     page,
     itemsPerPage,
     activeMainTab === 'allOrders',
-    vendorFilter !== 'All' ? vendorFilter : undefined
+    apiVendorParam
   );
 
   // React Query Hook for API Refunds
@@ -73,6 +85,32 @@ export const useOrdersLogic = () => {
     return rawItems.map((refund) => mapAdminRefundToTableItem(refund));
   }, [refundsData]);
 
+  // Dynamically compute vendor options list from real API vendors and loaded orders
+  const vendorOptions = useMemo(() => {
+    const namesSet = new Set<string>();
+
+    if (vendorsList && Array.isArray(vendorsList)) {
+      vendorsList.forEach((v) => {
+        if (v.businessName) namesSet.add(v.businessName);
+      });
+    }
+
+    liveOrders.forEach((item) => {
+      if (item.vendor) namesSet.add(item.vendor);
+    });
+
+    liveRefunds.forEach((item) => {
+      if (item.vendor) namesSet.add(item.vendor);
+    });
+
+    if (vendorFilter && vendorFilter !== 'All') {
+      namesSet.add(vendorFilter);
+    }
+
+    const sortedNames = Array.from(namesSet).sort((a, b) => a.localeCompare(b));
+    return ['All', ...sortedNames];
+  }, [vendorsList, liveOrders, liveRefunds, vendorFilter]);
+
   // Filter Data
   const filteredOrders = useMemo(() => {
     return liveOrders.filter((item) => {
@@ -87,11 +125,14 @@ export const useOrdersLogic = () => {
         statusFilter === 'All' || item.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesVendor =
-        vendorFilter === 'All' || item.vendor === vendorFilter;
+        vendorFilter === 'All' ||
+        (item.vendor && item.vendor.toLowerCase() === vendorFilter.toLowerCase()) ||
+        (item.vendorId && item.vendorId === vendorIdFilter) ||
+        (item.vendorId && item.vendorId === vendorFilter);
 
       return matchesSearch && matchesStatus && matchesVendor;
     });
-  }, [liveOrders, search, statusFilter, vendorFilter]);
+  }, [liveOrders, search, statusFilter, vendorFilter, vendorIdFilter]);
 
   const filteredRefunds = useMemo(() => {
     return liveRefunds.filter((item) => {
@@ -108,11 +149,14 @@ export const useOrdersLogic = () => {
         statusFilter === 'All' || item.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesVendor =
-        vendorFilter === 'All' || item.vendor === vendorFilter;
+        vendorFilter === 'All' ||
+        (item.vendor && item.vendor.toLowerCase() === vendorFilter.toLowerCase()) ||
+        (item.vendorId && item.vendorId === vendorIdFilter) ||
+        (item.vendorId && item.vendorId === vendorFilter);
 
       return matchesSearch && matchesStatus && matchesVendor;
     });
-  }, [liveRefunds, search, statusFilter, vendorFilter]);
+  }, [liveRefunds, search, statusFilter, vendorFilter, vendorIdFilter]);
 
   const activeDataset = activeMainTab === 'allOrders' ? filteredOrders : filteredRefunds;
   const totalCount =
@@ -154,6 +198,7 @@ export const useOrdersLogic = () => {
 
   const handleVendorFilterChange = (val: string) => {
     setVendorFilter(val);
+    setVendorIdFilter(undefined);
     setPage(1);
   };
 
@@ -176,6 +221,7 @@ export const useOrdersLogic = () => {
     handleDateFilterChange,
     vendorFilter,
     handleVendorFilterChange,
+    vendorOptions,
     page,
     setPage,
     safePage,

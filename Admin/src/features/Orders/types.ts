@@ -3,6 +3,7 @@ export interface TableItem {
   code: string;
   customer: string;
   vendor?: string;
+  vendorId?: string;
   orderId?: string;
   total: number;
   totalFormatted: string;

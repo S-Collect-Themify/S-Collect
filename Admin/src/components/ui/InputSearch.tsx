@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { TypeAnimation } from 'react-type-animation';
 import { useTranslation } from 'react-i18next';
 
 const InputSearch = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -20,33 +19,15 @@ const InputSearch = () => {
     <>
       {/* Desktop Search */}
       <div className="hidden md:block relative w-full">
-        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--gray-400)]" />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--gray-400)] pointer-events-none" />
 
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full bg-[var(--gray-50)] pl-8 pr-3 py-2 rounded-lg text-[var(--gray-700)] outline-none focus:ring-2 focus:ring-gray-600"
+          placeholder={t('search.placeholder', 'Search...')}
+          className="w-full bg-[var(--gray-50)] pl-9 pr-3 py-2 rounded-lg text-sm text-[var(--gray-700)] placeholder-[var(--gray-400)] outline-none focus:ring-2 focus:ring-gray-600"
         />
-
-        {/* animated placeholder */}
-        {query === '' && (
-          <div className="absolute left-8 top-1/2 -translate-y-1/2 pointer-events-none text-sm text-[var(--gray-400)]">
-            <TypeAnimation
-              key={i18n.language}
-              sequence={[
-                t('search.products'),
-                2000,
-                t('search.categories'),
-                2000,
-                '',
-              ]}
-              speed={50}
-              repeat={Infinity}
-              cursor={false}
-            />
-          </div>
-        )}
       </div>
 
       {/* Mobile Button */}

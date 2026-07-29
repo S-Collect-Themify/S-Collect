@@ -266,7 +266,12 @@ export default function VendorDetails() {
 
         <VendorOverviewCard vendor={vendor} />
         <VendorStatsGrid vendor={vendor} />
-        <VendorRecentOrdersTable vendorId={vendorId} orders={orders} statusStyles={ORDER_STATUS_STYLES} />
+        <VendorRecentOrdersTable
+          vendorId={vendorId}
+          vendorName={vendor.businessName || vendor.owner}
+          orders={orders}
+          statusStyles={ORDER_STATUS_STYLES}
+        />
         <VendorRecentProductsTable vendorId={vendorId} products={products} />
         <VendorPayoutsLogTable vendorId={vendorId} payouts={payouts} statusStyles={PAYOUT_STATUS_STYLES} />
       </motion.div>

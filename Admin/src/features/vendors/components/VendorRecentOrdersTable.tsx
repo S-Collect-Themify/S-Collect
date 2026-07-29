@@ -5,16 +5,22 @@ import type { MockOrder } from '../data/constant';
 
 interface VendorRecentOrdersTableProps {
   vendorId: string;
+  vendorName?: string;
   orders: MockOrder[];
   statusStyles: Record<string, { label: string; className: string }>;
 }
 
 export default function VendorRecentOrdersTable({
   vendorId,
+  vendorName,
   orders,
   statusStyles,
 }: VendorRecentOrdersTableProps) {
   const { t } = useTranslation();
+
+  const ordersUrl = `/orders?vendorId=${encodeURIComponent(vendorId)}${
+    vendorName ? `&vendorName=${encodeURIComponent(vendorName)}` : ''
+  }`;
 
   return (
     <Card className="mb-5 overflow-hidden border border-gray-100/80 shadow-2xs">
@@ -81,7 +87,7 @@ export default function VendorRecentOrdersTable({
         </table>
         <div className="py-3 border-t border-gray-100 text-center">
           <Link
-            to={`/orders?vendorId=${vendorId}`}
+            to={ordersUrl}
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
             {t('vendors.details.viewAllOrders', 'View All Orders')} →
@@ -134,7 +140,7 @@ export default function VendorRecentOrdersTable({
             })}
             <div className="pt-2 text-center">
               <Link
-                to={`/orders?vendorId=${vendorId}`}
+                to={ordersUrl}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
                 {t('vendors.details.viewAllOrders', 'View All Orders')} →

@@ -281,11 +281,16 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
 
+  const firstSubOrder = order.subOrders?.[0];
+  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || 'Direct Store';
+  const vendorId = firstSubOrder?.vendorId || (order as any).vendorId;
+
   return {
     id: order.id,
     code,
     customer: order.recipientName || 'Guest Buyer',
-    vendor: 'Direct Store',
+    vendor: vendorName,
+    vendorId,
     total,
     totalFormatted,
     status: rawStatus,
