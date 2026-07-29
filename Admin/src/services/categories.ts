@@ -6,6 +6,8 @@ export interface ApiCategoryItem {
   nameAr?: string;
   nameEn?: string;
   slug: string;
+  image?: string;
+  imageUrl?: string;
   isActive?: boolean;
   createdAt?: string;
   productsCount?: number;
@@ -15,12 +17,14 @@ export interface CreateCategoryPayload {
   name: string;
   nameAr: string;
   slug: string;
+  image?: string;
 }
 
 export interface UpdateCategoryPayload {
   name?: string;
   nameAr?: string;
   slug?: string;
+  image?: string;
   isActive?: boolean;
 }
 

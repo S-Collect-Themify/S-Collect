@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, AlertTriangle, Trash2, PackageX, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, AlertTriangle, Trash2, PackageX, Loader2, Upload, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
@@ -217,6 +217,9 @@ export const CategoryFormModal = ({
   const [nameEn, setNameEn] = useState(category?.nameEn ?? '');
   const [nameAr, setNameAr] = useState(category?.nameAr ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
+  const [image, setImage] = useState(category?.image ?? '');
+  const [imageError, setImageError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [touchedEn, setTouchedEn] = useState(false);
@@ -253,9 +256,38 @@ export const CategoryFormModal = ({
     setSlugManuallyEdited(true);
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    const MAX_SIZE = 3 * 1024 * 1024; // 3MB
+
+    if (!allowedTypes.includes(file.type) || file.size > MAX_SIZE) {
+      setImageError(t('categories.modal.imageSizeError'));
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setImageError(null);
+      setImage(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImage('');
+    setImageError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSave = () => {
     if (!isValid) return;
-    onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, isActive });
+    onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, image, isActive });
   };
 
   return (
@@ -298,7 +330,75 @@ export const CategoryFormModal = ({
             </div>
 
             {/* Body */}
-            <div className="px-6 py-5 space-y-4">
+            <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Category Image */}
+              <div>
+                <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                  {t('categories.modal.image')}
+                </label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className="hidden"
+                />
+
+                {image ? (
+                  <div className="relative group bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center">
+                        <img
+                          src={image}
+                          alt="Category preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-gray-800 truncate">
+                          {t('categories.modal.image')}
+                        </p>
+                        <p className="text-[11px] text-gray-400">
+                          {t('categories.modal.imageHint')}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="p-2 rounded-lg text-gray-400 hover:text-red hover:bg-red-light transition-all cursor-pointer shrink-0"
+                      title={t('categories.modal.removeImage')}
+                    >
+                      <Trash size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                      imageError
+                        ? 'border-red-400 bg-red-50/30'
+                        : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="p-2 rounded-full bg-gray-100 text-gray-500">
+                        <Upload size={18} />
+                      </div>
+                      <span className="text-body-sm font-medium text-gray-700">
+                        {t('categories.modal.uploadImage')}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {t('categories.modal.imageHint')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {imageError && (
+                  <p className="text-xs text-red mt-1.5">{imageError}</p>
+                )}
+              </div>
+
               {/* Category Name EN */}
               <div>
                 <label className="block text-body-sm font-medium text-gray-700 mb-1.5">

@@ -16,6 +16,7 @@ export const mapApiCategoryToCategory = (item: ApiCategoryItem): Category => ({
   nameEn: item.nameEn || item.name || '',
   nameAr: item.nameAr || item.name || '',
   slug: item.slug || '',
+  image: item.image || item.imageUrl || '',
   isActive: item.isActive !== undefined ? Boolean(item.isActive) : true,
   productsCount: item.productsCount ?? 0,
   createdAt: item.createdAt,

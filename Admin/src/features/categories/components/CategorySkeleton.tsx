@@ -47,7 +47,7 @@ export const CategorySkeleton: React.FC<CategorySkeletonProps> = ({ isMobile }) 
               <th className="py-3.5 px-4 w-10">
                 <div className="h-4 w-4 bg-gray-200 rounded" />
               </th>
-              {Array.from({ length: 5 }).map((_, idx) => (
+              {Array.from({ length: 6 }).map((_, idx) => (
                 <th key={idx} className="py-3.5 px-4">
                   <div className="h-3 bg-gray-200 rounded w-20" />
                 </th>
@@ -59,6 +59,9 @@ export const CategorySkeleton: React.FC<CategorySkeletonProps> = ({ isMobile }) 
               <tr key={rowIdx}>
                 <td className="py-4 px-4">
                   <div className="h-4 w-4 bg-gray-200 rounded" />
+                </td>
+                <td className="py-4 px-4 w-16">
+                  <div className="w-10 h-10 bg-gray-200 rounded-xl" />
                 </td>
                 <td className="py-4 px-4">
                   <div className="h-4 bg-gray-200 rounded w-40" />

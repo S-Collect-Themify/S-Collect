@@ -943,6 +943,7 @@
     "title": "Categories",
     "description": "Manage product categories across the marketplace.",
     "columns": {
+      "image": "Image",
       "category": "Category",
       "slug": "Slug",
       "productsCount": "Products Count",
@@ -952,6 +953,11 @@
     "modal": {
       "addCategory": "Add Category",
       "editCategory": "Edit Category",
+      "image": "Category Image",
+      "uploadImage": "Upload Image",
+      "removeImage": "Remove Image",
+      "imageHint": "PNG, JPG, WEBP — Max 3MB",
+      "imageSizeError": "Image size must not exceed 3MB — Formats: PNG, JPG, WEBP.",
       "nameAr": "Category Name (Arabic)",
       "nameArPlaceholder": "Enter category name in Arabic",
       "nameEn": "Category Name (English)",

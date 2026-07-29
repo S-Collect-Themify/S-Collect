@@ -74,6 +74,7 @@ const Categories = () => {
         name: data.nameEn || data.name || '',
         nameAr: data.nameAr || '',
         slug: data.slug,
+        image: data.image,
       });
       closeForm();
     } else if (formModal.category) {
@@ -83,6 +84,7 @@ const Categories = () => {
           name: data.nameEn || data.name || '',
           nameAr: data.nameAr || '',
           slug: data.slug,
+          image: data.image,
           isActive: data.isActive,
         },
       });
