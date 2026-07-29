@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useVendorPayoutsStore } from '../../../store/vendorPayoutsStore';
-import { VENDOR_MOCK_PAYOUTS, type MockPayout } from '../data/constant';
+import { type MockPayout } from '../data/constant';
 import type { Vendor } from '../types/vendors';
 
 const ITEMS_PER_PAGE = 5;
@@ -15,10 +15,10 @@ const cardVariants: Variants = {
 
 interface VendorPayoutsLogProps {
   vendor: Vendor;
-  vendorId: string;
+  vendorId?: string;
 }
 
-export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogProps) {
+export default function VendorPayoutsLog({ vendor }: VendorPayoutsLogProps) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
@@ -32,7 +32,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     rejected: { label: t('vendors.payoutsLog.statusRejected', 'Rejected'), className: 'bg-red-100 text-red-700' },
   }), [t]);
 
-  const allPayouts: MockPayout[] = VENDOR_MOCK_PAYOUTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PAYOUTS] ?? [];
+  const allPayouts: MockPayout[] = [];
 
   // ── Zustand state ──
   const appliedFrom  = useVendorPayoutsStore((s) => s.appliedFrom);

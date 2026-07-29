@@ -10,9 +10,6 @@ import {
   useVendorSubOrders,
 } from '../features/vendors/hooks/useVendors';
 import {
-  VENDOR_MOCK_ORDERS,
-  VENDOR_MOCK_PRODUCTS,
-  VENDOR_MOCK_PAYOUTS,
   type MockOrder,
 } from '../features/vendors/data/constant';
 import { containerVariants } from '../features/vendors/components/VendorDetailsCards';
@@ -111,8 +108,8 @@ export default function VendorDetails() {
       });
     }
 
-    return (VENDOR_MOCK_ORDERS[vendorId as unknown as keyof typeof VENDOR_MOCK_ORDERS] ?? []) as MockOrder[];
-  }, [apiSubOrdersData, vendorId]);
+    return [] as MockOrder[];
+  }, [apiSubOrdersData]);
   
   const products = useMemo(() => {
     const rawData = apiProductsData as any;
@@ -143,14 +140,14 @@ export default function VendorDetails() {
         status: (item.isActive && !item.isDisabled ? 'active' : 'inactive') as 'active' | 'inactive',
       }));
     }
-    return (VENDOR_MOCK_PRODUCTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PRODUCTS] ?? []) as Array<{
+    return [] as Array<{
       id?: string;
       name: string;
       category: string;
       price: number;
       status: string;
     }>;
-  }, [apiProductsData, vendorId]);
+  }, [apiProductsData]);
 
   const payouts = useMemo(() => {
     const rawData = apiPayoutsData as any;
@@ -197,13 +194,13 @@ export default function VendorDetails() {
       });
     }
 
-    return (VENDOR_MOCK_PAYOUTS[vendorId as unknown as keyof typeof VENDOR_MOCK_PAYOUTS] ?? []) as Array<{
+    return [] as Array<{
       id: string;
       date: string;
       amount: number;
       status: string;
     }>;
-  }, [apiPayoutsData, vendorId]);
+  }, [apiPayoutsData]);
 
   if (isLoading) {
     return (
