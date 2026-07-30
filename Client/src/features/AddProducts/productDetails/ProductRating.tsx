@@ -18,8 +18,11 @@ export default function ProductRating({
   counts = [],
 }: ProductRatingProps) {
   const { t } = useTranslation();
-  const maxCount = Math.max(...counts.map((c) => c.count), 1);
-  const sorted = [...counts].sort((a, b) => b.stars - a.stars);
+  const safeAvg = typeof averageRating === 'number' && !isNaN(averageRating) ? averageRating : 0;
+  const safeTotal = typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
+  const safeCounts = Array.isArray(counts) ? counts : [];
+  const maxCount = Math.max(...safeCounts.map((c) => c?.count || 0), 1);
+  const sorted = [...safeCounts].sort((a, b) => (b?.stars || 0) - (a?.stars || 0));
 
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-8">
@@ -27,7 +30,7 @@ export default function ProductRating({
         {/* Summary */}
         <div className="flex shrink-0 flex-col items-center w-[25%]">
           <h2 className="text-[64px] font-bold text-gray-900 pb-2">
-            {averageRating.toFixed(1)}
+            {safeAvg.toFixed(1)}
           </h2>
           <div className=" flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -35,7 +38,7 @@ export default function ProductRating({
                 key={i}
                 size={16}
                 className={
-                  i < Math.round(averageRating)
+                  i < Math.round(safeAvg)
                     ? 'fill-amber-400 text-amber-400'
                     : 'fill-gray-200 text-gray-200'
                 }
@@ -43,7 +46,7 @@ export default function ProductRating({
             ))}
           </div>
           <span className="mt-1 whitespace-nowrap text-xs text-gray-400">
-            {t('productDetails.rating.basedOn', { count: totalReviews })}
+            {t('productDetails.rating.basedOn', { count: safeTotal })}
           </span>
         </div>
 

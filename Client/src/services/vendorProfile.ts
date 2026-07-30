@@ -8,6 +8,9 @@ export interface VendorProfile {
   publicEmail: string | null;
   publicPhoneNumber: string | null;
   logoUrl: string | null;
+  city?: string | null;
+  address?: string | null;
+  location?: string | null;
   // Defensive extensions in case bank info is returned in profile GET
   bankName?: string;
   ibanMasked?: string;

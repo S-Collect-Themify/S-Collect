@@ -94,7 +94,10 @@ export default function ProductRow({
         </label>
       </td>
 
-      <td className="px-3 py-3 border-b border-gray-100">
+      <td
+        className="px-3 py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50/80 transition-colors"
+        onClick={() => navigate(`/product-details/${product.id}`)}
+      >
         {/* Flex container maintains visual order; direction is inherited */}
         <div className="flex items-center gap-2.5">
           <div className="w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50">
@@ -111,7 +114,9 @@ export default function ProductRow({
               />
             )}
           </div>
-          <span className="font-semibold text-gray-900">{product.name}</span>
+          <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+            {product.name}
+          </span>
         </div>
       </td>
 

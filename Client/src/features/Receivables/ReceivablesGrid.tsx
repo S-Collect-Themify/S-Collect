@@ -1,4 +1,4 @@
-import { TrendingUp, ShoppingBag, Clock, Package } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSubOrdersStats } from '../Orders/useSubOrdersStats';
@@ -22,7 +22,7 @@ const ReceivablesGrid = () => {
   const metrics = [
     {
       id: 1,
-      title: 'Gross Merchandise Value (GMV)',
+      title: t('receivables.totalSales', { defaultValue: 'Total Sales (GMV)' }),
       value: isLoading ? '...' : (stats?.totalSales ?? 0).toLocaleString(),
       suffix: t('dashboardMetrics.unit.sar') || 'SAR',
       icon: TrendingUp,
@@ -30,27 +30,27 @@ const ReceivablesGrid = () => {
     },
     {
       id: 2,
-      title: 'Total Sub-Orders',
-      value: isLoading ? '...' : (stats?.totalOrders ?? 0).toLocaleString(),
-      suffix: t('dashboard.orders') || 'Orders',
-      icon: ShoppingBag,
-      theme: COLOR_THEME.blue,
-    },
-    {
-      id: 3,
-      title: 'New / Pending Orders',
-      value: isLoading ? '...' : (stats?.newOrders ?? 0).toLocaleString(),
-      suffix: t('dashboard.orders') || 'Orders',
+      title: t('receivables.pendingPayouts', { defaultValue: 'Pending Payouts' }),
+      value: isLoading ? '...' : (stats?.pendingPayouts ?? 0).toLocaleString(),
+      suffix: t('dashboardMetrics.unit.sar') || 'SAR',
       icon: Clock,
       theme: COLOR_THEME.orange,
     },
     {
-      id: 4,
-      title: 'Active Vendor Products',
-      value: isLoading ? '...' : (stats?.activeProducts ?? 0).toLocaleString(),
-      suffix: t('dashboard.items') || 'Items',
-      icon: Package,
+      id: 3,
+      title: t('receivables.totalDues', { defaultValue: 'Total Dues' }),
+      value: isLoading ? '...' : (stats?.totalDues ?? stats?.pendingPayouts ?? 0).toLocaleString(),
+      suffix: t('dashboardMetrics.unit.sar') || 'SAR',
+      icon: TrendingUp,
       theme: COLOR_THEME.purple,
+    },
+    {
+      id: 4,
+      title: t('receivables.totalOrders', { defaultValue: 'Total Orders' }),
+      value: isLoading ? '...' : (stats?.totalOrders ?? stats?.orderCount ?? 0).toLocaleString(),
+      suffix: t('orders', { defaultValue: 'Orders' }),
+      icon: ShoppingBag,
+      theme: COLOR_THEME.blue,
     },
   ];
 
