@@ -180,7 +180,7 @@ export default function ProductInfo({
             </div>
           )}
 
-          <div className="my-3 lg:my-6 flex flex-col  gap-2 sm:flex-row items-center sm:gap-2">
+          <div className="my-3 lg:my-6 flex flex-col  gap-2 sm:flex-row sm:gap-2 items-start">
             <div className="flex items-center gap-2 ">
               <span className="text-[28px] font-bold text-gray-900">
                 {price} {currency}
