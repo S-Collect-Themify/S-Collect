@@ -20,7 +20,12 @@ export const getAllProducts = async () => {
     } catch {
       return {
         items: [],
-        pagination: { currentPage: 1, pageSize: 20, totalItems: 0, totalPages: 1 },
+        pagination: {
+          currentPage: 1,
+          pageSize: 20,
+          totalItems: 0,
+          totalPages: 1,
+        },
       };
     }
   }
@@ -166,9 +171,10 @@ export const searchVendorProducts = async (query: {
 }) => {
   try {
     const { data } = await api.post('/vendor/products/search', query);
-    const unwrapped = data && typeof data === 'object' && 'success' in data && 'data' in data
-      ? (data as any).data
-      : data;
+    const unwrapped =
+      data && typeof data === 'object' && 'success' in data && 'data' in data
+        ? (data as any).data
+        : data;
     return unwrapped;
   } catch (err) {
     throw handleServiceError(err, 'Failed to search vendor products');

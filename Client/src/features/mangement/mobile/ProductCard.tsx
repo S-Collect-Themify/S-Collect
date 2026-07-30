@@ -133,9 +133,7 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50"
-          >
+          <div className="w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50">
             {product.icon.startsWith('http') ? (
               <img
                 src={product.icon}

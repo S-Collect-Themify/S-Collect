@@ -42,10 +42,7 @@ export function handleServiceError(
       '>>> [API Error Debug] Response Status:',
       error.response?.status
     );
-    console.error(
-      '>>> [API Error Debug] Response Data:',
-      error.response?.data
-    );
+    console.error('>>> [API Error Debug] Response Data:', error.response?.data);
   }
 
   const message = getErrorMessage(error, fallbackMessage);
@@ -59,15 +56,19 @@ export function handleServiceError(
       | ApiErrorResponseBody
       | undefined;
     if (apiErrorData) {
-      const nestedError = typeof apiErrorData.error === 'object' && apiErrorData.error !== null
-        ? (apiErrorData.error as Record<string, unknown>)
-        : null;
+      const nestedError =
+        typeof apiErrorData.error === 'object' && apiErrorData.error !== null
+          ? (apiErrorData.error as Record<string, unknown>)
+          : null;
 
       details =
         apiErrorData.errors ||
         apiErrorData.validation ||
         apiErrorData.details ||
-        (nestedError && (nestedError.errors || nestedError.validation || nestedError.details));
+        (nestedError &&
+          (nestedError.errors ||
+            nestedError.validation ||
+            nestedError.details));
     }
     if (
       !error.response ||

@@ -35,11 +35,17 @@ export default function ReceivablesTable() {
       const totalAmt =
         typeof (subOrder as any).totalAmount === 'number'
           ? (subOrder as any).totalAmount
-          : (subOrder.items?.reduce((acc, item) => acc + (item.lineTotal || 0), 0) || 0) +
-            (subOrder.shippingRateApplied || 0);
+          : (subOrder.items?.reduce(
+              (acc, item) => acc + (item.lineTotal || 0),
+              0
+            ) || 0) + (subOrder.shippingRateApplied || 0);
       let statusMapped: TransactionStatus = 'pending';
       if (subOrder.status === 'DELIVERED') statusMapped = 'paid';
-      else if (subOrder.status === 'PROCESSING' || subOrder.status === 'SHIPPED') statusMapped = 'processing';
+      else if (
+        subOrder.status === 'PROCESSING' ||
+        subOrder.status === 'SHIPPED'
+      )
+        statusMapped = 'processing';
       else if (subOrder.status === 'CANCELLED') statusMapped = 'failed';
       else statusMapped = 'pending';
 
@@ -70,7 +76,9 @@ export default function ReceivablesTable() {
   }, [transactions, selectedStatus]);
 
   const totalItems = data?.pagination?.totalItems ?? filtered.length;
-  const totalPages = data?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const totalPages =
+    data?.pagination?.totalPages ??
+    Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
 
   const rangeStart =
@@ -152,7 +160,10 @@ export default function ReceivablesTable() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="text-center py-10 text-gray-400 animate-pulse">
+                  <td
+                    colSpan={4}
+                    className="text-center py-10 text-gray-400 animate-pulse"
+                  >
                     <p>{t('settings.loading') || 'Loading...'}</p>
                   </td>
                 </tr>

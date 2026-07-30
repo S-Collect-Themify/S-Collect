@@ -42,9 +42,10 @@ export const getVendorInventory = async (
 ): Promise<PaginatedVendorVariantStock> => {
   try {
     const { data } = await api.post('/vendor/inventory/variants/search', query);
-    const unwrapped = data && typeof data === 'object' && 'success' in data && 'data' in data
-      ? (data as any).data
-      : data;
+    const unwrapped =
+      data && typeof data === 'object' && 'success' in data && 'data' in data
+        ? (data as any).data
+        : data;
     return unwrapped;
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch vendor inventory');
@@ -55,7 +56,10 @@ export const bulkUpdateVariantStock = async (
   params: BulkUpdateVariantStockParams
 ): Promise<void> => {
   try {
-    const { data } = await api.post('/vendor/inventory/variants/bulk-stock', params);
+    const { data } = await api.post(
+      '/vendor/inventory/variants/bulk-stock',
+      params
+    );
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to bulk update inventory stock');

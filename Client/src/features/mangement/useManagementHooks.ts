@@ -15,7 +15,9 @@ const FETCH_PAGE_SIZE = 100;
 
 export function useManagementTable() {
   const queryClient = useQueryClient();
-  const selectedCategories = useManagementStore((state) => state.selectedCategories);
+  const selectedCategories = useManagementStore(
+    (state) => state.selectedCategories
+  );
   const selectedStatus = useManagementStore((state) => state.selectedStatus);
   const search = useManagementStore((state) => state.search);
   const page = useManagementStore((state) => state.page);
@@ -25,7 +27,8 @@ export function useManagementTable() {
 
   const { data: rawProducts, isLoading } = useQuery({
     queryKey: ['products-manage', 1],
-    queryFn: () => searchVendorProducts({ pageNum: 1, pageSize: FETCH_PAGE_SIZE }),
+    queryFn: () =>
+      searchVendorProducts({ pageNum: 1, pageSize: FETCH_PAGE_SIZE }),
     staleTime: 5 * 60 * 1000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,
@@ -36,13 +39,15 @@ export function useManagementTable() {
   useEffect(() => {
     queryClient.prefetchQuery({
       queryKey: ['products-manage', 2],
-      queryFn: () => searchVendorProducts({ pageNum: 2, pageSize: FETCH_PAGE_SIZE }),
+      queryFn: () =>
+        searchVendorProducts({ pageNum: 2, pageSize: FETCH_PAGE_SIZE }),
       staleTime: 5 * 60 * 1000,
     });
   }, [queryClient]);
 
   const products: Product[] = useMemo(() => {
-    const items = rawProducts?.items || (Array.isArray(rawProducts) ? rawProducts : []);
+    const items =
+      rawProducts?.items || (Array.isArray(rawProducts) ? rawProducts : []);
     return items.map((p: any, idx: number) => {
       // Search endpoint doesn't return variants; determine status from isActive/isDisabled
       const status: ProductStatus = p.isDisabled
@@ -54,14 +59,16 @@ export function useManagementTable() {
       const catObj = p.category || {};
       const categoryId = p.categoryId || catObj.id || '';
       const categoryName = isArabic
-        ? (catObj.nameAr || catObj.name || '')
-        : (catObj.name || catObj.nameAr || '');
+        ? catObj.nameAr || catObj.name || ''
+        : catObj.name || catObj.nameAr || '';
 
       let parsedPrice = 0;
       if (typeof p.minPrice === 'number') {
         parsedPrice = p.minPrice;
       } else if (p.minPrice && typeof p.minPrice === 'object') {
-        parsedPrice = Number((p.minPrice as any).amount || (p.minPrice as any).value || 0);
+        parsedPrice = Number(
+          (p.minPrice as any).amount || (p.minPrice as any).value || 0
+        );
       } else if (typeof p.compareAtPrice === 'number') {
         parsedPrice = p.compareAtPrice;
       } else if (typeof p.price === 'number') {
@@ -86,19 +93,27 @@ export function useManagementTable() {
       if (typeof p.thumbnailUrl === 'string') {
         iconUrl = p.thumbnailUrl;
       } else if (p.thumbnailUrl && typeof p.thumbnailUrl === 'object') {
-        iconUrl = (p.thumbnailUrl as any).url || (p.thumbnailUrl as any).src || '';
+        iconUrl =
+          (p.thumbnailUrl as any).url || (p.thumbnailUrl as any).src || '';
       } else if (Array.isArray(p.images) && p.images.length > 0) {
-        const thumb = p.images.find((img: any) => img.isThumbnail) || p.images[0];
-        iconUrl = typeof thumb === 'string' ? thumb : (thumb.url || thumb.src || '');
+        const thumb =
+          p.images.find((img: any) => img.isThumbnail) || p.images[0];
+        iconUrl =
+          typeof thumb === 'string' ? thumb : thumb.url || thumb.src || '';
       }
 
-      if (iconUrl && !iconUrl.startsWith('http://') && !iconUrl.startsWith('https://') && !iconUrl.startsWith('data:')) {
+      if (
+        iconUrl &&
+        !iconUrl.startsWith('http://') &&
+        !iconUrl.startsWith('https://') &&
+        !iconUrl.startsWith('data:')
+      ) {
         iconUrl = `https://api.collect-s.com${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}`;
       }
 
       return {
         id: p.id,
-        name: isArabic ? (p.nameAr || p.name || '') : (p.name || p.nameAr || ''),
+        name: isArabic ? p.nameAr || p.name || '' : p.name || p.nameAr || '',
         category: categoryId,
         categoryName,
         price: parsedPrice,
@@ -113,7 +128,10 @@ export function useManagementTable() {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      if (search && !product.name.toLowerCase().includes(search.toLowerCase())) {
+      if (
+        search &&
+        !product.name.toLowerCase().includes(search.toLowerCase())
+      ) {
         return false;
       }
 

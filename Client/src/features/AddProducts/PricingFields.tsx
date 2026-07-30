@@ -10,9 +10,7 @@ const PricingFields = () => {
     formState: { errors },
   } = useFormContext<ProductFormData>();
 
-    const {
-      isEdit,
-    } = useAddProductPage();
+  const { isEdit } = useAddProductPage();
 
   const inputCls = (hasError?: string) =>
     `w-full rounded-lg border px-4 py-3 focus:outline-none ${

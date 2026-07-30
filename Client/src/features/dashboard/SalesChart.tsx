@@ -158,7 +158,20 @@ export default function SalesChart() {
   const chartData = useMemo(() => {
     const orders = subOrdersData?.items || [];
     if (period === 'month') {
-      const monthKeys = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthKeys = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       const map: Record<string, number> = {};
       monthKeys.forEach((m) => (map[m] = 0));
       orders.forEach((o) => {
@@ -166,9 +179,11 @@ export default function SalesChart() {
           const d = new Date(o.createdAt);
           if (!isNaN(d.getTime())) {
             const mKey = d.toLocaleString('en-US', { month: 'short' });
-            const amt = typeof o.totalAmount === 'number'
-              ? o.totalAmount
-              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            const amt =
+              typeof o.totalAmount === 'number'
+                ? o.totalAmount
+                : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
+                  (o.shippingRateApplied || 0);
             if (map[mKey] !== undefined) map[mKey] += amt;
           }
         }
@@ -183,16 +198,26 @@ export default function SalesChart() {
           const d = new Date(o.createdAt);
           if (!isNaN(d.getTime())) {
             const wKey = d.toLocaleString('en-US', { weekday: 'short' });
-            const amt = typeof o.totalAmount === 'number'
-              ? o.totalAmount
-              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            const amt =
+              typeof o.totalAmount === 'number'
+                ? o.totalAmount
+                : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
+                  (o.shippingRateApplied || 0);
             if (map[wKey] !== undefined) map[wKey] += amt;
           }
         }
       });
       return weekKeys.map((w) => ({ label: w, desktop: Math.round(map[w]) }));
     } else {
-      const dayKeys = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
+      const dayKeys = [
+        '00:00',
+        '04:00',
+        '08:00',
+        '12:00',
+        '16:00',
+        '20:00',
+        '23:59',
+      ];
       const map: Record<string, number> = {};
       dayKeys.forEach((k) => (map[k] = 0));
       orders.forEach((o) => {
@@ -206,9 +231,11 @@ export default function SalesChart() {
             else if (hr >= 12) k = '12:00';
             else if (hr >= 8) k = '08:00';
             else if (hr >= 4) k = '04:00';
-            const amt = typeof o.totalAmount === 'number'
-              ? o.totalAmount
-              : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) + (o.shippingRateApplied || 0);
+            const amt =
+              typeof o.totalAmount === 'number'
+                ? o.totalAmount
+                : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
+                  (o.shippingRateApplied || 0);
             if (map[k] !== undefined) map[k] += amt;
           }
         }

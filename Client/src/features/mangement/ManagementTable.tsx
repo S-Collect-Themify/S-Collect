@@ -139,7 +139,9 @@ export default function ProductTable() {
         {selectedCount > 0 && (
           <div className="flex items-center gap-1 sm:ml-auto select-none sm:order-last order-first w-full sm:w-auto justify-between sm:justify-start">
             <span className="text-body-sm text-gray-400 font-bold px-2 py-1 rounded bg-gray-100 flex items-center gap-2.5">
-              <span>{t('managementTable.selectedCount', { count: selectedCount })}</span>
+              <span>
+                {t('managementTable.selectedCount', { count: selectedCount })}
+              </span>
               <button
                 onClick={clearSelection}
                 className="cursor-pointer hover:bg-gray-200 rounded p-0.5"
@@ -212,7 +214,10 @@ export default function ProductTable() {
           <tbody className="divide-y divide-gray-100 select-none">
             {paginatedProducts.length === 0 ? (
               <tr>
-                <td colSpan={tableHeaders.length + 1} className="py-12 text-center text-gray-400">
+                <td
+                  colSpan={tableHeaders.length + 1}
+                  className="py-12 text-center text-gray-400"
+                >
                   <span
                     className="ti ti-package-off text-2xl block mb-2"
                     aria-hidden="true"

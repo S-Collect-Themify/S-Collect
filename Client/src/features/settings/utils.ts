@@ -1,6 +1,11 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { UseFormSetError, FieldValues, Path, ErrorOption } from 'react-hook-form';
+import type {
+  UseFormSetError,
+  FieldValues,
+  Path,
+  ErrorOption,
+} from 'react-hook-form';
 import { ServiceError } from '../../services/api';
 
 export function cn(...inputs: ClassValue[]) {
@@ -43,11 +48,16 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
     details.forEach((err: unknown) => {
       if (!err || typeof err !== 'object') return;
       const errObj = err as Record<string, unknown>;
-      const key = typeof errObj.property === 'string' ? errObj.property :
-                  typeof errObj.field === 'string' ? errObj.field :
-                  typeof errObj.key === 'string' ? errObj.key : null;
+      const key =
+        typeof errObj.property === 'string'
+          ? errObj.property
+          : typeof errObj.field === 'string'
+            ? errObj.field
+            : typeof errObj.key === 'string'
+              ? errObj.key
+              : null;
       const msg = errObj.message || errObj.msg || errObj.error;
-      
+
       if (key && msg) {
         const fieldName = getMappedFieldName(key);
         setError(fieldName, {
@@ -61,7 +71,7 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
     Object.keys(detailsObj).forEach((key) => {
       const val = detailsObj[key];
       if (!val) return;
-      
+
       const fieldName = getMappedFieldName(key);
       const messages = Array.isArray(val) ? val : [val];
       const cleanMessages = messages.map((m) =>

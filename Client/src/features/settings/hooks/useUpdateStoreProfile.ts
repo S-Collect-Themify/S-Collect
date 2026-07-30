@@ -10,7 +10,9 @@ export const useUpdateStoreProfile = () => {
 
   return useMutation({
     mutationFn: async (data: StoreProfileData) => {
-      const cached = queryClient.getQueryData<StoreProfileData>(STORE_PROFILE_QUERY_KEY);
+      const cached = queryClient.getQueryData<StoreProfileData>(
+        STORE_PROFILE_QUERY_KEY
+      );
       const formData = new FormData();
       let hasChanges = false;
 
@@ -55,11 +57,15 @@ export const useUpdateStoreProfile = () => {
       }
 
       const rawResponse = await updateVendorProfile(formData);
-      const response = rawResponse && typeof rawResponse === 'object' && 'success' in rawResponse && 'data' in rawResponse
-        ? (rawResponse as any).data
-        : rawResponse;
-      
-      const finalLogoUrl = isLogoRemoved ? null : (response?.logoUrl || null);
+      const response =
+        rawResponse &&
+        typeof rawResponse === 'object' &&
+        'success' in rawResponse &&
+        'data' in rawResponse
+          ? (rawResponse as any).data
+          : rawResponse;
+
+      const finalLogoUrl = isLogoRemoved ? null : response?.logoUrl || null;
 
       let logoFileName: string | null = null;
       if (finalLogoUrl) {
@@ -74,9 +80,18 @@ export const useUpdateStoreProfile = () => {
       const updatedProfile: StoreProfileData = {
         storeName: response?.storeName || data.storeName || '',
         storeNameAr: response?.storeNameAr || data.storeNameAr || '',
-        storeDescription: typeof response?.storeDescription === 'string' ? response.storeDescription : (data.storeDescription || ''),
-        publicEmail: typeof response?.publicEmail === 'string' ? response.publicEmail : (data.publicEmail || ''),
-        phoneNumber: typeof response?.publicPhoneNumber === 'string' ? response.publicPhoneNumber : (data.phoneNumber || ''),
+        storeDescription:
+          typeof response?.storeDescription === 'string'
+            ? response.storeDescription
+            : data.storeDescription || '',
+        publicEmail:
+          typeof response?.publicEmail === 'string'
+            ? response.publicEmail
+            : data.publicEmail || '',
+        phoneNumber:
+          typeof response?.publicPhoneNumber === 'string'
+            ? response.publicPhoneNumber
+            : data.phoneNumber || '',
         storeLogoUrl: finalLogoUrl,
         storeLogoFileName: logoFileName,
         originalStoreNameAr: response?.storeNameAr || data.storeNameAr || '',

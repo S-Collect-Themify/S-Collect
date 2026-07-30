@@ -18,10 +18,12 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
   const { categories, isLoading } = useCategories();
 
   const allSelected = selected.length === 0;
-  
+
   let label = t('managementTable.category');
   if (selected.length === 1) {
-    const selectedCat = (categories as Category[]).find((c: Category) => c.id === selected[0]);
+    const selectedCat = (categories as Category[]).find(
+      (c: Category) => c.id === selected[0]
+    );
     if (selectedCat) {
       label = isAr ? selectedCat.nameAr : selectedCat.name;
     }
@@ -77,7 +79,11 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
           {(categories as Category[]).map((cat: Category) => {
             const catName = isAr ? cat.nameAr : cat.name;
             return (
-              <div key={cat.id} className={DD_ITEM} onClick={() => toggle(cat.id)}>
+              <div
+                key={cat.id}
+                className={DD_ITEM}
+                onClick={() => toggle(cat.id)}
+              >
                 <input
                   type="checkbox"
                   readOnly

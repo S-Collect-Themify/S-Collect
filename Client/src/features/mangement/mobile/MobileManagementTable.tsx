@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ProductCard from './ProductCard';
 import { useManagementStore } from '../managementStore';
-import { useManagementTable, useManagementActions } from '../useManagementHooks';
+import {
+  useManagementTable,
+  useManagementActions,
+} from '../useManagementHooks';
 import CategoryDropdown from '../CategoryDropdown';
 import StatusDropdown from '../StatusDropdown';
 
@@ -28,7 +31,7 @@ export default function MobileManagementTable() {
     (state) => state.setSelectedStatus
   );
   const setPage = useManagementStore((state) => state.setPage);
-  
+
   const { deleteSingle, toggleSingle } = useManagementActions();
 
   const pageNumbers = Array.from(

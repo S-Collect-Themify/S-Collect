@@ -191,19 +191,31 @@ export function StoreLogoUpload() {
   const handleLogoUpload = (file: File) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     const lastDotIndex = file.name.lastIndexOf('.');
-    const extension = lastDotIndex !== -1 ? file.name.substring(lastDotIndex).toLowerCase() : '';
+    const extension =
+      lastDotIndex !== -1
+        ? file.name.substring(lastDotIndex).toLowerCase()
+        : '';
     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 
-    if (!validTypes.includes(file.type) || !validExtensions.includes(extension)) {
+    if (
+      !validTypes.includes(file.type) ||
+      !validExtensions.includes(extension)
+    ) {
       setError('storeLogoUrl', {
-        message: t('settings.errors.imageUpload', 'Only JPG, JPEG, PNG, or WEBP images are allowed'),
+        message: t(
+          'settings.errors.imageUpload',
+          'Only JPG, JPEG, PNG, or WEBP images are allowed'
+        ),
       });
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
       setError('storeLogoUrl', {
-        message: t('settings.errors.imageTooLarge', 'Image size must be less than 2MB'),
+        message: t(
+          'settings.errors.imageTooLarge',
+          'Image size must be less than 2MB'
+        ),
       });
       return;
     }
@@ -213,8 +225,14 @@ export function StoreLogoUpload() {
     }
 
     localStorage.removeItem('vendor_logo_removed');
-    setValue('storeLogoUrl', URL.createObjectURL(file), { shouldDirty: true, shouldValidate: true });
-    setValue('storeLogoFileName', file.name, { shouldDirty: true, shouldValidate: true });
+    setValue('storeLogoUrl', URL.createObjectURL(file), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue('storeLogoFileName', file.name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
     setValue('logoFile', file, { shouldDirty: true, shouldValidate: true });
     clearErrors('storeLogoUrl');
   };
@@ -225,7 +243,10 @@ export function StoreLogoUpload() {
     }
     localStorage.setItem('vendor_logo_removed', 'true');
     setValue('storeLogoUrl', null, { shouldDirty: true, shouldValidate: true });
-    setValue('storeLogoFileName', null, { shouldDirty: true, shouldValidate: true });
+    setValue('storeLogoFileName', null, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
     setValue('logoFile', null, { shouldDirty: true, shouldValidate: true });
     clearErrors('storeLogoUrl');
   };
