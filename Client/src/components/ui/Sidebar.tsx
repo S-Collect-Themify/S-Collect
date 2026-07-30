@@ -244,43 +244,33 @@ const NAV_SECTIONS: NavSectionProps[] = [
 // ─── Animation Variants ───────────────────────────────────────────────────────
 const getSidebarVariants = (isArabic: boolean): Variants => ({
   open: {
-    clipPath: `circle(150% at ${isArabic ? '100%' : '0%'} 0%)`,
+    x: 0,
+    opacity: 1,
     transition: {
-      type: 'spring',
-      stiffness: 50,
-      damping: 18,
+      type: 'tween',
+      ease: 'easeOut',
+      duration: 0.25,
     },
   },
   closed: {
-    clipPath: `circle(0% at ${isArabic ? '100%' : '0%'} 0%)`,
+    x: isArabic ? '100%' : '-100%',
+    opacity: 0,
     transition: {
-      type: 'spring',
-      stiffness: 300,
-      damping: 40,
+      type: 'tween',
+      ease: 'easeIn',
+      duration: 0.2,
     },
   },
 });
 
 const navListVariants: Variants = {
-  open: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.15 },
-  },
-  closed: {
-    transition: { staggerChildren: 0.04, staggerDirection: -1 },
-  },
+  open: {},
+  closed: {},
 };
 
 const navItemVariants: Variants = {
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 300, damping: 24 },
-  },
-  closed: {
-    opacity: 0,
-    y: 10,
-    transition: { duration: 0.2 },
-  },
+  open: { opacity: 1, y: 0 },
+  closed: { opacity: 1, y: 0 },
 };
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────

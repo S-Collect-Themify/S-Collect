@@ -8,7 +8,7 @@ const DashboardSkeleton = () => {
   return (
     <div className="flex flex-col flex-1">
       {/* Header */}
-      <div className="sidebar-page-container flex items-center justify-between mb-10 bg-gray-50">
+      <div className="sidebar-page-container flex items-center justify-between md:mb-10 mb-5 bg-gray-50">
         <div className="h-8 w-40 bg-gray-200 rounded py-5 animate-pulse" />
       </div>
 
