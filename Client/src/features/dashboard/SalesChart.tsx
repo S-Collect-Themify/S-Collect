@@ -20,6 +20,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useSubOrders } from '../Orders/useSubOrders';
 
+import SalesChartSkeleton from './skeleton/SalesChartSkeleton';
+
 type Period = 'month' | 'week' | 'day';
 
 const chartConfig = {
@@ -142,10 +144,14 @@ export default function SalesChart() {
   const { t } = useTranslation();
   const [period, setPeriod] = useState<Period>('month');
 
-  const { data: subOrdersData } = useSubOrders({
+  const { data: subOrdersData, isLoading } = useSubOrders({
     pageNum: 1,
     pageSize: 100,
   });
+
+  if (isLoading) {
+    return <SalesChartSkeleton />;
+  }
 
   const periodOptions: { value: Period; label: string }[] = [
     { value: 'month', label: t('salesChart.lastMonth') },

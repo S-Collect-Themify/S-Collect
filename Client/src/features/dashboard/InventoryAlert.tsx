@@ -5,6 +5,7 @@ import type { Variants } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import InventoryCard from './InventoryCard';
+import InventoryAlertSkeleton from './skeleton/InventoryAlertSkeleton';
 import { getVendorInventory } from '../../services/inventory';
 import { searchVendorProducts } from '../../services/products';
 
@@ -59,6 +60,10 @@ const InventoryAlert = () => {
     refetchOnWindowFocus: false,
     staleTime: 2 * 60 * 1000,
   });
+
+  if (isInvLoading) {
+    return <InventoryAlertSkeleton />;
+  }
 
   const { data: productsData } = useQuery({
     queryKey: ['dashboardInventoryProductsMap'],

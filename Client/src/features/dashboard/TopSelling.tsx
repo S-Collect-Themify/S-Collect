@@ -4,6 +4,7 @@ import type { Variants } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import TopSellingCard from './TopSellingCard';
+import TopSellingSkeleton from './skeleton/TopSellingSkeleton';
 import { searchVendorProducts } from '../../services/products';
 
 const containerVariants: Variants = {
@@ -58,6 +59,10 @@ const TopSelling = () => {
     refetchOnWindowFocus: false,
     staleTime: 2 * 60 * 1000,
   });
+
+  if (isLoading) {
+    return <TopSellingSkeleton />;
+  }
 
   const productsList =
     productsData?.items || (Array.isArray(productsData) ? productsData : []);
