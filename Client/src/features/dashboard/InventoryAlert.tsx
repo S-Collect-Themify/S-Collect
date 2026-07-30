@@ -27,7 +27,7 @@ const itemVariants: Variants = {
 };
 
 const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop';
+  './placeholder.jpg';
 
 const resolveImageUrl = (rawUrl: any): string => {
   if (!rawUrl) return DEFAULT_IMAGE;
@@ -61,16 +61,16 @@ const InventoryAlert = () => {
     staleTime: 2 * 60 * 1000,
   });
 
-  if (isInvLoading) {
-    return <InventoryAlertSkeleton />;
-  }
-
   const { data: productsData } = useQuery({
     queryKey: ['dashboardInventoryProductsMap'],
     queryFn: () => searchVendorProducts({ pageNum: 1, pageSize: 50 }),
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
   });
+
+  if (isInvLoading) {
+    return <InventoryAlertSkeleton />;
+  }
 
   const productImgMap: Record<string, string> = {};
   const productsList =
@@ -163,9 +163,9 @@ const InventoryAlert = () => {
           {lowOrNoStockCount > 0
             ? `${lowOrNoStockCount} ${t('inventoryItem.alertMessage', 'products are running low on stock.')}`
             : t(
-                'inventoryItem.allStockGood',
-                'All inventory stock levels look good.'
-              )}
+              'inventoryItem.allStockGood',
+              'All inventory stock levels look good.'
+            )}
         </p>
       </motion.div>
 

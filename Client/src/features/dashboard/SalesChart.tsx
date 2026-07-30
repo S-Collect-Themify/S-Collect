@@ -149,10 +149,6 @@ export default function SalesChart() {
     pageSize: 100,
   });
 
-  if (isLoading) {
-    return <SalesChartSkeleton />;
-  }
-
   const periodOptions: { value: Period; label: string }[] = [
     { value: 'month', label: t('salesChart.lastMonth') },
     { value: 'week', label: t('salesChart.lastWeek') },
@@ -249,6 +245,10 @@ export default function SalesChart() {
       return dayKeys.map((k) => ({ label: k, desktop: Math.round(map[k]) }));
     }
   }, [subOrdersData?.items, period]);
+
+  if (isLoading) {
+    return <SalesChartSkeleton />;
+  }
 
   return (
     <Card className="lg:h-[512px] lg:flex lg:flex-col">

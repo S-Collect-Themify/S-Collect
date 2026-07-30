@@ -13,6 +13,22 @@ html,
   font-family: 'Inter', sans-serif !important;
 }
 
+button,
+a,
+[role='button'],
+input[type='submit'],
+input[type='button'],
+input[type='reset'] {
+  cursor: pointer !important;
+}
+
+button:disabled,
+a:disabled,
+[role='button'][aria-disabled='true'],
+input:disabled {
+  cursor: not-allowed !important;
+}
+
 @keyframes settings-fade-up {
   from {
     opacity: 0;
