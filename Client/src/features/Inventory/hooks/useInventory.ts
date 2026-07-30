@@ -28,9 +28,9 @@ export function useInventory() {
     Record<string, { productId: string; variantId: string; stock: number }>
   >({});
 
-  // Compute minStock/maxStock from activeTab
+  // Compute minStock/maxStock from activeTab (inventory stock only shows items with stock <= 5)
   let minStock: number | undefined = undefined;
-  let maxStock: number | undefined = undefined;
+  let maxStock: number | undefined = 5;
   if (activeTab === 'Out of Stock') {
     minStock = 0;
     maxStock = 0;
@@ -38,7 +38,8 @@ export function useInventory() {
     minStock = 1;
     maxStock = 5;
   } else if (activeTab === 'In Stock') {
-    minStock = 6;
+    minStock = 1;
+    maxStock = 5;
   }
 
   // Query real inventory from the API with dependencies
@@ -57,41 +58,50 @@ export function useInventory() {
     retry: 1,
   });
 
-  // Convert raw product variants to flat rows
+  // Convert raw product variants to flat rows (filtering for stock <= 5)
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
-    return items.map((item) => {
-      const uniqueId = `${item.productId}::${item.variantId}`;
-      const name = isAr
-        ? item.productNameAr || item.productName || ''
-        : item.productName || item.productNameAr || '';
+    return items
+      .filter((item) => {
+        const uniqueId = `${item.productId}::${item.variantId}`;
+        const stock =
+          pendingChanges.current[uniqueId] !== undefined
+            ? pendingChanges.current[uniqueId].stock
+            : item.stock || 0;
+        return stock <= 5;
+      })
+      .map((item) => {
+        const uniqueId = `${item.productId}::${item.variantId}`;
+        const name = isAr
+          ? item.productNameAr || item.productName || ''
+          : item.productName || item.productNameAr || '';
 
-      const variantStr = isAr
-        ? item.labelNameAr || item.labelName || 'الافتراضي'
-        : item.labelName || item.labelNameAr || 'Default';
+        const variantStr = isAr
+          ? item.labelNameAr || item.labelName || 'الافتراضي'
+          : item.labelName || item.labelNameAr || 'Default';
 
-      const updatedAt = item.lastUpdatedAt
-        ? new Date(item.lastUpdatedAt).toLocaleDateString(
-            isAr ? 'ar-EG' : 'en-US'
-          )
-        : '';
+        const updatedAt = item.lastUpdatedAt
+          ? new Date(item.lastUpdatedAt).toLocaleDateString(
+              isAr ? 'ar-EG' : 'en-US'
+            )
+          : '';
 
-      // Use pending change stock if user edited it, otherwise backend stock
-      const stock =
-        pendingChanges.current[uniqueId] !== undefined
-          ? pendingChanges.current[uniqueId].stock
-          : item.stock || 0;
+        // Use pending change stock if user edited it, otherwise backend stock
+        const stock =
+          pendingChanges.current[uniqueId] !== undefined
+            ? pendingChanges.current[uniqueId].stock
+            : item.stock || 0;
 
-      return {
-        id: uniqueId,
-        name,
-        sku: item.sku || '',
-        variant: variantStr,
-        stock,
-        updatedAt,
-        status: getStatus(stock),
-      };
-    });
+        return {
+          id: uniqueId,
+          name,
+          sku: item.sku || '',
+          variant: variantStr,
+          stock,
+          updatedAt,
+          status: getStatus(stock),
+        };
+      });
   }, [rawInventory, isAr]);
 
   // Derived data
