@@ -76,14 +76,18 @@ export function ReturnFilterBar({
             onChange={(e) => onDateFilterChange(e.target.value)}
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
           >
-            <option value="30">
-              {t('returnsPage.last30Days', {
-                defaultValue: 'Date: Last 30 Days',
+            <option value="ALL">
+              {t('returnsPage.allTime', {
+                defaultValue: 'All Dates',
               })}
             </option>
             <option value="7">Last 7 Days</option>
+            <option value="30">
+              {t('returnsPage.last30Days', {
+                defaultValue: 'Last 30 Days',
+              })}
+            </option>
             <option value="90">Last 90 Days</option>
-            <option value="ALL">All Time</option>
           </select>
           <ChevronDown
             size={16}

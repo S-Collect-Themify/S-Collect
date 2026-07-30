@@ -3,15 +3,17 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import PortalDropdown from '../../components/ui/PortalDropdown';
-import { transactions } from './constants';
+import type { Transaction } from './constants';
 import { getDateKey } from './utils';
 
 export default function DateFilterDropdown({
   selected,
   onChange,
+  transactions = [],
 }: {
   selected: string;
   onChange: (value: string) => void;
+  transactions?: Transaction[];
 }) {
   const { t } = useTranslation();
 
@@ -22,7 +24,8 @@ export default function DateFilterDropdown({
       if (key) keys.add(key);
     });
     return Array.from(keys).sort((a, b) => b.localeCompare(a));
-  }, []);
+  }, [transactions]);
+
 
   const options = [
     { value: 'all', label: t('receivables.allDates') },

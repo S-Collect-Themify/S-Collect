@@ -14,32 +14,32 @@ export function StatusBadge({ status }: { status: string }) {
     PENDING_REVIEW: {
       labelKey: 'returnsPage.statuses.pendingReview',
       defaultLabel: 'Pending Review',
-      cls: 'bg-amber-100/90 text-amber-900 border-amber-300/70',
+      cls: 'bg-[#FEF3C7] text-[#D97706] border-amber-300/70',
     },
     PENDING: {
       labelKey: 'returnsPage.statuses.pendingReview',
       defaultLabel: 'Pending Review',
-      cls: 'bg-amber-100/90 text-amber-900 border-amber-300/70',
+      cls: 'bg-[#FEF3C7] text-[#D97706] border-amber-300/70',
     },
     APPROVED: {
       labelKey: 'returnsPage.statuses.approved',
       defaultLabel: 'Approved',
-      cls: 'bg-emerald-100/90 text-emerald-900 border-emerald-300/70',
+      cls: 'bg-[#059669] text-[#059669] border-emerald-300/70',
     },
     REJECTED: {
       labelKey: 'returnsPage.statuses.rejected',
       defaultLabel: 'Rejected',
-      cls: 'bg-rose-100/90 text-rose-900 border-rose-300/70',
+      cls: 'bg-[#FEE2E2] text-[#DC2626] border-rose-300/70',
     },
     AWAITING_ITEM: {
       labelKey: 'returnsPage.statuses.awaitingItem',
       defaultLabel: 'Awaiting Item',
-      cls: 'bg-sky-100/90 text-sky-900 border-sky-300/70',
+      cls: 'bg-[#EFF6FF] text-[#2563EB] border-sky-300/70',
     },
     COMPLETED: {
       labelKey: 'returnsPage.statuses.completed',
       defaultLabel: 'Completed',
-      cls: 'bg-emerald-100/90 text-emerald-900 border-emerald-300/70',
+      cls: 'bg-[#ECFDF5] text-[#047857] border-emerald-300/70',
     },
   };
 
