@@ -607,3 +607,49 @@ input:disabled {
   opacity: 0;
   animation: receivablesFadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ============================================================
+   UNIFIED TOAST NOTIFICATION STYLES
+   ============================================================ */
+.unified-toast-item {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid #e2e8f0 !important;
+  font-family: inherit !important;
+  max-width: 420px !important;
+  transition: all 0.25s ease !important;
+}
+
+[dir="rtl"] .unified-toast-item {
+  direction: rtl;
+}
+
+/* Success toast accent border */
+.unified-toast-item[data-type="success"] {
+  border-left: 4px solid #10b981 !important;
+}
+[dir="rtl"] .unified-toast-item[data-type="success"] {
+  border-left: 1px solid #e2e8f0 !important;
+  border-right: 4px solid #10b981 !important;
+}
+
+/* Error toast accent border */
+.unified-toast-item[data-type="error"] {
+  border-left: 4px solid #ef4444 !important;
+}
+[dir="rtl"] .unified-toast-item[data-type="error"] {
+  border-left: 1px solid #e2e8f0 !important;
+  border-right: 4px solid #ef4444 !important;
+}
+
+/* Loading toast accent border */
+.unified-toast-item[data-type="loading"] {
+  border-left: 4px solid #3b82f6 !important;
+}
+[dir="rtl"] .unified-toast-item[data-type="loading"] {
+  border-left: 1px solid #e2e8f0 !important;
+  border-right: 4px solid #3b82f6 !important;
+}

@@ -9,6 +9,7 @@ interface AuthStore {
   toggleLoginPassword: () => void;
 
   step: number;
+  setStep: (step: number) => void;
   nextStep: () => void;
   previousStep: () => void;
   resetRegister: () => void;
@@ -22,6 +23,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set((state) => ({ showLoginPassword: !state.showLoginPassword })),
 
   step: 0,
+  setStep: (step) => set({ step: Math.max(0, Math.min(step, 2)) }),
   nextStep: () => set((state) => ({ step: Math.min(state.step + 1, 2) })),
   previousStep: () => set((state) => ({ step: Math.max(state.step - 1, 0) })),
   resetRegister: () => set({ step: 0 }),
