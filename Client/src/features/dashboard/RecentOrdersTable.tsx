@@ -4,7 +4,7 @@ import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSubOrders } from '../Orders/useSubOrders';
 import type { SubOrderStatus } from '../Orders/types/subOrder';
 import MobileOrderCards from './components/MobileOrderCards';
-import RecentOrdersSkeleton from './components/RecentOrdersSkeleton';
+import RecentOrdersTableSkeleton from './skeleton/RecentOrdersTableSkeleton';
 import RecentOrdersDesktopTable from './components/RecentOrdersDesktopTable';
 
 const RecentOrdersTable = () => {
@@ -16,6 +16,10 @@ const RecentOrdersTable = () => {
     pageNum: 1,
     pageSize: 5,
   });
+
+  if (isLoading) {
+    return <RecentOrdersTableSkeleton />;
+  }
 
   const recentOrders = [...(data?.items ?? [])]
     .sort(
@@ -66,9 +70,7 @@ const RecentOrdersTable = () => {
               <span className="inline-block rtl:rotate-180">→</span>
             </button>
           </div>
-          {isLoading ? (
-            <RecentOrdersSkeleton />
-          ) : isError ? (
+          {isError ? (
             <div className="p-4 bg-white rounded-xl text-center text-xs text-red-500">
               {t('ordersPage.loadError', 'Failed to load orders.')}
             </div>
@@ -103,9 +105,7 @@ const RecentOrdersTable = () => {
           </div>
 
           {/* Table / Content */}
-          {isLoading ? (
-            <RecentOrdersSkeleton />
-          ) : isError ? (
+          {isError ? (
             <div className="p-8 text-center text-red-500 text-sm">
               {t('ordersPage.loadError', 'Failed to load orders.')}
             </div>

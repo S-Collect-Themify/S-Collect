@@ -4,16 +4,10 @@ import SalesChart from '../features/dashboard/SalesChart';
 import InventoryAlert from '../features/dashboard/InventoryAlert';
 import TopSelling from '../features/dashboard/TopSelling';
 import RecentOrdersTable from '../features/dashboard/RecentOrdersTable';
-import DashboardSkeleton from '../features/dashboard/skeleton/DashboardSkeleton';
-import { useProducts } from '../features/AddProducts/useProducts';
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { isLoading } = useProducts();
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
   return (
     <div className="flex flex-col flex-1">
       <div className="sidebar-page-container-header flex items-center justify-between mb-10 bg-gray-50">
