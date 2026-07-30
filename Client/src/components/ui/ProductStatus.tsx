@@ -3,16 +3,21 @@ import { Switch } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
+import { useUpdateProductStatus } from '../../features/AddProducts/useUpdateProductStatus';
 
 interface ProductStatusProps {
   enabled: boolean;
   setEnabled: (value: boolean) => void;
+  productId?: string;
 }
 
-const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
+const ProductStatus = ({ enabled, setEnabled, productId }: ProductStatusProps) => {
   const { t } = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingValue, setPendingValue] = useState(false);
+
+  const mutation = useUpdateProductStatus(productId);
+  const isLoading = mutation.isPending;
 
   const handleToggle = (value: boolean) => {
     setPendingValue(value);
@@ -20,12 +25,23 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
   };
 
   const handleConfirm = () => {
-    setEnabled(pendingValue);
-    setShowConfirm(false);
+    if (productId) {
+      mutation.mutate(pendingValue, {
+        onSuccess: () => {
+          setEnabled(pendingValue);
+          setShowConfirm(false);
+        },
+      });
+    } else {
+      setEnabled(pendingValue);
+      setShowConfirm(false);
+    }
   };
 
   const handleCancel = () => {
-    setShowConfirm(false);
+    if (!isLoading) {
+      setShowConfirm(false);
+    }
   };
 
   return (
@@ -80,19 +96,24 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
               {/* الأزرار */}
               <div className="flex gap-3">
                 <button
+                  disabled={isLoading}
                   onClick={handleCancel}
-                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   {t('addProduct.cancel', 'Cancel')}
                 </button>
                 <button
+                  disabled={isLoading}
                   onClick={handleConfirm}
-                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors ${
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors flex items-center justify-center gap-2 ${
                     pendingValue
                       ? 'bg-green-600 hover:bg-green-700'
                       : 'bg-red-600 hover:bg-red-700'
-                  }`}
+                  } disabled:opacity-50`}
                 >
+                  {isLoading && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                  )}
                   {pendingValue
                     ? t('addProduct.activate', 'Activate')
                     : t('addProduct.deactivate', 'Deactivate')}
