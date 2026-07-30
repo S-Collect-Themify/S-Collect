@@ -1,54 +1,44 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { Search, X, Loader2, Package, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { searchVendorProducts } from '../../services/products';
 import { useManagementStore } from '../../features/mangement/managementStore';
+import { useDebounce } from '../../hooks/useDebounce';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const InputSearch = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isArabic = i18n.language === 'ar';
   const setSearchInManagement = useManagementStore((state) => state.setSearch);
+  const { isMobile } = useBreakpoint();
 
   const [openMobile, setOpenMobile] = useState(false);
   const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 800);
   const [focused, setFocused] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Debounce input change by 300ms
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
-
   // Handle body scroll for mobile modal
   useEffect(() => {
-    if (openMobile) {
+    if (openMobile && isMobile) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [openMobile]);
+  }, [openMobile, isMobile]);
 
-  // Click outside listener for desktop dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setFocused(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // Click outside listener for desktop dropdown using reusable hook
+  useOutsideClick(
+    containerRef,
+    useCallback(() => {
+      setFocused(false);
+    }, [])
+  );
 
   // Fetch search results from API
   const { data: rawData, isLoading } = useQuery({
