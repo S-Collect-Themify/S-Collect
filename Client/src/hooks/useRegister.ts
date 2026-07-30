@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import type { UseFormSetError } from 'react-hook-form';
 import axios from 'axios';
 import { applyVendorOnboarding } from '../services/auth';
-import type { ApiAxiosError, ValidationErrorItem } from '../types/api';
+import type { ApiAxiosError } from '../types/api';
 
 export interface RegisterFormData {
   firstName: string;
@@ -45,115 +45,168 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
         const axiosError = isAx ? (error as ApiAxiosError) : null;
         const responseData = axiosError?.response?.data as any;
 
-        let mainMsg = '';
+        const FIELD_LABELS: Record<keyof RegisterFormData, { en: string; ar: string }> = {
+          firstName: { en: 'First Name', ar: 'الاسم الأول' },
+          lastName: { en: 'Last Name', ar: 'اسم العائلة' },
+          email: { en: 'Email Address', ar: 'البريد الإلكتروني' },
+          phone: { en: 'Phone Number', ar: 'رقم الهاتف' },
+          storeName: { en: 'Store Name', ar: 'اسم المتجر' },
+          category: { en: 'Category', ar: 'الفئة' },
+          website: { en: 'Commercial Registration Number', ar: 'رقم السجل التجاري' },
+          description: { en: 'Store Description', ar: 'وصف المتجر' },
+          password: { en: 'Password', ar: 'كلمة المرور' },
+          confirmPassword: { en: 'Confirm Password', ar: 'تأكيد كلمة المرور' },
+        };
+
+        const getFieldLabel = (field: keyof RegisterFormData): string => {
+          return FIELD_LABELS[field]?.[isRtl ? 'ar' : 'en'] || field;
+        };
+
+        const mapKeyToField = (
+          key: string
+        ): keyof RegisterFormData | undefined => {
+          const lower = key.toLowerCase();
+          if (lower === 'firstname' || lower === 'first_name') return 'firstName';
+          if (lower === 'lastname' || lower === 'last_name') return 'lastName';
+          if (lower === 'email') return 'email';
+          if (lower === 'phonenumber' || lower === 'phone' || lower === 'phone_number') return 'phone';
+          if (lower === 'storename' || lower === 'store_name') return 'storeName';
+          if (lower === 'storedescription' || lower === 'description' || lower === 'store_description')
+            return 'description';
+          if (lower === 'commercialregisternumber' || lower === 'website' || lower === 'crnumber' || lower === 'cr_number')
+            return 'website';
+          if (lower === 'category') return 'category';
+          if (lower === 'password') return 'password';
+          if (lower === 'confirmpassword' || lower === 'confirm_password') return 'confirmPassword';
+          return undefined;
+        };
+
+        const fieldErrorSummaries: string[] = [];
 
         if (responseData) {
           const rawMessage = responseData.message;
-          const rawErrorObj =
-            typeof responseData.error === 'object'
-              ? responseData.error
-              : responseData;
 
-          const mapKeyToField = (
-            key: string
-          ): keyof RegisterFormData | undefined => {
-            if (key === 'firstName') return 'firstName';
-            if (key === 'lastName') return 'lastName';
-            if (key === 'email') return 'email';
-            if (key === 'phoneNumber' || key === 'phone') return 'phone';
-            if (key === 'storeName') return 'storeName';
-            if (key === 'storeDescription' || key === 'description')
-              return 'description';
-            if (key === 'commercialRegisterNumber' || key === 'website')
-              return 'website';
-            if (key === 'password') return 'password';
-            return undefined;
-          };
+          // Find validation array or object across all standard API formats
+          let validationList: any[] | null = null;
+          let validationMap: Record<string, any> | null = null;
 
-          // 1. Process array of error strings (NestJS default class-validator format)
-          const messagesList: string[] = [];
-          if (Array.isArray(rawMessage)) {
-            messagesList.push(...rawMessage);
+          if (Array.isArray(responseData?.validation) && responseData.validation.length > 0) {
+            validationList = responseData.validation;
+          } else if (Array.isArray(responseData?.error?.validation) && responseData.error.validation.length > 0) {
+            validationList = responseData.error.validation;
+          } else if (Array.isArray(responseData?.details) && responseData.details.length > 0) {
+            validationList = responseData.details;
+          } else if (Array.isArray(responseData?.error?.details) && responseData.error.details.length > 0) {
+            validationList = responseData.error.details;
+          } else if (Array.isArray(responseData?.errors) && responseData.errors.length > 0) {
+            validationList = responseData.errors;
+          } else if (Array.isArray(responseData?.error?.errors) && responseData.error.errors.length > 0) {
+            validationList = responseData.error.errors;
           } else if (
-            typeof rawMessage === 'string' &&
-            rawMessage !== 'Bad Request'
+            typeof responseData?.error?.details === 'object' &&
+            responseData?.error?.details !== null &&
+            Object.keys(responseData.error.details).length > 0
           ) {
-            messagesList.push(rawMessage);
+            validationMap = responseData.error.details;
+          } else if (
+            typeof responseData?.details === 'object' &&
+            responseData?.details !== null &&
+            Object.keys(responseData.details).length > 0
+          ) {
+            validationMap = responseData.details;
+          } else if (
+            typeof responseData?.errors === 'object' &&
+            responseData?.errors !== null &&
+            Object.keys(responseData.errors).length > 0
+          ) {
+            validationMap = responseData.errors;
           }
 
-          messagesList.forEach((msg) => {
-            let matchedField: keyof RegisterFormData | undefined;
-            if (msg.includes('commercialRegisterNumber'))
-              matchedField = 'website';
-            else if (msg.includes('phoneNumber') || msg.includes('phone'))
-              matchedField = 'phone';
-            else if (msg.includes('firstName')) matchedField = 'firstName';
-            else if (msg.includes('lastName')) matchedField = 'lastName';
-            else if (msg.includes('email')) matchedField = 'email';
-            else if (msg.includes('storeName')) matchedField = 'storeName';
-            else if (
-              msg.includes('storeDescription') ||
-              msg.includes('description')
-            )
-              matchedField = 'description';
-            else if (msg.includes('password')) matchedField = 'password';
+          // 1. Process array of validation error items ({ field, issue } or { property, message })
+          if (validationList && validationList.length > 0) {
+            validationList.forEach((err: any) => {
+              const key =
+                typeof err === 'object' && err !== null
+                  ? err.field || err.property || err.param || err.path || err.key || err.name
+                  : null;
+              const msg =
+                typeof err === 'object' && err !== null
+                  ? err.issue || err.message || err.msg || err.error || err.detail || err.reason
+                  : typeof err === 'string'
+                    ? err
+                    : null;
 
-            if (matchedField && setError) {
-              setError(matchedField, { type: 'server', message: msg });
-            } else {
-              mainMsg += `${msg}\n`;
-            }
-          });
-
-          // 2. Process structured validation objects/arrays
-          let fieldErrors: Record<string, any> =
-            rawErrorObj?.details ||
-            rawErrorObj?.errors ||
-            rawErrorObj?.validation ||
-            {};
-
-          if (Array.isArray(fieldErrors)) {
-            fieldErrors.forEach((err: ValidationErrorItem) => {
-              const key = err.field || err.property || err.param;
-              const msg = err.message || err.msg || err.error;
               if (key && msg) {
                 const fieldName = mapKeyToField(key);
                 if (fieldName && setError) {
                   setError(fieldName, { type: 'server', message: msg });
+                  const label = getFieldLabel(fieldName);
+                  fieldErrorSummaries.push(`${label}: ${msg}`);
                 } else {
-                  mainMsg += `${key}: ${msg}\n`;
+                  fieldErrorSummaries.push(`${key}: ${msg}`);
                 }
+              } else if (msg) {
+                fieldErrorSummaries.push(msg);
               }
             });
-          } else if (typeof fieldErrors === 'object' && fieldErrors !== null) {
-            Object.keys(fieldErrors).forEach((key) => {
-              if (
-                [
-                  'message',
-                  'success',
-                  'status',
-                  'statusCode',
-                  'data',
-                  'meta',
-                  'error',
-                ].includes(key)
-              )
-                return;
-
+          } else if (validationMap) {
+            Object.keys(validationMap).forEach((key) => {
               const fieldName = mapKeyToField(key);
-              const val = fieldErrors[key];
+              const val = validationMap![key];
               const cleanMsg = Array.isArray(val)
                 ? val
-                    .map((m) => (typeof m === 'object' ? JSON.stringify(m) : m))
+                    .map((m) => (typeof m === 'object' ? m.issue || m.message || JSON.stringify(m) : m))
                     .join(', ')
                 : typeof val === 'object'
-                  ? JSON.stringify(val)
+                  ? val.issue || val.message || JSON.stringify(val)
                   : String(val);
 
               if (fieldName && setError) {
                 setError(fieldName, { type: 'server', message: cleanMsg });
+                const label = getFieldLabel(fieldName);
+                fieldErrorSummaries.push(`${label}: ${cleanMsg}`);
               } else {
-                mainMsg += `${key}: ${cleanMsg}\n`;
+                fieldErrorSummaries.push(`${key}: ${cleanMsg}`);
+              }
+            });
+          }
+
+          // 2. Process array of error strings (NestJS default class-validator format)
+          if (fieldErrorSummaries.length === 0) {
+            const messagesList: string[] = [];
+            if (Array.isArray(rawMessage)) {
+              messagesList.push(...rawMessage);
+            } else if (
+              typeof rawMessage === 'string' &&
+              rawMessage !== 'Bad Request' &&
+              rawMessage !== 'Validation failed.'
+            ) {
+              messagesList.push(rawMessage);
+            }
+
+            messagesList.forEach((msg) => {
+              let matchedField: keyof RegisterFormData | undefined;
+              if (msg.includes('commercialRegisterNumber') || msg.includes('website'))
+                matchedField = 'website';
+              else if (msg.includes('phoneNumber') || msg.includes('phone'))
+                matchedField = 'phone';
+              else if (msg.includes('firstName')) matchedField = 'firstName';
+              else if (msg.includes('lastName')) matchedField = 'lastName';
+              else if (msg.includes('email')) matchedField = 'email';
+              else if (msg.includes('storeName')) matchedField = 'storeName';
+              else if (
+                msg.includes('storeDescription') ||
+                msg.includes('description')
+              )
+                matchedField = 'description';
+              else if (msg.includes('password')) matchedField = 'password';
+
+              if (matchedField && setError) {
+                setError(matchedField, { type: 'server', message: msg });
+                const label = getFieldLabel(matchedField);
+                fieldErrorSummaries.push(`${label}: ${msg}`);
+              } else {
+                fieldErrorSummaries.push(msg);
               }
             });
           }
@@ -163,22 +216,27 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           ? 'فشلت عملية التسجيل. يرجى المحاولة مرة أخرى.'
           : 'Registration failed. Please try again.';
 
-        let generalMsg = mainMsg.trim();
-        if (!generalMsg) {
-          if (typeof responseData?.message === 'string') {
-            generalMsg = responseData.message;
-          } else if (
-            Array.isArray(responseData?.message) &&
-            responseData.message.length > 0
-          ) {
-            generalMsg = responseData.message.join('\n');
-          } else if (typeof responseData?.error === 'string') {
-            generalMsg = responseData.error;
-          } else {
-            generalMsg = (error as any)?.message || fallbackDefaultMsg;
-          }
+        let generalMsg = '';
+        if (fieldErrorSummaries.length > 0) {
+          const uniqueList = Array.from(new Set(fieldErrorSummaries));
+          const header = isRtl
+            ? 'يرجى تصحيح أخطاء التحقق التالية:'
+            : 'Please fix the following validation errors:';
+          generalMsg = `${header}\n• ${uniqueList.join('\n• ')}`;
+        } else if (typeof responseData?.message === 'string') {
+          generalMsg = responseData.message;
+        } else if (
+          Array.isArray(responseData?.message) &&
+          responseData.message.length > 0
+        ) {
+          generalMsg = responseData.message.join('\n');
+        } else if (typeof responseData?.error === 'string') {
+          generalMsg = responseData.error;
+        } else {
+          generalMsg = (error as any)?.message || fallbackDefaultMsg;
         }
 
+        toast.error(generalMsg);
         throw new Error(generalMsg);
       }
     },

@@ -6,7 +6,8 @@ import Settings from './pages/Settings.js';
 import AccountSettings from './pages/AccountSettings.js';
 import Management from './pages/Mangement.js';
 import AddProduct from './pages/AddProduct.js';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, ToastBar, toast } from 'react-hot-toast';
+import { X } from 'lucide-react';
 import NotFound from './pages/NotFound.js';
 import Login from './pages/auth/Login.js';
 import Register from './pages/auth/Register.js';
@@ -78,22 +79,61 @@ function App() {
         </Route>
       </Routes>
       <Toaster
-        position="top-right"
-        reverseOrder={false}
+        position={i18n.language === 'ar' ? 'top-left' : 'top-right'}
+        gutter={10}
         toastOptions={{
-          duration: 3000,
+          duration: 3500,
+          className: 'unified-toast-item',
           style: {
-            background: '#1f2937',
-            color: '#fff',
+            background: '#ffffff',
+            color: '#0f172a',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            boxShadow:
+              '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04)',
+            padding: '12px 16px',
+            fontSize: '14px',
+            maxWidth: '420px',
           },
           success: {
+            duration: 3500,
             iconTheme: {
-              primary: 'green',
-              secondary: 'white',
+              primary: '#10b981',
+              secondary: '#ffffff',
+            },
+          },
+          error: {
+            duration: 4500,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#ffffff',
             },
           },
         }}
-      />
+      >
+        {(t) => (
+          <ToastBar toast={t}>
+            {({ icon, message }) => (
+              <div className="flex items-center gap-2.5 w-full">
+                {icon}
+                <div className="flex-1 text-sm font-medium text-slate-800 leading-snug">
+                  {message}
+                </div>
+                {t.type !== 'loading' && (
+                  <button
+                    type="button"
+                    onClick={() => toast.dismiss(t.id)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-md shrink-0 cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
     </>
   );
 }

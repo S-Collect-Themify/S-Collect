@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronsRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { AccountSettingsForm } from '../features/settings/AccountSettingsForm';
 import { AccountSettingsFormSkeleton } from '../features/settings/skeleton/SettingsSkeletons';
 import { useAccountSettings } from '../features/settings/hooks/useAccountSettings';
-import { SuccessToast } from '../features/settings/shared';
 import type {
   AccountSettingsData,
   PasswordData,
@@ -32,7 +31,6 @@ export default function AccountSettingsPage({
   onAccountSettingsSave = async () => undefined,
 }: AccountSettingsPageProps) {
   const { t } = useTranslation();
-  const [toast, setToast] = useState<string | null>(null);
   const { data: fetchedData, isLoading: loading } = useAccountSettings();
 
   const accountData: AccountSettingsData = {
@@ -58,10 +56,6 @@ export default function AccountSettingsPage({
         </nav>
       </div>
       <div className="settings-page-enter min-h-screen bg-gray-100">
-        {toast && (
-          <SuccessToast message={toast} onClose={() => setToast(null)} />
-        )}
-
         <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180">
           {loading ? (
             <AccountSettingsFormSkeleton />
@@ -70,7 +64,7 @@ export default function AccountSettingsPage({
               initialData={accountData}
               onSave={onAccountSettingsSave}
               onSuccess={() =>
-                setToast(t('settings.toast.accountSettingsSaved'))
+                toast.success(t('settings.toast.accountSettingsSaved'))
               }
             />
           )}

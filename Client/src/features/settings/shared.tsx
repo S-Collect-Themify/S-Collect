@@ -1,4 +1,5 @@
-import { Check, Eye, EyeOff, X } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
   type InputHTMLAttributes,
   type ReactNode,
@@ -213,45 +214,19 @@ export function PasswordStrengthBar({
   );
 }
 
+
 export function SuccessToast({
   message,
   onClose,
-  duration = 3500,
 }: {
   message: string;
-  onClose: () => void;
+  onClose?: () => void;
   duration?: number;
 }) {
-  const { t } = useTranslation();
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, duration);
-    return () => clearTimeout(timer);
-  }, [onClose, duration]);
+    toast.success(message);
+    if (onClose) onClose();
+  }, [message, onClose]);
 
-  return (
-    <div className="settings-toast-enter fixed top-4 right-4 z-50 w-[280px] bg-white border border-green-200 rounded-lg shadow-md p-3 flex items-start gap-2">
-      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
-        <Check size={11} className="text-green-600 stroke-[3]" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[12px] font-semibold text-green-700 leading-tight">
-          {message}
-        </p>
-        <p className="text-[11px] text-gray-500 mt-0.5 leading-4">
-          {t('settings.toast.details')}
-        </p>
-      </div>
-      <button
-        type="button"
-        aria-label={t('settings.toast.close')}
-        className="shrink-0 text-gray-400 hover:text-gray-600 cursor-pointer"
-        onClick={onClose}
-      >
-        <X size={13} />
-      </button>
-    </div>
-  );
+  return null;
 }

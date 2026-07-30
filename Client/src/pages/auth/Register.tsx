@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { type InputHTMLAttributes, type Ref } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
+import { type InputHTMLAttributes } from 'react';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { useAuthStore } from '../../store/authStore';
 import { motion } from 'framer-motion';
@@ -134,25 +135,27 @@ const StepIndicator = ({ current }: { current: number }) => {
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
-  ref?: Ref<HTMLInputElement>;
 }
 
-const Input = ({ label, error, ref, ...rest }: InputProps) => (
-  <div>
-    <label className="block text-label-sm text-gray-700 mb-1.5">
-      {label}
-      {rest.required && <span className="text-red ml-0.5">*</span>}
-    </label>
-    <input
-      ref={ref}
-      className={`w-full px-3 py-2.5 border rounded-lg text-body-md text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-900 ${
-        error ? 'border-red bg-red-light' : 'border-gray-300 bg-gray-50'
-      }`}
-      {...rest}
-    />
-    {error && <p className="text-red text-caption-sm mt-1">{error}</p>}
-  </div>
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, ...rest }, ref) => (
+    <div>
+      <label className="block text-label-sm text-gray-700 mb-1.5">
+        {label}
+        {rest.required && <span className="text-red ml-0.5">*</span>}
+      </label>
+      <input
+        ref={ref}
+        className={`w-full px-3 py-2.5 border rounded-lg text-body-md text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-900 ${
+          error ? 'border-red bg-red-light' : 'border-gray-300 bg-gray-50'
+        }`}
+        {...rest}
+      />
+      {error && <p className="text-red text-caption-sm mt-1 animate-fade-in-up">{error}</p>}
+    </div>
+  )
 );
+Input.displayName = 'Input';
 
 // ─── Eye Icon ─────────────────────────────────────────────────────────────────
 
@@ -626,11 +629,14 @@ const STEP_FIELDS: Record<number, (keyof RegisterFormData)[]> = {
 };
 
 const Register = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
-  const { step, nextStep, previousStep, resetRegister } = useAuthStore();
+  const { step, setStep, nextStep, previousStep, resetRegister } = useAuthStore();
 
   const methods = useForm<RegisterFormData>({
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -661,9 +667,65 @@ const Register = () => {
     };
   }, [resetRegister]);
 
+  // Automatically navigate to step containing active field errors
+  useEffect(() => {
+    const formErrors = methods.formState.errors;
+    if (Object.keys(formErrors).length === 0) return;
+
+    if (
+      ['firstName', 'lastName', 'email', 'phone'].some(
+        (f) => formErrors[f as keyof RegisterFormData]
+      )
+    ) {
+      setStep(0);
+      return;
+    }
+
+    if (
+      ['storeName', 'category', 'description', 'website'].some(
+        (f) => formErrors[f as keyof RegisterFormData]
+      )
+    ) {
+      setStep(1);
+      return;
+    }
+  }, [methods.formState.errors, setStep]);
+
   const handleContinue = async () => {
-    const isValid = await methods.trigger(STEP_FIELDS[step]);
-    if (!isValid) return;
+    const currentFields = STEP_FIELDS[step];
+    const isValid = await methods.trigger(currentFields);
+
+    if (!isValid) {
+      const formErrors = methods.formState.errors;
+      const FIELD_LABELS: Record<keyof RegisterFormData, { en: string; ar: string }> = {
+        firstName: { en: 'First Name', ar: 'الاسم الأول' },
+        lastName: { en: 'Last Name', ar: 'اسم العائلة' },
+        email: { en: 'Email Address', ar: 'البريد الإلكتروني' },
+        phone: { en: 'Phone Number', ar: 'رقم الهاتف' },
+        storeName: { en: 'Store Name', ar: 'اسم المتجر' },
+        category: { en: 'Category', ar: 'الفئة' },
+        website: { en: 'Commercial Registration Number', ar: 'رقم السجل التجاري' },
+        description: { en: 'Store Description', ar: 'وصف المتجر' },
+        password: { en: 'Password', ar: 'كلمة المرور' },
+        confirmPassword: { en: 'Confirm Password', ar: 'تأكيد كلمة المرور' },
+      };
+
+      const failedLabels = currentFields
+        .filter((field) => formErrors[field])
+        .map((field) => {
+          const errObj = formErrors[field];
+          const label = FIELD_LABELS[field]?.[isRtl ? 'ar' : 'en'] || field;
+          return errObj?.message ? `${label} (${errObj.message})` : label;
+        });
+
+      if (failedLabels.length > 0) {
+        const errorMsg = isRtl
+          ? `يرجى تصحيح الحقول التالية:\n• ${failedLabels.join('\n• ')}`
+          : `Please fix the following fields:\n• ${failedLabels.join('\n• ')}`;
+        toast.error(errorMsg);
+      }
+      return;
+    }
 
     if (step < 2) {
       nextStep();
@@ -709,7 +771,7 @@ const Register = () => {
               </FormProvider>
 
               {registerError && (
-                <div className="bg-red-light border border-red rounded-lg px-3.5 py-2.5 text-red text-body-sm mt-4 animate-fade-in-up">
+                <div className="bg-red-light border border-red rounded-lg px-3.5 py-2.5 text-red text-body-sm mt-4 animate-fade-in-up whitespace-pre-line">
                   {registerError}
                 </div>
               )}
