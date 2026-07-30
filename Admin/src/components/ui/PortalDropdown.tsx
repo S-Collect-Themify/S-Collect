@@ -90,7 +90,7 @@ export default function PortalDropdown({
 
   return (
     <>
-      <div ref={triggerRef} className="relative inline-block">
+      <div ref={triggerRef} className="relative ">
         {trigger({ isOpen, toggle })}
       </div>
       {createPortal(

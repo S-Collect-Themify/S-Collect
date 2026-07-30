@@ -1,3 +1,4 @@
+import { Activity } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   OrderFilters,
@@ -21,17 +22,18 @@ export default function Orders() {
     handleStatusFilterChange,
     dateFilter,
     handleDateFilterChange,
-    vendorFilter,
-    handleVendorFilterChange,
-    vendorOptions,
     setPage,
     safePage,
     isLoading,
     isMobile,
-    totalCount,
-    totalPages,
     itemsPerPage,
-    paginatedData,
+    displayOrders,
+    displayRefunds,
+    ordersTotalCount,
+    ordersTotalPages,
+    refundsTotalCount,
+    refundsTotalPages,
+    isVendorFiltered,
     handleViewDetails,
   } = useOrdersLogic();
 
@@ -62,58 +64,117 @@ export default function Orders() {
           onStatusFilterChange={handleStatusFilterChange}
           dateFilter={dateFilter}
           onDateFilterChange={handleDateFilterChange}
-          vendorFilter={vendorFilter}
-          onVendorFilterChange={handleVendorFilterChange}
-          vendorOptions={vendorOptions}
         />
 
-        {/* Content Views: Skeleton vs Mobile Cards vs Desktop Table */}
+        {/* Content Views: Skeleton vs Mobile Cards vs Desktop Table wrapped in Activity */}
         {isLoading ? (
           <OrdersSkeleton isMobile={isMobile} />
-        ) : isMobile ? (
-          <div>
-            {paginatedData.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-                <EmptyState />
-              </div>
-            ) : (
-              <>
-                {paginatedData.map((item) => (
-                  <MobileOrderCard
-                    key={item.id}
-                    item={item}
-                    type={activeMainTab}
+        ) : (
+          <>
+            {/* All Orders Activity Tab Panel */}
+            <Activity mode={activeMainTab === 'allOrders' ? 'visible' : 'hidden'}>
+              {isMobile ? (
+                <div>
+                  {displayOrders.length === 0 ? (
+                    <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+                      <EmptyState />
+                    </div>
+                  ) : (
+                    <>
+                      {displayOrders.map((item) => (
+                        <MobileOrderCard
+                          key={item.id}
+                          item={item}
+                          type="allOrders"
+                          onViewDetails={handleViewDetails}
+                          isVendorFiltered={isVendorFiltered}
+                        />
+                      ))}
+                      <Pagination
+                        currentPage={safePage}
+                        totalPages={ordersTotalPages}
+                        totalItems={ordersTotalCount}
+                        itemsPerPage={itemsPerPage}
+                        displayedCount={displayOrders.length}
+                        onPageChange={setPage}
+                        isMobile
+                      />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <OrdersTable
+                    items={displayOrders}
+                    activeMainTab="allOrders"
+                    onViewDetails={handleViewDetails}
+                    isVendorFiltered={isVendorFiltered}
+                  />
+                  {ordersTotalCount > 0 && (
+                    <Pagination
+                      currentPage={safePage}
+                      totalPages={ordersTotalPages}
+                      totalItems={ordersTotalCount}
+                      itemsPerPage={itemsPerPage}
+                      displayedCount={displayOrders.length}
+                      onPageChange={setPage}
+                    />
+                  )}
+                </div>
+              )}
+            </Activity>
+
+            {/* Refunds Activity Tab Panel */}
+            <Activity mode={activeMainTab === 'refunds' ? 'visible' : 'hidden'}>
+              {isMobile ? (
+                <div>
+                  {displayRefunds.length === 0 ? (
+                    <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+                      <EmptyState />
+                    </div>
+                  ) : (
+                    <>
+                      {displayRefunds.map((item) => (
+                        <MobileOrderCard
+                          key={item.id}
+                          item={item}
+                          type="refunds"
+                          onViewDetails={handleViewDetails}
+                        />
+                      ))}
+                      <Pagination
+                        currentPage={safePage}
+                        totalPages={refundsTotalPages}
+                        totalItems={refundsTotalCount}
+                        itemsPerPage={itemsPerPage}
+                        displayedCount={displayRefunds.length}
+                        onPageChange={setPage}
+                        isMobile
+                      />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <OrdersTable
+                    items={displayRefunds}
+                    activeMainTab="refunds"
                     onViewDetails={handleViewDetails}
                   />
-                ))}
-                <Pagination
-                  currentPage={safePage}
-                  totalPages={totalPages}
-                  totalItems={totalCount}
-                  itemsPerPage={itemsPerPage}
-                  onPageChange={setPage}
-                  isMobile
-                />
-              </>
-            )}
-          </div>
-        ) : (
-          <div>
-            <OrdersTable
-              items={paginatedData}
-              activeMainTab={activeMainTab}
-              onViewDetails={handleViewDetails}
-            />
-            {totalCount > 0 && (
-              <Pagination
-                currentPage={safePage}
-                totalPages={totalPages}
-                totalItems={totalCount}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setPage}
-              />
-            )}
-          </div>
+                  {refundsTotalCount > 0 && (
+                    <Pagination
+                      currentPage={safePage}
+                      totalPages={refundsTotalPages}
+                      totalItems={refundsTotalCount}
+                      itemsPerPage={itemsPerPage}
+                      displayedCount={displayRefunds.length}
+                      onPageChange={setPage}
+                    />
+                  )}
+                </div>
+              )}
+            </Activity>
+          </>
         )}
       </div>
     </>

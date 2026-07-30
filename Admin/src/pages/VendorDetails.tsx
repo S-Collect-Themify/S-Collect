@@ -269,7 +269,11 @@ export default function VendorDetails() {
           orders={orders}
           statusStyles={ORDER_STATUS_STYLES}
         />
-        <VendorRecentProductsTable vendorId={vendorId} products={products} />
+        <VendorRecentProductsTable
+          vendorId={vendorId}
+          vendorName={vendor.businessName || vendor.owner}
+          products={products}
+        />
         <VendorPayoutsLogTable vendorId={vendorId} payouts={payouts} statusStyles={PAYOUT_STATUS_STYLES} />
       </motion.div>
 

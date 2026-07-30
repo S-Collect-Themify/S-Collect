@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
@@ -12,9 +11,6 @@ export interface OrderFiltersProps {
   onStatusFilterChange: (val: string) => void;
   dateFilter: string;
   onDateFilterChange: (val: string) => void;
-  vendorFilter: string;
-  onVendorFilterChange: (val: string) => void;
-  vendorOptions?: string[];
 }
 
 export const OrderFilters = ({
@@ -26,24 +22,12 @@ export const OrderFilters = ({
   onStatusFilterChange,
   dateFilter,
   onDateFilterChange,
-  vendorFilter,
-  onVendorFilterChange,
-  vendorOptions: propVendorOptions,
 }: OrderFiltersProps) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const vendorOptions = useMemo(() => {
-    if (propVendorOptions && propVendorOptions.length > 0) {
-      return propVendorOptions;
-    }
-    if (vendorFilter && vendorFilter !== 'All') {
-      return ['All', vendorFilter];
-    }
-    return ['All'];
-  }, [propVendorOptions, vendorFilter]);
-
   const dateOptions = [
+    { key: 'all', labelKey: 'ordersPage.dateOptions.all', defaultLabel: 'All Time' },
     { key: 'last7Days', labelKey: 'ordersPage.dateOptions.last7Days', defaultLabel: 'Last 7 Days' },
     { key: 'last30Days', labelKey: 'ordersPage.dateOptions.last30Days', defaultLabel: 'Last 30 Days' },
     { key: 'thisMonth', labelKey: 'ordersPage.dateOptions.thisMonth', defaultLabel: 'This Month' },
@@ -64,10 +48,8 @@ export const OrderFilters = ({
   const currentDateOption = dateOptions.find((d) => d.key === dateFilter);
   const currentDateDisplay = currentDateOption
     ? t(currentDateOption.labelKey, currentDateOption.defaultLabel)
-    : t('ordersPage.dateOptions.last30Days', 'Last 30 Days');
+    : t('ordersPage.dateOptions.all', 'All Time');
 
-  const currentVendorDisplay =
-    vendorFilter === 'All' ? t('ordersPage.all', 'All') : vendorFilter;
 
   return (
     <div>
@@ -123,7 +105,7 @@ export const OrderFilters = ({
         </div>
 
         {/* Dropdowns Row */}
-        <div className="grid grid-cols-3 gap-2 md:flex md:items-center md:gap-3 shrink-0">
+        <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-3 shrink-0">
           {/* Status Dropdown */}
           <PortalDropdown
             minWidth={150}
@@ -150,7 +132,7 @@ export const OrderFilters = ({
             {({ close }) => (
               <div>
                 {(activeMainTab === 'allOrders'
-                  ? ['All', 'PENDING', 'PROCESSING', 'PARTIALLY_SHIPPED', 'SHIPPED', 'DELIVERED', 'CANCELLED']
+                  ? ['All', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']
                   : ['All', 'Pending', 'Approved', 'Rejected']
                 ).map((st) => (
                   <button
@@ -219,51 +201,6 @@ export const OrderFilters = ({
             )}
           </PortalDropdown>
 
-          {/* Vendor Dropdown */}
-          <PortalDropdown
-            minWidth={160}
-            animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
-            trigger={({ isOpen, toggle }) => (
-              <button
-                type="button"
-                onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
-              >
-                <span className="truncate">
-                  {t('ordersPage.vendorFilter', 'Vendor')}: {currentVendorDisplay}
-                </span>
-                <ChevronDown
-                  size={14}
-                  className={`text-gray-400 shrink-0 transition-transform duration-200 ${
-                    isOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-            )}
-          >
-            {({ close }) => (
-              <div>
-                {vendorOptions.map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    onClick={() => {
-                      onVendorFilterChange(v);
-                      close();
-                    }}
-                    className={`w-full text-start px-3.5 py-2 text-xs font-medium transition-colors hover:bg-gray-50 cursor-pointer ${
-                      vendorFilter === v
-                        ? 'bg-gray-100 text-gray-900 font-semibold'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    {v === 'All' ? t('ordersPage.all', 'All') : v}
-                  </button>
-                ))}
-              </div>
-            )}
-          </PortalDropdown>
         </div>
       </div>
     </div>

@@ -115,24 +115,24 @@ export default function VendorMobileList({
                         onClick={() => navigate(`/vendors/${vendor.id}`)}
                         className="text-base font-bold text-gray-900 hover:text-indigo-600 transition-colors text-start"
                       >
-                        {vendor.businessName}
+                        {vendor.businessName || '----'}
                       </button>
                     </div>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 shrink-0">
-                      {vendor.category}
+                      {vendor.category || '----'}
                     </span>
                   </div>
 
                   {/* Middle details stack */}
                   <div className="space-y-1 text-xs text-gray-500 pt-1">
                     <p>
-                      {t('vendors.mobile.owner', 'Owner')}: <span className="font-semibold text-gray-800 ms-1">{vendor.owner}</span>
+                      {t('vendors.mobile.owner', 'Owner')}: <span className="font-semibold text-gray-800 ms-1">{vendor.owner || '----'}</span>
                     </p>
                     <p>
-                      {t('vendors.mobile.email', 'Email')}: <span className="font-semibold text-gray-800 ms-1">{vendor.email}</span>
+                      {t('vendors.mobile.email', 'Email')}: <span className="font-semibold text-gray-800 ms-1">{vendor.email || '----'}</span>
                     </p>
                     <p>
-                      {t('vendors.mobile.submitted', 'Submitted')}: <span className="font-semibold text-gray-800 ms-1">{vendor.submittedDate}</span>
+                      {t('vendors.mobile.submitted', 'Submitted')}: <span className="font-semibold text-gray-800 ms-1">{vendor.submittedDate || '----'}</span>
                     </p>
                   </div>
 
@@ -171,7 +171,7 @@ export default function VendorMobileList({
                         onChange={() => toggleRow(vendor.id)}
                         className="accent-black w-4 h-4 cursor-pointer rounded"
                       />
-                      <span className="text-base font-bold text-gray-900">{vendor.businessName}</span>
+                      <span className="text-base font-bold text-gray-900">{vendor.businessName || '----'}</span>
                     </div>
                     <div onClick={(e) => e.stopPropagation()}>
                       <Toggle
@@ -184,12 +184,12 @@ export default function VendorMobileList({
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 pt-1">
-                    <p>{t('vendors.mobile.owner', 'Owner')}: <span className="font-semibold text-gray-800">{vendor.owner}</span></p>
-                    <p>{t('vendors.mobile.submitted', 'Submitted')}: <span className="font-semibold text-gray-800">{vendor.submittedDate}</span></p>
-                    <p>{t('vendors.mobile.email', 'Email')}: <span className="font-semibold text-gray-800 truncate block">{vendor.email}</span></p>
-                    <p>{t('vendors.mobile.orders', 'Orders')}: <span className="font-semibold text-gray-800">{vendor.orders ?? 0}</span></p>
+                    <p>{t('vendors.mobile.owner', 'Owner')}: <span className="font-semibold text-gray-800">{vendor.owner || '----'}</span></p>
+                    <p>{t('vendors.mobile.submitted', 'Submitted')}: <span className="font-semibold text-gray-800">{vendor.submittedDate || '----'}</span></p>
+                    <p>{t('vendors.mobile.email', 'Email')}: <span className="font-semibold text-gray-800 truncate block">{vendor.email || '----'}</span></p>
+                    <p>{t('vendors.mobile.orders', 'Orders')}: <span className="font-semibold text-gray-800">{vendor.orders != null && vendor.orders > 0 ? vendor.orders : '----'}</span></p>
                     <p className="col-span-2">
-                      {t('vendors.mobile.revenue', 'Revenue')}: <span className="font-bold text-gray-900">SAR {(vendor.revenue ?? 0).toLocaleString()}</span>
+                      {t('vendors.mobile.revenue', 'Revenue')}: <span className="font-bold text-gray-900">{vendor.revenue != null && vendor.revenue > 0 ? `SAR ${vendor.revenue.toLocaleString()}` : '----'}</span>
                     </p>
                   </div>
                 </div>

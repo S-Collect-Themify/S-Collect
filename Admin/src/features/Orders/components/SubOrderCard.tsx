@@ -35,7 +35,7 @@ export const SubOrderCard = ({
   const [reasonText, setReasonText] = useState(defaultReason);
   const [reasonError, setReasonError] = useState(false);
 
-  const statusOptions = ['PENDING', 'PROCESSING', 'PARTIALLY_SHIPPED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+  const statusOptions = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
   const quickReasons = [
     { key: 'ordersPage.modal.suggestionsList.unresponsive', defaultText: 'Vendor unresponsive after 5 business days' },
@@ -245,11 +245,11 @@ export const SubOrderCard = ({
       </div>
 
       <div className="pt-2 border-t border-gray-100 text-end text-xs space-y-0.5 text-gray-500">
-        <p>
+        <p className='flex justify-between'>
           {t('ordersPage.subtotalColon', 'Subtotal:')}{' '}
           <span className="font-semibold text-gray-900">{subtotal.toFixed(2)} SAR</span>
         </p>
-        <p>
+        <p className='flex justify-between'>
           {t('ordersPage.shippingColon', 'Shipping:')}{' '}
           <span className="font-semibold text-gray-900">{(subOrder.shippingRateApplied || 0).toFixed(2)} SAR</span>
         </p>

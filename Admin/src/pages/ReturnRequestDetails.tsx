@@ -135,10 +135,10 @@ export default function ReturnRequestDetailsPage() {
         <p className="text-sm text-gray-500 mb-4">Could not load details for refund ID: {id}</p>
         <button
           type="button"
-          onClick={() => navigate('/returns')}
+          onClick={() => navigate('/orders')}
           className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-lg"
         >
-          Back to Refunds
+          Back to Orders
         </button>
       </div>
     );
@@ -154,10 +154,10 @@ export default function ReturnRequestDetailsPage() {
           </h1>
           <div className="flex items-center gap-1.5 text-xs text-gray-400">
             <span
-              onClick={() => navigate('/returns')}
+              onClick={() => navigate('/orders')}
               className="hover:underline cursor-pointer text-gray-500 font-medium"
             >
-              {t('ordersPage.refunds', 'Refunds')}
+              {t('ordersPage.title', 'Orders')}
             </span>
             <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
             <span className="text-gray-900 font-semibold">{refundIdCode}</span>

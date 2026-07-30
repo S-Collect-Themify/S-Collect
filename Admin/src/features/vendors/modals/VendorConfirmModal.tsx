@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,7 +9,7 @@ interface VendorConfirmModalProps {
   type: 'approve' | 'reject' | 'deactivate' | 'reactivate';
   count: number;
   vendorName?: string;
-  onConfirm: () => void;
+  onConfirm: (reason?: string) => void;
   onCancel: () => void;
 }
 
@@ -145,7 +146,7 @@ export default function VendorConfirmModal({
                 {t('vendors.table.cancel', 'Cancel')}
               </button>
               <button
-                onClick={onConfirm}
+                onClick={() => onConfirm()}
                 className={`flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors ${cfg.btnClass}`}
               >
                 {cfg.btnLabel}

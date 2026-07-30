@@ -79,7 +79,7 @@ export default function ProductRow({
             className="peer sr-only"
           />
           <span
-            className="w-4 h-4 rounded-[4px] border border-gray-300 bg-white
+            className="w-4 h-4 rounded-sm border border-gray-300 bg-white
                        flex items-center justify-center
                        peer-checked:bg-gray-900 peer-checked:border-gray-900
                        transition-colors"
@@ -93,7 +93,7 @@ export default function ProductRow({
         {/* Flex container maintains visual order; direction is inherited */}
         <div className="flex items-center gap-2.5">
           <div
-            className={`w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center flex-shrink-0 ${thumb.bg}`}
+            className={`w-11 h-11 rounded-lg border border-gray-100 flex items-center justify-center shrink-0 ${thumb.bg}`}
           >
             <i
               className={`ti ${product.icon} text-xl ${thumb.icon}`}
@@ -141,7 +141,7 @@ export default function ProductRow({
             aria-label={t('managementTable.deleteProduct', {
               name: product.name,
             })}
-            className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200  hover:bg-red-50 hover:border-red-200 transition-colors rounded-full"
+            className="w-7.5 h-7.5 flex items-center justify-center border border-gray-200  hover:bg-red-50 hover:border-red-200 transition-colors rounded-full"
           >
             <Trash className="text-red-500" size={16} />
           </button>
@@ -149,7 +149,7 @@ export default function ProductRow({
             aria-label={t('managementTable.editProduct', {
               name: product.name,
             })}
-            className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200  hover:bg-gray-100 transition-colors rounded-full"
+            className="w-7.5 h-7.5 flex items-center justify-center border border-gray-200  hover:bg-gray-100 transition-colors rounded-full"
           >
             <SquarePen size={16} />
           </button>

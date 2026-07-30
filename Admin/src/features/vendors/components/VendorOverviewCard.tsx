@@ -116,19 +116,23 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
       <div className="md:hidden bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-2xs">
         <div className="flex items-start gap-3">
           <div className="w-14 h-14 rounded-xl border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-base shrink-0 overflow-hidden">
-            {initials}
+            {vendor.logoUrl ? (
+              <img src={vendor.logoUrl} alt={vendor.businessName} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-base font-bold text-gray-900 truncate">
-                {vendor.businessName}
+                {vendor.businessName || '----'}
               </h1>
               {renderStatusBadge()}
             </div>
-            <p className="text-xs text-gray-400 mb-1">{vendor.category}</p>
+            <p className="text-xs text-gray-400 mb-1">{vendor.category || '----'}</p>
             {(vendor.joinedDate || vendor.submittedDate) && (
               <p className="text-[11px] text-gray-400">
-                Joined {vendor.joinedDate || vendor.submittedDate}
+                Joined {vendor.joinedDate || vendor.submittedDate || '----'}
               </p>
             )}
           </div>
@@ -147,18 +151,22 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
       <Card className="hidden md:block p-6 mb-5">
         <div className="flex items-start gap-4">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-base shrink-0 overflow-hidden shadow-2xs">
-            {initials}
+            {vendor.logoUrl ? (
+              <img src={vendor.logoUrl} alt={vendor.businessName} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="mb-1">{renderStatusBadge()}</div>
             <h1 className="text-xl font-bold text-gray-900 leading-tight mb-1">
-              {vendor.businessName}
+              {vendor.businessName || '----'}
             </h1>
             <p className="text-xs text-gray-400 mb-2">
-              {vendor.category}
+              {vendor.category || '----'}
               {(vendor.joinedDate || vendor.submittedDate) && (
-                <span> • Joined {vendor.joinedDate || vendor.submittedDate}</span>
+                <span> • Joined {vendor.joinedDate || vendor.submittedDate || '----'}</span>
               )}
             </p>
             {vendor.description && (
@@ -177,23 +185,23 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.owner', 'Owner')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.owner || '—'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.owner || '----'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.phone', 'Phone')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.phone || '—'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.phone || '----'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.email', 'Email')}</p>
-              <p className="text-sm font-bold text-gray-900 break-all">{vendor.email}</p>
+              <p className="text-sm font-bold text-gray-900 break-all">{vendor.email || '----'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.location', 'Location')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.location || '—'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.location || '----'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.commercialRegister', 'Commercial Register')}</p>
-              <p className="text-sm font-bold text-gray-900 font-mono">{vendor.taxId || '—'}</p>
+              <p className="text-sm font-bold text-gray-900 font-mono">{vendor.taxId || '----'}</p>
             </div>
           </div>
         </div>

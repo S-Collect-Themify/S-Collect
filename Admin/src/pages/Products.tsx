@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   ITEMS_PER_PAGE,
@@ -15,6 +16,7 @@ import {
 
 const Products = () => {
   const { isMobile } = useBreakpoint();
+  const [searchParams] = useSearchParams();
 
   // ── Query & Mutation Hook ──
   const { statusMutation } = useProductsData();
@@ -29,9 +31,29 @@ const Products = () => {
   const modal = useProductStore((s) => s.modal);
 
   // ── Store Actions ──
+  const setVendorFilter = useProductStore((s) => s.setVendorFilter);
   const setCurrentPage = useProductStore((s) => s.setCurrentPage);
   const openDisableModal = useProductStore((s) => s.openDisableModal);
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
+
+  // ── URL Vendor Filter Auto-selection ──
+  useEffect(() => {
+    const urlVendorName = searchParams.get('vendorName') || searchParams.get('vendor');
+    const urlVendorId = searchParams.get('vendorId');
+
+    if (urlVendorName) {
+      setVendorFilter(urlVendorName);
+    } else if (urlVendorId) {
+      const matched = products.find(
+        (p) => String(p.vendorId).toLowerCase() === String(urlVendorId).toLowerCase()
+      );
+      if (matched) {
+        setVendorFilter(matched.vendor);
+      } else {
+        setVendorFilter(urlVendorId);
+      }
+    }
+  }, [searchParams, products, setVendorFilter]);
 
   // ── Extract Unique Filter Options ──
   const availableVendors = useMemo(() => {
@@ -60,8 +82,13 @@ const Products = () => {
       }
 
       // Vendor Filter
-      if (vendorFilter !== 'all' && item.vendor !== vendorFilter) {
-        return false;
+      if (vendorFilter !== 'all') {
+        const filterLower = vendorFilter.toLowerCase();
+        const matchVendorName = item.vendor.toLowerCase() === filterLower;
+        const matchVendorId = item.vendorId && String(item.vendorId).toLowerCase() === filterLower;
+        if (!matchVendorName && !matchVendorId) {
+          return false;
+        }
       }
 
       // Category Filter

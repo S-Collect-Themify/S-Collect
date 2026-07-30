@@ -10,6 +10,7 @@ interface OrdersTableProps {
   items: TableItem[];
   activeMainTab: 'allOrders' | 'refunds';
   onViewDetails: (item: TableItem) => void;
+  isVendorFiltered?: boolean;
 }
 
 export const StatusBadge = ({ status }: { status: string }) => {
@@ -45,6 +46,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   items,
   activeMainTab,
   onViewDetails,
+  isVendorFiltered = false,
 }) => {
   const { t } = useTranslation();
 
@@ -62,11 +64,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               <th className="py-4 px-4 text-start font-bold">
                 {t('ordersPage.customer', 'Customer')}
               </th>
-              <th className="py-4 px-4 text-start font-bold">
-                {activeMainTab === 'allOrders'
-                  ? t('ordersPage.vendor', 'Vendor')
-                  : t('ordersPage.orderId', 'Order ID')}
-              </th>
+              {activeMainTab === 'refunds' && (
+                <th className="py-4 px-4 text-start font-bold">
+                  {t('ordersPage.orderId', 'Order ID')}
+                </th>
+              )}
               <th className="py-4 px-4 text-start font-bold">
                 {t('ordersPage.totalSar', 'Total (SAR)')}
               </th>
@@ -75,15 +77,19 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               </th>
               <th className="py-4 px-4 text-start font-bold">
                 {activeMainTab === 'allOrders'
-                  ? t('ordersPage.subOrders', 'Sub-orders')
+                  ? isVendorFiltered
+                    ? t('ordersPage.items', 'Items')
+                    : t('ordersPage.subOrders', 'Sub-orders')
                   : t('ordersPage.reason', 'Reason')}
               </th>
               <th className="py-4 px-4 text-start font-bold">
                 {t('ordersPage.date', 'Date')}
               </th>
-              <th className="py-4 px-4 text-start font-bold">
-                {t('ordersPage.actions', 'Actions')}
-              </th>
+              {!isVendorFiltered && (
+                <th className="py-4 px-4 text-start font-bold">
+                  {t('ordersPage.actions', 'Actions')}
+                </th>
+              )}
             </tr>
           </thead>
           {items.length > 0 && (
@@ -96,9 +102,11 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <td className="py-4 px-4 text-gray-700 whitespace-nowrap">
                     {item.customer}
                   </td>
-                  <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
-                    {activeMainTab === 'allOrders' ? item.vendor : item.orderId}
-                  </td>
+                  {activeMainTab === 'refunds' && (
+                    <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
+                      {item.orderId}
+                    </td>
+                  )}
                   <td className="py-4 px-4 font-bold text-gray-900 whitespace-nowrap">
                     {item.totalFormatted}
                   </td>
@@ -111,15 +119,17 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
                     {item.date}
                   </td>
-                  <td className="py-4 px-4 whitespace-nowrap">
-                    <button
-                      type="button"
-                      onClick={() => onViewDetails(item)}
-                      className="text-blue-600 font-semibold hover:underline text-sm cursor-pointer"
-                    >
-                      {t('ordersPage.viewDetails', 'View details')}
-                    </button>
-                  </td>
+                  {!isVendorFiltered && (
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => onViewDetails(item)}
+                        className="text-blue-600 font-semibold hover:underline text-sm cursor-pointer"
+                      >
+                        {t('ordersPage.viewDetails', 'View details')}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

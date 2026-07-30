@@ -12,7 +12,7 @@ import {
 import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
 import RejectVendorModal from '../modals/RejectVendorModal';
-import SuspendVendorModal from '../modals/SuspendVendorModal';
+import DeactivateVendorModal from '../modals/DeactivateVendorModal';
 import VendorDesktopTable from './VendorDesktopTable';
 import VendorMobileList from './VendorMobileList';
 import VendorPagination from './VendorPagination';
@@ -133,24 +133,48 @@ export default function VendorTable() {
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
+  const selectedVendors = fetchedVendors.filter((v) => selectedRows.includes(v.id));
+
   const openConfirm = (type: ModalType, ids: string[], vendorName?: string) => {
+    let targetIds = ids;
+    if (type === 'deactivate') {
+      targetIds = ids.filter((id) => {
+        const v = fetchedVendors.find((item) => item.id === id);
+        return v ? v.active : true;
+      });
+    } else if (type === 'reactivate') {
+      targetIds = ids.filter((id) => {
+        const v = fetchedVendors.find((item) => item.id === id);
+        return v ? !v.active : true;
+      });
+    }
+
+    if (targetIds.length === 0) return;
+
     const vName =
-      vendorName ??
-      (ids.length === 1
-        ? fetchedVendors.find((v) => v.id === ids[0])?.businessName
-        : `${ids.length} Vendors`);
+      vendorName && ids.length === 1
+        ? vendorName
+        : targetIds.length === 1
+        ? fetchedVendors.find((v) => v.id === targetIds[0])?.businessName
+        : `${targetIds.length} Vendors`;
 
     if (type === 'reject') {
       setRejectModal({
         isOpen: true,
-        ids,
+        ids: targetIds,
+        vendorName: vName ?? '',
+      });
+    } else if (type === 'deactivate') {
+      setSuspendModal({
+        isOpen: true,
+        ids: targetIds,
         vendorName: vName ?? '',
       });
     } else {
       setConfirmModal({
         isOpen: true,
         type,
-        ids,
+        ids: targetIds,
         vendorName: vName ?? '',
       });
     }
@@ -164,15 +188,15 @@ export default function VendorTable() {
     setRejectModal({ isOpen: false, ids: [], vendorName: '' });
   };
 
-  const handleConfirmSuspend = (_reason: string) => {
+  const handleConfirmSuspend = (reason: string) => {
     suspendModal.ids.forEach((id) => {
-      deactivateMutation.mutate(id);
+      deactivateMutation.mutate({ id, reason });
     });
     clearSelection();
     setSuspendModal({ isOpen: false, ids: [], vendorName: '' });
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (reason?: string) => {
     const { type, ids } = confirmModal;
     if (type === 'approve') {
       ids.forEach((id) => {
@@ -186,7 +210,7 @@ export default function VendorTable() {
       clearSelection();
     } else if (type === 'deactivate') {
       ids.forEach((id) => {
-        deactivateMutation.mutate(id);
+        deactivateMutation.mutate({ id, reason });
       });
       clearSelection();
     }
@@ -392,6 +416,7 @@ export default function VendorTable() {
       <VendorBulkActionBar
         selectedCount={selectedCount}
         selectedRows={selectedRows}
+        selectedVendors={selectedVendors}
         activeTab={activeTab}
         openConfirm={openConfirm}
         clearSelection={clearSelection}
@@ -415,8 +440,8 @@ export default function VendorTable() {
         onCancel={() => setRejectModal({ isOpen: false, ids: [], vendorName: '' })}
       />
 
-      {/* Suspend Vendor Modal */}
-      <SuspendVendorModal
+      {/* Deactivate Vendor Modal */}
+      <DeactivateVendorModal
         isOpen={suspendModal.isOpen}
         vendorName={suspendModal.vendorName}
         onConfirm={handleConfirmSuspend}
