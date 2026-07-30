@@ -151,6 +151,7 @@ const AddProduct = () => {
                   <ProductStatus
                     enabled={enabled}
                     setEnabled={(val) => methods.setValue('enabled', val)}
+                    productId={productId}
                   />
                 </div>
               </motion.div>
