@@ -30,9 +30,13 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
               disabled={isPending}
               error={errors.storeName?.message}
               {...register('storeName', {
-                required: !isAr ? t('settings.errors.storeNameRequired') : false,
+                required: !isAr
+                  ? t('settings.errors.storeNameRequired')
+                  : false,
                 validate: (v) =>
-                  isAr || (v && v.trim() !== '') || t('settings.errors.storeNameRequired'),
+                  isAr ||
+                  (v && v.trim() !== '') ||
+                  t('settings.errors.storeNameRequired'),
               })}
             />
           </FieldWrap>
@@ -50,9 +54,19 @@ export function StoreBasicInfoSection({ isPending }: { isPending?: boolean }) {
               error={errors.storeNameAr?.message}
               dir="rtl"
               {...register('storeNameAr', {
-                required: isAr ? t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب') : false,
+                required: isAr
+                  ? t(
+                      'settings.errors.storeNameArRequired',
+                      'اسم المتجر (بالعربية) مطلوب'
+                    )
+                  : false,
                 validate: (v) =>
-                  !isAr || (v && v.trim() !== '') || t('settings.errors.storeNameArRequired', 'اسم المتجر (بالعربية) مطلوب'),
+                  !isAr ||
+                  (v && v.trim() !== '') ||
+                  t(
+                    'settings.errors.storeNameArRequired',
+                    'اسم المتجر (بالعربية) مطلوب'
+                  ),
               })}
             />
           </FieldWrap>

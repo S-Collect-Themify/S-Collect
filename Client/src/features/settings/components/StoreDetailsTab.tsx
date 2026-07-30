@@ -15,10 +15,5 @@ export function StoreDetailsTab() {
     return <StoreProfileFormSkeleton />;
   }
 
-  return (
-    <StoreProfileForm
-      initialData={data}
-      onSave={handleSave}
-    />
-  );
+  return <StoreProfileForm initialData={data} onSave={handleSave} />;
 }

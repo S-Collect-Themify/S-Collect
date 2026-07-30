@@ -21,10 +21,14 @@ export const useStoreProfile = () => {
     queryKey: STORE_PROFILE_QUERY_KEY,
     queryFn: async () => {
       const rawData = await getVendorProfile();
-      const data = rawData && typeof rawData === 'object' && 'success' in rawData && 'data' in rawData
-        ? (rawData as any).data
-        : rawData;
-      
+      const data =
+        rawData &&
+        typeof rawData === 'object' &&
+        'success' in rawData &&
+        'data' in rawData
+          ? (rawData as any).data
+          : rawData;
+
       let logoFileName: string | null = null;
       if (data.logoUrl) {
         try {
@@ -35,17 +39,26 @@ export const useStoreProfile = () => {
         }
       }
 
-      const isLogoRemoved = typeof window !== 'undefined' && localStorage.getItem('vendor_logo_removed') === 'true';
-      const storeLogoUrl = isLogoRemoved ? null : (data.logoUrl || null);
+      const isLogoRemoved =
+        typeof window !== 'undefined' &&
+        localStorage.getItem('vendor_logo_removed') === 'true';
+      const storeLogoUrl = isLogoRemoved ? null : data.logoUrl || null;
       const storeLogoFileName = isLogoRemoved ? null : logoFileName;
 
       return {
         ...defaultStoreProfile,
         storeName: data.storeName || '',
         storeNameAr: data.storeNameAr || '',
-        storeDescription: typeof data.storeDescription === 'string' ? data.storeDescription : '',
-        publicEmail: typeof data.publicEmail === 'string' ? data.publicEmail : '',
-        phoneNumber: typeof data.publicPhoneNumber === 'string' ? data.publicPhoneNumber : '',
+        storeDescription:
+          typeof data.storeDescription === 'string'
+            ? data.storeDescription
+            : '',
+        publicEmail:
+          typeof data.publicEmail === 'string' ? data.publicEmail : '',
+        phoneNumber:
+          typeof data.publicPhoneNumber === 'string'
+            ? data.publicPhoneNumber
+            : '',
         storeLogoUrl,
         storeLogoFileName,
         originalStoreNameAr: data.storeNameAr || '',

@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { updateVendorBankInfo, type UpdateVendorBankInfoParams } from '../../../services/vendorProfile';
+import {
+  updateVendorBankInfo,
+  type UpdateVendorBankInfoParams,
+} from '../../../services/vendorProfile';
 import type { BankAccountFormValues } from '../BankSettings';
 import { BANK_INFO_QUERY_KEY } from './useBankInfo';
 import { STORE_PROFILE_QUERY_KEY } from './useStoreProfile';
@@ -46,10 +49,10 @@ export const useUpdateBankInfo = () => {
         (err instanceof ServiceError && err.statusCode === 500) ||
         msg === 'An unexpected error occurred.'
       ) {
-        msg = 'تعذر الحفظ (خطأ 500 من السيرفر): السيرفر واجه مشكلة داخلية أثناء تحديث الحساب البنكي.';
+        msg =
+          'تعذر الحفظ (خطأ 500 من السيرفر): السيرفر واجه مشكلة داخلية أثناء تحديث الحساب البنكي.';
       }
       toast.error(msg);
     },
   });
 };
-

@@ -122,16 +122,16 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
       const rawStatusUpper = (refundDetail.status || '').toUpperCase();
       const currentStatus = statusMap[rawStatusUpper] || 'PENDING_REVIEW';
 
-      const reqDateFormatted = new Date(refundDetail.createdAt).toLocaleDateString(
-        'en-US',
-        {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        }
-      );
+      const reqDateFormatted = new Date(
+        refundDetail.createdAt
+      ).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
 
-      const isApproved = currentStatus === 'APPROVED' || currentStatus === 'COMPLETED';
+      const isApproved =
+        currentStatus === 'APPROVED' || currentStatus === 'COMPLETED';
       const isRejected = currentStatus === 'REJECTED';
       const isCompleted = currentStatus === 'COMPLETED';
 
@@ -185,9 +185,7 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         productPrice: `SAR ${(firstItem.refundAmount || refundDetail.totalRefundAmount || 0).toFixed(2)}`,
         productImage:
           firstItem.thumbnailUrl || refundDetail.imageUrls?.[0] || '',
-        reason:
-          firstItem.reason ||
-          'DAMAGED_DEFECTIVE',
+        reason: firstItem.reason || 'DAMAGED_DEFECTIVE',
         rejectionReason: refundDetail.rejectionReason || undefined,
         requestedDate: reqDateFormatted,
         status: currentStatus,
@@ -270,7 +268,9 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
     setShowRejectModal(false);
     try {
       await updateStatusMutation.mutateAsync({ status: 'REJECTED', reason });
-      toast.success(`Return Request Rejected: ${reason || 'Decision recorded'}`);
+      toast.success(
+        `Return Request Rejected: ${reason || 'Decision recorded'}`
+      );
     } catch {
       toast.error('Failed to reject return request');
     }

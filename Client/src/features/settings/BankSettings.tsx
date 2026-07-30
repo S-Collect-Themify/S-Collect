@@ -161,9 +161,7 @@ export default function BankAccountForm({
                   'Please enter full IBAN starting with SA'
                 );
               }
-              return (
-                /^SA\d{22}$/.test(value) || t('settings.bank.ibanInvalid')
-              );
+              return /^SA\d{22}$/.test(value) || t('settings.bank.ibanInvalid');
             },
             setValueAs: (value: string) => value?.toUpperCase() || '',
           })}

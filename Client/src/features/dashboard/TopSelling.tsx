@@ -37,7 +37,11 @@ const resolveImageUrl = (rawUrl: any): string => {
   if (!urlStr || typeof urlStr !== 'string' || urlStr.trim() === '') {
     return DEFAULT_IMAGE;
   }
-  if (urlStr.startsWith('http://') || urlStr.startsWith('https://') || urlStr.startsWith('data:')) {
+  if (
+    urlStr.startsWith('http://') ||
+    urlStr.startsWith('https://') ||
+    urlStr.startsWith('data:')
+  ) {
     return urlStr;
   }
   return `https://api.collect-s.com${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
@@ -55,7 +59,8 @@ const TopSelling = () => {
     staleTime: 2 * 60 * 1000,
   });
 
-  const productsList = productsData?.items || (Array.isArray(productsData) ? productsData : []);
+  const productsList =
+    productsData?.items || (Array.isArray(productsData) ? productsData : []);
 
   const topProducts = productsList.map((prod: any, idx: number) => {
     const name = isAr
@@ -66,7 +71,9 @@ const TopSelling = () => {
     if (typeof prod.minPrice === 'number') {
       price = prod.minPrice;
     } else if (prod.minPrice && typeof prod.minPrice === 'object') {
-      price = Number((prod.minPrice as any).amount || (prod.minPrice as any).value || 0);
+      price = Number(
+        (prod.minPrice as any).amount || (prod.minPrice as any).value || 0
+      );
     } else if (typeof prod.compareAtPrice === 'number') {
       price = prod.compareAtPrice;
     } else if (typeof prod.basePrice === 'number') {
@@ -75,15 +82,19 @@ const TopSelling = () => {
       price = prod.price;
     }
 
-    const salesCount = prod.salesCount || prod.soldCount || Math.max(1, 10 - idx);
+    const salesCount =
+      prod.salesCount || prod.soldCount || Math.max(1, 10 - idx);
     const revenue = price > 0 ? salesCount * price : (idx + 1) * 150;
-    const percentage = Number((100 / Math.max(1, productsList.length)).toFixed(1));
+    const percentage = Number(
+      (100 / Math.max(1, productsList.length)).toFixed(1)
+    );
 
     let rawImg: any = null;
     if (prod.thumbnailUrl) {
       rawImg = prod.thumbnailUrl;
     } else if (Array.isArray(prod.images) && prod.images.length > 0) {
-      const thumb = prod.images.find((img: any) => img.isThumbnail) || prod.images[0];
+      const thumb =
+        prod.images.find((img: any) => img.isThumbnail) || prod.images[0];
       rawImg = thumb;
     } else if (prod.imageUrl) {
       rawImg = prod.imageUrl;

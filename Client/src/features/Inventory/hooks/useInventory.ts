@@ -71,7 +71,9 @@ export function useInventory() {
         : item.labelName || item.labelNameAr || 'Default';
 
       const updatedAt = item.lastUpdatedAt
-        ? new Date(item.lastUpdatedAt).toLocaleDateString(isAr ? 'ar-EG' : 'en-US')
+        ? new Date(item.lastUpdatedAt).toLocaleDateString(
+            isAr ? 'ar-EG' : 'en-US'
+          )
         : '';
 
       // Use pending change stock if user edited it, otherwise backend stock
@@ -114,7 +116,15 @@ export function useInventory() {
         staleTime: 5 * 60 * 1000,
       });
     }
-  }, [currentPage, totalPages, activeTab, search, minStock, maxStock, queryClient]);
+  }, [
+    currentPage,
+    totalPages,
+    activeTab,
+    search,
+    minStock,
+    maxStock,
+    queryClient,
+  ]);
 
   const pageNumbers = useMemo(
     () => Array.from({ length: totalPages }, (_, i) => i + 1),

@@ -39,7 +39,11 @@ const resolveImageUrl = (rawUrl: any): string => {
   if (!urlStr || typeof urlStr !== 'string' || urlStr.trim() === '') {
     return DEFAULT_IMAGE;
   }
-  if (urlStr.startsWith('http://') || urlStr.startsWith('https://') || urlStr.startsWith('data:')) {
+  if (
+    urlStr.startsWith('http://') ||
+    urlStr.startsWith('https://') ||
+    urlStr.startsWith('data:')
+  ) {
     return urlStr;
   }
   return `https://api.collect-s.com${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
@@ -64,13 +68,15 @@ const InventoryAlert = () => {
   });
 
   const productImgMap: Record<string, string> = {};
-  const productsList = productsData?.items || (Array.isArray(productsData) ? productsData : []);
+  const productsList =
+    productsData?.items || (Array.isArray(productsData) ? productsData : []);
   productsList.forEach((prod: any) => {
     let rawImg: any = null;
     if (prod.thumbnailUrl) {
       rawImg = prod.thumbnailUrl;
     } else if (Array.isArray(prod.images) && prod.images.length > 0) {
-      const thumb = prod.images.find((img: any) => img.isThumbnail) || prod.images[0];
+      const thumb =
+        prod.images.find((img: any) => img.isThumbnail) || prod.images[0];
       rawImg = thumb;
     } else if (prod.imageUrl) {
       rawImg = prod.imageUrl;
@@ -80,45 +86,50 @@ const InventoryAlert = () => {
     }
   });
 
-  const alertItems = (inventoryData?.items || []).map((item) => {
-    const name = isAr
-      ? item.productNameAr || item.productName || ''
-      : item.productName || item.productNameAr || '';
-    const label = isAr
-      ? item.labelNameAr || item.labelName
-      : item.labelName || item.labelNameAr;
-    const fullName = label ? `${name} - ${label}` : name;
-    const stockCount = item.stock || 0;
+  const alertItems = (inventoryData?.items || [])
+    .map((item) => {
+      const name = isAr
+        ? item.productNameAr || item.productName || ''
+        : item.productName || item.productNameAr || '';
+      const label = isAr
+        ? item.labelNameAr || item.labelName
+        : item.labelName || item.labelNameAr;
+      const fullName = label ? `${name} - ${label}` : name;
+      const stockCount = item.stock || 0;
 
-    let status: 'Out of Stock' | 'Low Stock' | 'In Stock' = 'In Stock';
-    let text: 'var(--red)' | 'var(--yellow)' | 'var(--green)' = 'var(--green)';
-    let background: 'var(--red-light)' | 'var(--yellow-light)' | 'var(--green-light)' = 'var(--green-light)';
+      let status: 'Out of Stock' | 'Low Stock' | 'In Stock' = 'In Stock';
+      let text: 'var(--red)' | 'var(--yellow)' | 'var(--green)' =
+        'var(--green)';
+      let background:
+        'var(--red-light)' | 'var(--yellow-light)' | 'var(--green-light)' =
+        'var(--green-light)';
 
-    if (stockCount === 0) {
-      status = 'Out of Stock';
-      text = 'var(--red)';
-      background = 'var(--red-light)';
-    } else if (stockCount <= 5) {
-      status = 'Low Stock';
-      text = 'var(--yellow)';
-      background = 'var(--yellow-light)';
-    }
+      if (stockCount === 0) {
+        status = 'Out of Stock';
+        text = 'var(--red)';
+        background = 'var(--red-light)';
+      } else if (stockCount <= 5) {
+        status = 'Low Stock';
+        text = 'var(--yellow)';
+        background = 'var(--yellow-light)';
+      }
 
-    const image = productImgMap[item.productId] || DEFAULT_IMAGE;
+      const image = productImgMap[item.productId] || DEFAULT_IMAGE;
 
-    return {
-      id: `${item.productId}-${item.variantId}`,
-      name: fullName || 'Product',
-      sku: item.sku || 'N/A',
-      stockCount,
-      status,
-      theme: { text, background },
-      image,
-    };
-  }).sort((a, b) => {
-    const priority = { 'Out of Stock': 0, 'Low Stock': 1, 'In Stock': 2 };
-    return priority[a.status] - priority[b.status];
-  });
+      return {
+        id: `${item.productId}-${item.variantId}`,
+        name: fullName || 'Product',
+        sku: item.sku || 'N/A',
+        stockCount,
+        status,
+        theme: { text, background },
+        image,
+      };
+    })
+    .sort((a, b) => {
+      const priority = { 'Out of Stock': 0, 'Low Stock': 1, 'In Stock': 2 };
+      return priority[a.status] - priority[b.status];
+    });
 
   const lowOrNoStockCount = alertItems.filter(
     (item) => item.status === 'Out of Stock' || item.status === 'Low Stock'
@@ -146,7 +157,10 @@ const InventoryAlert = () => {
         <p>
           {lowOrNoStockCount > 0
             ? `${lowOrNoStockCount} ${t('inventoryItem.alertMessage', 'products are running low on stock.')}`
-            : t('inventoryItem.allStockGood', 'All inventory stock levels look good.')}
+            : t(
+                'inventoryItem.allStockGood',
+                'All inventory stock levels look good.'
+              )}
         </p>
       </motion.div>
 
