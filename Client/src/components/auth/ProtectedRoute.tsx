@@ -1,7 +1,7 @@
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import OnboardingStatus from '../../pages/auth/OnboardingStatus';
-import { VENDOR_STATUS } from '../../services/auth';
+import { VENDOR_STATUS, clearTokens } from '../../services/auth';
 import { useOnboardingStatus } from '../../hooks/useOnboardingStatus';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
@@ -10,6 +10,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
   const {
     token,
     isUnauthorized,
@@ -20,11 +22,25 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     refetch,
   } = useOnboardingStatus();
 
-  if (!token || isUnauthorized) {
+  if (!token || isUnauthorized || retryCount >= 2) {
+    if (retryCount >= 2) {
+      clearTokens();
+    }
     return <Navigate to="/login" replace />;
   }
 
-  if (isLoading) {
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    const res = await refetch();
+    setIsRetrying(false);
+    if (res.isError) {
+      setRetryCount((prev) => prev + 1);
+    } else {
+      setRetryCount(0);
+    }
+  };
+
+  if (isLoading || isRetrying) {
     return <LoadingSpinner />;
   }
 
@@ -40,10 +56,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         </p>
         <button
           type="button"
-          onClick={() => refetch()}
-          className="px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer"
+          onClick={handleRetry}
+          disabled={isRetrying}
+          className="px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-semibold hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50"
         >
-          Retry Verification
+          {isRetrying ? 'Retrying...' : 'Retry Verification'}
         </button>
       </div>
     );
@@ -57,7 +74,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <OnboardingStatus
         status={status}
         rejectionReason={rejectionReason}
-        onRetry={() => refetch()}
+        onRetry={handleRetry}
       />
     );
   }

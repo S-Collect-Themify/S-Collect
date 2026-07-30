@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth';
+import { login, scheduleRefreshTokenExpiration } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
 import { getErrorMessage } from '../types/api';
 
@@ -37,6 +37,7 @@ export const useLogin = () => {
       }
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
+        scheduleRefreshTokenExpiration();
       }
 
       const result = data?.status ?? 'success';

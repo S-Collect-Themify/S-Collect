@@ -13,10 +13,8 @@ type ProductSale = {
 
 const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
   const { t } = useTranslation();
-  const productLink = cardData.id
-    ? `/edit-product/${cardData.id}`
-    : '/management';
-
+  const productLink = `/product-details/${cardData.id}`;
+  
   return (
     <div className="flex items-center gap-2 rounded-xl bg-white p-3 w-full overflow-hidden hover:bg-gray-50 transition-colors">
       {/* Product Image Link */}

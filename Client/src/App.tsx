@@ -12,6 +12,7 @@ import Login from './pages/auth/Login.js';
 import Register from './pages/auth/Register.js';
 import ForgetPass from './pages/auth/ForgetPass.js';
 import ProtectedRoute from './components/auth/ProtectedRoute.js';
+import { scheduleRefreshTokenExpiration } from './services/auth';
 import './App.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
@@ -30,6 +31,21 @@ function App() {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    scheduleRefreshTokenExpiration();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        scheduleRefreshTokenExpiration();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
   return (
     <>
       <Routes>

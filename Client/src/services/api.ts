@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getErrorMessage, type ApiErrorResponseBody } from '../types/api';
+import { logoutAndRedirect, scheduleRefreshTokenExpiration } from './auth';
 
 export class ServiceError extends Error {
   public readonly statusCode?: number;
@@ -129,6 +130,9 @@ api.interceptors.response.use(
         originalRequest.url?.includes('/vendor/auth/login') ||
         originalRequest.url?.includes('/vendor/auth/logout')
       ) {
+        if (originalRequest.url?.includes('/vendor/auth/refresh')) {
+          logoutAndRedirect('expired');
+        }
         return Promise.reject(error);
       }
 
@@ -137,11 +141,7 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) {
         // No refresh token, clear storage and redirect
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login?state=expired';
-        }
+        logoutAndRedirect('expired');
         return Promise.reject(error);
       }
 
@@ -180,6 +180,7 @@ api.interceptors.response.use(
           if (newRefreshToken) {
             localStorage.setItem('refreshToken', newRefreshToken);
           }
+          scheduleRefreshTokenExpiration();
 
           processQueue(null, newAccessToken);
           isRefreshing = false;
@@ -195,11 +196,7 @@ api.interceptors.response.use(
         isRefreshing = false;
 
         // Clear credentials and redirect to login with expired state
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login?state=expired';
-        }
+        logoutAndRedirect('expired');
         return Promise.reject(refreshError);
       }
     }
