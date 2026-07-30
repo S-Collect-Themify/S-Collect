@@ -64,11 +64,11 @@ export function ReturnRequestsTable({
                 <td className="py-4 px-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={item.productImage}
+                      src={item.productImage || "./placeholder.jpg"}
                       alt={item.productTitle}
                       className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
                     />
-                    <span className="font-semibold text-gray-900 truncate max-w-[220px]">
+                    <span className="font-semibold text-gray-900 truncate max-w-55">
                       {item.productTitle}
                     </span>
                   </div>
