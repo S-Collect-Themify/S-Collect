@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MoreVertical, SquarePen, Trash } from 'lucide-react';
+import { MoreVertical, SquarePen, Trash, Star } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import Toggle from '../Toggle';
 import { showDeleteConfirmation } from '../deleteConfirmation';
@@ -147,12 +147,21 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
               />
             )}
           </div>
-          <div className="flex flex-col">
-            <span className="font-medium">{product.name}</span>
-            <span className="text-sm text-gray-500">
-              {product.categoryName || product.category}
-            </span>
-            <span className="font-medium">
+          <div className="flex flex-col gap-0.5">
+            <span className="font-medium text-gray-900">{product.name}</span>
+            <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
+              <span>{product.categoryName || product.category}</span>
+              {product.rating != null && (
+                <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200/60 font-semibold text-[11px]">
+                  <Star size={12} className="fill-amber-400 text-amber-400" />
+                  <span>{product.rating.toFixed(1)}</span>
+                  {product.ratingCount != null && (
+                    <span className="text-gray-400 font-normal">({product.ratingCount})</span>
+                  )}
+                </div>
+              )}
+            </div>
+            <span className="font-medium text-gray-900">
               {product.price} {t('dashboardMetrics.unit.sar')}
             </span>
           </div>
