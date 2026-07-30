@@ -2,18 +2,18 @@ import { api } from './api';
 
 export interface BackendReviewItem {
   id: string;
-  reviewId?: string;
-  productId?: string;
-  product?: any;
-  buyerAccountId?: string;
-  buyerName?: string;
-  buyer?: any;
-  user?: any;
-  vendor?: any;
+  productId: string;
   rating: number;
+  comment?: string;
   createdAt?: string;
   updatedAt?: string;
   orderItemId?: string;
+  buyer: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    image?: string | null;
+  };
 }
 
 export interface ReviewsApiResponse {

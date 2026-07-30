@@ -19,77 +19,55 @@ const getVendorDisplayName = (vendorObj: any): string => {
 
 export const mapBackendReviewToFrontend = (
   r: BackendReviewItem,
-  idx: number,
   productsList: any[] = [],
   vendorsList: any[] = [],
   language: string = 'en'
 ): ReviewItem => {
-  const formattedDate = r.createdAt
-    ? String(r.createdAt).split('T')[0]
-    : (r as any).date || '—';
+  const formattedDate = r.createdAt ? String(r.createdAt).split('T')[0] : '—';
 
-  const revId = r.reviewId || (r.id ? `REV-${String(r.id).slice(0, 6)}` : `REV-00${idx + 1}`);
+  const revId = `REV-${String(r.id).slice(0, 6)}`;
 
   // ── Lookup Product by productId in productsList ──
   let productName = '—';
   let productVendorId: string | null = null;
 
-  if (r.product?.name) {
-    productName = language === 'ar' ? r.product.nameAr || r.product.name : r.product.name || r.product.nameAr;
-    productVendorId = r.product.vendorId || r.product.vendor?.id || null;
-  } else if ((r as any).productName) {
-    productName = (r as any).productName;
+  const matchedProd = productsList.find(
+    (p: any) => String(p.id || p._id).toLowerCase() === String(r.productId).toLowerCase()
+  );
+  if (matchedProd) {
+    productName =
+      language === 'ar'
+        ? matchedProd.nameAr || matchedProd.name
+        : matchedProd.name || matchedProd.nameAr;
+    productVendorId = matchedProd.vendorId || matchedProd.vendor?.id || null;
   } else if (r.productId) {
-    const matchedProd = productsList.find(
-      (p: any) => String(p.id || p._id).toLowerCase() === String(r.productId).toLowerCase()
-    );
-    if (matchedProd) {
-      productName =
-        language === 'ar'
-          ? matchedProd.nameAr || matchedProd.name
-          : matchedProd.name || matchedProd.nameAr;
-      productVendorId = matchedProd.vendorId || matchedProd.vendor?.id || null;
-    } else {
-      productName = `Product (${String(r.productId).slice(0, 8)}...)`;
-    }
+    productName = `Product (${String(r.productId).slice(0, 8)}...)`;
   }
 
   // ── Lookup Vendor by vendorId in vendorsList ──
-  const targetVendorId = productVendorId || (r as any).vendorId || (r.vendor?.id ? r.vendor.id : null);
   let vendorName = '—';
 
-  if (r.vendor?.storeName || r.vendor?.name) {
-    vendorName = getVendorDisplayName(r.vendor);
-  } else if ((r as any).vendorName) {
-    vendorName = (r as any).vendorName;
-  } else if (targetVendorId) {
+  if (productVendorId) {
     const matchedVendor = vendorsList.find(
-      (v: any) => String(v.id || v._id).toLowerCase() === String(targetVendorId).toLowerCase()
+      (v: any) => String(v.id || v._id).toLowerCase() === String(productVendorId).toLowerCase()
     );
-    if (matchedVendor) {
-      vendorName = getVendorDisplayName(matchedVendor);
-    } else {
-      vendorName = `Vendor (${String(targetVendorId).slice(0, 8)}...)`;
-    }
-  } else if (typeof r.vendor === 'string') {
-    vendorName = r.vendor;
+    vendorName = matchedVendor
+      ? getVendorDisplayName(matchedVendor)
+      : `Vendor (${String(productVendorId).slice(0, 8)}...)`;
   }
 
-  const buyer =
-    r.buyerName ||
-    r.buyer?.name ||
-    r.user?.name ||
-    (r.buyerAccountId ? `Buyer (${String(r.buyerAccountId).slice(0, 8)}...)` : '—');
+  const buyer = `${r.buyer?.firstName || ''} ${r.buyer?.lastName || ''}`.trim() || '—';
 
   return {
-    id: String(r.id || idx + 1),
+    id: r.id,
     reviewId: revId,
     product: productName,
     productId: r.productId,
     buyerName: buyer,
-    buyerAccountId: r.buyerAccountId,
+    buyerAccountId: r.buyer?.id,
     vendor: vendorName,
     rating: Number(r.rating) || 0,
+    comment: r.comment || '',
     date: formattedDate,
   };
 };
@@ -166,8 +144,8 @@ export const useReviewsData = () => {
         const productsList = extractProductsArray(productsResponse);
         const vendorsList = extractVendorsArray(vendorsResponse);
 
-        const mapped: ReviewItem[] = itemsArray.map((r, idx) =>
-          mapBackendReviewToFrontend(r, idx, productsList, vendorsList, i18n.language)
+        const mapped: ReviewItem[] = itemsArray.map((r) =>
+          mapBackendReviewToFrontend(r, productsList, vendorsList, i18n.language)
         );
 
         setReviews(mapped);
