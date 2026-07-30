@@ -54,8 +54,7 @@ export function handleServiceError(
   if (axios.isAxiosError(error)) {
     statusCode = error.response?.status;
     const apiErrorData = error.response?.data as
-      | ApiErrorResponseBody
-      | undefined;
+      ApiErrorResponseBody | undefined;
     if (apiErrorData) {
       const nestedError =
         typeof apiErrorData.error === 'object' && apiErrorData.error !== null

@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import BankSettings from '../BankSettings';
 import { useBankInfo } from '../hooks/useBankInfo';
 import { useUpdateBankInfo } from '../hooks/useUpdateBankInfo';

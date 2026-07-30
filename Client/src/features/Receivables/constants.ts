@@ -1,9 +1,5 @@
 export type TransactionStatus =
-  | 'paid'
-  | 'processing'
-  | 'pending'
-  | 'adjusted'
-  | 'failed';
+  'paid' | 'processing' | 'pending' | 'adjusted' | 'failed';
 
 export interface Transaction {
   date: string;

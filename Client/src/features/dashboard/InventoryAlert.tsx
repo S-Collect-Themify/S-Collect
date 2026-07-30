@@ -101,9 +101,8 @@ const InventoryAlert = () => {
       let text: 'var(--red)' | 'var(--yellow)' | 'var(--green)' =
         'var(--green)';
       let background:
-        | 'var(--red-light)'
-        | 'var(--yellow-light)'
-        | 'var(--green-light)' = 'var(--green-light)';
+        'var(--red-light)' | 'var(--yellow-light)' | 'var(--green-light)' =
+        'var(--green-light)';
 
       if (stockCount === 0) {
         status = 'Out of Stock';
