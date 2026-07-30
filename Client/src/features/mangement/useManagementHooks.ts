@@ -8,6 +8,7 @@ import {
   searchVendorProducts,
   bulkUpdateProductStatus,
 } from '../../services/products';
+import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
 
 const ITEMS_PER_PAGE = 8;
@@ -35,6 +36,41 @@ export function useManagementTable() {
     retry: 1,
   });
 
+  const { data: rawReviews } = useQuery({
+    queryKey: ['vendor-reviews-manage'],
+    queryFn: () => getVendorReviews({ pageSize: 100 }),
+    staleTime: 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
+
+  const reviewsMap = useMemo(() => {
+    const items = rawReviews?.items || (Array.isArray(rawReviews) ? rawReviews : []);
+    const map: Record<string, { totalRating: number; count: number }> = {};
+
+    for (const r of items) {
+      if (!r) continue;
+      const pid = String(
+        r.productId ||
+        r.product_id ||
+        (typeof r.product === 'object' ? r.product?.id : r.product) ||
+        ''
+      ).trim();
+
+      if (!pid) continue;
+
+      const ratingVal = Number(r.rating || r.score || 0);
+
+      if (!map[pid]) {
+        map[pid] = { totalRating: 0, count: 0 };
+      }
+      map[pid].totalRating += ratingVal;
+      map[pid].count += 1;
+    }
+
+    return map;
+  }, [rawReviews]);
+
   // Prefetch the next page of products from backend in the background
   useEffect(() => {
     queryClient.prefetchQuery({
@@ -48,7 +84,7 @@ export function useManagementTable() {
   const products: Product[] = useMemo(() => {
     const items =
       rawProducts?.items || (Array.isArray(rawProducts) ? rawProducts : []);
-    return items.map((p: any, idx: number) => {
+    return items.map((p: any) => {
       // Search endpoint doesn't return variants; determine status from isActive/isDisabled
       const status: ProductStatus = p.isDisabled
         ? 'Out Of Stock'
@@ -75,19 +111,33 @@ export function useManagementTable() {
         parsedPrice = p.price;
       }
 
+      const pId = String(p.id || p._id || p.productId || '').trim();
+      const revStats = reviewsMap[pId];
+      const aggregatedRating =
+        revStats && revStats.count > 0
+          ? Number((revStats.totalRating / revStats.count).toFixed(1))
+          : 0;
+      const aggregatedCount = revStats ? revStats.count : 0;
+
       const rating =
         typeof p.rating === 'number' && p.rating > 0
           ? p.rating
           : typeof p.averageRating === 'number' && p.averageRating > 0
             ? p.averageRating
-            : Number((4.5 + (idx % 5) * 0.1).toFixed(1));
+            : typeof p.ratingSummary?.averageRating === 'number' && p.ratingSummary.averageRating > 0
+              ? p.ratingSummary.averageRating
+              : aggregatedRating;
 
       const ratingCount =
         typeof p.ratingCount === 'number' && p.ratingCount > 0
           ? p.ratingCount
           : typeof p.reviewsCount === 'number' && p.reviewsCount > 0
             ? p.reviewsCount
-            : 8 + (idx % 12);
+            : typeof p.totalRatings === 'number' && p.totalRatings > 0
+              ? p.totalRatings
+              : typeof p.ratingSummary?.totalRatings === 'number' && p.ratingSummary.totalRatings > 0
+                ? p.ratingSummary.totalRatings
+                : aggregatedCount;
 
       let iconUrl = '';
       if (typeof p.thumbnailUrl === 'string') {

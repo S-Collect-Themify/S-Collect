@@ -114,7 +114,11 @@ export interface Category {
   name: string;
   nameAr: string;
   slug: string;
+  description?: string | null;
+  parentCategoryId?: string | null;
   isActive: boolean;
+  image?: string | null;
+  productCount?: number;
   createdAt: string;
 }
 
@@ -124,6 +128,14 @@ export const getCategories = async (): Promise<Category[]> => {
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch categories');
+  }
+};
+
+export const deleteCategory = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/vendor/categories/${id}`);
+  } catch (err) {
+    throw handleServiceError(err, `Failed to delete category ${id}`);
   }
 };
 

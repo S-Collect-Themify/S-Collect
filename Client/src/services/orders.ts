@@ -42,12 +42,26 @@ export interface VendorOrderStats {
   totalOrders: number;
   newOrders: number;
   activeProducts: number;
+  productCount?: number;
+  orderCount?: number;
+  pendingPayouts?: number;
+  totalDues?: number;
 }
 
 export const getVendorOrderStats = async (): Promise<VendorOrderStats> => {
   try {
     const { data } = await api.get('/vendor/sub-orders/stats');
-    return unwrap<VendorOrderStats>(data);
+    const raw = unwrap<any>(data);
+    return {
+      totalSales: raw.totalSales ?? 0,
+      totalOrders: raw.totalOrders ?? raw.orderCount ?? 0,
+      newOrders: raw.newOrders ?? 0,
+      activeProducts: raw.activeProducts ?? raw.productCount ?? 0,
+      productCount: raw.productCount ?? raw.activeProducts ?? 0,
+      orderCount: raw.orderCount ?? raw.totalOrders ?? 0,
+      pendingPayouts: raw.pendingPayouts ?? 0,
+      totalDues: raw.totalDues ?? raw.pendingPayouts ?? 0,
+    };
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch vendor order stats');
   }

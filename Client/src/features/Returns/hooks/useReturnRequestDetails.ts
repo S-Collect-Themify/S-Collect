@@ -171,9 +171,21 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         },
       ];
 
+      const displayRefundId = refundDetail.refundNumber
+        ? `#RET-${refundDetail.refundNumber}`
+        : `#RET-${refundDetail.id.slice(0, 8).toUpperCase()}`;
+
+      const displayOrderId = refundDetail.orderNumber
+        ? `#ORD-${refundDetail.orderNumber}`
+        : `#ORD-${refundDetail.orderId.slice(0, 8).toUpperCase()}`;
+
       return {
-        id: `#RET-${refundDetail.id.slice(0, 8).toUpperCase()}`,
-        orderId: `#ORD-${refundDetail.orderId.slice(0, 8).toUpperCase()}`,
+        id: displayRefundId,
+        refundNumber: refundDetail.refundNumber,
+        orderId: displayOrderId,
+        orderNumber: refundDetail.orderNumber,
+        orderGrandTotalAmount: refundDetail.orderGrandTotalAmount,
+        paymentMethod: refundDetail.paymentMethod,
         customerName: custName,
         customerEmail: refundDetail.customer?.email || 'customer@example.com',
         customerPhone: refundDetail.customer?.phoneNumber || '',

@@ -142,9 +142,11 @@ const SubOrderDetails = () => {
           <motion.div variants={cardVariants}>
             <SubOrderInfo
               id={order.id}
+              orderNumber={order.orderNumber}
               createdAt={order.createdAt}
               trackingNumber={order.trackingNumber}
               status={order.status}
+              customer={order.customer}
             />
           </motion.div>
 

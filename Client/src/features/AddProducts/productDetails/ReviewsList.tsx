@@ -74,38 +74,41 @@ function ReviewCard({
   onDelete?: (id: string) => void;
 }) {
   const { t } = useTranslation();
+  const author = review?.authorName || 'Customer';
+  const initials = author
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => (n && n[0] ? n[0] : ''))
+    .slice(0, 2)
+    .join('') || 'C';
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100">
-            {review.authorAvatarUrl ? (
+            {review?.authorAvatarUrl ? (
               <img
                 src={review.authorAvatarUrl}
-                alt={review.authorName}
+                alt={author}
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs font-medium text-gray-500">
-                {review.authorName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .slice(0, 2)
-                  .join('')}
+              <div className="flex h-full w-full items-center justify-center text-xs font-medium text-gray-500 uppercase">
+                {initials}
               </div>
             )}
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900">
-              {review.authorName}
+              {author}
             </p>
-            <p className="text-xs text-gray-400">{review.date}</p>
+            <p className="text-xs text-gray-400">{review?.date || ''}</p>
           </div>
         </div>
         <button
           type="button"
-          onClick={() => onDelete?.(review.id)}
+          onClick={() => onDelete?.(review?.id)}
           aria-label={t('productDetails.reviews.deleteReview')}
           className="text-red-400 hover:text-red-500"
         >
@@ -114,17 +117,17 @@ function ReviewCard({
       </div>
 
       <div className="mt-3">
-        <StarRow rating={review.rating} />
+        <StarRow rating={review?.rating || 0} />
       </div>
 
       <h4 className="mt-2 text-sm font-semibold text-gray-900">
-        {review.title}
+        {review?.title || ''}
       </h4>
       <p className="mt-1 text-sm leading-relaxed text-gray-500">
-        {review.body}
+        {review?.body || ''}
       </p>
 
-      {review.photoUrls && review.photoUrls.length > 0 && (
+      {Array.isArray(review?.photoUrls) && review.photoUrls.length > 0 && (
         <div className="mt-3 flex gap-2">
           {review.photoUrls.map((url, i) => (
             <div
@@ -134,7 +137,7 @@ function ReviewCard({
               <img
                 src={url}
                 alt={t('productDetails.reviews.reviewPhoto', {
-                  author: review.authorName,
+                  author: author,
                   index: i + 1,
                 })}
                 className="h-full w-full object-cover"
@@ -157,7 +160,8 @@ function Pagination({
   onPageChange?: (page: number) => void;
 }) {
   const { t } = useTranslation();
-  const pages = Array.from({ length: totalPages }).map((_, i) => i + 1);
+  const safeTotalPages = Math.max(1, totalPages || 1);
+  const pages = Array.from({ length: safeTotalPages }).map((_, i) => i + 1);
 
   return (
     <div className="flex items-center gap-1.5">
@@ -188,8 +192,8 @@ function Pagination({
 
       <button
         type="button"
-        onClick={() => onPageChange?.(Math.min(totalPages, page + 1))}
-        disabled={page >= totalPages}
+        onClick={() => onPageChange?.(Math.min(safeTotalPages, page + 1))}
+        disabled={page >= safeTotalPages}
         aria-label={t('productDetails.reviews.nextPage')}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
       >
@@ -210,8 +214,9 @@ export default function ReviewsList({
   onDelete,
 }: ReviewsListProps) {
   const { t } = useTranslation();
-  const rangeStart = reviews.length === 0 ? 0 : (page - 1) * reviews.length + 1;
-  const rangeEnd = (page - 1) * reviews.length + reviews.length;
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  const rangeStart = safeReviews.length === 0 ? 0 : (page - 1) * safeReviews.length + 1;
+  const rangeEnd = (page - 1) * safeReviews.length + safeReviews.length;
 
   return (
     <div className="w-full space-y-4">
@@ -235,8 +240,8 @@ export default function ReviewsList({
 
       {/* Review cards */}
       <div className="space-y-4">
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} onDelete={onDelete} />
+        {safeReviews.map((review) => (
+          <ReviewCard key={review?.id || Math.random().toString()} review={review} onDelete={onDelete} />
         ))}
       </div>
 
@@ -245,8 +250,8 @@ export default function ReviewsList({
         <p className="text-sm text-gray-400">
           {t('productDetails.reviews.showingRange', {
             start: rangeStart,
-            end: Math.min(rangeEnd, totalReviews),
-            total: totalReviews,
+            end: Math.min(rangeEnd, totalReviews || safeReviews.length),
+            total: totalReviews || safeReviews.length,
           })}
         </p>
         <Pagination
