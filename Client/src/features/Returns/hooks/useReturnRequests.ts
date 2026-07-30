@@ -180,7 +180,9 @@ export function useReturnRequests() {
           orderId: `#ORD-${sub.orderId.slice(0, 8).toUpperCase()}`,
           customerName,
           customerEmail:
-            buyerObj?.email || orderObj?.customerEmail || 'customer@example.com',
+            buyerObj?.email ||
+            orderObj?.customerEmail ||
+            'customer@example.com',
           customerPhone: buyerObj?.phone || orderObj?.customerPhone || '',
           shippingAddress: orderObj?.shippingAddress || '',
           productTitle: firstProduct.productName || 'Order Product',
@@ -288,16 +290,16 @@ export function useReturnRequests() {
       status: string;
       reason?: string;
     }) => {
-      const matched = allItems.find(
-        (it) => it.id === id || it.rawId === id
-      );
+      const matched = allItems.find((it) => it.id === id || it.rawId === id);
       const targetId = matched?.rawId || id.replace('#RET-', '');
 
       if (status === 'APPROVED' || status === 'DELIVERED') {
         try {
           return await approveRefund(targetId);
         } catch {
-          return await updateVendorSubOrderStatus(targetId, { status: 'DELIVERED' });
+          return await updateVendorSubOrderStatus(targetId, {
+            status: 'DELIVERED',
+          });
         }
       } else if (status === 'REJECTED' || status === 'CANCELLED') {
         try {

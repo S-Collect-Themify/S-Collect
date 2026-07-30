@@ -15,7 +15,9 @@ export function StorePreviewCard() {
   const storeLogoUrl = watch('storeLogoUrl');
 
   const isRtl = i18n.language === 'ar';
-  const displayName = isRtl ? (storeNameAr || storeName) : (storeName || storeNameAr);
+  const displayName = isRtl
+    ? storeNameAr || storeName
+    : storeName || storeNameAr;
 
   return (
     <div className="settings-surface-enter settings-stagger-1 mb-5">

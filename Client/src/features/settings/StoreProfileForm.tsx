@@ -49,35 +49,46 @@ export function StoreProfileForm({
           if (axiosErr && axiosErr.response) {
             console.error('API Response Data:', axiosErr.response.data);
             if (axiosErr.response.data?.error?.validation) {
-              console.error('API Validation Details:', JSON.stringify(axiosErr.response.data.error.validation, null, 2));
+              console.error(
+                'API Validation Details:',
+                JSON.stringify(axiosErr.response.data.error.validation, null, 2)
+              );
             }
           }
         }
-        
+
         let validationMsg = '';
         if (error && typeof error === 'object' && 'details' in error) {
           const details = (error as { details: unknown }).details;
           if (Array.isArray(details)) {
-            validationMsg = details.map((d: unknown) => {
-              if (d && typeof d === 'object') {
-                const dObj = d as Record<string, unknown>;
-                const prop = String(dObj.property || dObj.field || 'Error');
-                const msg = String(dObj.message || dObj.msg || JSON.stringify(dObj));
-                return `${prop}: ${msg}`;
-              }
-              return String(d);
-            }).join('; ');
+            validationMsg = details
+              .map((d: unknown) => {
+                if (d && typeof d === 'object') {
+                  const dObj = d as Record<string, unknown>;
+                  const prop = String(dObj.property || dObj.field || 'Error');
+                  const msg = String(
+                    dObj.message || dObj.msg || JSON.stringify(dObj)
+                  );
+                  return `${prop}: ${msg}`;
+                }
+                return String(d);
+              })
+              .join('; ');
           } else if (details && typeof details === 'object') {
             const detailsObj = details as Record<string, unknown>;
-            validationMsg = Object.keys(detailsObj).map(k => {
-              const val = detailsObj[k];
-              return `${k}: ${Array.isArray(val) ? val.join(', ') : String(val)}`;
-            }).join('; ');
+            validationMsg = Object.keys(detailsObj)
+              .map((k) => {
+                const val = detailsObj[k];
+                return `${k}: ${Array.isArray(val) ? val.join(', ') : String(val)}`;
+              })
+              .join('; ');
           }
         }
-        
+
         if (validationMsg) {
-          toast.error(`Validation Details: ${validationMsg}`, { duration: 8000 });
+          toast.error(`Validation Details: ${validationMsg}`, {
+            duration: 8000,
+          });
         }
 
         mapServiceErrorsToForm(error, methods.setError, {

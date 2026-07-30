@@ -1,11 +1,7 @@
 // Matches SubOrderWithCommissionResponseDto from the API spec
 
 export type SubOrderStatus =
-  | 'PENDING'
-  | 'PROCESSING'
-  | 'SHIPPED'
-  | 'DELIVERED'
-  | 'CANCELLED';
+  'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
 export interface OrderItemWithCommission {
   id: string;

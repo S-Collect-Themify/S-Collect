@@ -38,11 +38,15 @@ export const updateVendorProfile = async (
   formData: FormData
 ): Promise<VendorProfile> => {
   try {
-    const { data } = await api.patch<VendorProfile>('/vendor/profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const { data } = await api.patch<VendorProfile>(
+      '/vendor/profile',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to update vendor profile');

@@ -54,14 +54,18 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
               ? responseData.error
               : responseData;
 
-          const mapKeyToField = (key: string): keyof RegisterFormData | undefined => {
+          const mapKeyToField = (
+            key: string
+          ): keyof RegisterFormData | undefined => {
             if (key === 'firstName') return 'firstName';
             if (key === 'lastName') return 'lastName';
             if (key === 'email') return 'email';
             if (key === 'phoneNumber' || key === 'phone') return 'phone';
             if (key === 'storeName') return 'storeName';
-            if (key === 'storeDescription' || key === 'description') return 'description';
-            if (key === 'commercialRegisterNumber' || key === 'website') return 'website';
+            if (key === 'storeDescription' || key === 'description')
+              return 'description';
+            if (key === 'commercialRegisterNumber' || key === 'website')
+              return 'website';
             if (key === 'password') return 'password';
             return undefined;
           };
@@ -70,19 +74,28 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           const messagesList: string[] = [];
           if (Array.isArray(rawMessage)) {
             messagesList.push(...rawMessage);
-          } else if (typeof rawMessage === 'string' && rawMessage !== 'Bad Request') {
+          } else if (
+            typeof rawMessage === 'string' &&
+            rawMessage !== 'Bad Request'
+          ) {
             messagesList.push(rawMessage);
           }
 
           messagesList.forEach((msg) => {
             let matchedField: keyof RegisterFormData | undefined;
-            if (msg.includes('commercialRegisterNumber')) matchedField = 'website';
-            else if (msg.includes('phoneNumber') || msg.includes('phone')) matchedField = 'phone';
+            if (msg.includes('commercialRegisterNumber'))
+              matchedField = 'website';
+            else if (msg.includes('phoneNumber') || msg.includes('phone'))
+              matchedField = 'phone';
             else if (msg.includes('firstName')) matchedField = 'firstName';
             else if (msg.includes('lastName')) matchedField = 'lastName';
             else if (msg.includes('email')) matchedField = 'email';
             else if (msg.includes('storeName')) matchedField = 'storeName';
-            else if (msg.includes('storeDescription') || msg.includes('description')) matchedField = 'description';
+            else if (
+              msg.includes('storeDescription') ||
+              msg.includes('description')
+            )
+              matchedField = 'description';
             else if (msg.includes('password')) matchedField = 'password';
 
             if (matchedField && setError) {
@@ -94,7 +107,10 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
 
           // 2. Process structured validation objects/arrays
           let fieldErrors: Record<string, any> =
-            rawErrorObj?.details || rawErrorObj?.errors || rawErrorObj?.validation || {};
+            rawErrorObj?.details ||
+            rawErrorObj?.errors ||
+            rawErrorObj?.validation ||
+            {};
 
           if (Array.isArray(fieldErrors)) {
             fieldErrors.forEach((err: ValidationErrorItem) => {
@@ -112,17 +128,27 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           } else if (typeof fieldErrors === 'object' && fieldErrors !== null) {
             Object.keys(fieldErrors).forEach((key) => {
               if (
-                ['message', 'success', 'status', 'statusCode', 'data', 'meta', 'error'].includes(key)
+                [
+                  'message',
+                  'success',
+                  'status',
+                  'statusCode',
+                  'data',
+                  'meta',
+                  'error',
+                ].includes(key)
               )
                 return;
 
               const fieldName = mapKeyToField(key);
               const val = fieldErrors[key];
               const cleanMsg = Array.isArray(val)
-                ? val.map((m) => (typeof m === 'object' ? JSON.stringify(m) : m)).join(', ')
+                ? val
+                    .map((m) => (typeof m === 'object' ? JSON.stringify(m) : m))
+                    .join(', ')
                 : typeof val === 'object'
-                ? JSON.stringify(val)
-                : String(val);
+                  ? JSON.stringify(val)
+                  : String(val);
 
               if (fieldName && setError) {
                 setError(fieldName, { type: 'server', message: cleanMsg });
@@ -141,7 +167,10 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
         if (!generalMsg) {
           if (typeof responseData?.message === 'string') {
             generalMsg = responseData.message;
-          } else if (Array.isArray(responseData?.message) && responseData.message.length > 0) {
+          } else if (
+            Array.isArray(responseData?.message) &&
+            responseData.message.length > 0
+          ) {
             generalMsg = responseData.message.join('\n');
           } else if (typeof responseData?.error === 'string') {
             generalMsg = responseData.error;
