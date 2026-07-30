@@ -192,3 +192,31 @@ export const bulkUpdateProductStatus = async (params: {
     throw handleServiceError(err, 'Failed to bulk update product status');
   }
 };
+
+export const activateProduct = async (productId: string) => {
+  try {
+    const { data } = await api.patch(`/vendor/products/${productId}/activate`);
+    return data;
+  } catch (err) {
+    const serviceErr = handleServiceError(err);
+    if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
+      const { data } = await api.post(`/vendor/products/${productId}/activate`);
+      return data;
+    }
+    throw serviceErr;
+  }
+};
+
+export const deactivateProduct = async (productId: string) => {
+  try {
+    const { data } = await api.patch(`/vendor/products/${productId}/deactivate`);
+    return data;
+  } catch (err) {
+    const serviceErr = handleServiceError(err);
+    if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
+      const { data } = await api.post(`/vendor/products/${productId}/deactivate`);
+      return data;
+    }
+    throw serviceErr;
+  }
+};
