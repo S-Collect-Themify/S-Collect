@@ -13,16 +13,22 @@ interface ProductItem {
 
 interface VendorRecentProductsTableProps {
   vendorId: string;
+  vendorName?: string;
   products: ProductItem[];
 }
 
 export default function VendorRecentProductsTable({
   vendorId,
+  vendorName,
   products,
 }: VendorRecentProductsTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { handleNavigate } = useVendorDetailsStore();
+
+  const productsUrl = `/products?vendorId=${encodeURIComponent(vendorId)}${
+    vendorName ? `&vendorName=${encodeURIComponent(vendorName)}` : ''
+  }`;
 
   return (
     <Card className="mb-5 overflow-hidden border border-gray-100/80 shadow-2xs">
@@ -88,7 +94,7 @@ export default function VendorRecentProductsTable({
         </table>
         <div className="py-3 border-t border-gray-100 text-center">
           <Link
-            to={`/vendors/${vendorId}/products`}
+            to={productsUrl}
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
             {t('vendors.details.viewAllProducts', 'View All Products')} →
@@ -141,7 +147,7 @@ export default function VendorRecentProductsTable({
             ))}
             <div className="pt-2 text-center">
               <Link
-                to={`/vendors/${vendorId}/products`}
+                to={productsUrl}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
                 {t('vendors.details.viewAllProducts', 'View All Products')} →

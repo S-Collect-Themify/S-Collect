@@ -60,19 +60,32 @@ export interface GetAdminRefundsParams {
   status?: string;
   vendorId?: string;
   orderId?: string;
+  search?: string;
+  startDate?: string;
 }
 
 /**
  * Fetch refunds list from GET /api/v1/admin/refunds
  */
 export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<AdminRefundsResponse> {
+  const pageNum = params?.pageNum ?? 1;
+  const pageSize = params?.pageSize ?? 20;
+
   const response = await api.get('/admin/refunds', {
     params: {
-      pageNum: params?.pageNum ?? 1,
-      pageSize: params?.pageSize ?? 25,
+      pageNum,
+      page: pageNum,
+      pageSize,
+      limit: pageSize,
+      perPage: pageSize,
+      per_page: pageSize,
       status: params?.status,
       vendorId: params?.vendorId,
       orderId: params?.orderId,
+      search: params?.search || undefined,
+      q: params?.search || undefined,
+      query: params?.search || undefined,
+      startDate: params?.startDate,
     },
   });
 

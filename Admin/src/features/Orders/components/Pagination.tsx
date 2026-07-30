@@ -9,6 +9,8 @@ interface PaginationProps {
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   isMobile?: boolean;
+  /** Actual number of items shown on this page (may differ from itemsPerPage due to client filtering) */
+  displayedCount?: number;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -18,14 +20,21 @@ export const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage,
   onPageChange,
   isMobile = false,
+  displayedCount,
 }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
+  if (totalItems === 0) return null;
 
-  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  // Use displayedCount (actual rows shown) when available, otherwise calculate from server values
+  const pageCount = displayedCount ?? Math.min(itemsPerPage, Math.max(0, totalItems - (currentPage - 1) * itemsPerPage));
+
+  // Hide pagination bar when there is truly only one page worth of data
+  if (totalPages <= 1 && pageCount <= itemsPerPage && totalItems <= itemsPerPage) return null;
+
+  const startItem = pageCount === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endItem = (currentPage - 1) * itemsPerPage + pageCount;
 
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;

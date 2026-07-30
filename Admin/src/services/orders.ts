@@ -104,22 +104,40 @@ export interface AdminOrderDetailResponse {
   createdAt: string;
 }
 
-/**
- * Fetch orders list from /api/v1/admin/orders
- */
-export async function getAdminOrders(params?: {
+export interface GetAdminOrdersParams {
   pageNum?: number;
   pageSize?: number;
   vendorId?: string;
-}): Promise<AdminOrdersResponse> {
+  status?: string;
+  search?: string;
+  dateFilter?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+/**
+ * Fetch orders list from /api/v1/admin/orders
+ */
+export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<AdminOrdersResponse> {
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 20;
 
   const response = await api.get('/admin/orders', {
     params: {
       pageNum,
+      page: pageNum,
       pageSize,
+      limit: pageSize,
+      perPage: pageSize,
+      per_page: pageSize,
       vendorId: params?.vendorId,
+      status: params?.status && params.status !== 'All' ? params.status : undefined,
+      search: params?.search ? params.search : undefined,
+      q: params?.search ? params.search : undefined,
+      query: params?.search ? params.search : undefined,
+      dateFilter: params?.dateFilter && params.dateFilter !== 'all' ? params.dateFilter : undefined,
+      startDate: params?.startDate,
+      endDate: params?.endDate,
     },
   });
 
@@ -186,6 +204,8 @@ export interface GetAdminSubOrdersParams {
   pageNum?: number;
   pageSize?: number;
   status?: string;
+  search?: string;
+  startDate?: string;
 }
 
 export interface AdminSubOrderItem {
@@ -227,14 +247,58 @@ export interface AdminSubOrdersResponse {
 
 /**
  * Fetch sub-orders list GET /api/v1/admin/sub-orders
+ * Returns same {items, pagination} shape as getAdminOrders.
  */
-export async function getAdminSubOrders(params?: GetAdminSubOrdersParams): Promise<any> {
+export async function getAdminSubOrders(
+  params?: GetAdminSubOrdersParams
+): Promise<AdminSubOrdersResponse> {
+  const pageNum = params?.pageNum ?? 1;
+  const pageSize = params?.pageSize ?? 20;
+
   try {
-    const response = await api.get('/admin/sub-orders', { params });
-    return response.data;
+    const response = await api.get('/admin/sub-orders', {
+      params: {
+        vendorId: params?.vendorId,
+        pageNum,
+        page: pageNum,
+        pageSize,
+        limit: pageSize,
+        perPage: pageSize,
+        per_page: pageSize,
+        status: params?.status && params.status !== 'All' ? params.status : undefined,
+        search: params?.search || undefined,
+        q: params?.search || undefined,
+        startDate: params?.startDate,
+      },
+    });
+
+    const resData = response.data;
+    let items: AdminSubOrderItem[] = [];
+    let pagination = {
+      currentPage: pageNum,
+      pageSize,
+      totalItems: 0,
+      totalPages: 1,
+    };
+
+    if (resData) {
+      if (Array.isArray(resData.items)) {
+        items = resData.items;
+        if (resData.pagination) pagination = { ...pagination, ...resData.pagination };
+      } else if (resData.data && Array.isArray(resData.data.items)) {
+        items = resData.data.items;
+        if (resData.data.pagination) pagination = { ...pagination, ...resData.data.pagination };
+      } else if (Array.isArray(resData.data)) {
+        items = resData.data;
+      } else if (Array.isArray(resData)) {
+        items = resData;
+      }
+    }
+
+    return { items, pagination };
   } catch (err) {
     console.warn('API getAdminSubOrders error:', err);
-    return null;
+    return { items: [], pagination: { currentPage: pageNum, pageSize, totalItems: 0, totalPages: 1 } };
   }
 }
 
@@ -296,5 +360,41 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     status: rawStatus,
     subOrdersCount,
     date: dateStr,
+  };
+}
+
+/**
+ * Map a sub-order from /admin/sub-orders into the same TableItem shape as mapAdminOrderToTableItem.
+ * Used when the Orders page is filtered by vendorId and fetches from /admin/sub-orders.
+ */
+export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
+  const shortId = sub.id ? (sub.id.length > 8 ? sub.id.slice(-6).toUpperCase() : sub.id) : 'N/A';
+  const code = `#SUB-${shortId}`;
+
+  const total = sub.totalAmount ?? sub.items?.reduce((acc, i) => acc + (i.lineTotal ?? 0), 0) ?? 0;
+  const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
+
+  const rawStatus = (sub.status || 'PENDING').toUpperCase();
+
+  const dateStr = sub.createdAt
+    ? new Date(sub.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+
+  const customerName = sub.customer
+    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || 'Guest Buyer'
+    : 'Guest Buyer';
+
+  return {
+    id: sub.id,
+    code,
+    customer: customerName,
+    vendor: (sub as any).vendorName || 'Direct Store',
+    vendorId: sub.vendorId,
+    total,
+    totalFormatted,
+    status: rawStatus,
+    subOrdersCount: sub.items?.length ?? 0,
+    date: dateStr,
+    orderId: sub.orderId,
   };
 }

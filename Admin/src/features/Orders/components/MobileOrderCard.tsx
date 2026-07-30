@@ -7,12 +7,14 @@ interface MobileOrderCardProps {
   item: TableItem;
   type: 'allOrders' | 'refunds';
   onViewDetails: (item: TableItem) => void;
+  isVendorFiltered?: boolean;
 }
 
 export const MobileOrderCard: React.FC<MobileOrderCardProps> = ({
   item,
   type,
   onViewDetails,
+  isVendorFiltered = false,
 }) => {
   const { t } = useTranslation();
 
@@ -52,11 +54,11 @@ export const MobileOrderCard: React.FC<MobileOrderCardProps> = ({
               <span className="font-medium text-gray-800">{item.customer}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">{t('ordersPage.vendor', 'Vendor')}</span>
-              <span className="text-gray-600">{item.vendor}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">{t('ordersPage.subOrders', 'Sub-orders')}</span>
+              <span className="text-gray-400">
+                {isVendorFiltered
+                  ? t('ordersPage.items', 'Items')
+                  : t('ordersPage.subOrders', 'Sub-orders')}
+              </span>
               <span className="text-gray-600">{item.subOrdersCount}</span>
             </div>
             <div className="flex justify-between">
@@ -72,13 +74,15 @@ export const MobileOrderCard: React.FC<MobileOrderCardProps> = ({
         <span className="font-bold text-gray-900 text-sm sm:text-base">
           {item.totalFormatted}
         </span>
-        <button
-          type="button"
-          onClick={() => onViewDetails(item)}
-          className="text-blue-600 font-semibold text-xs sm:text-sm hover:underline cursor-pointer"
-        >
-          {t('ordersPage.viewDetails', 'View details')}
-        </button>
+        {!isVendorFiltered && (
+          <button
+            type="button"
+            onClick={() => onViewDetails(item)}
+            className="text-blue-600 font-semibold text-xs sm:text-sm hover:underline cursor-pointer"
+          >
+            {t('ordersPage.viewDetails', 'View details')}
+          </button>
+        )}
       </div>
     </div>
   );

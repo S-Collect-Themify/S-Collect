@@ -4,42 +4,35 @@ import {
   getAdminOrders,
   getAdminOrderDetail,
   updateAdminSubOrderStatus,
+  type GetAdminOrdersParams,
   type UpdateSubOrderStatusPayload,
 } from '../../../services/orders';
 
 export const useAdminOrders = (
-  pageNum: number = 1,
-  pageSize: number = 20,
-  enabled: boolean = true,
-  vendorId?: string
+  params?: GetAdminOrdersParams,
+  enabled: boolean = true
 ) => {
   const queryClient = useQueryClient();
+  const pageNum = params?.pageNum ?? 1;
+  const pageSize = params?.pageSize ?? 20;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['admin-orders', pageNum, pageSize, vendorId],
-    queryFn: () => getAdminOrders({ pageNum, pageSize, vendorId }),
+    queryKey: ['admin-orders', params],
+    queryFn: () => getAdminOrders(params),
     enabled,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 2,
   });
 
-  // Prefetch the next two pages (pageNum + 1 & pageNum + 2) without useEffect
-  if (enabled) {
-    const totalPages = data?.pagination?.totalPages;
+  // Prefetch the next page
+  if (enabled && data?.pagination) {
+    const totalPages = data.pagination.totalPages;
 
-    if (!totalPages || pageNum + 1 <= totalPages) {
+    if (pageNum + 1 <= totalPages) {
       queryClient.prefetchQuery({
-        queryKey: ['admin-orders', pageNum + 1, pageSize, vendorId],
-        queryFn: () => getAdminOrders({ pageNum: pageNum + 1, pageSize, vendorId }),
-        staleTime: 5 * 60 * 1000,
-      });
-    }
-
-    if (!totalPages || pageNum + 2 <= totalPages) {
-      queryClient.prefetchQuery({
-        queryKey: ['admin-orders', pageNum + 2, pageSize, vendorId],
-        queryFn: () => getAdminOrders({ pageNum: pageNum + 2, pageSize, vendorId }),
+        queryKey: ['admin-orders', { ...params, pageNum: pageNum + 1, pageSize }],
+        queryFn: () => getAdminOrders({ ...params, pageNum: pageNum + 1, pageSize }),
         staleTime: 5 * 60 * 1000,
       });
     }

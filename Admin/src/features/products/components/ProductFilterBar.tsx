@@ -49,6 +49,9 @@ export const ProductFilterBar = ({
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
           >
             <option value="all">{t('productsListing.vendor')}</option>
+            {vendorFilter !== 'all' && !availableVendors.includes(vendorFilter) && (
+              <option value={vendorFilter}>{vendorFilter}</option>
+            )}
             {availableVendors.map((v) => (
               <option key={v} value={v}>
                 {v}

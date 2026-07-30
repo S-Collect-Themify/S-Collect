@@ -5,21 +5,7 @@ import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAdminOrderDetail, useUpdateAdminSubOrderStatus } from '../features/Orders/hooks/useAdminOrders';
 import { SubOrderCard } from '../features/Orders/components/SubOrderCard';
 
-// Helper utilities for mock data fallbacks for fields not returned by backend
-const getMockEmail = (name?: string) => {
-  if (!name || name === 'Guest Buyer') return 'y.alharbi@gmail.com';
-  const clean = name.toLowerCase().trim().replace(/[^a-z0-9]/g, '.');
-  return `${clean}@gmail.com`;
-};
-
-const getVendorDisplayName = (vendorId?: string, index: number = 0) => {
-  const defaultVendors = ['Al-Falah Crafts', 'Desert Bloom', 'Red Sea Styles', 'Oasis Tech', 'Dates & Co'];
-  if (!vendorId || vendorId === 'string' || vendorId.length > 20) {
-    return defaultVendors[index % defaultVendors.length];
-  }
-  return vendorId;
-};
-
+// ── Emoji thumbnail helper (purely cosmetic, no mock data) ─────────────────
 const getProductThumbnail = (name?: string) => {
   const lower = (name || '').toLowerCase();
   if (lower.includes('oud') || lower.includes('wood') || lower.includes('perfume')) return '🪵';
@@ -60,20 +46,18 @@ const StatusBadge = ({ status }: { status?: string }) => {
   );
 };
 
-// ── Dynamic Timeline Component based on overallStatus ─────────────────────
+// ── Dynamic Timeline based on overallStatus ────────────────────────────────
 const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: string }) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   const status = (overallStatus || 'PENDING').toUpperCase();
-
   const isCancelled = status === 'CANCELLED';
 
   const statusRanks: Record<string, number> = {
     PENDING: 1,
     PROCESSING: 2,
-    PARTIALLY_SHIPPED: 3,
-    SHIPPED: 4,
-    DELIVERED: 5,
+    SHIPPED: 3,
+    DELIVERED: 4,
     CANCELLED: -1,
   };
 
@@ -87,9 +71,8 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
     : [
         { labelKey: 'ordersPage.timeline.orderPlaced', defaultLabel: 'Order Placed', rank: 1 },
         { labelKey: 'ordersPage.statuses.PROCESSING', defaultLabel: 'Processing', rank: 2 },
-        { labelKey: 'ordersPage.statuses.PARTIALLY_SHIPPED', defaultLabel: 'Partially Shipped', rank: 3 },
-        { labelKey: 'ordersPage.statuses.SHIPPED', defaultLabel: 'Shipped', rank: 4 },
-        { labelKey: 'ordersPage.statuses.DELIVERED', defaultLabel: 'Delivered', rank: 5 },
+        { labelKey: 'ordersPage.statuses.SHIPPED', defaultLabel: 'Shipped', rank: 3 },
+        { labelKey: 'ordersPage.statuses.DELIVERED', defaultLabel: 'Delivered', rank: 4 },
       ];
 
   return (
@@ -98,13 +81,11 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
         {t('ordersPage.orderTimeline', 'Order Timeline')}
       </h2>
       <div className={`space-y-5 relative ${isRtl ? 'pr-5' : 'pl-5'}`}>
-        {/* Connector Line */}
         <div
           className={`absolute top-2 bottom-2 w-0.5 bg-gray-200 ${
             isRtl ? 'right-1.75' : 'left-1.75'
           }`}
         />
-
         {timelineSteps.map((step, idx) => {
           const isCompleted = !isCancelled && currentRank > step.rank;
           const isCurrent = !isCancelled && currentRank === step.rank;
@@ -147,6 +128,18 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
   );
 };
 
+// ── Helper to display vendor name from sub-order ────────────────────────────
+// Uses real vendorName from API response if available; falls back to vendorId (truncated)
+const resolveVendorName = (sub: { vendorId?: string; [key: string]: any }): string => {
+  const fromApi =
+    sub?.vendorName ||
+    sub?.vendor?.businessName ||
+    sub?.vendor?.name;
+  if (fromApi) return fromApi;
+  if (sub?.vendorId && sub.vendorId.length <= 20) return sub.vendorId;
+  return '---';
+};
+
 export default function OrderDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -161,13 +154,10 @@ export default function OrderDetailsPage() {
     subOrderId: string,
     payload: { status: string; trackingNumber?: string; reason?: string }
   ) => {
-    await updateSubOrderStatusMutation.mutateAsync({
-      subOrderId,
-      payload,
-    });
+    await updateSubOrderStatusMutation.mutateAsync({ subOrderId, payload });
   };
 
-  const shortId = id ? (id.length > 8 ? id.slice(-6).toUpperCase() : id) : '77492-CS';
+  const shortId = id ? (id.length > 8 ? id.slice(-6).toUpperCase() : id) : '';
   const orderIdCode = `#ORD-${shortId}`;
 
   const formattedDate = orderData?.createdAt
@@ -178,25 +168,32 @@ export default function OrderDetailsPage() {
         hour: '2-digit',
         minute: '2-digit',
       })
-    : 'Oct 24, 2026, 09:41 AM';
+    : '---';
 
-  const addressString = [
-    orderData?.shippingStreetAddress || 'King Fahd Road, Al Olaya District',
-    orderData?.shippingCity || 'Riyadh, 12211',
-    orderData?.shippingZone || 'RIYADH',
-  ]
-    .filter(Boolean)
-    .join(', ');
+  // Build shipping address from real API fields only
+  const addressParts = [
+    orderData?.shippingStreetAddress,
+    orderData?.shippingBuildingNumber ? `Bldg ${orderData.shippingBuildingNumber}` : undefined,
+    orderData?.shippingCity,
+    orderData?.shippingZone,
+    orderData?.shippingAdditionalDirections,
+  ].filter(Boolean);
+  const addressString = addressParts.length > 0 ? addressParts.join(', ') : '---';
 
-  const customerEmail = getMockEmail(orderData?.recipientName);
-  const customerPhone = orderData?.recipientPhone || '+966 50 123 4567';
+  const customerName = orderData?.recipientName || '---';
+  const customerEmail = (orderData as any)?.recipientEmail || (orderData as any)?.email || '---';
+  const customerPhone = orderData?.recipientPhone || '---';
+  const paymentMethod = (orderData as any)?.paymentMethod || '---';
+  const shippingCountry = (orderData as any)?.shippingCountry || '---';
 
+  // All line items across every sub-order
   const allOrderItems = orderData?.subOrders
     ? orderData.subOrders.flatMap((so) => so.items || [])
     : [];
 
   const estimatedVat = (orderData?.subtotalAmount ?? 0) * 0.15;
 
+  // ── Loading skeleton ───────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex-1 p-6 bg-gray-50/80 min-h-screen">
@@ -218,6 +215,7 @@ export default function OrderDetailsPage() {
     );
   }
 
+  // ── Error / not found ──────────────────────────────────────────────────────
   if (isError || !orderData) {
     return (
       <div className="flex-1 p-8 bg-gray-50/80 min-h-screen flex flex-col items-center justify-center text-center">
@@ -236,7 +234,7 @@ export default function OrderDetailsPage() {
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50/80 min-h-screen">
-      {/* Page Header Area */}
+      {/* Page Header */}
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
         <div className="flex flex-col gap-1">
           <h1 className="font-bold text-gray-900 heading-page-title">
@@ -255,12 +253,12 @@ export default function OrderDetailsPage() {
         </div>
       </div>
 
-      {/* Main Body Container */}
+      {/* Main Body */}
       <div className="sidebar-page-container py-6">
         {isMobile ? (
-          /* Mobile Stacked View */
+          /* ── Mobile Stacked Layout ──────────────────────────────────────── */
           <div className="space-y-4">
-            {/* 1. Order Info */}
+            {/* Order Info */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <h2 className="font-bold text-gray-900 text-sm mb-3">
                 {t('ordersPage.orderInfo', 'Order Info')}
@@ -276,7 +274,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">{t('ordersPage.paymentMethodColon', 'Payment Method:')}</span>
-                  <span className="text-gray-700">{t('ordersPage.creditCardMada', 'Credit Card (Mada)')}</span>
+                  <span className="text-gray-700">{paymentMethod}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">{t('ordersPage.paymentStatusColon', 'Payment Status:')}</span>
@@ -289,33 +287,33 @@ export default function OrderDetailsPage() {
               </div>
             </div>
 
-            {/* 2. Customer Details */}
+            {/* Customer Details */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <h2 className="font-bold text-gray-900 text-sm mb-3">
                 {t('ordersPage.customerDetails', 'Customer Details')}
               </h2>
               <div className="space-y-1.5 text-xs">
-                <p className="font-bold text-gray-900 text-sm">{orderData.recipientName || 'Yousef Al-Harbi'}</p>
+                <p className="font-bold text-gray-900 text-sm">{customerName}</p>
                 <p className="text-gray-500">{t('ordersPage.emailColon', 'Email:')} {customerEmail}</p>
                 <p className="text-gray-500">{t('ordersPage.phoneColon', 'Phone:')} {customerPhone}</p>
               </div>
             </div>
 
-            {/* 3. Shipping Address */}
+            {/* Shipping Address */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <h2 className="font-bold text-gray-900 text-sm mb-3">
                 {t('ordersPage.shippingAddress', 'Shipping Address')}
               </h2>
               <div className="space-y-1 text-xs text-gray-600">
                 <p>{addressString}</p>
-                <p className="text-gray-400">Saudi Arabia</p>
+                <p className="text-gray-400">{shippingCountry}</p>
               </div>
             </div>
 
-            {/* 4. Timeline */}
+            {/* Timeline */}
             <OrderTimeline overallStatus={orderData.overallStatus} date={formattedDate} />
 
-            {/* 5. Summary */}
+            {/* Summary */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <h2 className="font-bold text-gray-900 text-sm mb-3">
                 {t('ordersPage.summary', 'Summary')}
@@ -348,39 +346,41 @@ export default function OrderDetailsPage() {
               </div>
             </div>
 
-            {/* 6. Sub-Orders */}
+            {/* Sub-Orders */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-bold text-gray-900 text-sm">
                   {t('ordersPage.subOrdersTitle', 'Sub-Orders')}
                 </h2>
-                <span className="text-xs text-gray-400">{orderData.subOrders.length} {t('ordersPage.itemsCount', 'items')}</span>
+                <span className="text-xs text-gray-400">
+                  {orderData.subOrders.length} {t('ordersPage.itemsCount', 'items')}
+                </span>
               </div>
               <div className="space-y-4">
-                {orderData.subOrders.map((sub, sIdx) => {
-                  const vendorName = getVendorDisplayName(sub.vendorId, sIdx);
-                  return (
-                    <SubOrderCard
-                      key={sub.id}
-                      subOrder={sub}
-                      vendorName={vendorName}
-                      orderId={id}
-                      onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
-                      isUpdating={updateSubOrderStatusMutation.isPending && updateSubOrderStatusMutation.variables?.subOrderId === sub.id}
-                      StatusBadge={StatusBadge}
-                      getProductThumbnail={getProductThumbnail}
-                    />
-                  );
-                })}
+                {orderData.subOrders.map((sub) => (
+                  <SubOrderCard
+                    key={sub.id}
+                    subOrder={sub}
+                    vendorName={resolveVendorName(sub as any)}
+                    orderId={id}
+                    onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
+                    isUpdating={
+                      updateSubOrderStatusMutation.isPending &&
+                      updateSubOrderStatusMutation.variables?.subOrderId === sub.id
+                    }
+                    StatusBadge={StatusBadge}
+                    getProductThumbnail={getProductThumbnail}
+                  />
+                ))}
               </div>
             </div>
           </div>
         ) : (
-          /* Desktop Grid Layout */
+          /* ── Desktop Grid Layout ────────────────────────────────────────── */
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
             {/* Left Column */}
             <div className="space-y-6">
-              {/* 1. Order Items Table */}
+              {/* Order Items Table */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
                 <h2 className="font-bold text-gray-900 text-base mb-4">
                   {t('ordersPage.orderItems', 'Order Items')}
@@ -399,7 +399,7 @@ export default function OrderDetailsPage() {
                       {allOrderItems.length === 0 ? (
                         <tr>
                           <td colSpan={4} className="py-4 text-center text-gray-400">
-                            No items found
+                            {t('ordersPage.noItemsFound', 'No items found')}
                           </td>
                         </tr>
                       ) : (
@@ -413,19 +413,18 @@ export default function OrderDetailsPage() {
                                 <div>
                                   <p className="font-bold text-gray-900 text-sm">{it.productName}</p>
                                   {Boolean(it.variantLabel) && (
-                                    <p className="text-gray-400 text-xs">
-                                      {String(it.variantLabel)}
-                                    </p>
+                                    <p className="text-gray-400 text-xs">{String(it.variantLabel)}</p>
                                   )}
-                                  <p className="text-gray-400 text-[11px]">
-                                    {t('ordersPage.vendorColon', 'Vendor:')} {getVendorDisplayName()}
-                                  </p>
                                 </div>
                               </div>
                             </td>
                             <td className="py-4 text-center text-gray-700 font-medium text-xs">{it.quantity}</td>
-                            <td className="py-4 text-end text-gray-700 font-medium text-xs">{it.unitPrice.toFixed(2)} SAR</td>
-                            <td className="py-4 text-end font-bold text-gray-900 text-sm">{it.lineTotal.toFixed(2)} SAR</td>
+                            <td className="py-4 text-end text-gray-700 font-medium text-xs">
+                              {it.unitPrice.toFixed(2)} SAR
+                            </td>
+                            <td className="py-4 text-end font-bold text-gray-900 text-sm">
+                              {it.lineTotal.toFixed(2)} SAR
+                            </td>
                           </tr>
                         ))
                       )}
@@ -434,7 +433,7 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
 
-              {/* 2. Summary Card */}
+              {/* Summary Card */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
                 <h2 className="font-bold text-gray-900 text-base mb-4">
                   {t('ordersPage.summary', 'Summary')}
@@ -457,42 +456,50 @@ export default function OrderDetailsPage() {
                   {orderData.discountAmount > 0 && (
                     <div className="flex justify-between">
                       <span>{t('ordersPage.discount', 'Discount')}</span>
-                      <span className="font-medium text-emerald-600">-{orderData.discountAmount.toFixed(2)} SAR</span>
+                      <span className="font-medium text-emerald-600">
+                        -{orderData.discountAmount.toFixed(2)} SAR
+                      </span>
                     </div>
                   )}
                   <div className="pt-3 border-t border-gray-100 flex justify-between items-center">
-                    <span className="font-bold text-gray-900 text-sm">{t('ordersPage.grandTotal', 'Grand Total')}</span>
-                    <span className="font-bold text-rose-500 text-base">{orderData.grandTotalAmount.toFixed(2)} SAR</span>
+                    <span className="font-bold text-gray-900 text-sm">
+                      {t('ordersPage.grandTotal', 'Grand Total')}
+                    </span>
+                    <span className="font-bold text-rose-500 text-base">
+                      {orderData.grandTotalAmount.toFixed(2)} SAR
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* 3. Sub-Orders Block */}
+              {/* Sub-Orders Block */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                   <h2 className="font-bold text-gray-900 text-base">
                     {t('ordersPage.subOrdersTitle', 'Sub-Orders')}
                   </h2>
-                  <span className="text-xs text-gray-400 font-medium">{orderData.subOrders.length} {t('ordersPage.itemsCount', 'items')}</span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    {orderData.subOrders.length} {t('ordersPage.itemsCount', 'items')}
+                  </span>
                 </div>
 
-                {orderData.subOrders.map((sub, sIdx) => {
-                  const vendorName = getVendorDisplayName(sub.vendorId, sIdx);
-                  return (
-                    <SubOrderCard
-                      key={sub.id}
-                      subOrder={sub}
-                      vendorName={vendorName}
-                      orderId={id}
-                      onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
-                      isUpdating={updateSubOrderStatusMutation.isPending && updateSubOrderStatusMutation.variables?.subOrderId === sub.id}
-                      StatusBadge={StatusBadge}
-                      getProductThumbnail={getProductThumbnail}
-                    />
-                  );
-                })}
+                {orderData.subOrders.map((sub) => (
+                  <SubOrderCard
+                    key={sub.id}
+                    subOrder={sub}
+                    vendorName={resolveVendorName(sub as any)}
+                    orderId={id}
+                    onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
+                    isUpdating={
+                      updateSubOrderStatusMutation.isPending &&
+                      updateSubOrderStatusMutation.variables?.subOrderId === sub.id
+                    }
+                    StatusBadge={StatusBadge}
+                    getProductThumbnail={getProductThumbnail}
+                  />
+                ))}
 
-                {/* Out of stock / refund warning notice */}
+                {/* Refund warning */}
                 {allOrderItems.some((it) => it.isRefunded) && (
                   <div className="bg-rose-50 border border-rose-100 rounded-lg p-3.5 flex items-center gap-2 text-xs text-rose-600">
                     <AlertTriangle size={15} className="shrink-0 text-rose-500" />
@@ -505,18 +512,33 @@ export default function OrderDetailsPage() {
                   </div>
                 )}
 
-                {/* Sub-orders Summary Footer */}
+                {/* Sub-orders footer totals */}
                 <div className="pt-4 border-t border-gray-100 text-end text-xs space-y-1">
-                  <p className="text-gray-500">{t('ordersPage.totalItemsColon', 'Total Items:')} <span className="font-bold text-gray-900">{orderData.subtotalAmount.toFixed(2)} SAR</span></p>
-                  <p className="text-gray-500">{t('ordersPage.totalShippingColon', 'Total Shipping:')} <span className="font-bold text-gray-900">{orderData.shippingTotalAmount.toFixed(2)} SAR</span></p>
-                  <p className="text-sm font-bold text-gray-900 pt-1">{t('ordersPage.grandTotalColon', 'Grand Total:')} <span className="text-gray-900">{orderData.grandTotalAmount.toFixed(2)} SAR</span></p>
+                  <p className="text-gray-500 flex justify-between">
+                    {t('ordersPage.totalItemsColon', 'Total Items:')}{' '}
+                    <span className="font-bold text-gray-900">
+                      {orderData.subtotalAmount.toFixed(2)} SAR
+                    </span>
+                  </p>
+                  <p className="text-gray-500 flex justify-between">
+                    {t('ordersPage.totalShippingColon', 'Total Shipping:')}{' '}
+                    <span className="font-bold text-gray-900">
+                      {orderData.shippingTotalAmount.toFixed(2)} SAR
+                    </span>
+                  </p>
+                  <p className="text-sm font-bold text-gray-900 pt-1 flex justify-between">
+                    {t('ordersPage.grandTotalColon', 'Grand Total:')}{' '}
+                    <span className="text-gray-900">
+                      {orderData.grandTotalAmount.toFixed(2)} SAR
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column Sidebar */}
+            {/* Right Sidebar */}
             <div className="space-y-5">
-              {/* 1. Order Info Card */}
+              {/* Order Info */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
                 <h2 className="font-bold text-gray-900 text-sm mb-3">
                   {t('ordersPage.orderInfo', 'Order Info')}
@@ -532,7 +554,7 @@ export default function OrderDetailsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">{t('ordersPage.paymentMethodColon', 'Payment Method:')}</span>
-                    <span className="text-gray-600">{t('ordersPage.creditCardMada', 'Credit Card (Mada)')}</span>
+                    <span className="text-gray-600">{paymentMethod}</span>
                   </div>
                   <div className="flex justify-between items-center pt-1">
                     <span className="text-gray-400">{t('ordersPage.paymentStatusColon', 'Payment Status:')}</span>
@@ -545,30 +567,30 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
 
-              {/* 2. Customer Details */}
+              {/* Customer Details */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
                 <h2 className="font-bold text-gray-900 text-sm mb-3">
                   {t('ordersPage.customerDetails', 'Customer Details')}
                 </h2>
                 <div className="space-y-1.5 text-xs">
-                  <p className="font-bold text-gray-900 text-sm">{orderData.recipientName || 'Yousef Al-Harbi'}</p>
+                  <p className="font-bold text-gray-900 text-sm">{customerName}</p>
                   <p className="text-gray-500">{t('ordersPage.emailColon', 'Email:')} {customerEmail}</p>
                   <p className="text-gray-500">{t('ordersPage.phoneColon', 'Phone:')} {customerPhone}</p>
                 </div>
               </div>
 
-              {/* 3. Shipping Address */}
+              {/* Shipping Address */}
               <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
                 <h2 className="font-bold text-gray-900 text-sm mb-3">
                   {t('ordersPage.shippingAddress', 'Shipping Address')}
                 </h2>
                 <div className="space-y-1 text-xs text-gray-600">
                   <p className="font-medium text-gray-900">{addressString}</p>
-                  <p className="text-gray-400">Saudi Arabia</p>
+                  <p className="text-gray-400">{shippingCountry}</p>
                 </div>
               </div>
 
-              {/* 4. Order Timeline (Dynamic from overallStatus) */}
+              {/* Order Timeline */}
               <OrderTimeline overallStatus={orderData.overallStatus} date={formattedDate} />
             </div>
           </div>
