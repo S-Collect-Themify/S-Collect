@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, RefreshCw } from 'lucide-react';
 import DashboardGrid from '../features/dashboard/DashboardGrid';
 import SalesChart from '../features/dashboard/SalesChart';
 import InventoryAlert from '../features/dashboard/InventoryAlert';
