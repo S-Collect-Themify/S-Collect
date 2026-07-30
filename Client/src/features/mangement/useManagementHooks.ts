@@ -14,6 +14,12 @@ import { useManagementStore } from './managementStore';
 const ITEMS_PER_PAGE = 8;
 const FETCH_PAGE_SIZE = 100;
 
+const cleanId = (str: any) =>
+  String(str || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '');
+
 export function useManagementTable() {
   const queryClient = useQueryClient();
   const selectedCategories = useManagementStore(
@@ -38,7 +44,7 @@ export function useManagementTable() {
 
   const { data: rawReviews } = useQuery({
     queryKey: ['vendor-reviews-manage'],
-    queryFn: () => getVendorReviews({ pageSize: 200 }),
+    queryFn: () => getVendorReviews({ pageSize: 100 }),
     staleTime: 60 * 1000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
@@ -50,26 +56,25 @@ export function useManagementTable() {
 
     for (const r of items) {
       if (!r) continue;
-      const pidRaw = String(
+      const pidRaw =
         r.productId ||
         r.product_id ||
         r.targetId ||
         (typeof r.product === 'object' ? r.product?.id || r.product?._id : r.product) ||
         (typeof r.orderItem === 'object' ? r.orderItem?.productId || r.orderItem?.product?.id : '') ||
-        ''
-      ).trim();
+        '';
 
-      if (!pidRaw) continue;
-      const pid = pidRaw.toLowerCase();
+      const key = cleanId(pidRaw);
+      if (!key) continue;
 
       const ratingVal = Number(r.rating ?? r.score ?? r.stars ?? 0);
 
-      if (!map[pid]) {
-        map[pid] = { totalRating: 0, count: 0 };
+      if (!map[key]) {
+        map[key] = { totalRating: 0, count: 0 };
       }
       if (!isNaN(ratingVal) && ratingVal > 0) {
-        map[pid].totalRating += ratingVal;
-        map[pid].count += 1;
+        map[key].totalRating += ratingVal;
+        map[key].count += 1;
       }
     }
 
@@ -116,9 +121,9 @@ export function useManagementTable() {
         parsedPrice = p.price;
       }
 
-      const pId = String(p.id || p._id || p.productId || '').trim();
-      const pIdLower = pId.toLowerCase();
-      const revStats = reviewsMap[pIdLower] || reviewsMap[pId];
+      const pIdRaw = p.id || p._id || p.productId || '';
+      const pKey = cleanId(pIdRaw);
+      const revStats = reviewsMap[pKey];
       const aggregatedRating =
         revStats && revStats.count > 0
           ? Number((revStats.totalRating / revStats.count).toFixed(1))

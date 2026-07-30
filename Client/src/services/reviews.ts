@@ -41,19 +41,28 @@ export interface ProductRatingSummary {
 export async function getVendorReviews(params?: {
   pageNum?: number;
   pageSize?: number;
+  limit?: number;
+  page?: number;
   productId?: string;
   rating?: number;
   sortBy?: 'rating' | 'createdAt';
 }): Promise<PaginatedVendorReviews> {
   try {
-    const { data } = await api.get('/vendor/reviews', { params });
+    const queryParams: Record<string, any> = { ...params };
+    if (params?.pageSize && !queryParams.limit) {
+      queryParams.limit = params.pageSize;
+    }
+    if (params?.pageNum && !queryParams.page) {
+      queryParams.page = params.pageNum;
+    }
+    const { data } = await api.get('/vendor/reviews', { params: queryParams });
     const payload = data?.data || data;
     return {
-      items: payload?.items || [],
+      items: payload?.items || (Array.isArray(payload) ? payload : []),
       pagination: payload?.pagination || {
         currentPage: 1,
-        pageSize: 20,
-        totalItems: (payload?.items || []).length,
+        pageSize: 100,
+        totalItems: (payload?.items || (Array.isArray(payload) ? payload : [])).length,
         totalPages: 1,
       },
     };
@@ -62,7 +71,7 @@ export async function getVendorReviews(params?: {
       items: [],
       pagination: {
         currentPage: 1,
-        pageSize: 20,
+        pageSize: 100,
         totalItems: 0,
         totalPages: 1,
       },
