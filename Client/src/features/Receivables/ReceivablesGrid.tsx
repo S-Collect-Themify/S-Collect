@@ -1,10 +1,7 @@
 import { TrendingUp, ShoppingBag, Clock, Package } from 'lucide-react';
-import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSubOrdersStats } from '../Orders/useSubOrdersStats';
-
-type LucideIcon = ComponentType<{ size?: number; color?: string }>;
 
 const COLOR_THEME = {
   green: { primary: 'var(--green)', light: 'var(--green-light)' },

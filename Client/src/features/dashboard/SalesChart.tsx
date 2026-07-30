@@ -180,8 +180,8 @@ export default function SalesChart() {
           if (!isNaN(d.getTime())) {
             const mKey = d.toLocaleString('en-US', { month: 'short' });
             const amt =
-              typeof o.totalAmount === 'number'
-                ? o.totalAmount
+              typeof (o as any).totalAmount === 'number'
+                ? (o as any).totalAmount
                 : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
                   (o.shippingRateApplied || 0);
             if (map[mKey] !== undefined) map[mKey] += amt;
@@ -199,8 +199,8 @@ export default function SalesChart() {
           if (!isNaN(d.getTime())) {
             const wKey = d.toLocaleString('en-US', { weekday: 'short' });
             const amt =
-              typeof o.totalAmount === 'number'
-                ? o.totalAmount
+              typeof (o as any).totalAmount === 'number'
+                ? (o as any).totalAmount
                 : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
                   (o.shippingRateApplied || 0);
             if (map[wKey] !== undefined) map[wKey] += amt;
@@ -232,8 +232,8 @@ export default function SalesChart() {
             else if (hr >= 8) k = '08:00';
             else if (hr >= 4) k = '04:00';
             const amt =
-              typeof o.totalAmount === 'number'
-                ? o.totalAmount
+              typeof (o as any).totalAmount === 'number'
+                ? (o as any).totalAmount
                 : (o.items?.reduce((s, i) => s + (i.lineTotal || 0), 0) || 0) +
                   (o.shippingRateApplied || 0);
             if (map[k] !== undefined) map[k] += amt;

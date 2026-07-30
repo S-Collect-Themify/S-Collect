@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { Menu, User, Store } from 'lucide-react';
+import { Menu, Store } from 'lucide-react';
 import InputSearch from './InputSearch';
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';

@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import { StoreProfileForm } from '../StoreProfileForm';
 import { StoreProfileFormSkeleton } from '../skeleton/SettingsSkeletons';
 import { useStoreProfile } from '../hooks/useStoreProfile';
