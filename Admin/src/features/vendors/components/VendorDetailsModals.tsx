@@ -1,4 +1,5 @@
 import RejectVendorModal from '../modals/RejectVendorModal';
+import DeactivateVendorModal from '../modals/DeactivateVendorModal';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
 import { useVendorDetailsStore } from '../store/useVendorDetailsStore';
 import {
@@ -33,8 +34,8 @@ export default function VendorDetailsModals({
   const deactivateMutation = useDeactivateVendor();
   const reactivateMutation = useReactivateVendor();
 
-  const handleSuspendConfirm = () => {
-    deactivateMutation.mutate(vendorId);
+  const handleSuspendConfirm = (reason: string) => {
+    deactivateMutation.mutate({ id: vendorId, reason });
     closeSuspend();
   };
 
@@ -55,10 +56,8 @@ export default function VendorDetailsModals({
 
   return (
     <>
-      <VendorConfirmModal
+      <DeactivateVendorModal
         isOpen={showSuspend}
-        type="deactivate"
-        count={1}
         vendorName={vendorName}
         onConfirm={handleSuspendConfirm}
         onCancel={closeSuspend}

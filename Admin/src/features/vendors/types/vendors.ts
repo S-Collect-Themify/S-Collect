@@ -28,7 +28,9 @@ export interface Vendor {
   pendingPayout?: number;
   description?: string;
   suspendReason?: string;
+  deactivationReason?: string;
   rejectionReason?: string;
   commissionRate?: number;
+  logoUrl?: string;
   createdAt?: string;
 }

@@ -128,22 +128,22 @@ export default function VendorDesktopTable({
                     />
                   </td>
                   <td className="px-4 py-3.5 font-semibold text-gray-900 whitespace-nowrap">
-                    {vendor.businessName}
+                    {vendor.businessName || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.owner}
+                    {vendor.owner || '----'}
                   </td>
                   <td className="px-4 py-3.5 font-semibold text-gray-900 whitespace-nowrap">
-                    {(vendor.revenue ?? 0).toLocaleString()}
+                    {vendor.revenue != null && vendor.revenue > 0 ? vendor.revenue.toLocaleString() : '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">
-                    {vendor.submittedDate}
+                    {vendor.submittedDate || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.email}
+                    {vendor.email || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.orders ?? 0}
+                    {vendor.orders != null && vendor.orders > 0 ? vendor.orders : '----'}
                   </td>
                   <td
                     className="px-4 py-3.5 whitespace-nowrap"
@@ -187,20 +187,20 @@ export default function VendorDesktopTable({
                       onClick={() => navigate(`/vendors/${vendor.id}`)}
                       className="font-medium text-gray-900 hover:text-indigo-600 hover:underline underline-offset-2 transition-colors text-start"
                     >
-                      {vendor.businessName}
+                      {vendor.businessName || '----'}
                     </button>
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.owner}
+                    {vendor.owner || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.email}
+                    {vendor.email || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">
-                    {vendor.submittedDate}
+                    {vendor.submittedDate || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.category}
+                    {vendor.category || '----'}
                   </td>
                   <td className="px-4 py-3.5 whitespace-nowrap">
                     {vendor.status === 'pending' ? (

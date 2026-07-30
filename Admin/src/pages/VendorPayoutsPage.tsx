@@ -8,6 +8,7 @@ import {
 } from '../features/vendors/hooks/useVendors';
 import VendorHeader from '../features/vendors/components/VendorHeader';
 import VendorPayoutsLog from '../features/vendors/components/VendorPayoutsLog';
+import DeactivateVendorModal from '../features/vendors/modals/DeactivateVendorModal';
 import VendorConfirmModal from '../features/vendors/modals/VendorConfirmModal';
 
 export default function VendorPayoutsPage() {
@@ -60,13 +61,11 @@ export default function VendorPayoutsPage() {
         <VendorPayoutsLog vendor={vendor} vendorId={vendorId} />
       </div>
 
-      <VendorConfirmModal
+      <DeactivateVendorModal
         isOpen={showSuspend}
-        type="deactivate"
-        count={1}
         vendorName={vendor.businessName}
-        onConfirm={() => {
-          deactivateMutation.mutate(vendor.id);
+        onConfirm={(reason) => {
+          deactivateMutation.mutate({ id: vendor.id, reason });
           setShowSuspend(false);
         }}
         onCancel={() => setShowSuspend(false)}

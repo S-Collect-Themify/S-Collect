@@ -2,10 +2,11 @@ import { api } from './api';
 
 export interface BackendVendor {
   id: string;
-  firstName: string;
-  lastName: string;
-  storeName: string;
-  commercialRegisterNumber: string;
+  email?: string | Record<string, unknown>;
+  firstName?: string;
+  lastName?: string;
+  storeName?: string;
+  commercialRegisterNumber?: string;
   status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   isFeatured?: boolean;
   createdAt?: string;
@@ -13,16 +14,21 @@ export interface BackendVendor {
 
 export interface BackendVendorDetail {
   id: string;
-  commissionRate?: number | null;
-  firstName: string;
-  lastName: string;
-  storeName: string;
-  storeDescription?: string | null;
-  commercialRegisterNumber: string;
+  email?: string | Record<string, unknown> | null;
+  publicEmail?: string | Record<string, unknown> | null;
+  publicPhoneNumber?: string | Record<string, unknown> | null;
+  logoUrl?: string | Record<string, unknown> | null;
+  commissionRate?: number | string | Record<string, unknown> | null;
+  firstName?: string;
+  lastName?: string;
+  storeName?: string;
+  storeDescription?: string | Record<string, unknown> | null;
+  commercialRegisterNumber?: string;
   status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   isFeatured?: boolean;
   approvedAt?: string | null;
-  rejectionReason?: string | null;
+  rejectionReason?: string | Record<string, unknown> | null;
+  deactivationReason?: string | Record<string, unknown> | null;
   createdAt?: string;
 }
 
@@ -112,11 +118,22 @@ export async function rejectVendor(id: string, payload: RejectVendorPayload): Pr
   await api.post(`/admin/vendors/${id}/reject`, payload);
 }
 
+export interface DeactivateVendorPayload {
+  reason?: string;
+}
+
 /**
  * Deactivate a vendor POST /api/v1/admin/vendors/{id}/deactivate
+ * Request body: { "reason": "..." }
  */
-export async function deactivateVendor(id: string): Promise<void> {
-  await api.post(`/admin/vendors/${id}/deactivate`);
+export async function deactivateVendor(
+  id: string,
+  payload?: DeactivateVendorPayload
+): Promise<void> {
+  const body = {
+    reason: payload?.reason?.trim() || 'Deactivated by administrator.',
+  };
+  await api.post(`/admin/vendors/${id}/deactivate`, body);
 }
 
 /**

@@ -119,7 +119,11 @@ export function useDeactivateVendor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deactivateVendor(id),
+    mutationFn: (param: string | { id: string; reason?: string }) => {
+      const vendorId = typeof param === 'string' ? param : param.id;
+      const reason = typeof param === 'object' ? param.reason : undefined;
+      return deactivateVendor(vendorId, { reason });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
