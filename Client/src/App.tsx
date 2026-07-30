@@ -68,6 +68,7 @@ function App() {
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/edit-product/:productId" element={<AddProduct />} />
           <Route path="/product-details/:id" element={<ProductDetails />} />
+          <Route path="/product details/:id" element={<ProductDetails />} />
           <Route path="/receivables" element={<Receivables />} />
           <Route path="/incoming-orders" element={<Orders />} />
           <Route path="/returns" element={<ReturnRequests />} />

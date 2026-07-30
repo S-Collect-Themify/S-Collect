@@ -1,6 +1,10 @@
 export interface ReturnItem {
   id: string;
+  refundNumber?: number | null;
   orderId: string;
+  orderNumber?: number | string | null;
+  orderGrandTotalAmount?: number | null;
+  paymentMethod?: string | null;
   customerName: string;
   customerEmail?: string;
   customerPhone?: string;
@@ -17,7 +21,7 @@ export interface ReturnItem {
   uploadedImages?: string[];
   requestedDate: string;
   status:
-    'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'AWAITING_ITEM' | 'COMPLETED';
+    | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'AWAITING_ITEM' | 'COMPLETED';
   createdAt?: string;
   rawStatus?: string;
   rawId?: string;

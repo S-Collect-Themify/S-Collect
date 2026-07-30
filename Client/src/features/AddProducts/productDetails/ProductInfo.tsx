@@ -57,13 +57,16 @@ export default function ProductInfo({
     ? descriptionAr || description
     : description || descriptionAr;
 
-  // Pick the thumbnail (or first image) as the main displayed image
-  const sortedImages = [...images].sort(
-    (a, b) => Number(Boolean(b.isThumbnail)) - Number(Boolean(a.isThumbnail))
+  const safeImages = Array.isArray(images) ? images : [];
+  const sortedImages = [...safeImages].sort(
+    (a, b) => Number(Boolean(b?.isThumbnail)) - Number(Boolean(a?.isThumbnail))
   );
   const imageUrls = sortedImages
-    .map((img) => img.url)
+    .map((img) => img?.url)
     .filter((u): u is string => Boolean(u));
+
+  const safeAvg = typeof averageRating === 'number' && !isNaN(averageRating) ? averageRating : 0;
+  const safeTotal = typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const mainImage = imageUrls[activeIndex];
@@ -227,7 +230,7 @@ export default function ProductInfo({
                 </p>
                 <p className="mt-1.5 flex items-center gap-1 text-sm font-semibold text-gray-800">
                   <Star size={15} className="fill-amber-400 text-amber-400" />
-                  {averageRating.toFixed(1)}
+                  {safeAvg.toFixed(1)}
                 </p>
               </div>
 
@@ -237,7 +240,7 @@ export default function ProductInfo({
                 </p>
                 <p className="mt-1.5 text-sm font-semibold text-gray-800">
                   {t('productDetails.productInfo.reviewsCount', {
-                    count: totalReviews,
+                    count: safeTotal,
                   })}
                 </p>
               </div>

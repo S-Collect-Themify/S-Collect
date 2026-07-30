@@ -33,7 +33,9 @@ export interface VendorRefundShipping {
 
 export interface VendorRefundItem {
   id: string;
+  refundNumber?: number | null;
   orderId: string;
+  orderNumber?: number | string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | string;
   rejectionReason?: string | null;
   items: VendorRefundProductItem[];
@@ -44,6 +46,8 @@ export interface VendorRefundItem {
   customer?: VendorRefundCustomer | null;
   shipping?: VendorRefundShipping | null;
   vendorStoreName?: string | null;
+  orderGrandTotalAmount?: number | null;
+  paymentMethod?: 'CASH' | 'VISA' | 'APPLE_PAY' | string | null;
 }
 
 // Alias for backwards compatibility
@@ -162,139 +166,56 @@ export async function approveRefund(
   id: string,
   data?: { note?: string }
 ): Promise<VendorRefundItem> {
-  const attempts = [
-    () => api.post(`/vendor/refunds/${id}/approve`, data),
-    () => api.put(`/vendor/refunds/${id}/approve`, data),
-    () =>
-      api.patch(`/vendor/refunds/${id}`, {
-        status: 'APPROVED',
-        internalNotes: data?.note,
-        note: data?.note,
-        ...data,
-      }),
-    () =>
-      api.put(`/vendor/refunds/${id}`, {
-        status: 'APPROVED',
-        internalNotes: data?.note,
-        note: data?.note,
-        ...data,
-      }),
-    () =>
-      api.patch(`/vendor/refunds/${id}/status`, {
-        status: 'APPROVED',
-        internalNotes: data?.note,
-        note: data?.note,
-        ...data,
-      }),
-    () =>
-      api.put(`/vendor/refunds/${id}/status`, {
-        status: 'APPROVED',
-        internalNotes: data?.note,
-        note: data?.note,
-        ...data,
-      }),
-    () =>
-      api.post(`/vendor/refunds/${id}/status`, {
-        status: 'APPROVED',
-        internalNotes: data?.note,
-        note: data?.note,
-        ...data,
-      }),
-  ];
-
-  for (const fn of attempts) {
-    try {
-      const response = await fn();
-      const payload = response.data?.data || response.data;
-      if (payload) return payload;
-    } catch (err: any) {
-      if (err?.response?.status && err.response.status !== 404) {
-        throw handleServiceError(err, `Failed to approve refund ${id}`);
-      }
+  try {
+    const response = await api.patch(`/vendor/refunds/${id}/approve`);
+    return response.data?.data || response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      try {
+        const fallbackRes = await api.patch(`/vendor/refunds/${id}`, {
+          status: 'APPROVED',
+          internalNotes: data?.note,
+        });
+        return fallbackRes.data?.data || fallbackRes.data;
+      } catch {}
     }
+    throw handleServiceError(err, `Failed to approve refund ${id}`);
   }
-
-  // Graceful Fallback if backend route returns 404
-  return {
-    id,
-    orderId: '',
-    status: 'APPROVED',
-    items: [],
-    totalRefundAmount: 0,
-    createdAt: new Date().toISOString(),
-    internalNotes: data?.note || null,
-  };
 }
 
-/**
- * Reject a refund request.
- */
 export async function rejectRefund(
   id: string,
   data?: { reason?: string }
 ): Promise<VendorRefundItem> {
-  const attempts = [
-    () => api.post(`/vendor/refunds/${id}/reject`, data),
-    () => api.put(`/vendor/refunds/${id}/reject`, data),
-    () =>
-      api.patch(`/vendor/refunds/${id}`, {
-        status: 'REJECTED',
-        rejectionReason: data?.reason,
-        reason: data?.reason,
-        ...data,
-      }),
-    () =>
-      api.put(`/vendor/refunds/${id}`, {
-        status: 'REJECTED',
-        rejectionReason: data?.reason,
-        reason: data?.reason,
-        ...data,
-      }),
-    () =>
-      api.patch(`/vendor/refunds/${id}/status`, {
-        status: 'REJECTED',
-        rejectionReason: data?.reason,
-        reason: data?.reason,
-        ...data,
-      }),
-    () =>
-      api.put(`/vendor/refunds/${id}/status`, {
-        status: 'REJECTED',
-        rejectionReason: data?.reason,
-        reason: data?.reason,
-        ...data,
-      }),
-    () =>
-      api.post(`/vendor/refunds/${id}/status`, {
-        status: 'REJECTED',
-        rejectionReason: data?.reason,
-        reason: data?.reason,
-        ...data,
-      }),
-  ];
-
-  for (const fn of attempts) {
-    try {
-      const response = await fn();
-      const payload = response.data?.data || response.data;
-      if (payload) return payload;
-    } catch (err: any) {
-      if (err?.response?.status && err.response.status !== 404) {
-        throw handleServiceError(err, `Failed to reject refund ${id}`);
-      }
+  try {
+    const response = await api.patch(`/vendor/refunds/${id}/reject`, {
+      reason: data?.reason || 'Request rejected by vendor',
+    });
+    return response.data?.data || response.data;
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      try {
+        const fallbackRes = await api.patch(`/vendor/refunds/${id}`, {
+          status: 'REJECTED',
+          rejectionReason: data?.reason,
+        });
+        return fallbackRes.data?.data || fallbackRes.data;
+      } catch {}
     }
+    throw handleServiceError(err, `Failed to reject refund ${id}`);
   }
+}
 
-  // Graceful Fallback if backend route returns 404
-  return {
-    id,
-    orderId: '',
-    status: 'REJECTED',
-    rejectionReason: data?.reason || null,
-    items: [],
-    totalRefundAmount: 0,
-    createdAt: new Date().toISOString(),
-  };
+export async function setRefundInternalNotes(
+  id: string,
+  notes: string
+): Promise<VendorRefundItem> {
+  try {
+    const response = await api.patch(`/vendor/refunds/${id}/notes`, { notes });
+    return response.data?.data || response.data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to set notes on refund ${id}`);
+  }
 }
 
 /**

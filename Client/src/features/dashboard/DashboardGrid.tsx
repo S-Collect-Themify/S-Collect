@@ -1,4 +1,4 @@
-import { TrendingUp, ShoppingBag, Clock, Package } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Package, Wallet } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
@@ -27,38 +27,37 @@ const DashboardGrid = () => {
 
   const dashboardMetrics: DashboardMetric[] = [
     {
-      title: 'Gross Merchandise Value (GMV)',
+      title: t('dashboardMetrics.totalSales', { defaultValue: 'Total Sales (GMV)' }),
       value: (stats?.totalSales ?? 0).toLocaleString(),
-      unit: t('dashboardMetrics.unit.sar'),
+      unit: t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' }),
       icon: TrendingUp,
       colorTheme: {
-        primary: 'var(--green)',
+        primary: 'var(--green, #10b981)',
         light: 'var(--green-light)',
       },
     },
     {
-      title: 'Total Sub-Orders',
-      value: (stats?.totalOrders ?? 0).toLocaleString(),
-      unit: t('dashboard.orders') || 'Orders',
+      title: t('dashboardMetrics.totalOrders', { defaultValue: 'Total Sub-Orders' }),
+      value: (stats?.totalOrders ?? stats?.orderCount ?? 0).toLocaleString(),
+      unit: t('orders', { defaultValue: 'Orders' }),
       icon: ShoppingBag,
       colorTheme: {
         primary: 'var(--blue, #2563eb)',
       },
     },
     {
-      title: 'New / Pending Orders',
-      value: (stats?.newOrders ?? 0).toLocaleString(),
-      unit: t('dashboard.orders') || 'Orders',
-      icon: Clock,
+      title: t('dashboardMetrics.pendingPayouts', { defaultValue: 'Pending Payout / Dues' }),
+      value: (stats?.pendingPayouts ?? stats?.totalDues ?? 0).toLocaleString(),
+      unit: t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' }),
+      icon: Wallet,
       colorTheme: {
-        primary: 'var(--yellow, #eab308)',
-        light: 'var(--red-light)',
+        primary: 'var(--orange, #f97316)',
       },
     },
     {
-      title: 'Active Products',
-      value: (stats?.activeProducts ?? 0).toLocaleString(),
-      unit: t('dashboard.items') || 'Items',
+      title: t('dashboardMetrics.activeProducts', { defaultValue: 'Active Products' }),
+      value: (stats?.activeProducts ?? stats?.productCount ?? 0).toLocaleString(),
+      unit: t('dashboardMetrics.unit.product', { defaultValue: 'Items' }),
       icon: Package,
       colorTheme: {
         primary: 'var(--purple, #9333ea)',

@@ -15,17 +15,30 @@ export interface OrderItemWithCommission {
   commissionRateApplied: number;
 }
 
+export interface SubOrderCustomer {
+  buyerAccountId: string;
+  firstName: string;
+  lastName: string;
+  email?: string | null;
+  phoneNumber?: string | null;
+}
+
 export interface SubOrder {
   id: string;
   orderId: string;
+  orderNumber?: number | string | null;
   vendorId: string;
+  storeName?: string | null;
+  storeNameAr?: string | null;
   status: SubOrderStatus;
   shippingRateApplied: number;
+  totalAmount?: number;
   trackingNumber: string | null;
   statusOverrideReason: string | null;
   shippedAt: string | null;
   deliveredAt: string | null;
   items: OrderItemWithCommission[];
+  customer?: SubOrderCustomer | null;
   createdAt: string;
 }
 

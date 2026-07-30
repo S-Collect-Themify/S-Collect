@@ -88,8 +88,11 @@ const SubOrdersTable = ({
         <tbody>
           {orders.map((order, index) => {
             const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
-            const grandTotal = itemsTotal + order.shippingRateApplied;
-            const firstProduct = order.items[0]?.productName ?? '—';
+            const grandTotal = order.totalAmount ?? (itemsTotal + order.shippingRateApplied);
+            const displayOrderId = order.orderNumber ? `#${order.orderNumber}` : `#${order.id.slice(0, 8).toUpperCase()}`;
+            const customerName = order.customer
+              ? `${order.customer.firstName} ${order.customer.lastName}`.trim()
+              : (order.items[0]?.productName ?? '—');
 
             return (
               <motion.tr
@@ -101,7 +104,7 @@ const SubOrdersTable = ({
               >
                 {/* Order ID */}
                 <td className="py-4 px-4 font-semibold text-gray-800 text-sm">
-                  #{order.id.slice(0, 8).toUpperCase()}
+                  {displayOrderId}
                 </td>
 
                 {/* Date */}
@@ -113,14 +116,9 @@ const SubOrdersTable = ({
                   })}
                 </td>
 
-                {/* First product name as "customer" substitute */}
-                <td className="py-4 px-4 text-gray-700 text-sm max-w-[200px] truncate">
-                  {firstProduct}
-                  {order.items.length > 1 && (
-                    <span className="text-gray-400 text-xs ml-1">
-                      +{order.items.length - 1}
-                    </span>
-                  )}
+                {/* Customer Name */}
+                <td className="py-4 px-4 text-gray-700 text-sm max-w-[200px] truncate font-medium">
+                  {customerName}
                 </td>
 
                 {/* Total */}
