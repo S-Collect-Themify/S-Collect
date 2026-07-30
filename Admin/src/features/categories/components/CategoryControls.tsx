@@ -18,12 +18,13 @@ export const Pagination = ({
   itemsPerPage = 20,
   onPageChange,
 }: PaginationProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
-  if (totalItems <= itemsPerPage || totalPages <= 1) return null;
+  if (totalItems <= 0) return null;
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, totalItems);
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1);
 
   return (
     <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/40 flex items-center justify-between gap-4 flex-wrap">
@@ -38,7 +39,7 @@ export const Pagination = ({
           onClick={() => onPageChange(currentPage - 1)}
           className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <ChevronLeft size={15} />
+          {isRtl ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>
 
         {pages.map((p) => (
@@ -62,7 +63,7 @@ export const Pagination = ({
           onClick={() => onPageChange(currentPage + 1)}
           className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <ChevronRight size={15} />
+          {isRtl ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
         </button>
       </div>
     </div>

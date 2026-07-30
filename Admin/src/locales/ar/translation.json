@@ -939,6 +939,7 @@
     "title": "الفئات",
     "description": "إدارة فئات المنتجات عبر السوق.",
     "columns": {
+      "image": "الصورة",
       "category": "الفئة",
       "slug": "الرابط (Slug)",
       "productsCount": "عدد المنتجات",
@@ -948,6 +949,11 @@
     "modal": {
       "addCategory": "إضافة فئة",
       "editCategory": "تعديل فئة",
+      "image": "صورة الفئة",
+      "uploadImage": "رفع صورة الفئة",
+      "removeImage": "إزالة الصورة",
+      "imageHint": "PNG, JPG, WEBP — الحد الأقصى 3 ميجابايت",
+      "imageSizeError": "حجم صورة الفئة لا يتجاوز 3MB — الصيغ: PNG, JPG, WEBP.",
       "nameAr": "اسم الفئة (بالعربية)",
       "nameArPlaceholder": "أدخل اسم الفئة بالعربية",
       "nameEn": "اسم الفئة (بالإنجليزية)",

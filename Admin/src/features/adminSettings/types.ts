@@ -6,6 +6,8 @@ export interface PlatformSettings {
   defaultLanguage: string;
 }
 
+export type BannerLinkType = 'CATEGORY' | 'PRODUCT' | 'VENDOR' | 'EXTERNAL_URL';
+
 export interface BannerItem {
   id: string;
   name: string;
@@ -15,6 +17,13 @@ export interface BannerItem {
   imageUrl?: string;
   imageFileName?: string;
   imageDimensions?: string;
+  // API fields
+  linkType?: BannerLinkType;
+  linkTargetId?: string | null;
+  externalUrl?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  sortOrder?: number | null;
 }
 
 export interface AdminAccount {

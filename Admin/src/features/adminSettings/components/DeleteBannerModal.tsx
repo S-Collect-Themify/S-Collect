@@ -5,10 +5,16 @@ import { useAdminSettingsStore } from '../store';
 
 export const DeleteBannerModal: React.FC = () => {
   const { t } = useTranslation();
-  const { deleteModal, closeDeleteModal, confirmDeleteBanner } =
+  const { deleteModal, closeDeleteModal, deleteBannerApi } =
     useAdminSettingsStore();
 
   if (!deleteModal.open || !deleteModal.banner) return null;
+
+  const handleConfirm = async () => {
+    if (deleteModal.banner) {
+      await deleteBannerApi(deleteModal.banner.id);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
@@ -43,7 +49,7 @@ export const DeleteBannerModal: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={confirmDeleteBanner}
+              onClick={handleConfirm}
               className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
             >
               {t('banners.deleteModal.confirm', { defaultValue: 'Delete Banner' })}

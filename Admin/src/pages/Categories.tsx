@@ -68,12 +68,14 @@ const Categories = () => {
   const handleToggleActiveRequest = useCategoryStore((s) => s.handleToggleActiveRequest);
 
   // ── Mutation Action Handlers ──
-  const handleSave = async (data: Omit<Category, 'id' | 'productsCount'>) => {
+  const handleSave = async (data: Omit<Category, 'id' | 'productsCount' | 'image'> & { image?: string | File | null }) => {
     if (formModal.mode === 'add') {
       await createCategoryMutation.mutateAsync({
         name: data.nameEn || data.name || '',
+        nameEn: data.nameEn || '',
         nameAr: data.nameAr || '',
         slug: data.slug,
+        image: data.image !== undefined ? data.image : null,
       });
       closeForm();
     } else if (formModal.category) {
@@ -81,8 +83,10 @@ const Categories = () => {
         id: formModal.category.id,
         payload: {
           name: data.nameEn || data.name || '',
+          nameEn: data.nameEn || '',
           nameAr: data.nameAr || '',
           slug: data.slug,
+          image: data.image !== undefined ? data.image : null,
           isActive: data.isActive,
         },
       });

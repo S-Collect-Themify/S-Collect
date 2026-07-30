@@ -1,5 +1,5 @@
 import React from 'react';
-import { SquarePen, Trash, Tag } from 'lucide-react';
+import { SquarePen, Trash, Tag, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
 import Toggle from './Toggle';
@@ -37,6 +37,23 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
           onChange={() => onSelectOne(cat.id)}
           className="h-4 w-4 rounded border-gray-300 accent-gray-900 cursor-pointer"
         />
+      </td>
+
+      {/* Image Thumbnail */}
+      <td className="py-3.5 px-4 w-16">
+        {cat.image ? (
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+            <img
+              src={cat.image}
+              alt={cat.nameEn || 'Category'}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center text-gray-400 shrink-0">
+            <ImageIcon size={20} />
+          </div>
+        )}
       </td>
 
       {/* Category Name */}
@@ -130,6 +147,7 @@ const CategoryTable: React.FC<DesktopTableProps> = ({
               />
             </th>
             {[
+              t('categories.columns.image'),
               t('categories.columns.category'),
               t('categories.columns.slug'),
               t('categories.columns.productsCount'),

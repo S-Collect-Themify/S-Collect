@@ -1,4 +1,4 @@
-import { SquarePen, Trash2 } from 'lucide-react';
+import { SquarePen, Trash2, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
@@ -34,7 +34,7 @@ const MobileCard = ({
         selected ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50/50' : 'border-gray-200/80 hover:border-gray-300'
       }`}
     >
-      {/* Top section: Checkbox + Name & Slug */}
+      {/* Top section: Checkbox + Image + Name & Slug */}
       <div className="flex items-start gap-3">
         <input
           type="checkbox"
@@ -42,6 +42,21 @@ const MobileCard = ({
           onChange={onSelect}
           className="h-4 w-4 rounded border-gray-300 accent-gray-900 cursor-pointer mt-1 shrink-0"
         />
+
+        {/* Thumbnail */}
+        {category.image ? (
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+            <img
+              src={category.image}
+              alt={category.nameEn || 'Category'}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center text-gray-400 shrink-0">
+            <ImageIcon size={20} />
+          </div>
+        )}
 
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-gray-900 text-base leading-snug">
