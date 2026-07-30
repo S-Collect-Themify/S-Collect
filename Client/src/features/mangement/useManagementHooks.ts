@@ -38,7 +38,7 @@ export function useManagementTable() {
 
   const { data: rawReviews } = useQuery({
     queryKey: ['vendor-reviews-manage'],
-    queryFn: () => getVendorReviews({ pageSize: 100 }),
+    queryFn: () => getVendorReviews({ pageSize: 200 }),
     staleTime: 60 * 1000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
@@ -50,22 +50,27 @@ export function useManagementTable() {
 
     for (const r of items) {
       if (!r) continue;
-      const pid = String(
+      const pidRaw = String(
         r.productId ||
         r.product_id ||
-        (typeof r.product === 'object' ? r.product?.id : r.product) ||
+        r.targetId ||
+        (typeof r.product === 'object' ? r.product?.id || r.product?._id : r.product) ||
+        (typeof r.orderItem === 'object' ? r.orderItem?.productId || r.orderItem?.product?.id : '') ||
         ''
       ).trim();
 
-      if (!pid) continue;
+      if (!pidRaw) continue;
+      const pid = pidRaw.toLowerCase();
 
-      const ratingVal = Number(r.rating || r.score || 0);
+      const ratingVal = Number(r.rating ?? r.score ?? r.stars ?? 0);
 
       if (!map[pid]) {
         map[pid] = { totalRating: 0, count: 0 };
       }
-      map[pid].totalRating += ratingVal;
-      map[pid].count += 1;
+      if (!isNaN(ratingVal) && ratingVal > 0) {
+        map[pid].totalRating += ratingVal;
+        map[pid].count += 1;
+      }
     }
 
     return map;
@@ -112,32 +117,40 @@ export function useManagementTable() {
       }
 
       const pId = String(p.id || p._id || p.productId || '').trim();
-      const revStats = reviewsMap[pId];
+      const pIdLower = pId.toLowerCase();
+      const revStats = reviewsMap[pIdLower] || reviewsMap[pId];
       const aggregatedRating =
         revStats && revStats.count > 0
           ? Number((revStats.totalRating / revStats.count).toFixed(1))
           : 0;
       const aggregatedCount = revStats ? revStats.count : 0;
 
+      const rawProductRating = Number(
+        p.rating ??
+        p.averageRating ??
+        p.ratingSummary?.averageRating ??
+        p.ratingSummary?.rating ??
+        0
+      );
       const rating =
-        typeof p.rating === 'number' && p.rating > 0
-          ? p.rating
-          : typeof p.averageRating === 'number' && p.averageRating > 0
-            ? p.averageRating
-            : typeof p.ratingSummary?.averageRating === 'number' && p.ratingSummary.averageRating > 0
-              ? p.ratingSummary.averageRating
-              : aggregatedRating;
+        !isNaN(rawProductRating) && rawProductRating > 0
+          ? Number(rawProductRating.toFixed(1))
+          : aggregatedRating;
 
+      const rawProductCount = Number(
+        p.ratingCount ??
+        p.reviewsCount ??
+        p.totalRatings ??
+        p.totalReviews ??
+        p.ratingSummary?.totalRatings ??
+        p.ratingSummary?.totalReviews ??
+        p.ratingSummary?.count ??
+        0
+      );
       const ratingCount =
-        typeof p.ratingCount === 'number' && p.ratingCount > 0
-          ? p.ratingCount
-          : typeof p.reviewsCount === 'number' && p.reviewsCount > 0
-            ? p.reviewsCount
-            : typeof p.totalRatings === 'number' && p.totalRatings > 0
-              ? p.totalRatings
-              : typeof p.ratingSummary?.totalRatings === 'number' && p.ratingSummary.totalRatings > 0
-                ? p.ratingSummary.totalRatings
-                : aggregatedCount;
+        !isNaN(rawProductCount) && rawProductCount > 0
+          ? rawProductCount
+          : aggregatedCount;
 
       let iconUrl = '';
       if (typeof p.thumbnailUrl === 'string') {
