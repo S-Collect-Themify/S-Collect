@@ -12,6 +12,7 @@ import DateFilterDropdown from './DateFilterDropdown';
 import StatusFilterDropdown from './StatusFilterDropdown';
 import TransactionRow from './TransactionRow';
 import MobileTransactionCard from './MobileTransactionCard';
+import { getDateKey } from './utils';
 
 type StatusFilter = TransactionStatus | 'all';
 
@@ -69,11 +70,19 @@ export default function ReceivablesTable() {
 
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {
+      // Status filter
       if (selectedStatus !== 'all' && tx.status !== selectedStatus)
         return false;
+
+      // Date filter
+      if (selectedDate !== 'all') {
+        const txDateKey = getDateKey(tx.date);
+        if (txDateKey !== selectedDate) return false;
+      }
+
       return true;
     });
-  }, [transactions, selectedStatus]);
+  }, [transactions, selectedStatus, selectedDate]);
 
   const totalItems = data?.pagination?.totalItems ?? filtered.length;
   const totalPages =
@@ -109,6 +118,7 @@ export default function ReceivablesTable() {
         <DateFilterDropdown
           selected={selectedDate}
           onChange={handleDateChange}
+          transactions={transactions}
         />
         <StatusFilterDropdown
           selected={selectedStatus}

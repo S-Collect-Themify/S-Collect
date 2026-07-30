@@ -23,7 +23,7 @@ export function useReturnRequests() {
   // Search parameters from URL (Single source of truth)
   const search = searchParams.get('search') || '';
   const statusFilter = searchParams.get('status') || 'ALL';
-  const dateFilter = searchParams.get('date') || '30';
+  const dateFilter = searchParams.get('date') || 'ALL';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   // Fetch refund requests from backend /vendor/refunds

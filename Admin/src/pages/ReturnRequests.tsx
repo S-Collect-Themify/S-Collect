@@ -137,7 +137,7 @@ export default function ReturnRequestsPage() {
       <motion.h1
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6"
+        className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 md:mb-6"
       >
         {t('returnsPage.title', { defaultValue: 'Return Requests' })}
       </motion.h1>
