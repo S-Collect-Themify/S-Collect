@@ -180,10 +180,71 @@ export async function getVendorPayouts(
   params?: GetVendorPayoutsParams
 ): Promise<any> {
   try {
-    const response = await api.get(`/admin/vendors/${vendorId}/payouts`, { params });
+    const response = await api.get(`/admin/vendors/${vendorId}/payouts`, {
+      params: {
+        pageNum: params?.pageNum ?? 1,
+        pageSize: params?.pageSize ?? 25,
+      },
+    });
     return response.data;
   } catch (err) {
     console.warn(`API getVendorPayouts (${vendorId}) error:`, err);
+    return null;
+  }
+}
+
+export interface BackendVendorPayoutSummary {
+  totalPayout?: number | string | null;
+  totalPayouts?: number | string | null;
+  pendingAmount?: number | string | null;
+  lastPayoutDate?: string | number | Record<string, any> | null;
+}
+
+/**
+ * Fetch vendor payout summary GET /api/v1/admin/vendors/{vendorId}/payouts/summary
+ */
+export async function getVendorPayoutSummary(
+  vendorId: string
+): Promise<BackendVendorPayoutSummary | null> {
+  try {
+    const response = await api.get(`/admin/vendors/${vendorId}/payouts/summary`);
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+      return resData.data as BackendVendorPayoutSummary;
+    }
+    return resData as BackendVendorPayoutSummary;
+  } catch (err) {
+    console.warn(`API getVendorPayoutSummary (${vendorId}) error:`, err);
+    return null;
+  }
+}
+
+export interface BackendVendorPayoutStats {
+  totalSales?: number | string | null;
+  productCount?: number | string | null;
+  orderCount?: number | string | null;
+  pendingPayouts?: number | string | null;
+  pendingPayout?: number | string | null;
+  totalDues?: number | string | null;
+  totalDue?: number | string | null;
+  invoices?: number | string | null;
+}
+
+/**
+ * Fetch vendor payout stats GET /api/v1/admin/vendors/{vendorId}/payouts/stats
+ */
+export async function getVendorPayoutStats(
+  vendorId: string
+): Promise<BackendVendorPayoutStats | null> {
+  try {
+    const response = await api.get(`/admin/vendors/${vendorId}/payouts/stats`);
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+      return resData.data as BackendVendorPayoutStats;
+    }
+    return resData as BackendVendorPayoutStats;
+  } catch (err) {
+    console.warn(`API getVendorPayoutStats (${vendorId}) error:`, err);
     return null;
   }
 }

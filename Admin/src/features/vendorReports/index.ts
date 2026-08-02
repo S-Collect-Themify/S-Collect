@@ -9,3 +9,4 @@ export { default as VendorReportOrdersDesktopTable } from './components/VendorRe
 export { default as VendorReportOrdersMobileList } from './components/VendorReportOrdersMobileList';
 export { default as VendorReportOrdersPagination } from './components/VendorReportOrdersPagination';
 export { default as VendorReportOrdersTable } from './components/VendorReportOrdersTable';
+export { default as VendorReportVendorDropdown } from './components/VendorReportVendorDropdown';

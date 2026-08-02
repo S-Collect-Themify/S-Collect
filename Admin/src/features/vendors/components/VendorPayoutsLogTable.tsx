@@ -61,10 +61,10 @@ export default function VendorPayoutsLogTable({
                     key={payout.id}
                     className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors"
                   >
-                    <td className="px-6 py-4 text-amber-500 font-bold text-xs">{payout.id}</td>
-                    <td className="px-6 py-4 text-gray-400 text-xs">{payout.date}</td>
+                    <td className="px-6 py-4 text-amber-500 font-bold text-xs">{payout.id || '--'}</td>
+                    <td className="px-6 py-4 text-gray-400 text-xs">{payout.date || '--'}</td>
                     <td className="px-6 py-4 text-gray-900 text-xs font-bold">
-                      SAR {payout.amount.toLocaleString()}
+                      {payout.amount ? `SAR ${payout.amount.toLocaleString()}` : '--'}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -111,12 +111,12 @@ export default function VendorPayoutsLogTable({
                   className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-500">{payout.id}</span>
-                    <span className="text-xs text-gray-400">{payout.date}</span>
+                    <span className="text-xs font-bold text-amber-500">{payout.id || '--'}</span>
+                    <span className="text-xs text-gray-400">{payout.date || '--'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-gray-900">
-                      SAR {payout.amount.toLocaleString()}
+                      {payout.amount ? `SAR ${payout.amount.toLocaleString()}` : '--'}
                     </span>
                     <span
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${style.className}`}

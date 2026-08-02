@@ -262,7 +262,7 @@ export default function VendorDetails() {
         )}
 
         <VendorOverviewCard vendor={vendor} />
-        <VendorStatsGrid vendor={vendor} />
+        <VendorStatsGrid vendor={vendor} vendorId={vendorId} />
         <VendorRecentOrdersTable
           vendorId={vendorId}
           vendorName={vendor.businessName || vendor.owner}

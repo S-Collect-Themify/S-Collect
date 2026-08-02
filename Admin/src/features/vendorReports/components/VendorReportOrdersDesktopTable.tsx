@@ -83,13 +83,13 @@ export default function VendorReportOrdersDesktopTable({
                   {order.date || '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.amount ? order.amount.toLocaleString() : '--'}
+                  {order.amount != null && order.amount > 0 ? order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-                  {order.commission ? order.commission.toLocaleString() : '--'}
+                  {order.commission != null && order.commission > 0 ? order.commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.net ? order.net.toLocaleString() : '--'}
+                  {order.net != null && order.net > 0 ? order.net.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 whitespace-nowrap">
                   <VendorReportStatusBadge status={order.status} />
