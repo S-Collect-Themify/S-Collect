@@ -32,6 +32,43 @@ export const commissionKeys = {
   categories: ['commission', 'categories'] as const,
 };
 
+// ─── Local Custom Rate Storage Helpers ───────────────────────────────────────
+
+const VENDOR_CUSTOM_RATES_KEY = 'admin_vendor_custom_commissions';
+const CATEGORY_CUSTOM_RATES_KEY = 'admin_category_custom_commissions';
+
+function getCustomRatesMap(storageKey: string): Record<string, { rate: number; date: string }> {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function setCustomRate(storageKey: string, id: string, rate: number) {
+  try {
+    const map = getCustomRatesMap(storageKey);
+    const todayStr = new Date().toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+    });
+    map[id] = { rate, date: todayStr };
+    localStorage.setItem(storageKey, JSON.stringify(map));
+  } catch (e) {
+    console.error('Failed to save custom rate to localStorage:', e);
+  }
+}
+
+function removeCustomRate(storageKey: string, id: string) {
+  try {
+    const map = getCustomRatesMap(storageKey);
+    delete map[id];
+    localStorage.setItem(storageKey, JSON.stringify(map));
+  } catch (e) {
+    console.error('Failed to remove custom rate from localStorage:', e);
+  }
+}
+
 // ─── Data Fetchers ────────────────────────────────────────────────────────────
 
 async function fetchPlatformCommission(): Promise<PlatformCommissionData> {
@@ -48,13 +85,23 @@ async function fetchPlatformCommission(): Promise<PlatformCommissionData> {
 
 async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
   const backendVendors = await getVendors();
+  const customMap = getCustomRatesMap(VENDOR_CUSTOM_RATES_KEY);
+
   return Promise.all(
     backendVendors.map(async (v) => {
       const mapped = mapBackendVendorToVendor(v);
 
-      // Check per-vendor commission endpoint GET /admin/vendors/{id}/commission
       let customRate: number | null = null;
-      if (typeof mapped.commissionRate === 'number' && !isNaN(mapped.commissionRate)) {
+      let lastUpdated = mapped.createdAt
+        ? new Date(mapped.createdAt).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+          })
+        : '----';
+
+      if (customMap[v.id]) {
+        customRate = customMap[v.id].rate;
+        lastUpdated = customMap[v.id].date;
+      } else if (typeof mapped.commissionRate === 'number' && !isNaN(mapped.commissionRate)) {
         customRate = normalizeRateFromApi(mapped.commissionRate);
       } else {
         const fetchedComm = await getVendorCommission(v.id);
@@ -69,11 +116,7 @@ async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
         vendorName: mapped.businessName,
         rate: customRate,
         status: (hasCustomRate ? 'Custom' : 'Default') as 'Custom' | 'Default',
-        lastUpdated: mapped.createdAt
-          ? new Date(mapped.createdAt).toLocaleDateString('en-US', {
-              month: 'short', day: 'numeric', year: 'numeric',
-            })
-          : '----',
+        lastUpdated,
       };
     })
   );
@@ -81,21 +124,35 @@ async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
 
 async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
   const categories = await getAdminCategories();
+  const customMap = getCustomRatesMap(CATEGORY_CUSTOM_RATES_KEY);
+
   return Promise.all(
     categories.map(async (cat) => {
-      const commission = await getCategoryCommission(cat.id);
-      const hasCustomRate = commission !== null;
+      let customRate: number | null = null;
+      let lastUpdated = '----';
+
+      if (customMap[cat.id]) {
+        customRate = customMap[cat.id].rate;
+        lastUpdated = customMap[cat.id].date;
+      } else {
+        const commission = await getCategoryCommission(cat.id);
+        if (commission !== null) {
+          customRate = commission.rate;
+          if (commission.updatedAt) {
+            lastUpdated = new Date(commission.updatedAt).toLocaleDateString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric',
+            });
+          }
+        }
+      }
+
+      const hasCustomRate = customRate !== null;
       return {
         id: cat.id,
         categoryName: cat.nameEn || cat.name || '----',
-        rate: hasCustomRate ? commission.rate : null,
+        rate: customRate,
         status: (hasCustomRate ? 'Custom' : 'Default') as 'Custom' | 'Default',
-        lastUpdated:
-          hasCustomRate && commission.updatedAt
-            ? new Date(commission.updatedAt).toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric',
-              })
-            : '----',
+        lastUpdated,
       };
     })
   );
@@ -137,16 +194,16 @@ export function useSetVendorCommission() {
   return useMutation({
     mutationFn: ({ id, rate }: { id: string; rate: number }) => setVendorCommission(id, rate),
     onSuccess: (_, { id, rate }) => {
+      setCustomRate(VENDOR_CUSTOM_RATES_KEY, id, rate);
+      const todayStr = new Date().toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+      });
       queryClient.setQueryData<VendorCommissionItem[]>(commissionKeys.vendors, (old) => {
         if (!old) return [];
-        const todayStr = new Date().toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric',
-        });
         return old.map((item) =>
           item.id === id ? { ...item, rate, status: 'Custom', lastUpdated: todayStr } : item
         );
       });
-      queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
     onError: (error: any) => {
@@ -164,13 +221,13 @@ export function useResetVendorCommission() {
   return useMutation({
     mutationFn: (id: string) => deleteVendorCommission(id),
     onSuccess: (_, id) => {
+      removeCustomRate(VENDOR_CUSTOM_RATES_KEY, id);
       queryClient.setQueryData<VendorCommissionItem[]>(commissionKeys.vendors, (old) => {
         if (!old) return [];
         return old.map((item) =>
           item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: '----' } : item
         );
       });
-      queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
     onError: (error: any) => {
@@ -188,16 +245,16 @@ export function useSetCategoryCommission() {
   return useMutation({
     mutationFn: ({ id, rate }: { id: string; rate: number }) => setCategoryCommission(id, rate),
     onSuccess: (_, { id, rate }) => {
+      setCustomRate(CATEGORY_CUSTOM_RATES_KEY, id, rate);
+      const todayStr = new Date().toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+      });
       queryClient.setQueryData<CategoryCommissionItem[]>(commissionKeys.categories, (old) => {
         if (!old) return [];
-        const todayStr = new Date().toLocaleDateString('en-US', {
-          month: 'short', day: 'numeric', year: 'numeric',
-        });
         return old.map((item) =>
           item.id === id ? { ...item, rate, status: 'Custom', lastUpdated: todayStr } : item
         );
       });
-      queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
     onError: (error: any) => {
@@ -215,13 +272,13 @@ export function useResetCategoryCommission() {
   return useMutation({
     mutationFn: (id: string) => deleteCategoryCommission(id),
     onSuccess: (_, id) => {
+      removeCustomRate(CATEGORY_CUSTOM_RATES_KEY, id);
       queryClient.setQueryData<CategoryCommissionItem[]>(commissionKeys.categories, (old) => {
         if (!old) return [];
         return old.map((item) =>
           item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: '----' } : item
         );
       });
-      queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
     onError: (error: any) => {
