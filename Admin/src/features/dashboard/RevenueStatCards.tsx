@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { TrendingUp, TrendingDown, Box, CheckCircle2, Clock } from 'lucide-react';
+import { TrendingUp, Box, CheckCircle2, Clock } from 'lucide-react';
 
 export default function RevenueStatCards() {
   const { t } = useTranslation();
@@ -14,13 +14,9 @@ export default function RevenueStatCards() {
         </div>
         <div className="flex items-baseline justify-between gap-1 flex-col md:flex-row">
           <div>
-            <span className="text-xl lg:text-2xl font-bold text-gray-900">1,459,134</span>
+            <span className="text-xl lg:text-2xl font-bold text-gray-900">--</span>
             <span className="text-xs font-medium text-gray-400 ms-1">SAR</span>
           </div>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700 shrink-0">
-            <TrendingDown className="w-3 h-3 text-green-700" />
-            15.2%
-          </span>
         </div>
       </div>
 
@@ -32,13 +28,9 @@ export default function RevenueStatCards() {
         </div>
         <div className="flex items-baseline justify-between gap-1 flex-col md:flex-row">
           <div>
-            <span className="text-xl lg:text-2xl font-bold text-gray-900">245,780</span>
+            <span className="text-xl lg:text-2xl font-bold text-gray-900">--</span>
             <span className="text-xs font-medium text-gray-400 ms-1">SAR</span>
           </div>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700 shrink-0">
-            <TrendingDown className="w-3 h-3 text-green-700" />
-            5.8%
-          </span>
         </div>
       </div>
 
@@ -50,13 +42,9 @@ export default function RevenueStatCards() {
         </div>
         <div className="flex items-baseline justify-between gap-1 flex-col md:flex-row">
           <div>
-            <span className="text-xl lg:text-2xl font-bold text-gray-900">189,450</span>
+            <span className="text-xl lg:text-2xl font-bold text-gray-900">--</span>
             <span className="text-xs font-medium text-gray-400 ms-1">SAR</span>
           </div>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-100 text-green-700 shrink-0">
-            <TrendingDown className="w-3 h-3 text-green-700" />
-            12.3%
-          </span>
         </div>
       </div>
 
@@ -68,13 +56,9 @@ export default function RevenueStatCards() {
         </div>
         <div className="flex items-baseline justify-between gap-1 flex-col md:flex-row">
           <div>
-            <span className="text-xl lg:text-2xl font-bold text-gray-900">56,330</span>
+            <span className="text-xl lg:text-2xl font-bold text-gray-900">--</span>
             <span className="text-xs font-medium text-gray-400 ms-1">SAR</span>
           </div>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-600 shrink-0">
-            <TrendingUp className="w-3 h-3 text-rose-600" />
-            3.2%
-          </span>
         </div>
       </div>
     </div>

@@ -22,7 +22,7 @@ export function usePayouts() {
   const [pendingPayouts, setPendingPayouts] = useState<PendingPayoutItem[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 20;
 
   const [selectedVendor, setSelectedVendor] = useState<PendingPayoutItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
