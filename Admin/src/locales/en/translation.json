@@ -1074,6 +1074,14 @@
     "vendorMobile": "Vendor: All",
     "ratingMobile": "Rating: All",
     "productMobile": "Product: All",
+    "sort": {
+      "sortBy": "Sort By",
+      "sortMobile": "Sort",
+      "dateDesc": "Date: Newest First",
+      "dateAsc": "Date: Oldest First",
+      "ratingDesc": "Rating: High to Low",
+      "ratingAsc": "Rating: Low to High"
+    },
     "table": {
       "reviewId": "Review ID",
       "product": "Product",
