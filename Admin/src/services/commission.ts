@@ -65,21 +65,6 @@ export async function updatePlatformCommission(rate: number): Promise<PlatformCo
 // ─── Vendor Commission ─────────────────────────────────────────────────
 
 /**
- * GET /api/v1/admin/vendors/{vendorId}/commission
- */
-export async function getVendorCommission(vendorId: string): Promise<number | null> {
-  try {
-    const { data } = await api.get(`/admin/vendors/${vendorId}/commission`);
-    const payload = data && typeof data === 'object' && 'data' in data && data.data ? data.data : data;
-    if (!payload || typeof payload.rate === 'undefined' || payload.rate === null) return null;
-    const rawRate = typeof payload.rate === 'number' ? payload.rate : parseFloat(payload.rate as string) || 0;
-    return normalizeRateFromApi(rawRate);
-  } catch {
-    return null;
-  }
-}
-
-/**
  * PUT /api/v1/admin/vendors/{id}/commission
  */
 export async function setVendorCommission(vendorId: string, rate: number): Promise<void> {

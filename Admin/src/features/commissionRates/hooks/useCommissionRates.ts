@@ -6,7 +6,6 @@ import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
 import {
   getPlatformCommission,
   updatePlatformCommission,
-  getVendorCommission,
   setVendorCommission,
   deleteVendorCommission,
   getCategoryCommission,
@@ -87,43 +86,36 @@ async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
   const backendVendors = await getVendors();
   const customMap = getCustomRatesMap(VENDOR_CUSTOM_RATES_KEY);
 
-  return Promise.all(
-    backendVendors.map(async (v) => {
-      const mapped = mapBackendVendorToVendor(v);
+  return backendVendors.map((v) => {
+    const mapped = mapBackendVendorToVendor(v);
 
-      let customRate: number | null = null;
-      let lastUpdated = mapped.createdAt
-        ? new Date(mapped.createdAt).toLocaleDateString('en-US', {
-            month: 'short', day: 'numeric', year: 'numeric',
-          })
-        : '----';
+    let customRate: number | null = null;
+    let lastUpdated = mapped.createdAt
+      ? new Date(mapped.createdAt).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric',
+        })
+      : '----';
 
-      if (customMap[v.id]) {
-        customRate = customMap[v.id].rate;
-        lastUpdated = customMap[v.id].date;
-      } else if (typeof mapped.commissionRate === 'number' && !isNaN(mapped.commissionRate)) {
-        customRate = normalizeRateFromApi(mapped.commissionRate);
-      } else {
-        const fetchedComm = await getVendorCommission(v.id);
-        if (fetchedComm !== null) {
-          customRate = fetchedComm;
-        }
-      }
+    if (customMap[v.id]) {
+      customRate = customMap[v.id].rate;
+      lastUpdated = customMap[v.id].date;
+    } else if (typeof mapped.commissionRate === 'number' && !isNaN(mapped.commissionRate)) {
+      customRate = normalizeRateFromApi(mapped.commissionRate);
+    }
 
-      const hasCustomRate = customRate !== null;
-      return {
-        id: v.id,
-        vendorName: mapped.businessName,
-        rate: customRate,
-        status: (hasCustomRate ? 'Custom' : 'Default') as 'Custom' | 'Default',
-        lastUpdated,
-      };
-    })
-  );
+    const hasCustomRate = customRate !== null;
+    return {
+      id: v.id,
+      vendorName: mapped.businessName,
+      rate: customRate,
+      status: (hasCustomRate ? 'Custom' : 'Default') as 'Custom' | 'Default',
+      lastUpdated,
+    };
+  });
 }
 
 async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
-  const categories = await getAdminCategories();
+  const categories = await getAdminCategories({ pageSize: 100 });
   const customMap = getCustomRatesMap(CATEGORY_CUSTOM_RATES_KEY);
 
   return Promise.all(
@@ -131,25 +123,27 @@ async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
       let customRate: number | null = null;
       let lastUpdated = '----';
 
-      if (customMap[cat.id]) {
+      // 1. Fetch live custom commission from API GET /admin/categories/{id}/commission
+      const apiCommission = await getCategoryCommission(cat.id);
+      if (apiCommission !== null && typeof apiCommission.rate === 'number') {
+        customRate = apiCommission.rate;
+        if (apiCommission.updatedAt) {
+          lastUpdated = new Date(apiCommission.updatedAt).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+          });
+        }
+      } else if (customMap[cat.id]) {
+        // 2. Fallback to locally saved custom rate
         customRate = customMap[cat.id].rate;
         lastUpdated = customMap[cat.id].date;
-      } else {
-        const commission = await getCategoryCommission(cat.id);
-        if (commission !== null) {
-          customRate = commission.rate;
-          if (commission.updatedAt) {
-            lastUpdated = new Date(commission.updatedAt).toLocaleDateString('en-US', {
-              month: 'short', day: 'numeric', year: 'numeric',
-            });
-          }
-        }
       }
 
       const hasCustomRate = customRate !== null;
+      const categoryName = cat.nameEn || cat.name || cat.nameAr || '----';
+
       return {
         id: cat.id,
-        categoryName: cat.nameEn || cat.name || '----',
+        categoryName,
         rate: customRate,
         status: (hasCustomRate ? 'Custom' : 'Default') as 'Custom' | 'Default',
         lastUpdated,

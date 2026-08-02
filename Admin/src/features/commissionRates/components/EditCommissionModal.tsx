@@ -13,6 +13,7 @@ interface EditCommissionModalProps {
     type: 'platform' | 'vendor' | 'category',
     newRate: number
   ) => void;
+  onReset?: (id: string, type: 'vendor' | 'category') => void;
 }
 
 export default function EditCommissionModal({
@@ -20,6 +21,7 @@ export default function EditCommissionModal({
   target,
   onClose,
   onRequestConfirm,
+  onReset,
 }: EditCommissionModalProps) {
   const { t } = useTranslation();
 
@@ -178,19 +180,35 @@ export default function EditCommissionModal({
             </>
           )}
 
-          {/* Action Buttons: Cancel & Save Rate */}
-          <div className="flex flex-col-reverse sm:flex-row items-center gap-2.5 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-1/2 h-11 border border-gray-200 rounded-lg text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer flex items-center justify-center order-1"
-            >
-              {t('commissionRates.cancel', 'Cancel')}
-            </button>
+          {/* Action Buttons: Cancel, Reset to Default (if custom), Save */}
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2.5 pt-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-4 h-11 border border-gray-200 rounded-lg text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer flex items-center justify-center"
+              >
+                {t('commissionRates.cancel', 'Cancel')}
+              </button>
+
+              {target.hasCustomRate && onReset && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onReset(target.id, target.type as 'vendor' | 'category');
+                    onClose();
+                  }}
+                  className="w-full sm:w-auto px-3 h-11 border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center shrink-0"
+                >
+                  {t('commissionRates.resetToDefault', 'Reset to Default')}
+                </button>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={isHasError}
-              className={`w-full sm:w-1/2 h-11 rounded-lg text-sm font-bold transition-all flex items-center justify-center order-2 ${
+              className={`w-full sm:w-auto px-5 h-11 rounded-lg text-sm font-bold transition-all flex items-center justify-center ${
                 isHasError
                   ? 'bg-gray-200 text-gray-400 border border-transparent shadow-none cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-2xs active:scale-95'

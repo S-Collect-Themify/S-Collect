@@ -10,15 +10,16 @@ export default function CommissionStatusBadge({ status }: CommissionStatusBadgeP
 
   if (status === 'Custom') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100/50">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100/80">
         {t('commissionRates.statusCustom', 'Custom')}
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100/50">
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100/80">
       {t('commissionRates.statusDefault', 'Default')}
     </span>
   );
 }
+
