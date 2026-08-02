@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   createProductFull,
   setProductThumbnail,
+  uploadProductImage,
 } from '../../services/products';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,7 @@ export const useCreateProduct = () => {
       const rawResponse = await createProductFull(formData);
 
       // Unwrap if the response is in a { success: boolean, data: T } envelope
-      const unwrapped =
+      const unwrapped: any =
         rawResponse &&
         typeof rawResponse === 'object' &&
         'success' in rawResponse &&
@@ -27,6 +28,33 @@ export const useCreateProduct = () => {
           : rawResponse;
 
       const productId = unwrapped?.id;
+      const hasImagesFromBackend =
+        Array.isArray(unwrapped?.images) && unwrapped.images.length > 0;
+
+      if (productId && !hasImagesFromBackend) {
+        const pendingImages = formData.getAll('images');
+        if (pendingImages && pendingImages.length > 0) {
+          const filesToUpload = pendingImages.filter(
+            (f): f is File => f instanceof File
+          );
+          if (filesToUpload.length > 0) {
+            try {
+              const uploadedResults = await Promise.all(
+                filesToUpload.map((file) => uploadProductImage(productId, file))
+              );
+              const formattedNewImages = uploadedResults.map((res: any) => ({
+                id: res.id || res.imageId,
+                url: res.url || res.imageUrl,
+                isThumbnail: Boolean(res.isThumbnail),
+              }));
+              unwrapped.images = formattedNewImages;
+            } catch (imgErr) {
+              console.error('Failed to upload images after creation:', imgErr);
+            }
+          }
+        }
+      }
+
       const firstImageId = unwrapped?.images?.[0]?.id;
       if (productId && firstImageId) {
         try {
@@ -40,6 +68,7 @@ export const useCreateProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
       toast.success(
         isRtl ? 'تم نشر المنتج بنجاح!' : 'Product published successfully!'
       );

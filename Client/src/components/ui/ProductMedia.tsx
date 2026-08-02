@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import type { ProductFormData } from '../../features/AddProducts/types';
 import { compressImage } from '../../features/AddProducts/utils';
-import { deleteProductImage } from '../../services/products';
+import { deleteProductImage, uploadProductImage } from '../../services/products';
 import { useParams } from 'react-router-dom';
 
 interface PreviewImage {
@@ -27,6 +27,7 @@ const ProductMedia = () => {
   const [previews, setPreviews] = useState<PreviewImage[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isUploadingApi, setIsUploadingApi] = useState(false);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   const filesKey = files.map((f) => `${f.name}-${f.size}`).join(',');
@@ -105,13 +106,47 @@ const ProductMedia = () => {
       const compressed = await Promise.all(
         uploadedFiles.map((file) => compressImage(file))
       );
-      setValue('images', [...files, ...compressed], {
-        shouldValidate: true,
-      });
+
+      if (productId) {
+        setIsUploadingApi(true);
+        try {
+          const uploadedResults = await Promise.all(
+            compressed.map((file) => uploadProductImage(productId, file))
+          );
+          const newExisting = uploadedResults.map((res: any) => ({
+            id: res.id || res.imageId,
+            url: res.url || res.imageUrl,
+            isThumbnail: Boolean(res.isThumbnail),
+          }));
+          setValue('existingImages', [...existingImages, ...newExisting], {
+            shouldValidate: true,
+          });
+          queryClient.invalidateQueries({ queryKey: ['product', productId] });
+          queryClient.invalidateQueries({ queryKey: ['products'] });
+          queryClient.invalidateQueries({
+            queryKey: ['product-details', productId],
+          });
+          toast.success(
+            t('addProduct.imageUploaded', 'Image uploaded successfully')
+          );
+        } catch (uploadErr) {
+          console.error('Failed to upload product image:', uploadErr);
+          toast.error(
+            t('addProduct.imageUploadFailed', 'Failed to upload product image')
+          );
+        } finally {
+          setIsUploadingApi(false);
+        }
+      } else {
+        setValue('images', [...files, ...compressed], {
+          shouldValidate: true,
+        });
+      }
     } catch (error) {
       console.error('Failed to compress images:', error);
     } finally {
       setIsCompressing(false);
+      e.target.value = '';
     }
   };
 
@@ -225,7 +260,7 @@ const ProductMedia = () => {
           );
         })}
 
-        {isCompressing && (
+        {(isCompressing || isUploadingApi) && (
           <div className="relative h-28 w-full sm:h-24 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200">
             <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-900 border-t-transparent" />
           </div>

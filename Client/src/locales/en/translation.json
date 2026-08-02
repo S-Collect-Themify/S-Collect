@@ -262,6 +262,10 @@
     "previous": "Previous",
     "uploadImage": "Upload Image",
     "dragImage": "Drag image here or click to upload",
+    "imageUploaded": "Image uploaded successfully",
+    "imageUploadFailed": "Failed to upload image",
+    "imageDeleted": "Image deleted successfully",
+    "imageDeleteFailed": "Failed to delete image",
 
     "active": "Active",
     "inactive": "Inactive",
