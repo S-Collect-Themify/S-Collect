@@ -1,9 +1,11 @@
 import { useState, useEffect, forwardRef } from 'react';
 import { type InputHTMLAttributes } from 'react';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { useAuthStore } from '../../store/authStore';
 import { motion } from 'framer-motion';
@@ -190,6 +192,7 @@ const Step1 = () => {
   const { t } = useTranslation();
   const {
     register,
+    control,
     formState: { errors },
   } = useFormContext<RegisterFormData>();
 
@@ -229,16 +232,43 @@ const Step1 = () => {
           },
         })}
       />
-      <Input
-        label={t('register.phoneLabel')}
-        placeholder={t('register.phonePlaceholder')}
-        type="tel"
-        required
-        error={errors.phone?.message}
-        {...register('phone', {
-          required: t('register.errors.phoneRequired'),
-        })}
-      />
+      <div>
+        <label className="block text-xs lg:text-sm font-medium text-gray-700 mb-1">
+          {t('register.phoneLabel')} <span className="text-red-500">*</span>
+        </label>
+        <Controller
+          name="phone"
+          control={control}
+          rules={{
+            required: t('register.errors.phoneRequired'),
+          }}
+          render={({ field, fieldState: { error } }) => (
+            <>
+              <PhoneInput
+                country="SA"
+                countrySelectComponent={() => (
+                  <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
+                    <img
+                      src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
+                      alt="Saudi Arabia"
+                      className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
+                    />
+                    <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
+                  </div>
+                )}
+                value={field.value}
+                onChange={(v) => field.onChange(v ?? '')}
+                className={`phone-input-custom h-10 rounded-lg px-3 ${
+                  error ? 'phone-error' : ''
+                }`}
+              />
+              {error && (
+                <p className="mt-1 text-xs text-red-500">{error.message}</p>
+              )}
+            </>
+          )}
+        />
+      </div>
     </div>
   );
 };
