@@ -262,6 +262,10 @@
 
     "uploadImage": "رفع صورة",
     "dragImage": "اسحب الصورة هنا أو اضغط للرفع",
+    "imageUploaded": "تم رفع الصورة بنجاح",
+    "imageUploadFailed": "فشل رفع الصورة",
+    "imageDeleted": "تم حذف الصورة بنجاح",
+    "imageDeleteFailed": "فشل حذف الصورة",
 
     "active": "نشط",
     "inactive": "غير نشط",
