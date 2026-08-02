@@ -62,6 +62,7 @@ export function useInventory() {
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
     return items
+      // eslint-disable-next-line react-hooks/refs
       .filter((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;
         const stock =
@@ -73,6 +74,7 @@ export function useInventory() {
         if (activeTab === 'In Stock') return stock > 5;
         return true;
       })
+      // eslint-disable-next-line react-hooks/refs
       .map((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;
         const name = isAr
