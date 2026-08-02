@@ -1,6 +1,7 @@
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useReviewStore } from '../reviewStore';
+import type { ReviewSortOption } from '../types';
 
 interface ReviewFilterBarProps {
   availableVendors?: string[];
@@ -16,11 +17,13 @@ export const ReviewFilterBar = ({
   const vendorFilter = useReviewStore((s) => s.vendorFilter);
   const ratingFilter = useReviewStore((s) => s.ratingFilter);
   const productFilter = useReviewStore((s) => s.productFilter);
+  const sortBy = useReviewStore((s) => s.sortBy);
 
   const setSearch = useReviewStore((s) => s.setSearch);
   const setVendorFilter = useReviewStore((s) => s.setVendorFilter);
   const setRatingFilter = useReviewStore((s) => s.setRatingFilter);
   const setProductFilter = useReviewStore((s) => s.setProductFilter);
+  const setSortBy = useReviewStore((s) => s.setSortBy);
 
   return (
     <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -39,8 +42,8 @@ export const ReviewFilterBar = ({
         />
       </div>
 
-      {/* 3 Dropdown Filters (Grid on mobile, flex on desktop) */}
-      <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
+      {/* Dropdown Filters & Sort (Grid on mobile, flex on desktop) */}
+      <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
         {/* Vendor Dropdown */}
         <div className="relative w-full sm:w-auto sm:inline-block">
           <select
@@ -115,7 +118,30 @@ export const ReviewFilterBar = ({
             className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:right-auto rtl:left-2 sm:rtl:left-3"
           />
         </div>
+
+        {/* Sort Dropdown */}
+        <div className="relative w-full sm:w-auto sm:inline-block">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as ReviewSortOption)}
+            className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pl-8 sm:pl-9 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pr-8 sm:rtl:pr-9 rtl:pl-7 sm:rtl:pl-9 truncate"
+          >
+            <option value="date-desc">{t('reviewsListing.sort.dateDesc')}</option>
+            <option value="date-asc">{t('reviewsListing.sort.dateAsc')}</option>
+            <option value="rating-desc">{t('reviewsListing.sort.ratingDesc')}</option>
+            <option value="rating-asc">{t('reviewsListing.sort.ratingAsc')}</option>
+          </select>
+          <ArrowUpDown
+            size={14}
+            className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:left-auto rtl:right-2.5 sm:rtl:right-3"
+          />
+          <ChevronDown
+            size={16}
+            className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:right-auto rtl:left-2 sm:rtl:left-3"
+          />
+        </div>
       </div>
     </div>
   );
 };
+

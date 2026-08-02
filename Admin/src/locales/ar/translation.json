@@ -1070,6 +1070,14 @@
     "vendorMobile": "المورد: الكل",
     "ratingMobile": "التقييم: الكل",
     "productMobile": "المنتج: الكل",
+    "sort": {
+      "sortBy": "الترتيب حسب",
+      "sortMobile": "الترتيب",
+      "dateDesc": "التاريخ: الأحدث أولاً",
+      "dateAsc": "التاريخ: الأقدم أولاً",
+      "ratingDesc": "التقييم: من الأعلى للأقل",
+      "ratingAsc": "التقييم: من الأقل للأعلى"
+    },
     "table": {
       "reviewId": "معرف التقييم",
       "product": "المنتج",

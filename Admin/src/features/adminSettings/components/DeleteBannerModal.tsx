@@ -1,18 +1,24 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
+import { useBannersData } from '../hooks/useBannersData';
 
 export const DeleteBannerModal: React.FC = () => {
   const { t } = useTranslation();
-  const { deleteModal, closeDeleteModal, deleteBannerApi } =
-    useAdminSettingsStore();
+  const { deleteModal, closeDeleteModal } = useAdminSettingsStore();
+  const { deleteBannerMutation } = useBannersData();
 
   if (!deleteModal.open || !deleteModal.banner) return null;
 
   const handleConfirm = async () => {
     if (deleteModal.banner) {
-      await deleteBannerApi(deleteModal.banner.id);
+      try {
+        await deleteBannerMutation.mutateAsync(deleteModal.banner.id);
+        closeDeleteModal();
+      } catch {
+        // Error handled in mutation onError
+      }
     }
   };
 
@@ -43,15 +49,18 @@ export const DeleteBannerModal: React.FC = () => {
             <button
               type="button"
               onClick={closeDeleteModal}
-              className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer"
+              disabled={deleteBannerMutation.isPending}
+              className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
             >
               {t('common.cancel', { defaultValue: 'Cancel' })}
             </button>
             <button
               type="button"
               onClick={handleConfirm}
-              className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
+              disabled={deleteBannerMutation.isPending}
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
+              {deleteBannerMutation.isPending && <Loader2 size={14} className="animate-spin" />}
               {t('banners.deleteModal.confirm', { defaultValue: 'Delete Banner' })}
             </button>
           </div>

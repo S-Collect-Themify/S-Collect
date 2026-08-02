@@ -1,7 +1,8 @@
-import { Trash } from 'lucide-react';
+import { Trash, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ReviewItem } from '../types';
 import { StarRating } from './StarRating';
+import { useReviewStore } from '../reviewStore';
 
 interface ReviewTableProps {
   reviews: ReviewItem[];
@@ -10,6 +11,35 @@ interface ReviewTableProps {
 
 export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
   const { t } = useTranslation();
+  const sortBy = useReviewStore((s) => s.sortBy);
+  const setSortBy = useReviewStore((s) => s.setSortBy);
+
+  const handleRatingSortClick = () => {
+    if (sortBy === 'rating-desc') {
+      setSortBy('rating-asc');
+    } else {
+      setSortBy('rating-desc');
+    }
+  };
+
+  const handleDateSortClick = () => {
+    if (sortBy === 'date-desc') {
+      setSortBy('date-asc');
+    } else {
+      setSortBy('date-desc');
+    }
+  };
+
+  const renderSortIcon = (type: 'rating' | 'date') => {
+    if (type === 'rating') {
+      if (sortBy === 'rating-desc') return <ArrowDown size={14} className="text-gray-900" />;
+      if (sortBy === 'rating-asc') return <ArrowUp size={14} className="text-gray-900" />;
+    } else if (type === 'date') {
+      if (sortBy === 'date-desc') return <ArrowDown size={14} className="text-gray-900" />;
+      if (sortBy === 'date-asc') return <ArrowUp size={14} className="text-gray-900" />;
+    }
+    return <ArrowUpDown size={14} className="text-gray-400 opacity-60 group-hover:opacity-100 transition-opacity" />;
+  };
 
   return (
     <div className="w-full overflow-x-auto">
@@ -20,8 +50,31 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
             <th className="py-4 px-6">{t('reviewsListing.table.product')}</th>
             <th className="py-4 px-6">{t('reviewsListing.table.buyerName')}</th>
             <th className="py-4 px-6">{t('reviewsListing.table.vendor')}</th>
-            <th className="py-4 px-6">{t('reviewsListing.table.rating')}</th>
-            <th className="py-4 px-6">{t('reviewsListing.table.date')}</th>
+            
+            {/* Rating Sort Header */}
+            <th className="py-4 px-6">
+              <button
+                type="button"
+                onClick={handleRatingSortClick}
+                className="group flex items-center gap-1.5 font-semibold text-gray-800 hover:text-gray-900 focus:outline-none cursor-pointer transition-colors"
+              >
+                <span>{t('reviewsListing.table.rating')}</span>
+                {renderSortIcon('rating')}
+              </button>
+            </th>
+
+            {/* Date Sort Header */}
+            <th className="py-4 px-6">
+              <button
+                type="button"
+                onClick={handleDateSortClick}
+                className="group flex items-center gap-1.5 font-semibold text-gray-800 hover:text-gray-900 focus:outline-none cursor-pointer transition-colors"
+              >
+                <span>{t('reviewsListing.table.date')}</span>
+                {renderSortIcon('date')}
+              </button>
+            </th>
+
             <th className="py-4 px-6 text-center">{t('reviewsListing.table.action')}</th>
           </tr>
         </thead>
@@ -73,3 +126,4 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
     </div>
   );
 };
+

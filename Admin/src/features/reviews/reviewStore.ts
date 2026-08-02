@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { INITIAL_REVIEWS } from './data';
-import type { ReviewItem, DeleteReviewModalState } from './types';
+import type { ReviewItem, DeleteReviewModalState, ReviewSortOption } from './types';
 
 interface ReviewStoreState {
   reviews: ReviewItem[];
@@ -8,6 +8,7 @@ interface ReviewStoreState {
   vendorFilter: string;
   ratingFilter: string;
   productFilter: string;
+  sortBy: ReviewSortOption;
   currentPage: number;
   deleteModal: DeleteReviewModalState;
 }
@@ -18,6 +19,7 @@ interface ReviewStoreActions {
   setVendorFilter: (vendor: string) => void;
   setRatingFilter: (rating: string) => void;
   setProductFilter: (product: string) => void;
+  setSortBy: (sortBy: ReviewSortOption) => void;
   setCurrentPage: (page: number) => void;
   openDeleteModal: (review: ReviewItem) => void;
   closeDeleteModal: () => void;
@@ -32,6 +34,7 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   vendorFilter: 'all',
   ratingFilter: 'all',
   productFilter: 'all',
+  sortBy: 'date-desc',
   currentPage: 1,
   deleteModal: {
     open: false,
@@ -43,6 +46,7 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   setVendorFilter: (vendorFilter) => set({ vendorFilter, currentPage: 1 }),
   setRatingFilter: (ratingFilter) => set({ ratingFilter, currentPage: 1 }),
   setProductFilter: (productFilter) => set({ productFilter, currentPage: 1 }),
+  setSortBy: (sortBy) => set({ sortBy, currentPage: 1 }),
   setCurrentPage: (currentPage) => set({ currentPage }),
 
   openDeleteModal: (review) =>
