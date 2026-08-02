@@ -58,7 +58,10 @@ const ProductMedia = () => {
         imageId: img.id,
       })),
       ...files.map((file) => ({
-        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9) + Date.now(),
+        id:
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : Math.random().toString(36).substring(2, 9) + Date.now(),
         file,
         preview: URL.createObjectURL(file),
       })),
@@ -169,7 +172,8 @@ const ProductMedia = () => {
             image.imageId != null && deletingId === image.imageId;
 
           const key = image.file ? `${image.file.name}-${image.file.size}` : '';
-          const currentProgress = key && progressMap[key] !== undefined ? progressMap[key] : 100;
+          const currentProgress =
+            key && progressMap[key] !== undefined ? progressMap[key] : 100;
           const isUploading = currentProgress < 100;
 
           return (
