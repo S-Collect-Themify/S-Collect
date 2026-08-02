@@ -23,7 +23,7 @@ export const mapBackendReviewToFrontend = (
   vendorsList: any[] = [],
   language: string = 'en'
 ): ReviewItem => {
-  const formattedDate = r.createdAt ? String(r.createdAt).split('T')[0] : '—';
+  const formattedDate = r.updatedAt ? String(r.updatedAt).split('T')[0] : '—';
 
   const revId = `REV-${String(r.id).slice(0, 6)}`;
 
