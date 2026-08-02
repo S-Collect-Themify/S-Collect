@@ -169,19 +169,19 @@ export function mapAdminRefundToTableItem(refund: AdminRefund): TableItem {
   const orderCode = `#ORD-${orderIdShort}`;
 
   const customerName = refund.customer
-    ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || 'Guest Buyer'
-    : refund.shipping?.recipientName || 'Guest Buyer';
+    ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || '--'
+    : refund.shipping?.recipientName || '--';
 
   const vendorName =
     typeof refund.vendorStoreName === 'string' && refund.vendorStoreName
       ? refund.vendorStoreName
-      : 'Direct Store';
+      : '--';
 
   const reasonStr = refund.items?.[0]?.reason
     ? refund.items[0].reason.replace(/_/g, ' ')
     : typeof refund.rejectionReason === 'string'
     ? refund.rejectionReason
-    : 'Return request';
+    : '--';
 
   const dateStr = refund.createdAt
     ? new Date(refund.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })

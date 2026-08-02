@@ -10,6 +10,7 @@ export { default as CategoryCommissionTable } from './components/CategoryCommiss
 export { default as CategoryCommissionMobileList } from './components/CategoryCommissionMobileList';
 export { default as EditCommissionModal } from './components/EditCommissionModal';
 export { default as ConfirmRateChangeModal } from './components/ConfirmRateChangeModal';
+export { default as ConfirmResetCommissionModal } from './components/ConfirmResetCommissionModal';
 
 export { default as CommissionTableSkeleton } from './components/skeletons/CommissionTableSkeleton';
 export { default as CommissionCardSkeleton } from './components/skeletons/CommissionCardSkeleton';

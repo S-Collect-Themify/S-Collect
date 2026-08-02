@@ -10,6 +10,7 @@ import {
   CategoryCommissionMobileList,
   EditCommissionModal,
   ConfirmRateChangeModal,
+  ConfirmResetCommissionModal,
   useCommissionRates,
 } from '../features/commissionRates';
 
@@ -22,10 +23,13 @@ export default function CommissionRates() {
     vendorCommissions,
     categoryCommissions,
     editTarget,
+    resetTarget,
     isModalOpen,
     isConfirmOpen,
+    isResetConfirmOpen,
     setIsModalOpen,
     setIsConfirmOpen,
+    setIsResetConfirmOpen,
     handleOpenEditPlatform,
     handleOpenEditVendor,
     handleOpenEditCategory,
@@ -33,6 +37,7 @@ export default function CommissionRates() {
     handleConfirmRateChange,
     handleResetVendorCommission,
     handleResetCategoryCommission,
+    handleConfirmReset,
     handleExportExcel,
     handleExportPDF,
   } = useCommissionRates();
@@ -145,7 +150,7 @@ export default function CommissionRates() {
 
       {/* Edit Modal */}
       <EditCommissionModal
-        isOpen={isModalOpen && !isConfirmOpen}
+        isOpen={isModalOpen && !isConfirmOpen && !isResetConfirmOpen}
         target={editTarget}
         onClose={() => setIsModalOpen(false)}
         onRequestConfirm={handleRequestConfirm}
@@ -165,6 +170,15 @@ export default function CommissionRates() {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmRateChange}
+      />
+
+      {/* Confirm Reset Modal */}
+      <ConfirmResetCommissionModal
+        isOpen={isResetConfirmOpen}
+        name={resetTarget?.name}
+        type={resetTarget?.type}
+        onCancel={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
       />
     </div>
   );

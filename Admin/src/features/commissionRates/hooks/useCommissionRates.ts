@@ -413,14 +413,36 @@ export function useCommissionRates() {
     setPendingChange(null);
   };
 
+  // ── Reset confirm state ─────────────────────────────────────────────────────
+  const [resetTarget, setResetTarget] = useState<{
+    id: string;
+    name: string;
+    type: 'vendor' | 'category';
+  } | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+
   // ── Reset handlers ──────────────────────────────────────────────────────────
 
   const handleResetVendorCommission = (item: VendorCommissionItem) => {
-    resetVendorMutation.mutate(item.id);
+    setResetTarget({ id: item.id, name: item.vendorName, type: 'vendor' });
+    setIsResetConfirmOpen(true);
   };
 
   const handleResetCategoryCommission = (item: CategoryCommissionItem) => {
-    resetCategoryMutation.mutate(item.id);
+    setResetTarget({ id: item.id, name: item.categoryName, type: 'category' });
+    setIsResetConfirmOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    if (!resetTarget) return;
+    if (resetTarget.type === 'vendor') {
+      resetVendorMutation.mutate(resetTarget.id);
+    } else {
+      resetCategoryMutation.mutate(resetTarget.id);
+    }
+    setIsResetConfirmOpen(false);
+    setIsModalOpen(false);
+    setResetTarget(null);
   };
 
   // ── Export ──────────────────────────────────────────────────────────────────
@@ -434,8 +456,8 @@ export function useCommissionRates() {
     ];
     const exportData = [
       { name: 'Platform Default', rate: `${platformCommission.rate}%`, status: 'Global', lastUpdated: platformCommission.lastUpdated },
-      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '----', status: v.status, lastUpdated: v.lastUpdated })),
-      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '----', status: c.status, lastUpdated: c.lastUpdated })),
+      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '--', status: v.status, lastUpdated: v.lastUpdated })),
+      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '--', status: c.status, lastUpdated: c.lastUpdated })),
     ];
     exportToCSV('Commission_Rates_Report', headers, exportData);
     toast.success(t('commissionRates.exportSuccess', 'Commission Rates exported successfully!'));
@@ -450,8 +472,8 @@ export function useCommissionRates() {
     ];
     const exportData = [
       { name: 'Platform Default', rate: `${platformCommission.rate}%`, status: 'Global', lastUpdated: platformCommission.lastUpdated },
-      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '----', status: v.status, lastUpdated: v.lastUpdated })),
-      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '----', status: c.status, lastUpdated: c.lastUpdated })),
+      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '--', status: v.status, lastUpdated: v.lastUpdated })),
+      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '--', status: c.status, lastUpdated: c.lastUpdated })),
     ];
     exportToPDF(t('commissionRates.title', 'Commission Rates'), headers, exportData);
   };
@@ -464,10 +486,13 @@ export function useCommissionRates() {
     vendorCommissions,
     categoryCommissions,
     editTarget,
+    resetTarget,
     isModalOpen,
     isConfirmOpen,
+    isResetConfirmOpen,
     setIsModalOpen,
     setIsConfirmOpen,
+    setIsResetConfirmOpen,
     handleOpenEditPlatform,
     handleOpenEditVendor,
     handleOpenEditCategory,
@@ -475,6 +500,7 @@ export function useCommissionRates() {
     handleConfirmRateChange,
     handleResetVendorCommission,
     handleResetCategoryCommission,
+    handleConfirmReset,
     handleExportExcel,
     handleExportPDF,
   };

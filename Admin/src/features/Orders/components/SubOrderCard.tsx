@@ -25,7 +25,7 @@ export const SubOrderCard = ({
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const defaultTracking = typeof subOrder.trackingNumber === 'string' && subOrder.trackingNumber ? subOrder.trackingNumber : '12390AA18123456784';
+  const defaultTracking = typeof subOrder.trackingNumber === 'string' && subOrder.trackingNumber ? subOrder.trackingNumber : '--';
   const defaultReason = typeof subOrder.statusOverrideReason === 'string' ? subOrder.statusOverrideReason : '';
 
   const [trackingNumber, setTrackingNumber] = useState(defaultTracking);

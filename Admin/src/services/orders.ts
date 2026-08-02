@@ -346,13 +346,13 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     : '';
 
   const firstSubOrder = order.subOrders?.[0];
-  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || 'Direct Store';
+  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || '--';
   const vendorId = firstSubOrder?.vendorId || (order as any).vendorId;
 
   return {
     id: order.id,
     code,
-    customer: order.recipientName || 'Guest Buyer',
+    customer: order.recipientName || '--',
     vendor: vendorName,
     vendorId,
     total,
@@ -381,14 +381,14 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
     : '';
 
   const customerName = sub.customer
-    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || 'Guest Buyer'
-    : 'Guest Buyer';
+    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || '--'
+    : '--';
 
   return {
     id: sub.id,
     code,
     customer: customerName,
-    vendor: (sub as any).vendorName || 'Direct Store',
+    vendor: (sub as any).vendorName || '--',
     vendorId: sub.vendorId,
     total,
     totalFormatted,

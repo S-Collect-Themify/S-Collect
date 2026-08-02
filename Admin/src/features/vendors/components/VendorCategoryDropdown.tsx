@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
-import { VENDOR_CATEGORIES } from '../data/constant';
+import { useVendorCategories } from '../hooks/useVendors';
 
 const DD_ITEM =
   'flex items-center gap-2.5 px-3.5 py-2.5 text-sm cursor-pointer hover:bg-gray-50';
@@ -9,13 +9,18 @@ const DD_ITEM =
 interface VendorCategoryDropdownProps {
   selected: string;
   onChange: (cat: string) => void;
+  categories?: string[];
 }
 
 export default function VendorCategoryDropdown({
   selected,
   onChange,
+  categories: customCategories,
 }: VendorCategoryDropdownProps) {
   const { t } = useTranslation();
+  const { data: apiCategories = [] } = useVendorCategories();
+
+  const categoriesList = customCategories && customCategories.length > 0 ? customCategories : apiCategories;
   const label = selected || t('vendors.table.category');
 
   return (
@@ -55,24 +60,30 @@ export default function VendorCategoryDropdown({
             <span>{t('vendors.table.allCategories')}</span>
           </div>
           <div className="h-px bg-gray-100 my-1" />
-          {VENDOR_CATEGORIES.map((cat) => (
-            <div
-              key={cat}
-              className={DD_ITEM}
-              onClick={() => {
-                onChange(cat);
-                close();
-              }}
-            >
-              <input
-                type="radio"
-                readOnly
-                checked={selected === cat}
-                className="accent-black w-3.5 h-3.5 cursor-pointer"
-              />
-              <span>{cat}</span>
+          {categoriesList.length === 0 ? (
+            <div className="px-3.5 py-3 text-xs text-gray-400 text-center">
+              --
             </div>
-          ))}
+          ) : (
+            categoriesList.map((cat) => (
+              <div
+                key={cat}
+                className={DD_ITEM}
+                onClick={() => {
+                  onChange(cat);
+                  close();
+                }}
+              >
+                <input
+                  type="radio"
+                  readOnly
+                  checked={selected === cat}
+                  className="accent-black w-3.5 h-3.5 cursor-pointer"
+                />
+                <span>{cat}</span>
+              </div>
+            ))
+          )}
         </>
       )}
     </PortalDropdown>

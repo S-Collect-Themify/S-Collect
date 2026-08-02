@@ -56,6 +56,13 @@ export function StatCard({
   unit?: string;
   highlight?: boolean;
 }) {
+  const displayVal =
+    typeof value === 'number'
+      ? value > 0
+        ? value.toLocaleString()
+        : '--'
+      : value || '--';
+
   return (
     <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 shadow-sm p-4">
       <p className="text-xs text-gray-500 mb-2">{label}</p>
@@ -64,8 +71,8 @@ export function StatCard({
           highlight ? 'text-amber-600' : 'text-gray-900'
         }`}
       >
-        {typeof value === 'number' ? value.toLocaleString() : value}
-        {unit && (
+        {displayVal}
+        {unit && displayVal !== '--' && (
           <span className="text-xs font-normal text-gray-400 ms-1">{unit}</span>
         )}
       </p>
