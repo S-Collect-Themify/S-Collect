@@ -157,8 +157,15 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
         toast.error(isArabic ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.' : 'Cannot activate more than 5 banners at the same time.');
         return;
       }
+      setConfirmEnableModalOpen(true);
+    } else {
+      setIsActive(false);
     }
-    setIsActive(checked);
+  };
+
+  const handleConfirmEnable = () => {
+    setIsActive(true);
+    setConfirmEnableModalOpen(false);
   };
 
   // ── Validation ──
@@ -384,6 +391,47 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
           </div>
         </form>
       </div>
+
+      {/* Enable Banner Confirmation Modal */}
+      {confirmEnableModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-xs sm:max-w-sm w-full p-5 text-center shadow-2xl border border-gray-100 relative">
+            <div className="flex flex-col items-center">
+              <div className="size-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 border border-emerald-100">
+                <CheckCircle2 size={24} />
+              </div>
+
+              <h3 className="text-base font-bold text-gray-900 mb-1.5">
+                {t('banners.enableModal.title', { defaultValue: 'Enable Banner' })}
+              </h3>
+
+              <p className="text-xs text-gray-500 leading-relaxed mb-5 max-w-xs">
+                {t('banners.enableModal.message', {
+                  defaultValue:
+                    'Are you sure you want to enable this banner? It will immediately be displayed on the platform home page.',
+                })}
+              </p>
+
+              <div className="grid grid-cols-2 gap-2.5 w-full">
+                <button
+                  type="button"
+                  onClick={() => setConfirmEnableModalOpen(false)}
+                  className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2 px-3 rounded-xl transition-colors cursor-pointer"
+                >
+                  {t('banners.deleteModal.cancel', { defaultValue: 'Cancel' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmEnable}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-xl transition-colors cursor-pointer shadow-xs"
+                >
+                  {t('banners.enableModal.confirm', { defaultValue: 'Enable Banner' })}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
