@@ -25,7 +25,7 @@ export const TransactionsMobileList: React.FC<TransactionsMobileListProps> = ({ 
             {/* Top Row: Order # & Badge */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-100">
               <span className="text-xs font-bold text-gray-900 font-mono">
-                {item.orderNo}
+                {item.orderNo || '--'}
               </span>
               <TransactionStatusBadge status={item.status} />
             </div>
@@ -36,14 +36,14 @@ export const TransactionsMobileList: React.FC<TransactionsMobileListProps> = ({ 
                 <span className="text-gray-400">
                   {t('dashboardOverview.transactionsLog.buyerName', 'Buyer Name')}
                 </span>
-                <span className="font-bold text-gray-900">{item.buyerName}</span>
+                <span className="font-bold text-gray-900">{item.buyerName || '--'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">
                   {t('dashboardOverview.transactionsLog.totalAmount', 'Total Amount')}
                 </span>
                 <span className="font-bold text-gray-900">
-                  {item.amount.toLocaleString()} SAR
+                  {item.amount ? `${item.amount.toLocaleString()} SAR` : '--'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -51,14 +51,14 @@ export const TransactionsMobileList: React.FC<TransactionsMobileListProps> = ({ 
                   {t('dashboardOverview.transactionsLog.methodAndDate', 'Method & Date')}
                 </span>
                 <span className="font-medium text-gray-800">
-                  {item.paymentMethod} • {item.date}
+                  {item.paymentMethod || '--'} • {item.date || '--'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">
                   {t('dashboardOverview.transactionsLog.myFatoorahRef', 'MyFatoorah Ref')}
                 </span>
-                <span className="font-mono text-gray-500">{item.fatoorahRef}</span>
+                <span className="font-mono text-gray-500">{item.fatoorahRef || '--'}</span>
               </div>
             </div>
           </div>

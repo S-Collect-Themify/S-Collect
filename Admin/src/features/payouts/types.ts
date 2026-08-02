@@ -18,7 +18,7 @@ export interface PendingPayoutItem {
   commission: number;
   totalPayouts: number;
   pendingPayout: number;
-  status: 'Active' | 'Pending';
+  status: string;
 }
 
 export interface RegisterPayoutFormState {

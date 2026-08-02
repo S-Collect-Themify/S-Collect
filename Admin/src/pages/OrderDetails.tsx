@@ -137,7 +137,7 @@ const resolveVendorName = (sub: { vendorId?: string; [key: string]: any }): stri
     sub?.vendor?.name;
   if (fromApi) return fromApi;
   if (sub?.vendorId && sub.vendorId.length <= 20) return sub.vendorId;
-  return '---';
+  return '--';
 };
 
 export default function OrderDetailsPage() {
@@ -168,7 +168,7 @@ export default function OrderDetailsPage() {
         hour: '2-digit',
         minute: '2-digit',
       })
-    : '---';
+    : '--';
 
   // Build shipping address from real API fields only
   const addressParts = [
@@ -178,13 +178,13 @@ export default function OrderDetailsPage() {
     orderData?.shippingZone,
     orderData?.shippingAdditionalDirections,
   ].filter(Boolean);
-  const addressString = addressParts.length > 0 ? addressParts.join(', ') : '---';
+  const addressString = addressParts.length > 0 ? addressParts.join(', ') : '--';
 
-  const customerName = orderData?.recipientName || '---';
-  const customerEmail = (orderData as any)?.recipientEmail || (orderData as any)?.email || '---';
-  const customerPhone = orderData?.recipientPhone || '---';
-  const paymentMethod = (orderData as any)?.paymentMethod || '---';
-  const shippingCountry = (orderData as any)?.shippingCountry || '---';
+  const customerName = orderData?.recipientName || '--';
+  const customerEmail = (orderData as any)?.recipientEmail || (orderData as any)?.email || '--';
+  const customerPhone = orderData?.recipientPhone || '--';
+  const paymentMethod = (orderData as any)?.paymentMethod || '--';
+  const shippingCountry = (orderData as any)?.shippingCountry || '--';
 
   // All line items across every sub-order
   const allOrderItems = orderData?.subOrders

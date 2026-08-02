@@ -64,6 +64,12 @@ export default function VendorReportOrdersDesktopTable({
                 </td>
               </tr>
             ))
+          ) : orders.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
+                No vendor report orders found.
+              </td>
+            </tr>
           ) : (
             orders.map((order, idx) => (
               <tr
@@ -71,19 +77,19 @@ export default function VendorReportOrdersDesktopTable({
                 className="hover:bg-gray-50/50 transition-colors"
               >
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.id}
+                  {order.id || '--'}
                 </td>
                 <td className="px-5 py-4 text-gray-400 font-medium whitespace-nowrap">
-                  {order.date}
+                  {order.date || '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.amount.toLocaleString()}
+                  {order.amount ? order.amount.toLocaleString() : '--'}
                 </td>
                 <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-                  {order.commission.toLocaleString()}
+                  {order.commission ? order.commission.toLocaleString() : '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.net.toLocaleString()}
+                  {order.net ? order.net.toLocaleString() : '--'}
                 </td>
                 <td className="px-5 py-4 whitespace-nowrap">
                   <VendorReportStatusBadge status={order.status} />

@@ -64,25 +64,25 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
                 className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors group"
               >
                 <td className="py-3.5 px-4 font-bold text-gray-900 font-mono">
-                  {item.orderNo}
+                  {item.orderNo || '--'}
                 </td>
                 <td className="py-3.5 px-4 text-gray-500 font-medium">
-                  {item.date}
+                  {item.date || '--'}
                 </td>
                 <td className="py-3.5 px-4 font-bold text-gray-900">
-                  {item.buyerName}
+                  {item.buyerName || '--'}
                 </td>
                 <td className="py-3.5 px-4 font-bold text-gray-900">
-                  {item.amount.toLocaleString()} SAR
+                  {item.amount ? `${item.amount.toLocaleString()} SAR` : '--'}
                 </td>
                 <td className="py-3.5 px-4 text-gray-600 font-medium">
-                  {item.paymentMethod}
+                  {item.paymentMethod || '--'}
                 </td>
                 <td className="py-3.5 px-4">
                   <TransactionStatusBadge status={item.status} />
                 </td>
                 <td className="py-3.5 px-4 text-gray-500 font-mono text-[11px]">
-                  {item.fatoorahRef}
+                  {item.fatoorahRef || '--'}
                 </td>
               </tr>
             ))

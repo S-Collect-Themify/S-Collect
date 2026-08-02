@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
-import { INITIAL_PAYOUT_STATS, INITIAL_PENDING_PAYOUTS } from '../data';
+import { getVendors } from '../../../services/vendors';
+import { INITIAL_PAYOUT_STATS } from '../data';
 import type { PayoutStatCardData, PendingPayoutItem } from '../types';
 
 interface PendingRegistration {
@@ -17,13 +18,11 @@ export function usePayouts() {
   const isRtl = i18n.language === 'ar';
 
   const [isLoading, setIsLoading] = useState(true);
-  const [stats] = useState<PayoutStatCardData[]>(INITIAL_PAYOUT_STATS);
-  const [pendingPayouts, setPendingPayouts] = useState<PendingPayoutItem[]>(
-    INITIAL_PENDING_PAYOUTS
-  );
+  const [stats, setStats] = useState<PayoutStatCardData[]>(INITIAL_PAYOUT_STATS);
+  const [pendingPayouts, setPendingPayouts] = useState<PendingPayoutItem[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 20;
 
   const [selectedVendor, setSelectedVendor] = useState<PendingPayoutItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +33,119 @@ export function usePayouts() {
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  // Simulate skeleton loading state on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    let isMounted = true;
+
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const vendors = await getVendors();
+        if (!isMounted) return;
+
+        const mappedItems: PendingPayoutItem[] = (vendors || []).map((v) => {
+          const vName =
+            v.storeName ||
+            [v.firstName, v.lastName].filter(Boolean).join(' ') ||
+            '--';
+          return {
+            id: v.id,
+            vendorName: vName,
+            bankAccount: '--',
+            totalGmv: 0,
+            commission: 0,
+            totalPayouts: 0,
+            pendingPayout: 0,
+            status: v.status || '--',
+          };
+        });
+
+        setPendingPayouts(mappedItems);
+
+        setStats([
+          {
+            id: 'stat1',
+            titleKey: 'payouts.totalRegisteredTitle',
+            defaultTitle: 'Total Payouts Registered',
+            value: '--',
+            unit: 'SAR',
+            badgeTextKey: 'payouts.badgeActivePeriod',
+            defaultBadgeText: 'Active Period',
+            badgeVariant: 'emerald',
+            iconType: 'check',
+          },
+          {
+            id: 'stat2',
+            titleKey: 'payouts.pendingPayoutsTitle',
+            defaultTitle: 'Pending Payouts',
+            value: '--',
+            unit: 'SAR',
+            badgeTextKey: 'payouts.badgeRequiresAction',
+            defaultBadgeText: 'Requires Action',
+            badgeVariant: 'amber',
+            iconType: 'clock',
+          },
+          {
+            id: 'stat3',
+            titleKey: 'payouts.vendorsWithPendingTitle',
+            defaultTitle: 'Vendors with Pending',
+            value: mappedItems.length > 0 ? String(mappedItems.length) : '--',
+            unit: 'Vendors',
+            badgeTextKey: 'payouts.badgeAllAccounts',
+            defaultBadgeText: 'All Accounts',
+            badgeVariant: 'blue',
+            iconType: 'users',
+          },
+        ]);
+      } catch (err) {
+        console.error('Failed to load payouts data:', err);
+        if (isMounted) {
+          setPendingPayouts([]);
+          setStats([
+            {
+              id: 'stat1',
+              titleKey: 'payouts.totalRegisteredTitle',
+              defaultTitle: 'Total Payouts Registered',
+              value: '--',
+              unit: 'SAR',
+              badgeTextKey: 'payouts.badgeActivePeriod',
+              defaultBadgeText: 'Active Period',
+              badgeVariant: 'emerald',
+              iconType: 'check',
+            },
+            {
+              id: 'stat2',
+              titleKey: 'payouts.pendingPayoutsTitle',
+              defaultTitle: 'Pending Payouts',
+              value: '--',
+              unit: 'SAR',
+              badgeTextKey: 'payouts.badgeRequiresAction',
+              defaultBadgeText: 'Requires Action',
+              badgeVariant: 'amber',
+              iconType: 'clock',
+            },
+            {
+              id: 'stat3',
+              titleKey: 'payouts.vendorsWithPendingTitle',
+              defaultTitle: 'Vendors with Pending',
+              value: '--',
+              unit: 'Vendors',
+              badgeTextKey: 'payouts.badgeAllAccounts',
+              defaultBadgeText: 'All Accounts',
+              badgeVariant: 'blue',
+              iconType: 'users',
+            },
+          ]);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const totalPages = Math.ceil(pendingPayouts.length / itemsPerPage);

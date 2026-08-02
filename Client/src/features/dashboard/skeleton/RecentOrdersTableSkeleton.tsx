@@ -1,6 +1,6 @@
 const RecentOrdersTableSkeleton = () => {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white h-[550px]">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white min-h-[550px] space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6 animate-pulse">
         <div className="h-8 w-48 bg-gray-200 rounded" />
@@ -8,10 +8,10 @@ const RecentOrdersTableSkeleton = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto overflow-y-auto">
+      <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-t border-gray-200 bg-gray-50">
+            <tr className="border-b border-gray-200 bg-gray-50">
               {Array.from({ length: 6 }).map((_, index) => (
                 <th key={index} className="px-8 py-4">
                   <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
@@ -20,9 +20,9 @@ const RecentOrdersTableSkeleton = () => {
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-gray-200">
             {Array.from({ length: 6 }).map((_, rowIndex) => (
-              <tr key={rowIndex} className="border-t border-gray-200">
+              <tr key={rowIndex}>
                 <td className="px-8 py-6">
                   <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
                 </td>

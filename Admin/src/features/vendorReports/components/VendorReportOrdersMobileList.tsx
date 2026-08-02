@@ -34,13 +34,17 @@ export default function VendorReportOrdersMobileList({
             </div>
           </div>
         ))
+      ) : orders.length === 0 ? (
+        <div className="p-8 text-center text-xs text-gray-400">
+          No vendor report orders found.
+        </div>
       ) : (
         orders.map((order, idx) => (
           <div key={`${order.id}-mob-${idx}`} className="p-4 space-y-2.5">
             {/* Header: Order ID & Status */}
             <div className="flex items-center justify-between">
               <span className="font-extrabold text-sm text-gray-900">
-                {order.id}
+                {order.id || '--'}
               </span>
               <VendorReportStatusBadge status={order.status} />
             </div>
@@ -52,7 +56,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.tableDate', 'Date')}
                 </p>
                 <p className="text-xs text-gray-600 font-medium whitespace-nowrap">
-                  {order.date}
+                  {order.date || '--'}
                 </p>
               </div>
               <div>
@@ -60,7 +64,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobAmount', 'Amount')}
                 </p>
                 <p className="text-xs text-gray-900 font-bold whitespace-nowrap">
-                  {order.amount.toLocaleString()} {t('vendorReports.currency', 'SAR')}
+                  {order.amount ? `${order.amount.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
               <div>
@@ -68,7 +72,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobCommission', 'Commission')}
                 </p>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">
-                  {order.commission.toLocaleString()} {t('vendorReports.currency', 'SAR')}
+                  {order.commission ? `${order.commission.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
               <div>
@@ -76,7 +80,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobNet', 'Net')}
                 </p>
                 <p className="text-xs text-gray-900 font-bold whitespace-nowrap">
-                  {order.net.toLocaleString()} {t('vendorReports.currency', 'SAR')}
+                  {order.net ? `${order.net.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
             </div>

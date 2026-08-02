@@ -1,20 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronDown } from 'lucide-react';
-import toast from 'react-hot-toast';
 import PortalDropdown from '../components/ui/PortalDropdown';
-import { exportToCSV, exportToPDF } from '../utils/exportUtils';
 import {
   VendorReportHeader,
   VendorReportStatCards,
   VendorReportOrdersTable,
   STAT_CARDS_DATA,
-  MOCK_DETAILED_ORDERS,
   DATE_RANGES,
+  useVendorReportOrders,
+  useExportVendorReportMutation,
   type DateRangeKey,
 } from '../features/vendorReports';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20;
 
 export default function VendorReports() {
   const { t, i18n } = useTranslation();
@@ -22,24 +21,17 @@ export default function VendorReports() {
 
   const [selectedRangeKey, setSelectedRangeKey] = useState<DateRangeKey>('last30Days');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Trigger skeleton loading state on date filter selection or page change
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 350);
-    return () => clearTimeout(timer);
-  }, [selectedRangeKey, currentPage]);
+  // React Query for data fetching
+  const { orders, totalOrdersCount, totalPages, isLoading } = useVendorReportOrders(
+    currentPage,
+    ITEMS_PER_PAGE
+  );
+
+  // React Mutation for report export actions
+  const exportMutation = useExportVendorReportMutation();
 
   const currentOption = DATE_RANGES.find((r) => r.key === selectedRangeKey) || DATE_RANGES[1];
-
-  const totalOrdersCount = MOCK_DETAILED_ORDERS.length;
-  const totalPages = Math.ceil(totalOrdersCount / ITEMS_PER_PAGE);
-
-  const paginatedOrders = MOCK_DETAILED_ORDERS.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
 
   const exportHeaders = [
     { key: 'id' as const, label: t('vendorReports.tableOrderNo', 'Order #') },
@@ -51,16 +43,23 @@ export default function VendorReports() {
   ];
 
   const handleExportExcel = () => {
-    exportToCSV(`vendor_sales_report_${selectedRangeKey}`, exportHeaders, MOCK_DETAILED_ORDERS);
-    toast.success(t('vendorReports.exportSuccess', 'Vendor Sales Report exported successfully!'));
+    exportMutation.mutate({
+      format: 'excel',
+      fileName: `vendor_sales_report_${selectedRangeKey}`,
+      title: t('vendorReports.title', 'Vendor Sales Report'),
+      headers: exportHeaders,
+      data: orders,
+    });
   };
 
   const handleExportPDF = () => {
-    exportToPDF(
-      t('vendorReports.title', 'Vendor Sales Report'),
-      exportHeaders,
-      MOCK_DETAILED_ORDERS
-    );
+    exportMutation.mutate({
+      format: 'pdf',
+      fileName: `vendor_sales_report_${selectedRangeKey}`,
+      title: t('vendorReports.title', 'Vendor Sales Report'),
+      headers: exportHeaders,
+      data: orders,
+    });
   };
 
   return (
@@ -134,7 +133,7 @@ export default function VendorReports() {
 
         {/* Detailed Orders Table & Mobile List */}
         <VendorReportOrdersTable
-          orders={paginatedOrders}
+          orders={orders}
           currentPage={currentPage}
           totalPages={totalPages}
           totalOrdersCount={totalOrdersCount}

@@ -41,7 +41,7 @@ export default function PlatformDefaultCommissionCard({
         {/* Value & Subtext */}
         <div className="flex items-baseline gap-1.5">
           <span className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-            {platformData.rate.toFixed(2)}%
+            {(platformData.rate ?? 0).toFixed(2)}%
           </span>
           <span className="text-xs text-gray-400 font-medium">
             {t('commissionRates.appliedGlobally', 'applied globally')}

@@ -9,6 +9,7 @@ export interface BackendVendor {
   commercialRegisterNumber?: string;
   status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   isFeatured?: boolean;
+  commissionRate?: number | string | Record<string, unknown> | null;
   createdAt?: string;
 }
 

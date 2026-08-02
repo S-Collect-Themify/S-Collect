@@ -43,6 +43,14 @@ export default function PayoutsDesktopTable({
         </thead>
         {isLoading ? (
           <PayoutTableSkeleton rowCount={6} />
+        ) : items.length === 0 ? (
+          <tbody className="divide-y divide-gray-100">
+            <tr>
+              <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
+                No pending payouts found.
+              </td>
+            </tr>
+          </tbody>
         ) : (
           <tbody className="divide-y divide-gray-100">
             {items.map((item) => (

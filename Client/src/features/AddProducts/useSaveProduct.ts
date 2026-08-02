@@ -4,6 +4,7 @@ import {
   updateProductFull,
   setProductThumbnail,
   updateProductVariant,
+  uploadProductImage,
 } from '../../services/products';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -70,6 +71,34 @@ export const useSaveProduct = ({
 
       const targetId = productId || unwrapped?.id;
 
+      // Only upload images manually if backend createProductFull didn't process them
+      const hasImagesFromBackend =
+        Array.isArray(unwrapped?.images) && unwrapped.images.length > 0;
+
+      if (!isEdit && targetId && !hasImagesFromBackend) {
+        const pendingImages = formData.getAll('images');
+        if (pendingImages && pendingImages.length > 0) {
+          const filesToUpload = pendingImages.filter(
+            (f): f is File => f instanceof File
+          );
+          if (filesToUpload.length > 0) {
+            try {
+              const uploadedResults = await Promise.all(
+                filesToUpload.map((file) => uploadProductImage(targetId, file))
+              );
+              const formattedNewImages = uploadedResults.map((res: any) => ({
+                id: res.id || res.imageId,
+                url: res.url || res.imageUrl,
+                isThumbnail: Boolean(res.isThumbnail),
+              }));
+              unwrapped.images = formattedNewImages;
+            } catch (imgErr) {
+              console.error('Failed to upload images after creation:', imgErr);
+            }
+          }
+        }
+      }
+
       // Use the image marked as thumbnail, or fall back to the first image
       const thumbnailImg = unwrapped?.images?.find(
         (img: any) => img.isThumbnail
@@ -88,6 +117,7 @@ export const useSaveProduct = ({
     },
     onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
       if (productId) {
         queryClient.invalidateQueries({ queryKey: ['product', productId] });
         queryClient.invalidateQueries({

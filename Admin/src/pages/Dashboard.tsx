@@ -37,10 +37,10 @@ export default function Dashboard() {
         {/* Mobile-only Greeting */}
         <div className="md:hidden mb-3">
           <p className="text-sm font-semibold text-gray-800">
-            {t('dashboardOverview.hello', 'Hello, Ahmed 👋')}
+            {t('dashboardOverview.hello', '--')}
           </p>
           <p className="text-xs text-gray-400 font-medium">
-            {t('dashboardOverview.todayDate', 'Wednesday, October 24, 2024')}
+            {t('dashboardOverview.todayDate', '--')}
           </p>
         </div>
 
