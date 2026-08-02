@@ -1,53 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import TopSellingCard from './TopSellingCard';
 import TopSellingSkeleton from './skeleton/TopSellingSkeleton';
 import { searchVendorProducts } from '../../services/products';
 import { getSubOrders } from '../../services/orders';
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.07, delayChildren: 0.15 },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 100, damping: 15 },
-  },
-};
-
-const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=150&h=150&fit=crop&crop=center&auto=format';
-
-const resolveImageUrl = (rawUrl: any): string => {
-  if (!rawUrl) return DEFAULT_IMAGE;
-  let urlStr = '';
-  if (typeof rawUrl === 'string') {
-    urlStr = rawUrl;
-  } else if (typeof rawUrl === 'object') {
-    urlStr = rawUrl.url || rawUrl.src || rawUrl.path || '';
-  }
-  if (!urlStr || typeof urlStr !== 'string' || urlStr.trim() === '') {
-    return DEFAULT_IMAGE;
-  }
-  if (
-    urlStr.startsWith('http://') ||
-    urlStr.startsWith('https://') ||
-    urlStr.startsWith('data:')
-  ) {
-    return urlStr;
-  }
-  return `https://api.collect-s.com${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
-};
+import { resolveImageUrl } from '../../utils/image';
+import { containerVariants, itemVariants } from '../../utils/animations';
 
 const TopSelling = () => {
   const { t, i18n } = useTranslation();
