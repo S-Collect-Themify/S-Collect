@@ -26,6 +26,8 @@ const ProductMedia = () => {
   const existingImages = watch('existingImages') || [];
   const [previews, setPreviews] = useState<PreviewImage[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   const filesKey = files.map((f) => `${f.name}-${f.size}`).join(',');
   const existingKey = existingImages.map((img) => img.id).join(',');
@@ -56,7 +58,7 @@ const ProductMedia = () => {
         imageId: img.id,
       })),
       ...files.map((file) => ({
-        id: crypto.randomUUID(),
+        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9) + Date.now(),
         file,
         preview: URL.createObjectURL(file),
       })),
@@ -73,14 +75,41 @@ const ProductMedia = () => {
     };
   }, [filesKey, existingKey]);
 
+  useEffect(() => {
+    files.forEach((file) => {
+      const key = `${file.name}-${file.size}`;
+      if (progressMap[key] === undefined) {
+        setProgressMap((prev) => ({ ...prev, [key]: 0 }));
+
+        let current = 0;
+        const timer = setInterval(() => {
+          current += Math.floor(Math.random() * 15) + 10;
+          if (current >= 100) {
+            current = 100;
+            clearInterval(timer);
+          }
+          setProgressMap((prev) => ({ ...prev, [key]: current }));
+        }, 150);
+      }
+    });
+  }, [filesKey]);
+
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = Array.from(e.target.files || []);
-    const compressed = await Promise.all(
-      uploadedFiles.map((file) => compressImage(file))
-    );
-    setValue('images', [...files, ...compressed], {
-      shouldValidate: true,
-    });
+    if (uploadedFiles.length === 0) return;
+    setIsCompressing(true);
+    try {
+      const compressed = await Promise.all(
+        uploadedFiles.map((file) => compressImage(file))
+      );
+      setValue('images', [...files, ...compressed], {
+        shouldValidate: true,
+      });
+    } catch (error) {
+      console.error('Failed to compress images:', error);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleDelete = (indexToDelete: number) => {
@@ -139,13 +168,17 @@ const ProductMedia = () => {
           const isDeleting =
             image.imageId != null && deletingId === image.imageId;
 
+          const key = image.file ? `${image.file.name}-${image.file.size}` : '';
+          const currentProgress = key && progressMap[key] !== undefined ? progressMap[key] : 100;
+          const isUploading = currentProgress < 100;
+
           return (
             <div key={image.id} className="relative h-28 w-full sm:h-24 group">
               <img
                 src={image.preview}
                 alt=""
                 className={`h-full w-full rounded-xl object-cover transition ${
-                  isDeleting ? 'opacity-40' : ''
+                  isDeleting || isUploading ? 'opacity-40' : ''
                 }`}
               />
 
@@ -161,17 +194,38 @@ const ProductMedia = () => {
                 </div>
               )}
 
-              <button
-                type="button"
-                onClick={() => handleDelete(index)}
-                disabled={isDeleting}
-                className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10 disabled:opacity-50"
-              >
-                <Trash2 size={12} />
-              </button>
+              {isUploading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/55 text-white p-1">
+                  <span className="text-[10px] font-semibold">
+                    {currentProgress}%
+                  </span>
+                  <div className="mt-1 h-1 w-4/5 overflow-hidden rounded-full bg-white/20">
+                    <div
+                      className="h-full bg-white transition-all duration-150"
+                      style={{ width: `${currentProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isDeleting && !isUploading && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(index)}
+                  className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition hover:bg-red-600 active:scale-95 cursor-pointer z-10"
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
             </div>
           );
         })}
+
+        {isCompressing && (
+          <div className="relative h-28 w-full sm:h-24 flex items-center justify-center rounded-xl bg-gray-100 border border-gray-200">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-900 border-t-transparent" />
+          </div>
+        )}
 
         <label
           htmlFor="images"

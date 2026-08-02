@@ -26,8 +26,8 @@ const ReviewPage = ({
   isPublishing,
   isEdit,
 }: ReviewPageProps) => (
-  <div className="flex-1 overflow-y-auto  px-4 py-6 lg:p-14">
-    <div className="mb-6 md:mb-8 md:ml-4">
+  <>
+    <div className="sidebar-page-container-header">
       <h1 className="text-h5 font-bold">
         {isEdit ? 'Edit Product' : 'Add Product'}
       </h1>
@@ -42,23 +42,25 @@ const ReviewPage = ({
       </div>
     </div>
 
-    <div className="rounded-2xl p-4 shadow-sm md:p-6 md:shadow-none">
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_440px] xl:gap-10">
-        <ProductPreviewCard
-          formData={formData}
-          categories={categories}
-          sizes={sizes}
-          colors={colors}
-          quantity={quantity}
-        />
-        <StepSummary
-          onPrevious={onPrevious}
-          onPublish={onPublish}
-          isPublishing={isPublishing}
-        />
+    <div className="flex-1 overflow-y-auto sidebar-page-container">
+      <div className="rounded-2xl p-4 shadow-sm md:p-6 md:shadow-none">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_440px] xl:gap-10">
+          <ProductPreviewCard
+            formData={formData}
+            categories={categories}
+            sizes={sizes}
+            colors={colors}
+            quantity={quantity}
+          />
+          <StepSummary
+            onPrevious={onPrevious}
+            onPublish={onPublish}
+            isPublishing={isPublishing}
+          />
+        </div>
       </div>
     </div>
-  </div>
+  </>
 );
 
 export default ReviewPage;
