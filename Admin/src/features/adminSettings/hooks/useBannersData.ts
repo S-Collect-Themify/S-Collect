@@ -9,6 +9,7 @@ import {
   type CreateBannerPayload,
   type UpdateBannerPayload,
 } from '../../../services/banners';
+import type { BannerItem } from '../types';
 
 export const BANNERS_QUERY_KEY = ['admin-banners'];
 
@@ -17,13 +18,13 @@ export const useBannersData = () => {
 
   const bannersQuery = useQuery({
     queryKey: BANNERS_QUERY_KEY,
-    queryFn: async () => {
+    queryFn: async (): Promise<BannerItem[]> => {
       const raw = await getAdminBanners();
       return raw.map((b) => ({
         id: b.id,
         name: b.title,
         redirectUrl: b.externalUrl || '',
-        isActive: b.isActive,
+        isActive: b.isActive === true || (b.isActive as any) === 1 || String(b.isActive) === 'true',
         dateAdded: b.createdAt
           ? new Date(b.createdAt).toLocaleDateString('en-US', {
               year: 'numeric',
@@ -57,17 +58,8 @@ export const useBannersData = () => {
   });
 
   const updateBannerMutation = useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: UpdateBannerPayload }) => {
-      const updated = await updateAdminBanner(id, payload);
-      if (payload.isActive !== undefined) {
-        try {
-          await updateAdminBanner(id, { isActive: payload.isActive });
-        } catch {
-          // ignore status patch fallback error
-        }
-      }
-      return updated;
-    },
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateBannerPayload }) =>
+      updateAdminBanner(id, payload),
     onSuccess: () => {
       toast.success(
         i18n.language === 'ar' ? 'تم تحديث البنر بنجاح' : 'Banner updated successfully'
@@ -80,15 +72,53 @@ export const useBannersData = () => {
   });
 
   const deleteBannerMutation = useMutation({
-    mutationFn: (id: string) => deleteAdminBanner(id),
+    mutationFn: async (id: string) => {
+      // 1. Delete target banner
+      await deleteAdminBanner(id);
+
+      // 2. Re-index remaining banners' sortOrder sequentially (1, 2, 3...)
+      const currentBanners = bannersQuery.data || [];
+      const remainingBanners = currentBanners.filter((b) => b.id !== id);
+
+      if (remainingBanners.length > 0) {
+        await Promise.all(
+          remainingBanners.map((b, idx) =>
+            updateAdminBanner(b.id, { sortOrder: idx + 1 })
+          )
+        );
+      }
+    },
     onSuccess: () => {
       toast.success(
-        i18n.language === 'ar' ? 'تم حذف البنر بنجاح' : 'Banner deleted successfully'
+        i18n.language === 'ar' ? 'تم حذف البنر وتحديث الترتيب بنجاح' : 'Banner deleted successfully'
       );
       queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || err?.message || 'Failed to delete banner');
+    },
+  });
+
+  const saveOrderMutation = useMutation({
+    mutationFn: async (orderedBanners: BannerItem[]) => {
+      await Promise.all(
+        orderedBanners.map((b, idx) =>
+          updateAdminBanner(b.id, { sortOrder: idx + 1 })
+        )
+      );
+    },
+    onSuccess: () => {
+      toast.success(
+        i18n.language === 'ar'
+          ? 'تم حفظ ترتيب البنرات بنجاح'
+          : 'Banner order saved successfully'
+      );
+      queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });
+    },
+    onError: (err: any) => {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'Failed to save banner order'
+      );
     },
   });
 
@@ -101,5 +131,6 @@ export const useBannersData = () => {
     createBannerMutation,
     updateBannerMutation,
     deleteBannerMutation,
+    saveOrderMutation,
   };
 };

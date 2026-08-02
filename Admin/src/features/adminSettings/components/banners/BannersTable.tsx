@@ -1,0 +1,128 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  DndContext,
+  closestCenter,
+  type DragEndEvent,
+  type SensorDescriptor,
+  type SensorOptions,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import type { BannerItem } from '../../types';
+import { SortableBannerRow } from './SortableBannerRow';
+
+export interface BannersTableProps {
+  banners: BannerItem[];
+  bannersLoading: boolean;
+  categoryMap: Map<string, string>;
+  productMap: Map<string, string>;
+  vendorMap: Map<string, string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sensors: SensorDescriptor<SensorOptions>[] | any;
+  onDragEnd: (event: DragEndEvent) => void;
+  onEdit: (banner: BannerItem) => void;
+  onDelete: (banner: BannerItem) => void;
+}
+
+export const BannersTable: React.FC<BannersTableProps> = ({
+  banners,
+  bannersLoading,
+  categoryMap,
+  productMap,
+  vendorMap,
+  sensors,
+  onDragEnd,
+  onEdit,
+  onDelete,
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-xs border border-gray-100 overflow-hidden w-full">
+      {bannersLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 py-3">
+              <div className="w-8 h-4 bg-gray-100 rounded animate-pulse" />
+              <div className="w-36 h-14 bg-gray-100 rounded-xl animate-pulse shrink-0" />
+              <div className="flex-1 h-4 bg-gray-100 rounded animate-pulse" />
+              <div className="w-20 h-6 bg-gray-100 rounded-lg animate-pulse" />
+              <div className="w-32 h-4 bg-gray-100 rounded animate-pulse" />
+              <div className="w-16 h-6 bg-gray-100 rounded-full animate-pulse" />
+              <div className="w-16 h-8 bg-gray-100 rounded-lg animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onDragEnd}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-separate border-spacing-y-0">
+              <thead>
+                <tr className="bg-[#f8f9fa] text-xs font-medium text-gray-500">
+                  <th className="py-3 px-4 first:rounded-l-xl font-medium">
+                    {t('banners.table.order', { defaultValue: 'Order' })}
+                  </th>
+                  <th className="py-3 px-4 font-medium">
+                    {t('banners.table.thumbnail', { defaultValue: 'Thumbnail' })}
+                  </th>
+                  <th className="py-3 px-6 font-medium">
+                    {t('banners.table.title', { defaultValue: 'Banner Title' })}
+                  </th>
+                  <th className="py-3 px-6 font-medium">
+                    {t('banners.table.linkType', { defaultValue: 'Link Type' })}
+                  </th>
+                  <th className="py-3 px-6 font-medium">
+                    {t('banners.table.status', { defaultValue: 'Status' })}
+                  </th>
+                  <th className="py-3 px-6 last:rounded-r-xl font-medium text-right rtl:text-left">
+                    {t('banners.table.actions', { defaultValue: 'Actions' })}
+                  </th>
+                </tr>
+              </thead>
+              <SortableContext
+                items={banners.map((b) => b.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <tbody className="divide-y divide-gray-100 text-sm">
+                  {banners.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="py-12 text-center text-gray-400"
+                      >
+                        {t('banners.noBanners', {
+                          defaultValue: 'No banners added yet.',
+                        })}
+                      </td>
+                    </tr>
+                  ) : (
+                    banners.map((banner, index) => (
+                      <SortableBannerRow
+                        key={banner.id}
+                        banner={banner}
+                        order={index + 1}
+                        categoryMap={categoryMap}
+                        productMap={productMap}
+                        vendorMap={vendorMap}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        t={t}
+                      />
+                    ))
+                  )}
+                </tbody>
+              </SortableContext>
+            </table>
+          </div>
+        </DndContext>
+      )}
+    </div>
+  );
+};

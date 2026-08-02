@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import Toggle from '../../categories/components/Toggle';
 import type { BannerLinkType } from '../types';
 import { useBannerFormData } from '../hooks/useBannerFormData';
+import { useBannersData } from '../hooks/useBannersData';
 
 interface BannerFormProps {
   mode: 'add' | 'edit';
@@ -40,16 +41,14 @@ const LINK_TYPE_OPTIONS: { value: BannerLinkType; label: string; icon: string }[
 
 export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const { t } = useTranslation();
-  const { createBannerApi, updateBannerApi, editingBanner, setViewMode, banners } =
+  const { editingBanner, setEditingBanner, setViewMode } =
     useAdminSettingsStore();
+  const { banners, createBannerMutation, updateBannerMutation } = useBannersData();
   const isArabic = i18n.language === 'ar';
   const BreadcrumbChevron = isArabic ? ChevronLeft : ChevronRight;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
-
-  // ── Dynamic DDL data via React Query Hook ──
-  const { categories, vendors, products, isLoading: ddlLoading } = useBannerFormData();
 
   // ── React Hook Form ──
   const {
@@ -91,7 +90,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
         linkTargetId: editingBanner.linkTargetId || '',
         externalUrl: editingBanner.externalUrl || '',
         endsAt: editingBanner.endsAt ? editingBanner.endsAt.slice(0, 16) : '',
-        isActive: editingBanner.isActive,
+        isActive: Boolean(editingBanner.isActive),
       });
       setImagePreview(editingBanner.imageUrl || null);
       setImageFileName(editingBanner.imageFileName || '');
@@ -188,7 +187,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
     setConfirmEnableModalOpen(false);
   };
 
-  // ── Submit Handler ──
+  // ── Submit Handler using React Query Mutations ──
   const onSubmit: SubmitHandler<BannerFormValues> = async (formData) => {
     if (mode === 'add' && !imageFile) {
       setImageError(isArabic ? 'صورة البانر مطلوبة' : 'Banner image is required');
@@ -196,10 +195,25 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
     }
     if (imageError) return;
 
+    const isEndsAtInPast = formData.endsAt
+      ? new Date(formData.endsAt).getTime() <= Date.now()
+      : false;
+
+    if (formData.isActive && isEndsAtInPast) {
+      toast.error(
+        isArabic
+          ? 'لا يمكن تفعيل البنر لأن تاريخ الانتهاء قد مضى. يرجى تحديث التاريخ أو مسحه.'
+          : 'Cannot activate banner because the expiration date (Ends At) is in the past. Please update or clear the expiration date.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const endsAtPayload = formData.endsAt ? new Date(formData.endsAt).toISOString() : null;
+
       if (mode === 'add') {
-        await createBannerApi({
+        await createBannerMutation.mutateAsync({
           title: formData.title.trim(),
           linkType: formData.linkType,
           image: imageFile!,
@@ -207,22 +221,30 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             formData.linkType !== 'EXTERNAL_URL' ? formData.linkTargetId || undefined : undefined,
           externalUrl:
             formData.linkType === 'EXTERNAL_URL' ? formData.externalUrl.trim() || undefined : undefined,
-          endsAt: formData.endsAt ? new Date(formData.endsAt).toISOString() : undefined,
+          endsAt: endsAtPayload || undefined,
           sortOrder: banners.length + 1,
         });
+        setViewMode('banners');
       } else if (editingBanner) {
-        await updateBannerApi(editingBanner.id, {
-          title: formData.title.trim(),
-          linkType: formData.linkType,
-          image: imageFile || null,
-          linkTargetId:
-            formData.linkType !== 'EXTERNAL_URL' ? formData.linkTargetId || undefined : undefined,
-          externalUrl:
-            formData.linkType === 'EXTERNAL_URL' ? formData.externalUrl.trim() || undefined : undefined,
-          endsAt: formData.endsAt ? new Date(formData.endsAt).toISOString() : undefined,
-          isActive: formData.isActive,
+        await updateBannerMutation.mutateAsync({
+          id: editingBanner.id,
+          payload: {
+            title: formData.title.trim(),
+            linkType: formData.linkType,
+            image: imageFile || undefined,
+            linkTargetId:
+              formData.linkType !== 'EXTERNAL_URL' ? formData.linkTargetId || undefined : undefined,
+            externalUrl:
+              formData.linkType === 'EXTERNAL_URL' ? formData.externalUrl.trim() || undefined : undefined,
+            endsAt: endsAtPayload,
+            isActive: Boolean(formData.isActive),
+          },
         });
+        setViewMode('banners');
+        setEditingBanner(null);
       }
+    } catch {
+      // Error handling is handled in mutation onError
     } finally {
       setIsSubmitting(false);
     }
@@ -380,88 +402,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             </div>
           </div>
 
-          {/* Dynamic Link Target */}
-          {linkType !== 'EXTERNAL_URL' && (
-            <div>
-              <label className="text-sm font-semibold text-gray-900 mb-2 block">
-                {linkType === 'CATEGORY' ? 'Select Category' : linkType === 'PRODUCT' ? 'Select Product' : 'Select Vendor'}{' '}
-                <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <select
-                  {...register('linkTargetId', {
-                    required:
-                      linkType !== 'EXTERNAL_URL'
-                        ? isArabic
-                          ? 'يرجى تحديد الرابط المستهدف'
-                          : 'Please select a link target'
-                        : false,
-                  })}
-                  disabled={ddlLoading}
-                  className={`w-full appearance-none border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed pr-8 ${
-                    errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200'
-                  }`}
-                >
-                  <option value="" disabled>
-                    {ddlLoading ? 'Loading...' : `Choose a ${linkType.toLowerCase()}...`}
-                  </option>
-                  {linkType === 'CATEGORY' &&
-                    categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name || c.nameEn || c.nameAr}
-                      </option>
-                    ))}
-                  {linkType === 'PRODUCT' &&
-                    products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nameEn || p.name}
-                      </option>
-                    ))}
-                  {linkType === 'VENDOR' &&
-                    vendors.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.storeName}
-                      </option>
-                    ))}
-                </select>
-                {ddlLoading && (
-                  <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin pointer-events-none" />
-                )}
-              </div>
-              {errors.linkTargetId && <p className="text-xs text-red-500 mt-1.5">{errors.linkTargetId.message}</p>}
-            </div>
-          )}
-
-          {/* External URL */}
-          {linkType === 'EXTERNAL_URL' && (
-            <div>
-              <label htmlFor="externalUrl" className="text-sm font-semibold text-gray-900 mb-2 block">
-                {t('banners.form.redirectLinkUrl', { defaultValue: 'External URL' })}{' '}
-                <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <ExternalLink size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  id="externalUrl"
-                  type="url"
-                  {...register('externalUrl', {
-                    required:
-                      linkType === 'EXTERNAL_URL'
-                        ? isArabic
-                          ? 'يرجى تحديد الرابط المستهدف'
-                          : 'Please enter an external URL'
-                        : false,
-                  })}
-                  placeholder="https://example.com/target-page"
-                  className={`w-full border rounded-lg pl-9 pr-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all bg-white ${
-                    errors.externalUrl ? 'border-red-400 bg-red-50/20' : 'border-gray-200'
-                  }`}
-                />
-              </div>
-              {errors.externalUrl && <p className="text-xs text-red-500 mt-1.5">{errors.externalUrl.message}</p>}
-            </div>
-          )}
-
           {/* Expiration Date */}
           <div>
             <label className="text-sm font-semibold text-gray-900 mb-2 block">Ends At</label>
@@ -552,6 +492,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           </div>
         </div>
       )}
-     </div>
+    </div>
   );
 };
