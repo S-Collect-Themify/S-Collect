@@ -28,9 +28,9 @@ export function useInventory() {
     Record<string, { productId: string; variantId: string; stock: number }>
   >({});
 
-  // Compute minStock/maxStock from activeTab (inventory stock only shows items with stock <= 5)
+  // Compute minStock/maxStock from activeTab
   let minStock: number | undefined = undefined;
-  let maxStock: number | undefined = 5;
+  let maxStock: number | undefined = undefined;
   if (activeTab === 'Out of Stock') {
     minStock = 0;
     maxStock = 0;
@@ -38,8 +38,8 @@ export function useInventory() {
     minStock = 1;
     maxStock = 5;
   } else if (activeTab === 'In Stock') {
-    minStock = 1;
-    maxStock = 5;
+    minStock = 6;
+    maxStock = undefined;
   }
 
   // Query real inventory from the API with dependencies
@@ -58,18 +58,23 @@ export function useInventory() {
     retry: 1,
   });
 
-  // Convert raw product variants to flat rows (filtering for stock <= 5)
+  // Convert raw product variants to flat rows
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
     return items
+      // eslint-disable-next-line react-hooks/refs
       .filter((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;
         const stock =
           pendingChanges.current[uniqueId] !== undefined
             ? pendingChanges.current[uniqueId].stock
             : item.stock || 0;
-        return stock <= 5;
+        if (activeTab === 'Out of Stock') return stock === 0;
+        if (activeTab === 'Low Stock') return stock >= 1 && stock <= 5;
+        if (activeTab === 'In Stock') return stock > 5;
+        return true;
       })
+      // eslint-disable-next-line react-hooks/refs
       .map((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;
         const name = isAr
@@ -102,7 +107,7 @@ export function useInventory() {
           status: getStatus(stock),
         };
       });
-  }, [rawInventory, isAr]);
+  }, [rawInventory, isAr, activeTab]);
 
   // Derived data
   const totalItems = rawInventory?.pagination?.totalItems || 0;
