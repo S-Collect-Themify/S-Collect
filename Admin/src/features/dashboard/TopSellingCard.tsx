@@ -37,7 +37,7 @@ const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
             <div
               className="h-full bg-gray-700 rounded-full transition-all"
               style={{
-                width: `${Math.min(cardData.percentage * 5, 100)}%`,
+                width: `${Math.min(Math.max(cardData.percentage, 0), 100)}%`,
               }}
             />
           </div>
