@@ -276,6 +276,7 @@ export default function SalesChart() {
             margin={{
               left: 12,
               right: 12,
+              bottom: 8,
             }}
           >
             <defs>
@@ -311,7 +312,7 @@ export default function SalesChart() {
             />
             <Area
               dataKey="desktop"
-              type="natural"
+              type="monotone"
               fill="url(#fillGradient)"
               stroke="var(--color-desktop)"
             />
