@@ -1192,7 +1192,7 @@
       "totalCosts": "إجمالي التكاليف",
       "withinBudget": "ضمن ميزانية الربع",
       "redemptionsThisMonth": "الاستخدامات هذا الشهر",
-      "increaseFromLastWeek": "+12% زيادة عن الأسبوع الماضي"
+      "increaseFromLastWeek": "-% زيادة عن الأسبوع الماضي"
     },
     "tabs": {
       "active": "نشطة",

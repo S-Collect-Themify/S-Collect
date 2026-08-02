@@ -8,10 +8,10 @@ interface VoucherStatCardsProps {
 }
 
 export const VoucherStatCards = ({
-  activeCount = 12,
+  activeCount = 0,
   runningCount = 8,
-  totalCosts = 'SAR 24,580',
-  redemptionsCount = 347,
+  totalCosts = '-',
+  redemptionsCount = 0,
 }: VoucherStatCardsProps) => {
   const { t } = useTranslation();
 

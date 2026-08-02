@@ -1196,7 +1196,7 @@
       "totalCosts": "Total Costs",
       "withinBudget": "Within quarterly budget",
       "redemptionsThisMonth": "Redemptions This Month",
-      "increaseFromLastWeek": "+12% increase from last week"
+      "increaseFromLastWeek": "-% increase from last week"
     },
     "tabs": {
       "active": "Active",

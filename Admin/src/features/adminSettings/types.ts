@@ -39,6 +39,9 @@ export interface AdminAccount {
 export interface ShippingZoneItem {
   id: string;
   name: string;
+  code?: string;
+  nameEn?: string;
+  nameAr?: string;
   vendorsCount: number;
   isActive: boolean;
 }
@@ -61,5 +64,3 @@ export type AdminSettingsViewMode =
   | 'admins-edit'
   | 'shipping-zones'
   | 'shipping-rates';
-
-
