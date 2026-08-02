@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import TopSellingCard from './TopSellingCard';
 import TopSellingSkeleton from './skeleton/TopSellingSkeleton';
 import { searchVendorProducts } from '../../services/products';
+import { getSubOrders } from '../../services/orders';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -53,12 +54,21 @@ const TopSelling = () => {
   const navigate = useNavigate();
   const isAr = i18n.language === 'ar';
 
-  const { data: productsData, isLoading } = useQuery({
+  const { data: productsData, isLoading: isLoadingProducts } = useQuery({
     queryKey: ['dashboardTopSellingProducts'],
-    queryFn: () => searchVendorProducts({ pageNum: 1, pageSize: 10 }),
+    queryFn: () => searchVendorProducts({ pageNum: 1, pageSize: 20 }),
     refetchOnWindowFocus: false,
     staleTime: 2 * 60 * 1000,
   });
+
+  const { data: subOrdersData, isLoading: isLoadingOrders } = useQuery({
+    queryKey: ['dashboardTopSellingSubOrders'],
+    queryFn: () => getSubOrders({ pageNum: 1, pageSize: 100 }),
+    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const isLoading = isLoadingProducts || isLoadingOrders;
 
   if (isLoading) {
     return <TopSellingSkeleton />;
@@ -67,7 +77,29 @@ const TopSelling = () => {
   const productsList =
     productsData?.items || (Array.isArray(productsData) ? productsData : []);
 
-  const topProducts = productsList.map((prod: any, idx: number) => {
+  // Map product sales from sub-orders if available
+  const productSalesMap = new Map<string, { count: number; revenue: number }>();
+  const subOrdersList = subOrdersData?.items || [];
+  if (Array.isArray(subOrdersList)) {
+    for (const order of subOrdersList) {
+      if (order.status !== 'CANCELLED' && Array.isArray(order.items)) {
+        for (const item of order.items) {
+          const pId = item.productId;
+          if (pId) {
+            const existing = productSalesMap.get(pId) || { count: 0, revenue: 0 };
+            const qty = item.quantity || 1;
+            const lineRev = item.lineTotal || (item.unitPrice ? item.unitPrice * qty : 0);
+            productSalesMap.set(pId, {
+              count: existing.count + qty,
+              revenue: existing.revenue + lineRev,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  const rawProducts = productsList.map((prod: any, idx: number) => {
     const name = isAr
       ? prod.nameAr || prod.name || ''
       : prod.name || prod.nameAr || '';
@@ -87,12 +119,11 @@ const TopSelling = () => {
       price = prod.price;
     }
 
-    const salesCount =
-      prod.salesCount || prod.soldCount || Math.max(1, 10 - idx);
-    const revenue = price > 0 ? salesCount * price : (idx + 1) * 150;
-    const percentage = Number(
-      (100 / Math.max(1, productsList.length)).toFixed(1)
+    const salesData = productSalesMap.get(prod.id);
+    const salesCount = Number(
+      prod.salesCount ?? prod.soldCount ?? prod.unitsSold ?? salesData?.count ?? 0
     );
+    const revenueFromOrders = salesData?.revenue ?? (salesCount > 0 ? salesCount * price : 0);
 
     let rawImg: any = null;
     if (prod.thumbnailUrl) {
@@ -112,7 +143,37 @@ const TopSelling = () => {
       name: name || 'Vendor Product',
       imageUrl,
       unitsSold: salesCount,
-      revenue,
+      revenue: revenueFromOrders,
+      price,
+    };
+  });
+
+  // Sort products by unitsSold descending, then by revenue descending
+  rawProducts.sort((a: any, b: any) => b.unitsSold - a.unitsSold || b.revenue - a.revenue);
+
+  const totalSales = rawProducts.reduce(
+    (sum: number, item: any) => sum + item.unitsSold,
+    0
+  );
+  const maxSales = Math.max(
+    ...rawProducts.map((item: any) => item.unitsSold),
+    0
+  );
+
+  const topProducts = rawProducts.slice(0, 10).map((item: any) => {
+    const percentage =
+      totalSales > 0
+        ? Number(((item.unitsSold / totalSales) * 100).toFixed(1))
+        : maxSales > 0
+          ? Number(((item.unitsSold / maxSales) * 100).toFixed(1))
+          : 0;
+
+    return {
+      id: item.id,
+      name: item.name,
+      imageUrl: item.imageUrl,
+      unitsSold: item.unitsSold,
+      revenue: item.revenue,
       currency: t('dashboardMetrics.unit.sar') || 'SAR',
       percentage,
     };
