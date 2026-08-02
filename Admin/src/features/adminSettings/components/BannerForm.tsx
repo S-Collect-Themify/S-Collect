@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ChevronLeft,
   AlertCircle,
-  CheckCircle2,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
@@ -47,7 +46,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const [endsAt, setEndsAt] = useState('');
   const [isActive, setIsActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
 
   // ── Image state ──
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -91,7 +89,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
     }
     setImageError(null);
     setTitleError(null);
-    setConfirmEnableModalOpen(false);
   }, [mode, editingBanner]);
 
   // ── Fetch DDL data ──
@@ -176,20 +173,8 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           : 'Cannot activate more than 5 banners at the same time.');
         return;
       }
-      setIsActive(true);
-      setConfirmEnableModalOpen(true);
-    } else {
-      setIsActive(false);
     }
-  };
-
-  const handleCancelEnable = () => {
-    setIsActive(false);
-    setConfirmEnableModalOpen(false);
-  };
-  const handleConfirmEnable = () => {
-    setIsActive(true);
-    setConfirmEnableModalOpen(false);
+    setIsActive(checked);
   };
 
   // ── Validation ──
@@ -232,9 +217,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           title: title.trim(),
           linkType,
           image: imageFile || null,
-          linkTargetId: linkType !== 'EXTERNAL_URL' ? (linkTargetId || undefined) : undefined,
-          externalUrl: linkType === 'EXTERNAL_URL' ? (externalUrl.trim() || undefined) : undefined,
-          endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
+          linkTargetId: linkType !== 'EXTERNAL_URL' ? (linkTargetId || null) : null,
+          externalUrl: linkType === 'EXTERNAL_URL' ? (externalUrl.trim() || null) : null,
+          endsAt: endsAt ? new Date(endsAt).toISOString() : null,
           isActive,
         });
       }
@@ -474,47 +459,6 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           </div>
         </form>
       </div>
-
-      {/* Enable Banner Confirmation Modal */}
-      {confirmEnableModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl border border-gray-100 relative">
-            <div className="flex flex-col items-center">
-              <div className="size-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
-                <CheckCircle2 size={26} />
-              </div>
-
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {t('banners.enableModal.title', { defaultValue: 'Enable Banner' })}
-              </h3>
-
-              <p className="text-xs text-gray-500 leading-relaxed mb-6 max-w-xs">
-                {t('banners.enableModal.message', {
-                  defaultValue:
-                    'Are you sure you want to enable this banner? It will immediately be displayed on the platform home page.',
-                })}
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <button
-                  type="button"
-                  onClick={handleCancelEnable}
-                  className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer"
-                >
-                  {t('banners.deleteModal.cancel', { defaultValue: 'Cancel' })}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmEnable}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
-                >
-                  {t('banners.enableModal.confirm', { defaultValue: 'Enable Banner' })}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

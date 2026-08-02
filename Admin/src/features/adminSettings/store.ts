@@ -207,26 +207,19 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
         sortOrder: data.sortOrder,
         isActive: data.isActive,
       });
-      const updatedIsActive =
-        typeof updated?.isActive === 'boolean'
-          ? updated.isActive
-          : typeof updated?.isActive === 'string'
-          ? updated.isActive === 'true'
-          : (data.isActive !== undefined ? data.isActive : true);
-
       const updatedBanner: BannerItem = {
-        id: updated?.id || id,
-        name: updated?.title || data.title || '',
-        redirectUrl: updated?.externalUrl || data.externalUrl || '',
-        isActive: updatedIsActive,
-        dateAdded: updated?.createdAt ? new Date(updated.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
-        imageUrl: updated?.imageUrl,
-        linkType: updated?.linkType || data.linkType,
-        linkTargetId: updated?.linkTargetId !== undefined ? updated.linkTargetId : data.linkTargetId,
-        externalUrl: updated?.externalUrl !== undefined ? updated.externalUrl : data.externalUrl,
-        startsAt: updated?.startsAt !== undefined ? updated.startsAt : data.startsAt,
-        endsAt: updated?.endsAt !== undefined ? updated.endsAt : data.endsAt,
-        sortOrder: updated?.sortOrder !== undefined ? updated.sortOrder : data.sortOrder,
+        id: updated.id,
+        name: updated.title,
+        redirectUrl: updated.externalUrl || '',
+        isActive: updated.isActive,
+        dateAdded: updated.createdAt ? new Date(updated.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '',
+        imageUrl: updated.imageUrl,
+        linkType: updated.linkType,
+        linkTargetId: updated.linkTargetId,
+        externalUrl: updated.externalUrl,
+        startsAt: updated.startsAt,
+        endsAt: updated.endsAt,
+        sortOrder: updated.sortOrder,
       };
       set((state) => ({
         banners: state.banners.map((b) => (b.id === id ? updatedBanner : b)),
@@ -347,14 +340,12 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
     return true;
   },
 
-  toggleBannerStatus: async (id) => {
+  toggleBannerStatus: (id) => {
     const { banners } = get();
     const target = banners.find((b) => b.id === id);
     if (!target) return;
 
-    const newActiveState = !target.isActive;
-
-    if (newActiveState) {
+    if (!target.isActive) {
       const activeCount = banners.filter((b) => b.isActive).length;
       if (activeCount >= MAX_ACTIVE_BANNERS) {
         const errMsg =
@@ -366,18 +357,12 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       }
     }
 
-    try {
-      const updated = await updateAdminBanner(id, { isActive: newActiveState });
-      const updatedIsActive = updated.isActive !== undefined ? updated.isActive : newActiveState;
-      set((state) => ({
-        banners: state.banners.map((b) => (b.id === id ? { ...b, isActive: updatedIsActive } : b)),
-      }));
-      toast.success(
-        i18n.language === 'ar' ? 'تم تغيير حالة البنر' : 'Banner status updated'
-      );
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to update banner status');
-    }
+    set((state) => ({
+      banners: state.banners.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)),
+    }));
+    toast.success(
+      i18n.language === 'ar' ? 'تم تغيير حالة البنر' : 'Banner status updated'
+    );
   },
 
   reorderBanners: (oldIndex, newIndex) => {

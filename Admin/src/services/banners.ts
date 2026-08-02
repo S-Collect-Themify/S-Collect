@@ -53,19 +53,6 @@ function extractBanners(data: unknown): ApiBanner[] {
   return [];
 }
 
-function extractSingleBanner(data: any): ApiBanner {
-  if (!data) return {} as ApiBanner;
-  if (data.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
-    const d = data.data;
-    if (d.banner && typeof d.banner === 'object') return d.banner as ApiBanner;
-    if (d.item && typeof d.item === 'object') return d.item as ApiBanner;
-    return d as ApiBanner;
-  }
-  if (data.banner && typeof data.banner === 'object') return data.banner as ApiBanner;
-  if (data.item && typeof data.item === 'object') return data.item as ApiBanner;
-  return data as ApiBanner;
-}
-
 export const getAdminBanners = async (): Promise<ApiBanner[]> => {
   const { data } = await api.get('/admin/content/banners');
   return extractBanners(data);
@@ -87,7 +74,9 @@ export const createAdminBanner = async (payload: CreateBannerPayload): Promise<A
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
-  return extractSingleBanner(data);
+  // unwrap { success, data: {...} }
+  if (data?.data) return data.data as ApiBanner;
+  return data as ApiBanner;
 };
 
 export const updateAdminBanner = async (
@@ -96,35 +85,39 @@ export const updateAdminBanner = async (
 ): Promise<ApiBanner> => {
   if (payload.image instanceof File) {
     const formData = new FormData();
-    if (payload.title) formData.append('title', payload.title);
-    if (payload.linkType) formData.append('linkType', payload.linkType);
+    if (payload.title !== undefined) formData.append('title', payload.title);
+    if (payload.linkType !== undefined) formData.append('linkType', payload.linkType);
     formData.append('image', payload.image);
-    if (payload.linkTargetId) formData.append('linkTargetId', payload.linkTargetId);
-    if (payload.externalUrl) formData.append('externalUrl', payload.externalUrl);
-    if (payload.startsAt) formData.append('startsAt', payload.startsAt);
-    if (payload.endsAt) formData.append('endsAt', payload.endsAt);
-    if (payload.sortOrder !== undefined && payload.sortOrder !== null)
-      formData.append('sortOrder', String(payload.sortOrder));
+    if (payload.linkTargetId !== undefined)
+      formData.append('linkTargetId', payload.linkTargetId ?? '');
+    if (payload.externalUrl !== undefined)
+      formData.append('externalUrl', payload.externalUrl ?? '');
+    if (payload.startsAt !== undefined) formData.append('startsAt', payload.startsAt ?? '');
+    if (payload.endsAt !== undefined) formData.append('endsAt', payload.endsAt ?? '');
+    if (payload.sortOrder !== undefined)
+      formData.append('sortOrder', payload.sortOrder !== null ? String(payload.sortOrder) : '');
     if (payload.isActive !== undefined) formData.append('isActive', String(payload.isActive));
 
     const { data } = await api.patch(`/admin/content/banners/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return extractSingleBanner(data);
+    if (data?.data) return data.data as ApiBanner;
+    return data as ApiBanner;
   }
 
   const body: Record<string, unknown> = {};
-  if (payload.title) body.title = payload.title;
-  if (payload.linkType) body.linkType = payload.linkType;
-  if (payload.linkTargetId) body.linkTargetId = payload.linkTargetId;
-  if (payload.externalUrl) body.externalUrl = payload.externalUrl;
-  if (payload.startsAt) body.startsAt = payload.startsAt;
-  if (payload.endsAt) body.endsAt = payload.endsAt;
-  if (payload.sortOrder !== undefined && payload.sortOrder !== null) body.sortOrder = payload.sortOrder;
-  if (payload.isActive !== undefined) body.isActive = Boolean(payload.isActive);
+  if (payload.title !== undefined) body.title = payload.title;
+  if (payload.linkType !== undefined) body.linkType = payload.linkType;
+  if (payload.linkTargetId !== undefined) body.linkTargetId = payload.linkTargetId;
+  if (payload.externalUrl !== undefined) body.externalUrl = payload.externalUrl;
+  if (payload.startsAt !== undefined) body.startsAt = payload.startsAt;
+  if (payload.endsAt !== undefined) body.endsAt = payload.endsAt;
+  if (payload.sortOrder !== undefined) body.sortOrder = payload.sortOrder;
+  if (payload.isActive !== undefined) body.isActive = payload.isActive;
 
   const { data } = await api.patch(`/admin/content/banners/${id}`, body);
-  return extractSingleBanner(data);
+  if (data?.data) return data.data as ApiBanner;
+  return data as ApiBanner;
 };
 
 export const deleteAdminBanner = async (id: string): Promise<void> => {
