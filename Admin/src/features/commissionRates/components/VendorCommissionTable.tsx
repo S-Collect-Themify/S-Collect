@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, RotateCcw } from 'lucide-react';
 import type { VendorCommissionItem } from '../types';
 import CommissionStatusBadge from './CommissionStatusBadge';
 import CommissionTableSkeleton from './skeletons/CommissionTableSkeleton';
@@ -7,12 +7,14 @@ import CommissionTableSkeleton from './skeletons/CommissionTableSkeleton';
 interface VendorCommissionTableProps {
   items: VendorCommissionItem[];
   onEdit: (item: VendorCommissionItem) => void;
+  onReset: (item: VendorCommissionItem) => void;
   isLoading?: boolean;
 }
 
 export default function VendorCommissionTable({
   items,
   onEdit,
+  onReset,
   isLoading = false,
 }: VendorCommissionTableProps) {
   const { t } = useTranslation();
@@ -49,23 +51,37 @@ export default function VendorCommissionTable({
                   {item.vendorName}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {item.rate.toFixed(2)}%
+                  {item.rate !== null ? `${item.rate.toFixed(2)}%` : '----'}
                 </td>
                 <td className="px-5 py-4 whitespace-nowrap">
                   <CommissionStatusBadge status={item.status} />
                 </td>
                 <td className="px-5 py-4 text-gray-400 font-medium whitespace-nowrap">
-                  {item.lastUpdated}
+                  {item.lastUpdated || '----'}
                 </td>
                 <td className="px-5 py-4 text-end whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => onEdit(item)}
-                    aria-label={`Edit ${item.vendorName}`}
-                    className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-700 transition-colors cursor-pointer shadow-2xs"
-                  >
-                    <SquarePen size={15} />
-                  </button>
+                  <div className="inline-flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(item)}
+                      aria-label={`Edit ${item.vendorName}`}
+                      title={t('commissionRates.setCustomRate', 'Set Custom Rate')}
+                      className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-700 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <SquarePen size={15} />
+                    </button>
+                    {item.status === 'Custom' && (
+                      <button
+                        type="button"
+                        onClick={() => onReset(item)}
+                        aria-label={`Reset ${item.vendorName} to default`}
+                        title={t('commissionRates.resetToDefault', 'Reset to Default')}
+                        className="w-8 h-8 rounded-lg border border-rose-100 bg-rose-50/40 hover:bg-rose-100 inline-flex items-center justify-center text-rose-500 transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <RotateCcw size={15} />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -75,3 +91,4 @@ export default function VendorCommissionTable({
     </div>
   );
 }
+

@@ -225,7 +225,7 @@ const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
             type="button"
             onClick={() => onEdit(banner)}
             className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
-            title={t('banners.edit', { defaultValue: 'Edit Banner' })}
+            title={t('banners.edit.title', { defaultValue: 'Edit Banner' })}
           >
             <SquarePen size={16} />
           </button>

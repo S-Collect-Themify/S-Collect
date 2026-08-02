@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { CommissionStatus, EditModalTarget } from '../types';
+import type { EditModalTarget } from '../types';
 
 interface EditCommissionModalProps {
   isOpen: boolean;
@@ -11,8 +11,7 @@ interface EditCommissionModalProps {
   onRequestConfirm: (
     id: string,
     type: 'platform' | 'vendor' | 'category',
-    newRate: number,
-    newStatus?: CommissionStatus
+    newRate: number
   ) => void;
 }
 
@@ -25,14 +24,10 @@ export default function EditCommissionModal({
   const { t } = useTranslation();
 
   const [rateInput, setRateInput] = useState('');
-  const [statusInput, setStatusInput] = useState<CommissionStatus>('Active');
 
   useEffect(() => {
     if (target) {
-      setRateInput(`${target.currentRate.toFixed(2)}%`);
-      if (target.currentStatus) {
-        setStatusInput(target.currentStatus);
-      }
+      setRateInput(`${(target.currentRate ?? 0).toFixed(2)}%`);
     }
   }, [target]);
 
@@ -57,12 +52,7 @@ export default function EditCommissionModal({
       return;
     }
 
-    onRequestConfirm(
-      target.id,
-      target.type,
-      parsedRate,
-      target.type !== 'platform' ? statusInput : undefined
-    );
+    onRequestConfirm(target.id, target.type, parsedRate);
   };
 
   const isPlatform = target.type === 'platform';

@@ -1,5 +1,4 @@
 export type * from './types';
-export * from './data';
 export * from './hooks/useCommissionRates';
 
 export { default as CommissionRatesHeader } from './components/CommissionRatesHeader';

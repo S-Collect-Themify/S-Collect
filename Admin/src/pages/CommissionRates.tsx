@@ -29,6 +29,8 @@ export default function CommissionRates() {
     handleOpenEditCategory,
     handleRequestConfirm,
     handleConfirmRateChange,
+    handleResetVendorCommission,
+    handleResetCategoryCommission,
     handleExportExcel,
     handleExportPDF,
   } = useCommissionRates();
@@ -63,11 +65,13 @@ export default function CommissionRates() {
             <VendorCommissionTable
               items={vendorCommissions}
               onEdit={handleOpenEditVendor}
+              onReset={handleResetVendorCommission}
               isLoading={isLoading}
             />
             <VendorCommissionMobileList
               items={vendorCommissions}
               onEdit={handleOpenEditVendor}
+              onReset={handleResetVendorCommission}
               isLoading={isLoading}
             />
           </div>
@@ -83,11 +87,13 @@ export default function CommissionRates() {
             <CategoryCommissionTable
               items={categoryCommissions}
               onEdit={handleOpenEditCategory}
+              onReset={handleResetCategoryCommission}
               isLoading={isLoading}
             />
             <CategoryCommissionMobileList
               items={categoryCommissions}
               onEdit={handleOpenEditCategory}
+              onReset={handleResetCategoryCommission}
               isLoading={isLoading}
             />
           </div>
@@ -111,3 +117,4 @@ export default function CommissionRates() {
     </div>
   );
 }
+

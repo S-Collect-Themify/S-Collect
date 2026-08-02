@@ -47,6 +47,13 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
   const rawEmail = typeof v.email === 'string' && v.email.trim() ? v.email.trim() : undefined;
   const email = rawEmail || (v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : '----');
 
+  const commRate =
+    typeof v.commissionRate === 'number'
+      ? v.commissionRate
+      : typeof v.commissionRate === 'string'
+      ? parseFloat(v.commissionRate) || undefined
+      : undefined;
+
   return {
     id: v.id,
     businessName,
@@ -58,6 +65,7 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
     rawStatus: v.status,
     active,
     taxId: v.commercialRegisterNumber || '----',
+    commissionRate: commRate,
     revenue: undefined,
     orders: undefined,
     createdAt: v.createdAt,
@@ -69,7 +77,7 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
  * Missing or empty fields fallback to '----'.
  */
 export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
-  const target: BackendVendorDetail =
+  const target: Partial<BackendVendorDetail> =
     (v as unknown as { data?: BackendVendorDetail })?.data || v || {};
 
   const ownerName = [target.firstName, target.lastName].filter(Boolean).join(' ').trim() || '----';
