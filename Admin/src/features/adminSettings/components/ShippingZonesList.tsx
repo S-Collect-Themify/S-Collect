@@ -9,7 +9,7 @@ import Toggle from '../../categories/components/Toggle';
 
 export const ShippingZonesList: React.FC = () => {
   const { t } = useTranslation();
-  const { setViewMode, viewZoneReport } = useAdminSettingsStore();
+  const { setViewMode } = useAdminSettingsStore();
   const { shippingZones, isLoading, toggleZoneMutation } = useShippingZonesData();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
@@ -95,15 +95,12 @@ export const ShippingZonesList: React.FC = () => {
                   <th className="py-4 px-6">
                     {t('shippingZones.table.status', { defaultValue: 'Status' })}
                   </th>
-                  <th className="py-4 px-6 text-right rtl:text-left">
-                    {t('shippingZones.table.actions', { defaultValue: 'Actions' })}
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {shippingZones.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-gray-400">
+                    <td colSpan={3} className="py-8 text-center text-gray-400">
                       No shipping zones available.
                     </td>
                   </tr>
@@ -129,17 +126,6 @@ export const ShippingZonesList: React.FC = () => {
                           checked={zone.isActive}
                           onChange={() => handleToggleClick(zone)}
                         />
-                      </td>
-
-                      {/* Actions (View Report) */}
-                      <td className="py-4 px-6 text-right rtl:text-left">
-                        <button
-                          type="button"
-                          onClick={() => viewZoneReport(zone)}
-                          className="font-semibold text-gray-900 underline hover:text-black transition-colors cursor-pointer"
-                        >
-                          {t('shippingZones.table.viewReport', { defaultValue: 'View Report' })}
-                        </button>
                       </td>
                     </tr>
                   ))

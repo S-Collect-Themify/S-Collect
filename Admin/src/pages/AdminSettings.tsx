@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdminSettingsStore } from '../features/adminSettings/store';
 import { PlatformSettingsForm } from '../features/adminSettings/components/PlatformSettingsForm';
@@ -6,14 +6,12 @@ import { AdminQuickActionsCards } from '../features/adminSettings/components/Adm
 import { BannersList } from '../features/adminSettings/components/BannersList';
 import { BannerForm } from '../features/adminSettings/components/BannerForm';
 import { DeleteBannerModal as DeleteBannerModalComponent } from '../features/adminSettings/components/DeleteBannerModal';
-import { ShippingSettingsModal } from '../features/adminSettings/components/ShippingSettingsModal';
 import { AdminsList } from '../features/adminSettings/components/AdminsList';
 import { AdminForm } from '../features/adminSettings/components/AdminForm';
 import { DeleteAdminModal } from '../features/adminSettings/components/DeleteAdminModal';
 import { EmailExistsModal } from '../features/adminSettings/components/EmailExistsModal';
 import { ShippingZonesList } from '../features/adminSettings/components/ShippingZonesList';
 import { DisableZoneModal } from '../features/adminSettings/components/DisableZoneModal';
-import { VendorShippingRatesReport } from '../features/adminSettings/components/VendorShippingRatesReport';
 
 // Mobile Components
 import { MobilePlatformSettings } from '../features/adminSettings/mobile/MobilePlatformSettings';
@@ -22,12 +20,10 @@ import { MobileBannerForm } from '../features/adminSettings/mobile/MobileBannerF
 import { MobileAdminsList } from '../features/adminSettings/mobile/MobileAdminsList';
 import { MobileAdminForm } from '../features/adminSettings/mobile/MobileAdminForm';
 import { MobileShippingZonesList } from '../features/adminSettings/mobile/MobileShippingZonesList';
-import { MobileVendorShippingRatesReport } from '../features/adminSettings/mobile/MobileVendorShippingRatesReport';
 
 const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
   const { viewMode, setViewMode } = useAdminSettingsStore();
-  const [shippingModalOpen, setShippingModalOpen] = useState(false);
 
   return (
     <div className="sidebar-page-container p-4 sm:p-6 lg:p-8 w-full min-h-screen">
@@ -149,24 +145,8 @@ const AdminSettings: React.FC = () => {
         </>
       )}
 
-      {/* Vendor Shipping Rates View */}
-      {viewMode === 'shipping-rates' && (
-        <>
-          <div className="block md:hidden">
-            <MobileVendorShippingRatesReport />
-          </div>
-          <div className="hidden md:block">
-            <VendorShippingRatesReport />
-          </div>
-        </>
-      )}
-
       {/* Modals */}
       <DeleteBannerModalComponent />
-      <ShippingSettingsModal
-        open={shippingModalOpen}
-        onClose={() => setShippingModalOpen(false)}
-      />
       <DeleteAdminModal />
       <EmailExistsModal />
       <DisableZoneModal />
