@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronsRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
 import {
   useSubOrder,
   useUpdateSubOrder,
@@ -16,22 +15,7 @@ import { SubOrderSummary } from '../features/SubOrder/SubOrderSummary';
 import { SubOrderStatusUpdate } from '../features/SubOrder/SubOrderStatusUpdate';
 import { useTranslation } from 'react-i18next';
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.07, delayChildren: 0.04 },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 120, damping: 16 },
-  },
-};
+import { containerVariants, itemVariants as cardVariants } from '../utils/animations';
 
 const SubOrderDetails = () => {
   const { id } = useParams<{ id: string }>();

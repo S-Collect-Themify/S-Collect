@@ -8,7 +8,6 @@ import {
   CircleCheckBig,
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
 import {
   type Order,
   type OrderStatus,
@@ -16,22 +15,7 @@ import {
   ALL_STATUSES,
 } from '../features/Orders/types/order';
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 100, damping: 15 },
-  },
-};
+import { containerVariants, itemVariants } from '../utils/animations';
 
 interface OrderDetailsProps {
   order: Order;
