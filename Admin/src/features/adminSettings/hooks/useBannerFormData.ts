@@ -6,7 +6,7 @@ import { getAllProducts } from '../../../services/products';
 export const useBannerFormData = () => {
   const categoriesQuery = useQuery({
     queryKey: ['admin-categories-ddl'],
-    queryFn: getAdminCategories,
+    queryFn: () => getAdminCategories(),
     staleTime: 5 * 60 * 1000,
   });
 

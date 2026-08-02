@@ -1,8 +1,6 @@
 export interface PlatformSettings {
-  name: string;
   logoUrl?: string;
   logoFileName?: string;
-  currency: string;
   defaultLanguage: string;
 }
 
