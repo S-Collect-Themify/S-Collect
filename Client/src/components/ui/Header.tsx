@@ -105,8 +105,6 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     }
   );
 
-  const userName = 'Ahmed';
-
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
       <div className="container mx-auto flex flex-col gap-4 sidebar:flex-row sidebar:justify-between sidebar:items-center">
@@ -151,8 +149,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <div>
             <h1 className="text-2xl font-bold">
               {i18n.language === 'ar'
-                ? `مرحباً, ${profile.storeName} 👋`
-                : `Hello, ${profile.storeName} 👋`}
+                ? `مرحباً, ${profile?.storeName || ''} 👋`
+                : `Hello, ${profile?.storeName || ''} 👋`}
             </h1>
             <p className="text-sm text-gray-200">{today}</p>
           </div>
