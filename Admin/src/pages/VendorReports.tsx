@@ -1,22 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronDown } from 'lucide-react';
-import toast from 'react-hot-toast';
 import PortalDropdown from '../components/ui/PortalDropdown';
-import { exportToCSV, exportToPDF } from '../utils/exportUtils';
-import { getAdminOrders } from '../services/orders';
 import {
   VendorReportHeader,
   VendorReportStatCards,
   VendorReportOrdersTable,
   STAT_CARDS_DATA,
   DATE_RANGES,
+  useVendorReportOrders,
+  useExportVendorReportMutation,
   type DateRangeKey,
-  type DetailedOrder,
-  type OrderStatus,
 } from '../features/vendorReports';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20;
 
 export default function VendorReports() {
   const { t, i18n } = useTranslation();
@@ -24,72 +21,15 @@ export default function VendorReports() {
 
   const [selectedRangeKey, setSelectedRangeKey] = useState<DateRangeKey>('last30Days');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [orders, setOrders] = useState<DetailedOrder[]>([]);
-  const [totalOrdersCount, setTotalOrdersCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch real admin orders from API
-  useEffect(() => {
-    let isMounted = true;
-    async function loadOrders() {
-      setIsLoading(true);
-      try {
-        const res = await getAdminOrders({
-          pageNum: currentPage,
-          pageSize: ITEMS_PER_PAGE,
-        });
+  // React Query for data fetching
+  const { orders, totalOrdersCount, totalPages, isLoading } = useVendorReportOrders(
+    currentPage,
+    ITEMS_PER_PAGE
+  );
 
-        if (!isMounted) return;
-
-        const mapped: DetailedOrder[] = (res.items || []).map((ord) => {
-          const shortId = ord.id
-            ? ord.id.length > 8
-              ? ord.id.slice(-6).toUpperCase()
-              : ord.id
-            : '--';
-          const orderIdStr = ord.id ? `#ORD-${shortId}` : '--';
-          const dateStr = ord.createdAt
-            ? new Date(ord.createdAt).toISOString().split('T')[0]
-            : '--';
-
-          const amt = ord.grandTotalAmount ?? ord.subtotalAmount ?? 0;
-          const statusLower = (ord.overallStatus || ord.paymentStatus || 'processing').toLowerCase();
-          let parsedStatus: OrderStatus = 'processing';
-          if (['delivered', 'completed'].includes(statusLower)) parsedStatus = 'delivered';
-          else if (['canceled', 'cancelled'].includes(statusLower)) parsedStatus = 'canceled';
-          else if (['shipped'].includes(statusLower)) parsedStatus = 'shipped';
-
-          return {
-            id: orderIdStr,
-            date: dateStr,
-            amount: amt,
-            commission: 0,
-            net: amt,
-            status: parsedStatus,
-          };
-        });
-
-        setOrders(mapped);
-        setTotalOrdersCount(res.pagination?.totalItems ?? mapped.length);
-        setTotalPages(res.pagination?.totalPages ?? 1);
-      } catch (err) {
-        console.error('Failed to fetch vendor report orders:', err);
-        if (isMounted) {
-          setOrders([]);
-          setTotalOrdersCount(0);
-          setTotalPages(1);
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    }
-
-    loadOrders();
-    return () => {
-      isMounted = false;
-    };
-  }, [currentPage, selectedRangeKey]);
+  // React Mutation for report export actions
+  const exportMutation = useExportVendorReportMutation();
 
   const currentOption = DATE_RANGES.find((r) => r.key === selectedRangeKey) || DATE_RANGES[1];
 
@@ -103,16 +43,23 @@ export default function VendorReports() {
   ];
 
   const handleExportExcel = () => {
-    exportToCSV(`vendor_sales_report_${selectedRangeKey}`, exportHeaders, orders);
-    toast.success(t('vendorReports.exportSuccess', 'Vendor Sales Report exported successfully!'));
+    exportMutation.mutate({
+      format: 'excel',
+      fileName: `vendor_sales_report_${selectedRangeKey}`,
+      title: t('vendorReports.title', 'Vendor Sales Report'),
+      headers: exportHeaders,
+      data: orders,
+    });
   };
 
   const handleExportPDF = () => {
-    exportToPDF(
-      t('vendorReports.title', 'Vendor Sales Report'),
-      exportHeaders,
-      orders
-    );
+    exportMutation.mutate({
+      format: 'pdf',
+      fileName: `vendor_sales_report_${selectedRangeKey}`,
+      title: t('vendorReports.title', 'Vendor Sales Report'),
+      headers: exportHeaders,
+      data: orders,
+    });
   };
 
   return (
