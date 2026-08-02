@@ -1,54 +1,14 @@
 import { TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import type { Variants } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import InventoryCard from './InventoryCard';
 import InventoryAlertSkeleton from './skeleton/InventoryAlertSkeleton';
 import { getVendorInventory } from '../../services/inventory';
 import { searchVendorProducts } from '../../services/products';
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 100, damping: 15 },
-  },
-};
-
-const DEFAULT_IMAGE =
-  './placeholder.jpg';
-
-const resolveImageUrl = (rawUrl: any): string => {
-  if (!rawUrl) return DEFAULT_IMAGE;
-  let urlStr = '';
-  if (typeof rawUrl === 'string') {
-    urlStr = rawUrl;
-  } else if (typeof rawUrl === 'object') {
-    urlStr = rawUrl.url || rawUrl.src || rawUrl.path || '';
-  }
-  if (!urlStr || typeof urlStr !== 'string' || urlStr.trim() === '') {
-    return DEFAULT_IMAGE;
-  }
-  if (
-    urlStr.startsWith('http://') ||
-    urlStr.startsWith('https://') ||
-    urlStr.startsWith('data:')
-  ) {
-    return urlStr;
-  }
-  return `https://api.collect-s.com${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
-};
+import { DEFAULT_IMAGE, resolveImageUrl } from '../../utils/image';
+import { containerVariants, itemVariants } from '../../utils/animations';
 
 const InventoryAlert = () => {
   const { t, i18n } = useTranslation();
@@ -145,7 +105,7 @@ const InventoryAlert = () => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="w-full rounded-lg bg-white p-3 lg:p-8 shadow h-[450px] lg:h-[512px]"
+      className="w-full rounded-lg bg-white p-3 lg:p-8 shadow h-112.5 lg:h-128"
     >
       <motion.div
         variants={itemVariants}
