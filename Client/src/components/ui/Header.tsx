@@ -151,12 +151,12 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <div>
             <h1 className="text-2xl font-bold">
               {i18n.language === 'ar'
-                ? `مرحباً, ${userName} 👋`
-                : `Hello, ${userName} 👋`}
+                ? `مرحباً, ${profile.storeName} 👋`
+                : `Hello, ${profile.storeName} 👋`}
             </h1>
             <p className="text-sm text-gray-200">{today}</p>
           </div>
-        </div>
+        </div> 
 
         <div className="items-center gap-3 sidebar:gap-4 sidebar:flex hidden">
           <div className="flex-1 sidebar:flex-none sidebar:block hidden">
