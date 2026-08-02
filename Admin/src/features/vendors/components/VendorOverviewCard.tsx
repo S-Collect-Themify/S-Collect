@@ -125,14 +125,14 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h1 className="text-base font-bold text-gray-900 truncate">
-                {vendor.businessName || '----'}
+                {vendor.businessName || '--'}
               </h1>
               {renderStatusBadge()}
             </div>
-            <p className="text-xs text-gray-400 mb-1">{vendor.category || '----'}</p>
+            <p className="text-xs text-gray-400 mb-1">{vendor.category || '--'}</p>
             {(vendor.joinedDate || vendor.submittedDate) && (
               <p className="text-[11px] text-gray-400">
-                Joined {vendor.joinedDate || vendor.submittedDate || '----'}
+                Joined {vendor.joinedDate || vendor.submittedDate || '--'}
               </p>
             )}
           </div>
@@ -161,12 +161,12 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
           <div className="flex-1 min-w-0">
             <div className="mb-1">{renderStatusBadge()}</div>
             <h1 className="text-xl font-bold text-gray-900 leading-tight mb-1">
-              {vendor.businessName || '----'}
+              {vendor.businessName || '--'}
             </h1>
             <p className="text-xs text-gray-400 mb-2">
-              {vendor.category || '----'}
+              {vendor.category || '--'}
               {(vendor.joinedDate || vendor.submittedDate) && (
-                <span> • Joined {vendor.joinedDate || vendor.submittedDate || '----'}</span>
+                <span> • Joined {vendor.joinedDate || vendor.submittedDate || '--'}</span>
               )}
             </p>
             {vendor.description && (
@@ -185,23 +185,23 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.owner', 'Owner')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.owner || '----'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.owner || '--'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.phone', 'Phone')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.phone || '----'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.phone || '--'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.email', 'Email')}</p>
-              <p className="text-sm font-bold text-gray-900 break-all">{vendor.email || '----'}</p>
+              <p className="text-sm font-bold text-gray-900 break-all">{vendor.email || '--'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.location', 'Location')}</p>
-              <p className="text-sm font-bold text-gray-900">{vendor.location || '----'}</p>
+              <p className="text-sm font-bold text-gray-900">{vendor.location || '--'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">{t('vendors.details.commercialRegister', 'Commercial Register')}</p>
-              <p className="text-sm font-bold text-gray-900 font-mono">{vendor.taxId || '----'}</p>
+              <p className="text-sm font-bold text-gray-900 font-mono">{vendor.taxId || '--'}</p>
             </div>
           </div>
         </div>

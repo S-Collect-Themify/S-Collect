@@ -41,74 +41,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
     shipped: { label: t('vendors.ordersLog.statusShipped', 'Shipped'), className: 'bg-amber-100 text-amber-700' },
   }), [t]);
 
-  const allOrders: VendorOrderItem[] = useMemo(
-    () => [
-      {
-        id: '#ORD-77492-CS',
-        customer: 'Yousef Al-Harbi',
-        vendorName: vendor.businessName || 'Al-Falah Crafts',
-        total: 450,
-        status: 'delivered',
-        subOrders: 12,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77491-CS',
-        customer: 'Layan Mansour',
-        vendorName: vendor.businessName || 'Desert Bloom',
-        total: 1200,
-        status: 'delivered',
-        subOrders: 5,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77490-CS',
-        customer: 'Fahad Al-Otaibi',
-        vendorName: vendor.businessName || 'Oasis Tech',
-        total: 85,
-        status: 'canceled',
-        subOrders: 20,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77489-CS',
-        customer: 'Sarah Khalid',
-        vendorName: vendor.businessName || 'Red Sea Styles',
-        total: 320,
-        status: 'shipped',
-        subOrders: 11,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77488-CS',
-        customer: 'Abdulrahman Ali',
-        vendorName: vendor.businessName || 'Dates & Co',
-        total: 150,
-        status: 'delivered',
-        subOrders: 2,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77487-CS',
-        customer: 'Reem Abdullah',
-        vendorName: vendor.businessName || 'Urban Elegance',
-        total: 550,
-        status: 'shipped',
-        subOrders: 4,
-        date: 'Oct 24, 2026',
-      },
-      {
-        id: '#ORD-77486-CS',
-        customer: 'Khaled Al-Saeed',
-        vendorName: vendor.businessName || 'Beauty Lab',
-        total: 240,
-        status: 'delivered',
-        subOrders: 3,
-        date: 'Oct 24, 2026',
-      },
-    ],
-    [vendor.businessName]
-  );
+  const allOrders: VendorOrderItem[] = useMemo(() => [], []);
 
   // ── Zustand: filter / pagination / selection state ────────────────────────
   const appliedFrom  = useVendorOrdersStore((s) => s.appliedFrom);
@@ -190,6 +123,9 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
     resetStore();
   };
 
+  const displayOrdersCount = (vendor.orders ?? filtered.length) || 0;
+  const displayRevenue = (vendor.revenue ?? totalRevenue) || 0;
+
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'}>
       {/* 3 Stat Cards Row */}
@@ -200,23 +136,29 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs text-gray-400 font-medium mb-3">{t('vendors.ordersLog.totalOrders', 'Total Orders')}</p>
           <p className="text-2xl font-bold text-gray-900">
-            {(vendor.orders ?? filtered.length).toLocaleString('en-US')}
+            {displayOrdersCount > 0 ? displayOrdersCount.toLocaleString('en-US') : '--'}
           </p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs text-gray-400 font-medium mb-3">{t('vendors.ordersLog.totalRevenue', 'Total Order Revenue')}</p>
           <p className="text-2xl font-bold text-green-600">
-            {(vendor.revenue ?? totalRevenue).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{' '}
-            <span className="text-xs font-normal text-green-600">SAR</span>
+            {displayRevenue > 0 ? (
+              <>
+                {displayRevenue.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{' '}
+                <span className="text-xs font-normal text-green-600">SAR</span>
+              </>
+            ) : (
+              '--'
+            )}
           </p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <p className="text-xs text-gray-400 font-medium mb-3">{t('vendors.ordersLog.shippedOrders', 'Shipped Orders')}</p>
           <p className="text-2xl font-bold text-amber-500">
-            {activeOrdersCount}
+            {activeOrdersCount > 0 ? activeOrdersCount : '--'}
           </p>
         </div>
       </motion.div>

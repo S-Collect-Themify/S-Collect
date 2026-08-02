@@ -11,10 +11,29 @@ import {
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
+import { getAdminCategories } from '../../../services/categories';
 import {
   mapBackendVendorToVendor,
   mapBackendVendorDetailToVendor,
 } from '../utils/vendorMapper';
+
+export function useVendorCategories() {
+  return useQuery({
+    queryKey: ['vendor-categories'],
+    queryFn: async () => {
+      try {
+        const items = await getAdminCategories({ pageNum: 1, pageSize: 100 });
+        return (items || [])
+          .map((c) => c.nameEn || c.name || c.nameAr)
+          .filter((name): name is string => Boolean(name));
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function useVendors(status?: string) {
   return useQuery({

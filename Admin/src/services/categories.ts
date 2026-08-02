@@ -42,12 +42,20 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
   return new File([u8arr], filename, { type: mime });
 };
 
-export const getAdminCategories = async (): Promise<ApiCategoryItem[]> => {
-  const { data } = await api.get('/admin/categories');
+export const getAdminCategories = async (params?: { pageNum?: number; pageSize?: number }): Promise<ApiCategoryItem[]> => {
+  const { data } = await api.get('/admin/categories', {
+    params: {
+      pageNum: params?.pageNum ?? 1,
+      pageSize: params?.pageSize ?? 100,
+    },
+  });
   if (Array.isArray(data)) {
     return data;
   }
   if (data && typeof data === 'object') {
+    if (Array.isArray((data as any).items)) {
+      return (data as any).items;
+    }
     if (Array.isArray((data as any).data)) {
       return (data as any).data;
     }

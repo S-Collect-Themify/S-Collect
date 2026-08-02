@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Upload, ChevronRight, ChevronLeft, AlertCircle, CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
+import { Upload, ChevronRight, ChevronLeft, AlertCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { useAdminSettingsStore, MAX_ACTIVE_BANNERS } from '../store';
 import i18n from '../../../i18n';
 import toast from 'react-hot-toast';
@@ -53,7 +53,6 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
   const [products, setProducts] = useState<{ id: string; name: string; nameEn?: string }[]>([]);
   const [ddlLoading, setDdlLoading] = useState(false);
 
-  const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
   const [titleError, setTitleError] = useState<string | null>(null);
 
   // ── Populate on open ──

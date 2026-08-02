@@ -3,11 +3,11 @@ import type { Vendor, VendorStatus } from '../types/vendors';
 
 /**
  * Maps a backend vendor object from list API to the UI Vendor data structure.
- * Missing or empty fields fallback to '----' per requirements.
+ * Missing or empty fields fallback to '--' per requirements.
  */
 export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
-  const ownerName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim() || '----';
-  const businessName = v.storeName || ownerName || '----';
+  const ownerName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim() || '--';
+  const businessName = v.storeName || ownerName || '--';
 
   const rawStatus = v.status ? String(v.status).toUpperCase() : 'PENDING_APPROVAL';
   let status: VendorStatus = 'pending';
@@ -42,10 +42,17 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
         day: 'numeric',
         year: 'numeric',
       })
-    : '----';
+    : '--';
 
   const rawEmail = typeof v.email === 'string' && v.email.trim() ? v.email.trim() : undefined;
-  const email = rawEmail || (v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : '----');
+  const email = rawEmail || (v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : '--');
+
+  const commRate =
+    typeof v.commissionRate === 'number'
+      ? v.commissionRate
+      : typeof v.commissionRate === 'string'
+      ? parseFloat(v.commissionRate) || undefined
+      : undefined;
 
   return {
     id: v.id,
@@ -53,11 +60,12 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
     owner: ownerName,
     email,
     submittedDate,
-    category: v.isFeatured ? 'Featured' : '----',
+    category: v.isFeatured ? 'Featured' : '--',
     status,
     rawStatus: v.status,
     active,
-    taxId: v.commercialRegisterNumber || '----',
+    taxId: v.commercialRegisterNumber || '--',
+    commissionRate: commRate,
     revenue: undefined,
     orders: undefined,
     createdAt: v.createdAt,
@@ -66,14 +74,14 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
 
 /**
  * Maps a backend single vendor detail response to the UI Vendor data structure.
- * Missing or empty fields fallback to '----'.
+ * Missing or empty fields fallback to '--'.
  */
 export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
-  const target: BackendVendorDetail =
+  const target: Partial<BackendVendorDetail> =
     (v as unknown as { data?: BackendVendorDetail })?.data || v || {};
 
-  const ownerName = [target.firstName, target.lastName].filter(Boolean).join(' ').trim() || '----';
-  const businessName = target.storeName || ownerName || '----';
+  const ownerName = [target.firstName, target.lastName].filter(Boolean).join(' ').trim() || '--';
+  const businessName = target.storeName || ownerName || '--';
 
   const rawStatus = target.status ? String(target.status).toUpperCase() : 'PENDING_APPROVAL';
 
@@ -109,7 +117,7 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
         day: 'numeric',
         year: 'numeric',
       })
-    : '----';
+    : '--';
 
   const joinedDate = target.approvedAt
     ? new Date(target.approvedAt).toLocaleDateString('en-US', {
@@ -126,12 +134,12 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
       ? target.publicEmail.trim()
       : undefined;
 
-  const emailDisplay = rawEmail || (target.commercialRegisterNumber ? `CR: ${target.commercialRegisterNumber}` : '----');
+  const emailDisplay = rawEmail || (target.commercialRegisterNumber ? `CR: ${target.commercialRegisterNumber}` : '--');
 
   const phoneDisplay =
     typeof target.publicPhoneNumber === 'string' && target.publicPhoneNumber.trim()
       ? target.publicPhoneNumber.trim()
-      : '----';
+      : '--';
 
   const rawLogo = target.logoUrl;
   const logoUrl =
@@ -175,11 +183,11 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
     phone: phoneDisplay,
     submittedDate,
     joinedDate,
-    category: target.isFeatured ? 'Featured' : '----',
+    category: target.isFeatured ? 'Featured' : '--',
     status,
     rawStatus: (rawStatus as Vendor['rawStatus']) || 'PENDING_APPROVAL',
     active,
-    taxId: target.commercialRegisterNumber || '----',
+    taxId: target.commercialRegisterNumber || '--',
     description: storeDesc,
     rejectionReason: rejReason,
     deactivationReason: deactReason,

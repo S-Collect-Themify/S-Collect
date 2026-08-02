@@ -67,7 +67,7 @@ export default function VendorDetails() {
 
     if (rawItems.length > 0) {
       return rawItems.map((item: any) => {
-        const idStr = item.id ? String(item.id) : item.orderId ? String(item.orderId) : '—';
+        const idStr = item.id ? String(item.id) : item.orderId ? String(item.orderId) : '--';
         const formattedId = idStr.startsWith('#') ? idStr : `#ORD-${idStr.slice(-6).toUpperCase()}`;
 
         const dateStr = item.createdAt
@@ -76,11 +76,11 @@ export default function VendorDetails() {
               day: 'numeric',
               year: 'numeric',
             })
-          : '—';
+          : '--';
 
         const customerName = item.customer
-          ? [item.customer.firstName, item.customer.lastName].filter(Boolean).join(' ').trim() || 'Customer'
-          : 'Customer';
+          ? [item.customer.firstName, item.customer.lastName].filter(Boolean).join(' ').trim() || '--'
+          : '--';
 
         const statusLower = item.status ? String(item.status).toLowerCase() : 'pending';
         const statusMapped =
@@ -126,10 +126,10 @@ export default function VendorDetails() {
     if (rawItems.length > 0) {
       return rawItems.map((item: any) => ({
         id: (item.id || '') as string,
-        name: (item.name || item.nameAr || 'Product Item') as string,
+        name: (item.name || item.nameAr || '--') as string,
         category: (typeof item.category === 'string'
           ? item.category
-          : item.category?.name || item.category?.nameAr || 'General') as string,
+          : item.category?.name || item.category?.nameAr || '--') as string,
         price: (typeof item.minPrice === 'number'
           ? item.minPrice
           : typeof item.price === 'number'
@@ -163,7 +163,7 @@ export default function VendorDetails() {
 
     if (rawItems.length > 0) {
       return rawItems.map((item: any) => {
-        const idStr = item.id ? String(item.id) : '—';
+        const idStr = item.id ? String(item.id) : '--';
         const formattedId = idStr.startsWith('#') ? idStr : `#PAY-${idStr.slice(-6).toUpperCase()}`;
         const dateStr = item.transferDate
           ? new Date(item.transferDate).toLocaleDateString('en-US', {
@@ -177,7 +177,7 @@ export default function VendorDetails() {
               day: 'numeric',
               year: 'numeric',
             })
-          : '—';
+          : '--';
 
         const amountNum = typeof item.amount === 'number'
           ? item.amount

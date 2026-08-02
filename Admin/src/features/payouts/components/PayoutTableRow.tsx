@@ -12,19 +12,19 @@ export default function PayoutTableRow({ item, onRegisterPayout }: PayoutTableRo
   return (
     <tr className="hover:bg-gray-50/50 transition-colors">
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-        {item.vendorName}
+        {item.vendorName || '--'}
       </td>
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-        {item.totalGmv.toLocaleString()}
+        {item.totalGmv ? item.totalGmv.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-        {item.commission.toLocaleString()}
+        {item.commission ? item.commission.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-        {item.totalPayouts.toLocaleString()}
+        {item.totalPayouts ? item.totalPayouts.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-        {item.pendingPayout.toLocaleString()}
+        {item.pendingPayout ? item.pendingPayout.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-end whitespace-nowrap">
         <button
