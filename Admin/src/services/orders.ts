@@ -308,22 +308,22 @@ export async function getAdminSubOrders(
 export function mapAdminOrderToTransactionItem(order: AdminOrderItem): TransactionItem {
   const rawStatus = order.paymentStatus || order.overallStatus || 'PENDING';
 
-  const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : 'N/A';
-  const orderNo = `#ORD-${shortId}`;
+  const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : '';
+  const orderNo = order.id ? `#ORD-${shortId}` : '--';
   const date = order.createdAt
     ? new Date(order.createdAt).toISOString().split('T')[0]
-    : new Date().toISOString().split('T')[0];
+    : '--';
 
   return {
     id: order.id || Math.random().toString(),
     orderNo,
     date,
-    buyerName: order.recipientName || 'Guest Buyer',
+    buyerName: order.recipientName || '--',
     amount: order.grandTotalAmount ?? order.subtotalAmount ?? 0,
-    paymentMethod: 'Online Payment',
+    paymentMethod: (order as any).paymentMethod || '--',
     status: rawStatus,
     rawPaymentStatus: rawStatus,
-    fatoorahRef: `MF-${shortId}`,
+    fatoorahRef: (order as any).fatoorahRef || (order as any).myFatoorahRef || '--',
   };
 }
 

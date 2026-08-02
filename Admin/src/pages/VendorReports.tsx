@@ -4,14 +4,16 @@ import { Calendar, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PortalDropdown from '../components/ui/PortalDropdown';
 import { exportToCSV, exportToPDF } from '../utils/exportUtils';
+import { getAdminOrders } from '../services/orders';
 import {
   VendorReportHeader,
   VendorReportStatCards,
   VendorReportOrdersTable,
   STAT_CARDS_DATA,
-  MOCK_DETAILED_ORDERS,
   DATE_RANGES,
   type DateRangeKey,
+  type DetailedOrder,
+  type OrderStatus,
 } from '../features/vendorReports';
 
 const ITEMS_PER_PAGE = 5;
@@ -23,23 +25,73 @@ export default function VendorReports() {
   const [selectedRangeKey, setSelectedRangeKey] = useState<DateRangeKey>('last30Days');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [orders, setOrders] = useState<DetailedOrder[]>([]);
+  const [totalOrdersCount, setTotalOrdersCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Trigger skeleton loading state on date filter selection or page change
+  // Fetch real admin orders from API
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 350);
-    return () => clearTimeout(timer);
-  }, [selectedRangeKey, currentPage]);
+    let isMounted = true;
+    async function loadOrders() {
+      setIsLoading(true);
+      try {
+        const res = await getAdminOrders({
+          pageNum: currentPage,
+          pageSize: ITEMS_PER_PAGE,
+        });
+
+        if (!isMounted) return;
+
+        const mapped: DetailedOrder[] = (res.items || []).map((ord) => {
+          const shortId = ord.id
+            ? ord.id.length > 8
+              ? ord.id.slice(-6).toUpperCase()
+              : ord.id
+            : '--';
+          const orderIdStr = ord.id ? `#ORD-${shortId}` : '--';
+          const dateStr = ord.createdAt
+            ? new Date(ord.createdAt).toISOString().split('T')[0]
+            : '--';
+
+          const amt = ord.grandTotalAmount ?? ord.subtotalAmount ?? 0;
+          const statusLower = (ord.overallStatus || ord.paymentStatus || 'processing').toLowerCase();
+          let parsedStatus: OrderStatus = 'processing';
+          if (['delivered', 'completed'].includes(statusLower)) parsedStatus = 'delivered';
+          else if (['canceled', 'cancelled'].includes(statusLower)) parsedStatus = 'canceled';
+          else if (['shipped'].includes(statusLower)) parsedStatus = 'shipped';
+
+          return {
+            id: orderIdStr,
+            date: dateStr,
+            amount: amt,
+            commission: 0,
+            net: amt,
+            status: parsedStatus,
+          };
+        });
+
+        setOrders(mapped);
+        setTotalOrdersCount(res.pagination?.totalItems ?? mapped.length);
+        setTotalPages(res.pagination?.totalPages ?? 1);
+      } catch (err) {
+        console.error('Failed to fetch vendor report orders:', err);
+        if (isMounted) {
+          setOrders([]);
+          setTotalOrdersCount(0);
+          setTotalPages(1);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    loadOrders();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, selectedRangeKey]);
 
   const currentOption = DATE_RANGES.find((r) => r.key === selectedRangeKey) || DATE_RANGES[1];
-
-  const totalOrdersCount = MOCK_DETAILED_ORDERS.length;
-  const totalPages = Math.ceil(totalOrdersCount / ITEMS_PER_PAGE);
-
-  const paginatedOrders = MOCK_DETAILED_ORDERS.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
 
   const exportHeaders = [
     { key: 'id' as const, label: t('vendorReports.tableOrderNo', 'Order #') },
@@ -51,7 +103,7 @@ export default function VendorReports() {
   ];
 
   const handleExportExcel = () => {
-    exportToCSV(`vendor_sales_report_${selectedRangeKey}`, exportHeaders, MOCK_DETAILED_ORDERS);
+    exportToCSV(`vendor_sales_report_${selectedRangeKey}`, exportHeaders, orders);
     toast.success(t('vendorReports.exportSuccess', 'Vendor Sales Report exported successfully!'));
   };
 
@@ -59,7 +111,7 @@ export default function VendorReports() {
     exportToPDF(
       t('vendorReports.title', 'Vendor Sales Report'),
       exportHeaders,
-      MOCK_DETAILED_ORDERS
+      orders
     );
   };
 
@@ -134,7 +186,7 @@ export default function VendorReports() {
 
         {/* Detailed Orders Table & Mobile List */}
         <VendorReportOrdersTable
-          orders={paginatedOrders}
+          orders={orders}
           currentPage={currentPage}
           totalPages={totalPages}
           totalOrdersCount={totalOrdersCount}

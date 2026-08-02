@@ -78,14 +78,14 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             day: 'numeric',
             year: 'numeric',
           })
-        : '—';
+        : '--';
 
       return {
         id: formattedId,
         date: dateStr,
         amount: typeof item.amount === 'number' ? item.amount : parseFloat(item.amount) || 0,
-        referenceNumber: item.referenceNumber || item.referenceNo || '—',
-        adminName: item.adminName || item.processedBy || item.admin || 'System Admin',
+        referenceNumber: item.referenceNumber || item.referenceNo || '--',
+        adminName: item.adminName || item.processedBy || item.admin || '--',
         status: (item.status ? String(item.status).toLowerCase() : 'completed') as any,
       };
     });
@@ -124,7 +124,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
   }, [filteredItems]);
 
   const lastPayoutDate = useMemo(() => {
-    return filteredItems[0]?.date || '—';
+    return filteredItems[0]?.date || '--';
   }, [filteredItems]);
 
   // Pagination from API metadata or calculated
