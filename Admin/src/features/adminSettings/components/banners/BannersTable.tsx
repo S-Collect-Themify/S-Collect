@@ -17,9 +17,6 @@ import { SortableBannerRow } from './SortableBannerRow';
 export interface BannersTableProps {
   banners: BannerItem[];
   bannersLoading: boolean;
-  categoryMap: Map<string, string>;
-  productMap: Map<string, string>;
-  vendorMap: Map<string, string>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sensors: SensorDescriptor<SensorOptions>[] | any;
   onDragEnd: (event: DragEndEvent) => void;
@@ -30,9 +27,6 @@ export interface BannersTableProps {
 export const BannersTable: React.FC<BannersTableProps> = ({
   banners,
   bannersLoading,
-  categoryMap,
-  productMap,
-  vendorMap,
   sensors,
   onDragEnd,
   onEdit,
@@ -50,7 +44,6 @@ export const BannersTable: React.FC<BannersTableProps> = ({
               <div className="w-36 h-14 bg-gray-100 rounded-xl animate-pulse shrink-0" />
               <div className="flex-1 h-4 bg-gray-100 rounded animate-pulse" />
               <div className="w-20 h-6 bg-gray-100 rounded-lg animate-pulse" />
-              <div className="w-32 h-4 bg-gray-100 rounded animate-pulse" />
               <div className="w-16 h-6 bg-gray-100 rounded-full animate-pulse" />
               <div className="w-16 h-8 bg-gray-100 rounded-lg animate-pulse" />
             </div>
@@ -94,7 +87,7 @@ export const BannersTable: React.FC<BannersTableProps> = ({
                   {banners.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={7}
+                        colSpan={6}
                         className="py-12 text-center text-gray-400"
                       >
                         {t('banners.noBanners', {
@@ -108,9 +101,6 @@ export const BannersTable: React.FC<BannersTableProps> = ({
                         key={banner.id}
                         banner={banner}
                         order={index + 1}
-                        categoryMap={categoryMap}
-                        productMap={productMap}
-                        vendorMap={vendorMap}
                         onEdit={onEdit}
                         onDelete={onDelete}
                         t={t}

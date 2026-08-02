@@ -1,11 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash2, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
-import { useBannerFormData } from '../hooks/useBannerFormData';
 
 const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
   CATEGORY: 'Category',
@@ -28,40 +27,10 @@ export const MobileBannersList: React.FC = () => {
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
   const { banners, isLoading: bannersLoading } = useBannersData();
-  const { categories, vendors, products } = useBannerFormData();
-
-  const categoryMap = useMemo(
-    () => new Map(categories.map((c) => [c.id, c.name || c.nameEn || c.nameAr || ''])),
-    [categories]
-  );
-  const productMap = useMemo(
-    () => new Map(products.map((p) => [p.id, p.nameEn || p.name || ''])),
-    [products]
-  );
-  const vendorMap = useMemo(
-    () => new Map(vendors.map((v) => [v.id, v.storeName || ''])),
-    [vendors]
-  );
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
     setViewMode('banners-edit');
-  };
-
-  const getTargetName = (banner: BannerItem) => {
-    if (banner.linkType === 'EXTERNAL_URL') {
-      return banner.externalUrl || banner.redirectUrl || '—';
-    }
-    if (banner.linkType === 'CATEGORY' && banner.linkTargetId) {
-      return categoryMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    if (banner.linkType === 'PRODUCT' && banner.linkTargetId) {
-      return productMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    if (banner.linkType === 'VENDOR' && banner.linkTargetId) {
-      return vendorMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    return banner.externalUrl || banner.redirectUrl || banner.linkTargetId || '—';
   };
 
   return (

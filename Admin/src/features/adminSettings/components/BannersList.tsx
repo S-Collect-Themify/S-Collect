@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PointerSensor,
   KeyboardSensor,
@@ -10,7 +10,6 @@ import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
-import { useBannerFormData } from '../hooks/useBannerFormData';
 import { BannersHeader } from './banners/BannersHeader';
 import { BannersTable } from './banners/BannersTable';
 import { SaveOrderBanner } from './banners/SaveOrderBanner';
@@ -28,8 +27,6 @@ export const BannersList: React.FC = () => {
     saveOrderMutation,
   } = useBannersData();
 
-  const { categories, vendors, products } = useBannerFormData();
-
   // Local reordering state
   const [localBanners, setLocalBanners] = useState<BannerItem[]>([]);
   const [hasReordered, setHasReordered] = useState(false);
@@ -40,19 +37,6 @@ export const BannersList: React.FC = () => {
       setLocalBanners(banners);
     }
   }, [banners, hasReordered]);
-
-  const categoryMap = useMemo(
-    () => new Map(categories.map((c) => [c.id, c.name || c.nameEn || c.nameAr || ''])),
-    [categories]
-  );
-  const productMap = useMemo(
-    () => new Map(products.map((p) => [p.id, p.nameEn || p.name || ''])),
-    [products]
-  );
-  const vendorMap = useMemo(
-    () => new Map(vendors.map((v) => [v.id, v.storeName || ''])),
-    [vendors]
-  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -118,9 +102,6 @@ export const BannersList: React.FC = () => {
       <BannersTable
         banners={localBanners}
         bannersLoading={bannersLoading}
-        categoryMap={categoryMap}
-        productMap={productMap}
-        vendorMap={vendorMap}
         sensors={sensors}
         onDragEnd={handleDragEnd}
         onEdit={handleEdit}

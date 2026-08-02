@@ -30,9 +30,6 @@ export const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: Rea
 export interface SortableBannerRowProps {
   banner: BannerItem;
   order: number;
-  categoryMap: Map<string, string>;
-  productMap: Map<string, string>;
-  vendorMap: Map<string, string>;
   onEdit: (banner: BannerItem) => void;
   onDelete: (banner: BannerItem) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -41,9 +38,6 @@ export interface SortableBannerRowProps {
 export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   banner,
   order,
-  categoryMap,
-  productMap,
-  vendorMap,
   onEdit,
   onDelete,
   t,
@@ -65,46 +59,6 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   };
 
   const linkCfg = banner.linkType ? LINK_TYPE_CONFIG[banner.linkType] : null;
-
-  const getTargetDisplay = () => {
-    if (banner.linkType === 'EXTERNAL_URL') {
-      const url = banner.externalUrl || banner.redirectUrl;
-      return url ? (
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          className="hover:underline hover:text-black transition-colors text-sm truncate block"
-        >
-          {url}
-        </a>
-      ) : (
-        <span className="text-xs text-gray-300">—</span>
-      );
-    }
-
-    if (banner.linkType === 'CATEGORY' && banner.linkTargetId) {
-      const catName = categoryMap.get(banner.linkTargetId) || banner.linkTargetId;
-      return <span className="text-sm font-medium text-gray-800 truncate block">{catName}</span>;
-    }
-
-    if (banner.linkType === 'PRODUCT' && banner.linkTargetId) {
-      const prodName = productMap.get(banner.linkTargetId) || banner.linkTargetId;
-      return <span className="text-sm font-medium text-gray-800 truncate block">{prodName}</span>;
-    }
-
-    if (banner.linkType === 'VENDOR' && banner.linkTargetId) {
-      const venName = vendorMap.get(banner.linkTargetId) || banner.linkTargetId;
-      return <span className="text-sm font-medium text-gray-800 truncate block">{venName}</span>;
-    }
-
-    const fallback = banner.externalUrl || banner.redirectUrl || banner.linkTargetId;
-    return fallback ? (
-      <span className="text-sm text-gray-700 truncate block">{fallback}</span>
-    ) : (
-      <span className="text-xs text-gray-300">—</span>
-    );
-  };
 
   return (
     <tr

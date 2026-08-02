@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   AlertCircle,
   CheckCircle2,
-  ExternalLink,
   Loader2,
 } from 'lucide-react';
 import { useAdminSettingsStore, MAX_ACTIVE_BANNERS } from '../store';
@@ -15,7 +14,6 @@ import i18n from '../../../i18n';
 import toast from 'react-hot-toast';
 import Toggle from '../../categories/components/Toggle';
 import type { BannerLinkType } from '../types';
-import { useBannerFormData } from '../hooks/useBannerFormData';
 import { useBannersData } from '../hooks/useBannersData';
 
 interface BannerFormProps {
