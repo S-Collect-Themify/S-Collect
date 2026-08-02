@@ -176,12 +176,17 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           : 'Cannot activate more than 5 banners at the same time.');
         return;
       }
+      setIsActive(true);
       setConfirmEnableModalOpen(true);
     } else {
       setIsActive(false);
     }
   };
 
+  const handleCancelEnable = () => {
+    setIsActive(false);
+    setConfirmEnableModalOpen(false);
+  };
   const handleConfirmEnable = () => {
     setIsActive(true);
     setConfirmEnableModalOpen(false);
@@ -227,9 +232,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           title: title.trim(),
           linkType,
           image: imageFile || null,
-          linkTargetId: linkType !== 'EXTERNAL_URL' ? (linkTargetId || null) : null,
-          externalUrl: linkType === 'EXTERNAL_URL' ? (externalUrl.trim() || null) : null,
-          endsAt: endsAt ? new Date(endsAt).toISOString() : null,
+          linkTargetId: linkType !== 'EXTERNAL_URL' ? (linkTargetId || undefined) : undefined,
+          externalUrl: linkType === 'EXTERNAL_URL' ? (externalUrl.trim() || undefined) : undefined,
+          endsAt: endsAt ? new Date(endsAt).toISOString() : undefined,
           isActive,
         });
       }
@@ -493,7 +498,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
               <div className="grid grid-cols-2 gap-3 w-full">
                 <button
                   type="button"
-                  onClick={() => setConfirmEnableModalOpen(false)}
+                  onClick={handleCancelEnable}
                   className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer"
                 >
                   {t('banners.deleteModal.cancel', { defaultValue: 'Cancel' })}
