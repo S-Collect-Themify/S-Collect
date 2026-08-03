@@ -6,7 +6,7 @@ import Management from './pages/Mangement.js';
 import AddProduct from './pages/AddProduct.js';
 import { Toaster } from 'react-hot-toast';
 import NotFound from './pages/NotFound.js';
-import Login from './pages/Login';
+import Login from './pages/auth/Login';
 import './App.css';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
