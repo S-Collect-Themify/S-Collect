@@ -52,6 +52,8 @@ function App() {
           <Route path="/management" element={<Management />} />
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/product-details" element={<ProductDetails />} />
+          <Route path="/product-details/:id" element={<ProductDetails />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/incoming-orders" element={<Orders />} />
           <Route path="/returns" element={<ReturnRequests />} />
           <Route path="/returns/:id" element={<ReturnRequestDetails />} />

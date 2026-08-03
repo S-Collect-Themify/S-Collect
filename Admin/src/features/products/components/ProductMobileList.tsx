@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import Toggle from '../../categories/components/Toggle';
 import type { ProductItem } from '../types';
 
@@ -23,25 +24,30 @@ export const ProductMobileList = ({
         >
           {/* Top Section: Image + Title & Vendor/Category */}
           <div className="flex items-start gap-3">
-            <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150';
-                }}
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-sm truncate">
-                {isAr && product.nameAr ? product.nameAr : product.name}
-              </h3>
-              <p className="text-xs text-gray-400 mt-1 truncate">
-                {product.vendor} · {isAr && product.categoryAr ? product.categoryAr : product.category}
-              </p>
-            </div>
+            <Link
+              to={`/products/${product.id}`}
+              className="flex items-start gap-3 flex-1 min-w-0 group"
+            >
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0 group-hover:opacity-90 transition-opacity">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150';
+                  }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-black group-hover:underline transition-colors">
+                  {isAr && product.nameAr ? product.nameAr : product.name}
+                </h3>
+                <p className="text-xs text-gray-400 mt-1 truncate">
+                  {product.vendor} · {isAr && product.categoryAr ? product.categoryAr : product.category}
+                </p>
+              </div>
+            </Link>
           </div>
 
           {/* Bottom Section: Price, Stock, and Status Toggle */}

@@ -133,6 +133,77 @@ export interface AdminProductsResponse {
   };
 }
 
+export interface SingleProductVendor {
+  id?: string;
+  storeName?: string;
+  storeNameAr?: string | null;
+  logo?: string | null;
+}
+
+export interface SingleProductCategory {
+  id: string;
+  name: string;
+  nameAr?: string | null;
+}
+
+export interface SingleProductOptionValue {
+  id: string;
+  value: string;
+  valueAr?: string | null;
+}
+
+export interface SingleProductOption {
+  id: string;
+  name: string;
+  nameAr?: string | null;
+  values: SingleProductOptionValue[];
+}
+
+export interface SingleProductVariantOptionValue {
+  optionId: string;
+  optionName: string;
+  optionNameAr?: string | null;
+  valueId: string;
+  value: string;
+  valueAr?: string | null;
+}
+
+export interface SingleProductVariant {
+  id: string;
+  sku?: string;
+  price: number;
+  compareAtPrice?: number | null;
+  stock: number;
+  isActive: boolean;
+  optionValues?: SingleProductVariantOptionValue[];
+}
+
+export interface SingleProductImage {
+  id: string;
+  url: string;
+  isThumbnail?: boolean;
+}
+
+export interface SingleAdminProductDetail {
+  id: string;
+  vendorId?: string;
+  vendor?: SingleProductVendor;
+  categoryId?: string;
+  category?: SingleProductCategory;
+  name: string;
+  nameAr?: string | null;
+  description?: string | null;
+  descriptionAr?: string | null;
+  isActive?: boolean;
+  isDisabled?: boolean;
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
+  options?: SingleProductOption[];
+  variants?: SingleProductVariant[];
+  images?: SingleProductImage[];
+  createdAt?: string;
+}
+
 export const getAdminProducts = async (params?: GetAdminProductsParams): Promise<AdminProductsResponse | null> => {
   try {
     const { data } = await api.get('/admin/products', { params });
@@ -143,10 +214,11 @@ export const getAdminProducts = async (params?: GetAdminProductsParams): Promise
   }
 };
 
-export const getAdminProductById = async (id: string) => {
+export const getAdminProductById = async (id: string): Promise<SingleAdminProductDetail | null> => {
   try {
     const { data } = await api.get(`/admin/products/${id}`);
-    return data;
+    if (data?.data) return data.data as SingleAdminProductDetail;
+    return data as SingleAdminProductDetail;
   } catch (err) {
     console.warn(`API getAdminProductById (${id}) error:`, err);
     return null;
@@ -172,6 +244,3 @@ export const getAdminVendorById = async (id: string) => {
     return null;
   }
 };
-
-
-
