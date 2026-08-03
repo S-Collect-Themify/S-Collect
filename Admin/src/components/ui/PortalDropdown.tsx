@@ -67,7 +67,10 @@ export default function PortalDropdown({
 
   useEffect(() => {
     if (!isOpen) return;
-    const handleScroll = () => setIsOpen(false);
+    const handleScroll = (e: Event) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
+      setIsOpen(false);
+    };
     const handleResize = () => updatePosition();
     window.addEventListener('scroll', handleScroll, true);
     window.addEventListener('resize', handleResize);

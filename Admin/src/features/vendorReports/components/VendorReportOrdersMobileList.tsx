@@ -64,7 +64,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobAmount', 'Amount')}
                 </p>
                 <p className="text-xs text-gray-900 font-bold whitespace-nowrap">
-                  {order.amount ? `${order.amount.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
+                  {order.amount != null && order.amount > 0 ? `${order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
               <div>
@@ -72,7 +72,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobCommission', 'Commission')}
                 </p>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">
-                  {order.commission ? `${order.commission.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
+                  {order.commission != null && order.commission > 0 ? `${order.commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
               <div>
@@ -80,7 +80,7 @@ export default function VendorReportOrdersMobileList({
                   {t('vendorReports.mobNet', 'Net')}
                 </p>
                 <p className="text-xs text-gray-900 font-bold whitespace-nowrap">
-                  {order.net ? `${order.net.toLocaleString()} ${t('vendorReports.currency', 'SAR')}` : '--'}
+                  {order.net != null && order.net > 0 ? `${order.net.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${t('vendorReports.currency', 'SAR')}` : '--'}
                 </p>
               </div>
             </div>
