@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
 import { toSlug } from '../utils';
-import Toggle from './Toggle';
+import Toggle from '../../../components/ui/Toggle';
 
 // ─── Status Confirmation Modal ─────────────────────────────────────────────────
 export interface StatusConfirmModalProps {

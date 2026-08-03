@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import type { ProductItem } from '../types';
 
 interface ProductMobileListProps {
