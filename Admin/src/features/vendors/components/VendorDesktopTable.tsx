@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Inbox } from 'lucide-react';
-import Toggle from '../../mangement/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
 type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';

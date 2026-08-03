@@ -2,7 +2,7 @@ import { SquarePen, Trash2, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
-import Toggle from './Toggle';
+import Toggle from '../../../components/ui/Toggle';
 
 // ─── Mobile Card ───────────────────────────────────────────────────────────────
 export interface MobileCardProps {

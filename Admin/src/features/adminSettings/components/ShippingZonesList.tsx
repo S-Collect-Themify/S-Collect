@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import i18n from '../../../i18n';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 
 export const ShippingZonesList: React.FC = () => {
   const { t } = useTranslation();

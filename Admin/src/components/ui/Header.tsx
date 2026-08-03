@@ -107,7 +107,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="flex items-center justify-between gap-4 sidebar:hidden">
           <div className="flex items-center gap-3">
             <a href="/">
-              <img src="/mobLogo.png" alt="Logo" className="h-10 w-10" />
+              <img src="/mobLogo.png" alt="Logo" className="h-10 w-10" fetchPriority="high" />
             </a>
             <button
               type="button"

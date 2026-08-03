@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { MoreVertical, SquarePen, Trash } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
-import Toggle from '../Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import { showDeleteConfirmation } from '../deleteConfirmation';
 import { THUMB_STYLES } from '../constant';
 import type { Product } from '../mangement';
