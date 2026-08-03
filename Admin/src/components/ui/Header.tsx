@@ -153,6 +153,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <Link
             to="/login"
             className="hidden text-2xl hover:text-gray-300 sidebar:block"
+            aria-label="Account"
           >
             <User />
           </Link>

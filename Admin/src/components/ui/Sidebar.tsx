@@ -213,7 +213,7 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
 
   return (
     <div className="px-3 mt-5">
-      <p className="text-caption font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
+      <p className="text-caption font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
         {t(titleKey)}
       </p>
       <div className="flex flex-col gap-0.5">
