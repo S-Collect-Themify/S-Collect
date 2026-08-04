@@ -7,9 +7,9 @@ const Receivables = () => {
 
   return (
     <>
-      <div className="sidebar-page-container flex items-center justify-between md:mb-10 mb-5 bg-gray-50">
+      <div className="sidebar-page-container-header flex items-center justify-between  bg-gray-50">
         <div>
-          <h1 className="heading-page-title py-2">{t('receivables.title')}</h1>
+          <h1 className="heading-page-title">{t('receivables.title')}</h1>
           <p className="text-gray-500 pb-2 ">{t('receivables.description')}</p>
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function AccountSettingsPage({
     <>
       <div className="border-b border-gray-200 sidebar-page-container-header">
         <h1 className="heading-page-title">{t('settings.accountSettings')}</h1>
-        <nav className="mt-3 text-sm flex items-center gap-1">
+        <nav className="py-2 text-sm flex items-center gap-1">
           <span className="text-[#090909]">
             {t('settings.accountSettings')}
           </span>

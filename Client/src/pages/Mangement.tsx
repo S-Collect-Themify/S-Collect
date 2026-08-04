@@ -14,8 +14,8 @@ const Management = () => {
 
   return (
     <>
-      <div className="sidebar-page-container flex items-center justify-between md:mb-10 mb-5 bg-gray-50">
-        <h1 className="md:text-h4 text-h6 py-2 md:py-5">{t('managementTable.title')}</h1>
+      <div className="sidebar-page-container-header flex items-center justify-between bg-gray-50">
+        <h1 className="heading-page-title">{t('managementTable.title')}</h1>
         {isMobile ? (
           <Link
             to={'/add-product'}

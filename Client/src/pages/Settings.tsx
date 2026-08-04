@@ -27,7 +27,7 @@ export default function SettingsPage() {
     <>
       <div className="bg-white border-b border-gray-200 sidebar-page-container-header">
         <h1 className="heading-page-title">{t('settings.title')}</h1>
-        <nav className="mt-3 text-sm flex items-center gap-1">
+        <nav className="py-2 text-sm flex items-center gap-1">
           <span className="text-[#090909]">{t('settings.title')}</span>
           <span className="mx-0.5 text-[#737373]">
             <ChevronsRight size={16} />

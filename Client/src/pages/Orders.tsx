@@ -185,7 +185,7 @@ const IncomingOrdersDesktop = () => {
       <div className="sidebar-page-container-header heading-page-title font-bold">
         {t('ordersPage.title')}
       </div>
-      <div className="flex-1 overflow-y-auto py-6 sidebar-page-container">
+      <div className="flex-1 overflow-y-auto sidebar-page-container">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
           {/* Filters row */}
           <div className="px-4 sm:px-5 pt-4 sm:pt-5 pb-0">
