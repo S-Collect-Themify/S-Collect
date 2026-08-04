@@ -24,31 +24,33 @@ const StepSummary = ({
   const { t } = useTranslation();
 
   return (
-    <div>
-      <div className="rounded-2xl border border-gray-200 p-5 bg-white">
-        <h5 className="mb-4 font-semibold text-gray-800">Step Summary</h5>
-        <div className="space-y-3">
+    <div className="rounded-2xl border border-gray-200 p-6 bg-white flex flex-col justify-between h-full shadow-xs">
+      <div>
+        <h3 className="mb-6 font-bold text-gray-900 text-base">Step Summary</h3>
+        <div className="space-y-4">
           {STEPS.map((step) => (
-            <div key={step.label} className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">{step.label}</span>
-              <CircleCheckBig size={18} className="text-green-500" />
+            <div key={step.label} className="flex items-center justify-between py-1">
+              <span className="text-sm font-medium text-gray-700">{step.label}</span>
+              <CircleCheckBig size={20} className="text-emerald-500 shrink-0" />
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-8 flex gap-3">
         <button
+          type="button"
           onClick={onPrevious}
           disabled={isPublishing}
-          className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-medium transition hover:bg-gray-50 cursor-pointer w-full disabled:opacity-50"
+          className="w-1/2 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 cursor-pointer disabled:opacity-50"
         >
-          {t('addProduct.previous')}
+          {t('addProduct.previous', 'Previous')}
         </button>
         <button
+          type="button"
           onClick={onPublish}
           disabled={isPublishing}
-          className="rounded-xl bg-gray-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800 cursor-pointer w-full flex items-center justify-center gap-2 disabled:opacity-75"
+          className="w-1/2 rounded-xl bg-black py-3 text-sm font-semibold text-white transition hover:bg-gray-800 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-75"
         >
           {isPublishing ? (
             <>
@@ -56,7 +58,7 @@ const StepSummary = ({
               {t('addProduct.publishing', 'Publishing...')}
             </>
           ) : (
-            t('addProduct.publish')
+            t('addProduct.publish', 'Publish')
           )}
         </button>
       </div>

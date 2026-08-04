@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import type { AddProductStep, ProductFormData } from './types';
 import { getProductThumbnail, mapFormToMultipartFormData } from './utils';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
@@ -33,6 +33,7 @@ export const useAddProductPage = () => {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { productId } = useParams<{ productId: string }>();
   const isEdit = Boolean(productId);
 
@@ -45,7 +46,40 @@ export const useAddProductPage = () => {
     productId,
   });
 
-  const [step, setStep] = useState<AddProductStep>('form');
+  const rawState = searchParams.get('state')?.toLowerCase();
+  const isPreviewState =
+    rawState === 'preview' || rawState === 'prevewiw' || rawState === 'review';
+
+  const [isSuccessStep, setIsSuccessStep] = useState(false);
+
+  const step: AddProductStep = isSuccessStep
+    ? 'success'
+    : isPreviewState
+      ? 'review'
+      : 'form';
+
+  // Set default query parameter state=add if no state is specified (Only for Add Product, not Edit Product)
+  useEffect(() => {
+    if (!isEdit && !searchParams.has('state')) {
+      navigate('/add-product?state=add', { replace: true });
+    }
+  }, [isEdit, searchParams, navigate]);
+
+  const setStep = (newStep: AddProductStep) => {
+    if (newStep === 'success') {
+      setIsSuccessStep(true);
+    } else if (newStep === 'review') {
+      setIsSuccessStep(false);
+      navigate(
+        isEdit
+          ? `/edit-product/${productId}?state=preview`
+          : '/add-product?state=preview'
+      );
+    } else if (newStep === 'form') {
+      setIsSuccessStep(false);
+      navigate(isEdit ? `/edit-product/${productId}` : '/add-product?state=add');
+    }
+  };
   const [createdThumbnail, setCreatedThumbnail] = useState<string | undefined>(
     undefined
   );

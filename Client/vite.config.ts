@@ -4,14 +4,18 @@ import sitemap from 'vite-plugin-sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), sitemap({
+  plugins: [
+    react(),
+    tailwindcss(),
+    sitemap({
       hostname: 'https://s-collect.vercel.app',
-      dynamicRoutes: ['/', '/orders', '/products', '/returns']
-    })],
+      dynamicRoutes: ['/', '/orders', '/products', '/returns'],
+    }),
+  ],
   server: {
     proxy: {
       '/api/v1': {
-        target: 'https://api.collect-s.com',
+        target: 'https://api.collects.ihkam.tech',
         changeOrigin: true,
       },
     },
