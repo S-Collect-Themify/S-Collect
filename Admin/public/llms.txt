@@ -1,0 +1,9 @@
+# S-Collect Admin Dashboard
+
+> S-Collect Admin is a management platform for e-commerce vendor operations, revenue analytics, inventory management, and financial payouts.
+
+## Key Sections
+
+- [Dashboard](/): Overview of revenue, sales trends, orders by status, and vendor metrics.
+- [Vendors](/vendors): Comprehensive management of registered vendors and performance analytics.
+- [Vouchers](/vouchers): Platform voucher codes, marketing expense tracking, and promotion management.

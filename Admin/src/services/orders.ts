@@ -308,22 +308,22 @@ export async function getAdminSubOrders(
 export function mapAdminOrderToTransactionItem(order: AdminOrderItem): TransactionItem {
   const rawStatus = order.paymentStatus || order.overallStatus || 'PENDING';
 
-  const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : 'N/A';
-  const orderNo = `#ORD-${shortId}`;
+  const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : '';
+  const orderNo = order.id ? `#ORD-${shortId}` : '--';
   const date = order.createdAt
     ? new Date(order.createdAt).toISOString().split('T')[0]
-    : new Date().toISOString().split('T')[0];
+    : '--';
 
   return {
     id: order.id || Math.random().toString(),
     orderNo,
     date,
-    buyerName: order.recipientName || 'Guest Buyer',
+    buyerName: order.recipientName || '--',
     amount: order.grandTotalAmount ?? order.subtotalAmount ?? 0,
-    paymentMethod: 'Online Payment',
+    paymentMethod: (order as any).paymentMethod || '--',
     status: rawStatus,
     rawPaymentStatus: rawStatus,
-    fatoorahRef: `MF-${shortId}`,
+    fatoorahRef: (order as any).fatoorahRef || (order as any).myFatoorahRef || '--',
   };
 }
 
@@ -346,13 +346,13 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     : '';
 
   const firstSubOrder = order.subOrders?.[0];
-  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || 'Direct Store';
+  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || '--';
   const vendorId = firstSubOrder?.vendorId || (order as any).vendorId;
 
   return {
     id: order.id,
     code,
-    customer: order.recipientName || 'Guest Buyer',
+    customer: order.recipientName || '--',
     vendor: vendorName,
     vendorId,
     total,
@@ -381,14 +381,14 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
     : '';
 
   const customerName = sub.customer
-    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || 'Guest Buyer'
-    : 'Guest Buyer';
+    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || '--'
+    : '--';
 
   return {
     id: sub.id,
     code,
     customer: customerName,
-    vendor: (sub as any).vendorName || 'Direct Store',
+    vendor: (sub as any).vendorName || '--',
     vendorId: sub.vendorId,
     total,
     totalFormatted,

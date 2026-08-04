@@ -64,6 +64,12 @@ export default function VendorReportOrdersDesktopTable({
                 </td>
               </tr>
             ))
+          ) : orders.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
+                No vendor report orders found.
+              </td>
+            </tr>
           ) : (
             orders.map((order, idx) => (
               <tr
@@ -71,19 +77,19 @@ export default function VendorReportOrdersDesktopTable({
                 className="hover:bg-gray-50/50 transition-colors"
               >
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.id}
+                  {order.id || '--'}
                 </td>
                 <td className="px-5 py-4 text-gray-400 font-medium whitespace-nowrap">
-                  {order.date}
+                  {order.date || '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.amount.toLocaleString()}
+                  {order.amount != null && order.amount > 0 ? order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-                  {order.commission.toLocaleString()}
+                  {order.commission != null && order.commission > 0 ? order.commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-                  {order.net.toLocaleString()}
+                  {order.net != null && order.net > 0 ? order.net.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 whitespace-nowrap">
                   <VendorReportStatusBadge status={order.status} />

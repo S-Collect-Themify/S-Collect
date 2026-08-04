@@ -8,13 +8,34 @@ import {
   deactivateVendor,
   reactivateVendor,
   getVendorPayouts,
+  getVendorPayoutSummary,
+  getVendorPayoutStats,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
+import { getAdminCategories } from '../../../services/categories';
 import {
   mapBackendVendorToVendor,
   mapBackendVendorDetailToVendor,
 } from '../utils/vendorMapper';
+
+export function useVendorCategories() {
+  return useQuery({
+    queryKey: ['vendor-categories'],
+    queryFn: async () => {
+      try {
+        const items = await getAdminCategories({ pageNum: 1, pageSize: 100 });
+        return (items || [])
+          .map((c) => c.nameEn || c.name || c.nameAr)
+          .filter((name): name is string => Boolean(name));
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function useVendors(status?: string) {
   return useQuery({
@@ -39,7 +60,10 @@ export function useVendorDetails(id: string) {
       return mapBackendVendorDetailToVendor(data);
     },
     enabled: !!id,
+    retry: 2,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 }
 
@@ -56,12 +80,12 @@ export function useVendorProducts(vendorId: string, pageNum = 1, pageSize = 5) {
   });
 }
 
-export function useVendorSubOrders(vendorId: string, pageNum = 1, pageSize = 5, status?: string) {
+export function useVendorSubOrders(vendorId: string, pageNum = 1, pageSize = 5) {
   return useQuery({
-    queryKey: ['vendor-sub-orders', vendorId, pageNum, pageSize, status],
+    queryKey: ['vendor-orders', vendorId, pageNum, pageSize],
     queryFn: async () => {
       if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
-      const data = await getAdminSubOrders({ vendorId, pageNum, pageSize, status });
+      const data = await getAdminSubOrders({ vendorId, pageNum, pageSize });
       return data || { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
     },
     enabled: !!vendorId,
@@ -69,13 +93,37 @@ export function useVendorSubOrders(vendorId: string, pageNum = 1, pageSize = 5, 
   });
 }
 
-export function useVendorPayouts(vendorId: string, pageNum = 1, pageSize = 5) {
+export function useVendorPayouts(vendorId: string, pageNum = 1, pageSize = 25) {
   return useQuery({
     queryKey: ['vendor-payouts', vendorId, pageNum, pageSize],
     queryFn: async () => {
-      if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+      if (!vendorId) return { items: [], pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 } };
       const data = await getVendorPayouts(vendorId, { pageNum, pageSize });
-      return data || { items: [], pagination: { currentPage: 1, pageSize: 5, totalItems: 0, totalPages: 0 } };
+      return data || { items: [], pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 } };
+    },
+    enabled: !!vendorId,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useVendorPayoutSummary(vendorId: string) {
+  return useQuery({
+    queryKey: ['vendor-payout-summary', vendorId],
+    queryFn: async () => {
+      if (!vendorId) return null;
+      return await getVendorPayoutSummary(vendorId);
+    },
+    enabled: !!vendorId,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useVendorPayoutStats(vendorId: string) {
+  return useQuery({
+    queryKey: ['vendor-payout-stats', vendorId],
+    queryFn: async () => {
+      if (!vendorId) return null;
+      return await getVendorPayoutStats(vendorId);
     },
     enabled: !!vendorId,
     staleTime: 2 * 60 * 1000,

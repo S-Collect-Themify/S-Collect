@@ -30,12 +30,12 @@ export default function RevenueSalesChartHeader({
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
-        <p className="text-xs font-medium text-gray-400 mb-0.5">
+        <p className="text-xs font-medium text-gray-500 mb-0.5">
           {t('dashboardOverview.salesOverview', 'Sales Overview')}
         </p>
         <div className="flex items-baseline gap-1.5">
           <span className="text-2xl font-bold text-gray-900">{totalDisplay}</span>
-          <span className="text-xs font-medium text-gray-400">
+          <span className="text-xs font-medium text-gray-500">
             {t('dashboardOverview.currency', 'SAR')}
           </span>
         </div>

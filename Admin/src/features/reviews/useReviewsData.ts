@@ -23,7 +23,8 @@ export const mapBackendReviewToFrontend = (
   vendorsList: any[] = [],
   language: string = 'en'
 ): ReviewItem => {
-  const formattedDate = r.createdAt ? String(r.createdAt).split('T')[0] : '—';
+  const rawDate = r.createdAt || r.updatedAt;
+  const formattedDate = rawDate ? String(rawDate).split('T')[0] : '—';
 
   const revId = `REV-${String(r.id).slice(0, 6)}`;
 
@@ -69,6 +70,7 @@ export const mapBackendReviewToFrontend = (
     rating: Number(r.rating) || 0,
     comment: r.comment || '',
     date: formattedDate,
+    createdAt: rawDate ? String(rawDate) : undefined,
   };
 };
 

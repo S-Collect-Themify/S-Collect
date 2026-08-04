@@ -1,7 +1,6 @@
-export type CommissionStatus = 'Active' | 'Default' | 'Custom' | 'Inactive';
+export type CommissionStatus = 'Custom' | 'Default';
 
 export interface PlatformCommissionData {
-  id: string;
   rate: number;
   lastUpdated: string;
 }
@@ -9,7 +8,9 @@ export interface PlatformCommissionData {
 export interface VendorCommissionItem {
   id: string;
   vendorName: string;
-  rate: number;
+  /** The effective rate to display — either custom or the platform default */
+  rate: number | null;
+  /** Whether this vendor has a custom rate set */
   status: CommissionStatus;
   lastUpdated: string;
 }
@@ -17,7 +18,9 @@ export interface VendorCommissionItem {
 export interface CategoryCommissionItem {
   id: string;
   categoryName: string;
-  rate: number;
+  /** The effective rate to display — either custom or the platform default */
+  rate: number | null;
+  /** Whether this category has a custom rate set */
   status: CommissionStatus;
   lastUpdated: string;
 }
@@ -28,4 +31,6 @@ export interface EditModalTarget {
   name: string;
   currentRate: number;
   currentStatus?: CommissionStatus;
+  /** Whether a custom override exists (for vendor/category) */
+  hasCustomRate?: boolean;
 }

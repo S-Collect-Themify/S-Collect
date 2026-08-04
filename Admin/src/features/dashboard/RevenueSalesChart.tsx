@@ -18,36 +18,36 @@ const dataByPeriod: Record<
   { labelKey: string; defaultLabel: string; sales: number }[]
 > = {
   monthly: [
-    { labelKey: 'Jan', defaultLabel: 'Jan', sales: 24500 },
-    { labelKey: 'Feb', defaultLabel: 'Feb', sales: 48200 },
-    { labelKey: 'Mar', defaultLabel: 'Mar', sales: 38900 },
-    { labelKey: 'Apr', defaultLabel: 'Apr', sales: 92400 },
-    { labelKey: 'May', defaultLabel: 'May', sales: 51800 },
-    { labelKey: 'Jun', defaultLabel: 'Jun', sales: 78300 },
-    { labelKey: 'Jul', defaultLabel: 'Jul', sales: 65034 },
+    { labelKey: 'Jan', defaultLabel: 'Jan', sales: 0 },
+    { labelKey: 'Feb', defaultLabel: 'Feb', sales: 0 },
+    { labelKey: 'Mar', defaultLabel: 'Mar', sales: 0 },
+    { labelKey: 'Apr', defaultLabel: 'Apr', sales: 0 },
+    { labelKey: 'May', defaultLabel: 'May', sales: 0 },
+    { labelKey: 'Jun', defaultLabel: 'Jun', sales: 0 },
+    { labelKey: 'Jul', defaultLabel: 'Jul', sales: 0 },
   ],
   weekly: [
-    { labelKey: 'Mon', defaultLabel: 'Mon', sales: 12300 },
-    { labelKey: 'Tue', defaultLabel: 'Tue', sales: 18500 },
-    { labelKey: 'Wed', defaultLabel: 'Wed', sales: 15200 },
-    { labelKey: 'Thu', defaultLabel: 'Thu', sales: 24800 },
-    { labelKey: 'Fri', defaultLabel: 'Fri', sales: 28900 },
-    { labelKey: 'Sat', defaultLabel: 'Sat', sales: 8750 },
-    { labelKey: 'Sun', defaultLabel: 'Sun', sales: 4000 },
+    { labelKey: 'Mon', defaultLabel: 'Mon', sales: 0 },
+    { labelKey: 'Tue', defaultLabel: 'Tue', sales: 0 },
+    { labelKey: 'Wed', defaultLabel: 'Wed', sales: 0 },
+    { labelKey: 'Thu', defaultLabel: 'Thu', sales: 0 },
+    { labelKey: 'Fri', defaultLabel: 'Fri', sales: 0 },
+    { labelKey: 'Sat', defaultLabel: 'Sat', sales: 0 },
+    { labelKey: 'Sun', defaultLabel: 'Sun', sales: 0 },
   ],
   yearly: [
-    { labelKey: '2021', defaultLabel: '2021', sales: 420000 },
-    { labelKey: '2022', defaultLabel: '2022', sales: 850000 },
-    { labelKey: '2023', defaultLabel: '2023', sales: 1420000 },
-    { labelKey: '2024', defaultLabel: '2024', sales: 1950000 },
-    { labelKey: '2025', defaultLabel: '2025', sales: 1202900 },
+    { labelKey: '2021', defaultLabel: '2021', sales: 0 },
+    { labelKey: '2022', defaultLabel: '2022', sales: 0 },
+    { labelKey: '2023', defaultLabel: '2023', sales: 0 },
+    { labelKey: '2024', defaultLabel: '2024', sales: 0 },
+    { labelKey: '2025', defaultLabel: '2025', sales: 0 },
   ],
 };
 
 const totalsByPeriod: Record<PeriodKey, string> = {
-  monthly: '459,134.00',
-  weekly: '112,450.00',
-  yearly: '5,842,900.00',
+  monthly: '--',
+  weekly: '--',
+  yearly: '--',
 };
 
 const chartConfig = {

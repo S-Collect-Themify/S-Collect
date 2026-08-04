@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Pagination } from '../features/Orders/components/Pagination';
 import {
   CommissionRatesHeader,
   PlatformDefaultCommissionCard,
@@ -8,6 +10,7 @@ import {
   CategoryCommissionMobileList,
   EditCommissionModal,
   ConfirmRateChangeModal,
+  ConfirmResetCommissionModal,
   useCommissionRates,
 } from '../features/commissionRates';
 
@@ -20,18 +23,41 @@ export default function CommissionRates() {
     vendorCommissions,
     categoryCommissions,
     editTarget,
+    resetTarget,
     isModalOpen,
     isConfirmOpen,
+    isResetConfirmOpen,
     setIsModalOpen,
     setIsConfirmOpen,
+    setIsResetConfirmOpen,
     handleOpenEditPlatform,
     handleOpenEditVendor,
     handleOpenEditCategory,
     handleRequestConfirm,
     handleConfirmRateChange,
+    handleResetVendorCommission,
+    handleResetCategoryCommission,
+    handleConfirmReset,
     handleExportExcel,
     handleExportPDF,
   } = useCommissionRates();
+
+  const ITEMS_PER_PAGE = 20;
+
+  // Pagination states
+  const [vendorPage, setVendorPage] = useState(1);
+  const [categoryPage, setCategoryPage] = useState(1);
+
+  // Paginated items
+  const paginatedVendors = vendorCommissions.slice(
+    (vendorPage - 1) * ITEMS_PER_PAGE,
+    vendorPage * ITEMS_PER_PAGE
+  );
+
+  const paginatedCategories = categoryCommissions.slice(
+    (categoryPage - 1) * ITEMS_PER_PAGE,
+    categoryPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div
@@ -61,14 +87,28 @@ export default function CommissionRates() {
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs overflow-hidden">
             <VendorCommissionTable
-              items={vendorCommissions}
+              items={paginatedVendors}
+              platformRate={platformCommission.rate}
               onEdit={handleOpenEditVendor}
+              onReset={handleResetVendorCommission}
               isLoading={isLoading}
             />
             <VendorCommissionMobileList
-              items={vendorCommissions}
+              items={paginatedVendors}
+              platformRate={platformCommission.rate}
               onEdit={handleOpenEditVendor}
+              onReset={handleResetVendorCommission}
               isLoading={isLoading}
+            />
+
+            {/* Vendor Table Pagination */}
+            <Pagination
+              currentPage={vendorPage}
+              totalPages={Math.ceil(vendorCommissions.length / ITEMS_PER_PAGE)}
+              totalItems={vendorCommissions.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setVendorPage}
+              displayedCount={paginatedVendors.length}
             />
           </div>
         </section>
@@ -81,14 +121,28 @@ export default function CommissionRates() {
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs overflow-hidden">
             <CategoryCommissionTable
-              items={categoryCommissions}
+              items={paginatedCategories}
+              platformRate={platformCommission.rate}
               onEdit={handleOpenEditCategory}
+              onReset={handleResetCategoryCommission}
               isLoading={isLoading}
             />
             <CategoryCommissionMobileList
-              items={categoryCommissions}
+              items={paginatedCategories}
+              platformRate={platformCommission.rate}
               onEdit={handleOpenEditCategory}
+              onReset={handleResetCategoryCommission}
               isLoading={isLoading}
+            />
+
+            {/* Category Table Pagination */}
+            <Pagination
+              currentPage={categoryPage}
+              totalPages={Math.ceil(categoryCommissions.length / ITEMS_PER_PAGE)}
+              totalItems={categoryCommissions.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCategoryPage}
+              displayedCount={paginatedCategories.length}
             />
           </div>
         </section>
@@ -96,10 +150,19 @@ export default function CommissionRates() {
 
       {/* Edit Modal */}
       <EditCommissionModal
-        isOpen={isModalOpen && !isConfirmOpen}
+        isOpen={isModalOpen && !isConfirmOpen && !isResetConfirmOpen}
         target={editTarget}
         onClose={() => setIsModalOpen(false)}
         onRequestConfirm={handleRequestConfirm}
+        onReset={(id, type) => {
+          if (type === 'vendor') {
+            const vendorItem = vendorCommissions.find((v) => v.id === id);
+            if (vendorItem) handleResetVendorCommission(vendorItem);
+          } else {
+            const categoryItem = categoryCommissions.find((c) => c.id === id);
+            if (categoryItem) handleResetCategoryCommission(categoryItem);
+          }
+        }}
       />
 
       {/* Confirm Rate Change Modal */}
@@ -108,6 +171,17 @@ export default function CommissionRates() {
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirmRateChange}
       />
+
+      {/* Confirm Reset Modal */}
+      <ConfirmResetCommissionModal
+        isOpen={isResetConfirmOpen}
+        name={resetTarget?.name}
+        type={resetTarget?.type}
+        onCancel={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
+      />
     </div>
   );
 }
+
+

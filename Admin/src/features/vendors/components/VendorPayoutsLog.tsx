@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
-import { useVendorPayouts } from '../hooks/useVendors';
+import { useVendorPayouts, useVendorPayoutSummary } from '../hooks/useVendors';
 import type { Vendor } from '../types/vendors';
 
 interface VendorPayoutsLogProps {
@@ -15,7 +15,7 @@ export interface PayoutItem {
   amount: number;
   referenceNumber: string;
   adminName: string;
-  status: 'completed' | 'accepted' | 'pending' | 'rejected';
+  status: string;
 }
 
 export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogProps) {
@@ -23,14 +23,18 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
   const isRtl = i18n.language === 'ar';
   const targetId = vendorId || vendor.id;
 
-  const [fromDate, setFromDate] = useState('2024-01-01');
-  const [toDate, setToDate] = useState('2024-12-31');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [appliedFrom, setAppliedFrom] = useState('');
   const [appliedTo, setAppliedTo] = useState('');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
 
-  const { data: apiPayoutsData, isLoading } = useVendorPayouts(targetId, page, itemsPerPage);
+  // React Query for payouts list
+  const { data: apiPayoutsData, isLoading: isPayoutsLoading } = useVendorPayouts(targetId, page, itemsPerPage);
+
+  // React Query for summary endpoint /api/v1/admin/vendors/{vendorId}/payouts/summary
+  const { data: summaryData, isLoading: isSummaryLoading } = useVendorPayoutSummary(targetId);
 
   const PAYOUT_STATUS_STYLES: Record<string, { label: string; className: string }> = useMemo(
     () => ({
@@ -54,7 +58,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     [t]
   );
 
-  // Map API items (without mock data fallbacks)
+  // Map API items matching /api/v1/admin/vendors/{vendorId}/payouts response schema
   const rawItems: PayoutItem[] = useMemo(() => {
     const apiData = apiPayoutsData as any;
     const items: any[] = Array.isArray(apiData)
@@ -67,26 +71,51 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
       ? apiData.data.items
       : [];
 
-    return items.map((item: any, idx: number) => {
-      const idStr = item.id ? String(item.id) : `${idx + 1}`;
-      const formattedId = idStr.startsWith('#')
-        ? idStr
-        : `#PAY-${idStr.slice(-4).padStart(4, '0').toUpperCase()}`;
-      const dateStr = item.createdAt || item.transferDate
-        ? new Date(item.createdAt || item.transferDate).toLocaleDateString('en-US', {
+    return items.map((item: any) => {
+      const idStr = item.id ? String(item.id) : '';
+      const formattedId = idStr
+        ? idStr.startsWith('#')
+          ? idStr
+          : `#PAY-${idStr.slice(-4).padStart(4, '0').toUpperCase()}`
+        : '--';
+
+      const rawDate = item.transferDate || item.createdAt;
+      let dateStr = '--';
+      if (rawDate) {
+        const parsed = new Date(rawDate);
+        if (!isNaN(parsed.getTime())) {
+          dateStr = parsed.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric',
-          })
-        : '—';
+          });
+        }
+      }
+
+      const amountVal = typeof item.amount === 'number'
+        ? item.amount
+        : typeof item.amount === 'string'
+        ? parseFloat(item.amount) || 0
+        : 0;
+
+      const refVal = item.ref != null && String(item.ref).trim() !== ''
+        ? String(item.ref)
+        : item.referenceNumber ||
+          item.referenceNo ||
+          (typeof item.referenceNote === 'string' ? item.referenceNote : item.referenceNote?.ref || item.referenceNote?.note) ||
+          '--';
+
+      const adminVal = item.adminName || item.processedBy || item.admin || '--';
+
+      const statusVal = item.status ? String(item.status).toLowerCase() : '--';
 
       return {
         id: formattedId,
         date: dateStr,
-        amount: typeof item.amount === 'number' ? item.amount : parseFloat(item.amount) || 0,
-        referenceNumber: item.referenceNumber || item.referenceNo || '—',
-        adminName: item.adminName || item.processedBy || item.admin || 'System Admin',
-        status: (item.status ? String(item.status).toLowerCase() : 'completed') as any,
+        amount: amountVal,
+        referenceNumber: refVal,
+        adminName: adminVal,
+        status: statusVal as any,
       };
     });
   }, [apiPayoutsData]);
@@ -112,20 +141,50 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     });
   }, [rawItems, appliedFrom, appliedTo]);
 
-  // Stat calculations
-  const totalPayoutsSum = useMemo(() => {
-    return filteredItems.reduce((acc, item) => acc + item.amount, 0);
-  }, [filteredItems]);
+  // Summary Stat calculations from /api/v1/admin/vendors/{vendorId}/payouts/summary
+  const totalPayout = useMemo(() => {
+    if (!summaryData) return null;
+    const raw = summaryData.totalPayout ?? summaryData.totalPayouts;
+    if (typeof raw === 'number') return raw;
+    if (typeof raw === 'string') return parseFloat(raw) || 0;
+    return 0;
+  }, [summaryData]);
 
-  const pendingAmountSum = useMemo(() => {
-    return filteredItems
-      .filter((item) => item.status === 'pending')
-      .reduce((acc, item) => acc + item.amount, 0);
-  }, [filteredItems]);
+  const pendingAmount = useMemo(() => {
+    if (!summaryData) return null;
+    const raw = summaryData.pendingAmount;
+    if (typeof raw === 'number') return raw;
+    if (typeof raw === 'string') return parseFloat(raw) || 0;
+    return 0;
+  }, [summaryData]);
 
   const lastPayoutDate = useMemo(() => {
-    return filteredItems[0]?.date || '—';
-  }, [filteredItems]);
+    if (!summaryData) return '--';
+    const raw = summaryData.lastPayoutDate;
+    if (!raw) return '--';
+    if (typeof raw === 'string' && raw.trim()) {
+      const d = new Date(raw);
+      return !isNaN(d.getTime())
+        ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : raw;
+    }
+    if (typeof raw === 'number') {
+      const d = new Date(raw);
+      return !isNaN(d.getTime())
+        ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '--';
+    }
+    if (typeof raw === 'object' && Object.keys(raw).length > 0) {
+      const val = (raw as any).date || (raw as any).iso || (raw as any).createdAt || (raw as any).formatted;
+      if (typeof val === 'string') {
+        const d = new Date(val);
+        return !isNaN(d.getTime())
+          ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : val;
+      }
+    }
+    return '--';
+  }, [summaryData]);
 
   // Pagination from API metadata or calculated
   const apiData = apiPayoutsData as any;
@@ -134,7 +193,6 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
   const safePage = Math.min(page, totalPages);
 
   const paginatedItems = useMemo(() => {
-    // If backend already paginates, use filteredItems directly; otherwise slice client-side
     if (apiData?.pagination?.totalItems !== undefined) {
       return filteredItems;
     }
@@ -148,6 +206,8 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     setPage(1);
   };
 
+  const isLoading = isPayoutsLoading;
+
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'}>
       {/* 3 Stat Cards Row */}
@@ -158,13 +218,25 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             {t('vendors.payoutsLog.totalPayouts', 'Total Payouts')}
           </p>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-emerald-600">
-              {totalPayoutsSum.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-            <span className="text-xs font-bold text-emerald-600">SAR</span>
+            {isSummaryLoading ? (
+              <div className="w-24 h-7 bg-gray-100 animate-pulse rounded" />
+            ) : (
+              <>
+                <span className="text-2xl font-extrabold text-emerald-600">
+                  {totalPayout !== null && totalPayout > 0 ? (
+                    totalPayout.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  ) : (
+                    '--'
+                  )}
+                </span>
+                {totalPayout !== null && totalPayout > 0 && (
+                  <span className="text-xs font-bold text-emerald-600">SAR</span>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -174,13 +246,25 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             {t('vendors.payoutsLog.pendingAmount', 'Pending Amount')}
           </p>
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-extrabold text-amber-500">
-              {pendingAmountSum.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-            <span className="text-xs font-bold text-amber-500">SAR</span>
+            {isSummaryLoading ? (
+              <div className="w-24 h-7 bg-gray-100 animate-pulse rounded" />
+            ) : (
+              <>
+                <span className="text-2xl font-extrabold text-amber-500">
+                  {pendingAmount !== null && pendingAmount > 0 ? (
+                    pendingAmount.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  ) : (
+                    '--'
+                  )}
+                </span>
+                {pendingAmount !== null && pendingAmount > 0 && (
+                  <span className="text-xs font-bold text-amber-500">SAR</span>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -189,9 +273,13 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
           <p className="text-xs text-gray-400 font-medium mb-2">
             {t('vendors.payoutsLog.lastPayoutDate', 'Last Payout Date')}
           </p>
-          <p className="text-xl sm:text-2xl font-bold text-gray-900">
-            {lastPayoutDate}
-          </p>
+          {isSummaryLoading ? (
+            <div className="w-28 h-7 bg-gray-100 animate-pulse rounded" />
+          ) : (
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">
+              {lastPayoutDate}
+            </p>
+          )}
         </div>
       </div>
 
@@ -277,33 +365,40 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   </td>
                 </tr>
               ) : (
-                paginatedItems.map((payout) => {
-                  const style = PAYOUT_STATUS_STYLES[payout.status] || {
-                    label: payout.status,
+                paginatedItems.map((payout, idx) => {
+                  const hasStatus = payout.status && payout.status !== '--';
+                  const style = hasStatus ? PAYOUT_STATUS_STYLES[payout.status] || {
+                    label: payout.status.toUpperCase(),
                     className: 'bg-gray-100 text-gray-700',
-                  };
+                  } : null;
 
                   return (
-                    <tr key={payout.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={payout.id || idx} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-6 py-4 font-bold text-amber-500 text-xs">
-                        {payout.id}
+                        {payout.id || '--'}
                       </td>
                       <td className="px-6 py-4 text-gray-400 text-xs">
-                        {payout.date}
+                        {payout.date || '--'}
                       </td>
                       <td className="px-6 py-4 font-bold text-gray-900 text-xs">
-                        SAR {payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {payout.amount > 0
+                          ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : '--'}
                       </td>
                       <td className="px-6 py-4 text-gray-400 text-xs font-medium">
-                        {payout.referenceNumber}
+                        {payout.referenceNumber || '--'}
                       </td>
                       <td className="px-6 py-4 text-gray-600 text-xs font-medium">
-                        {payout.adminName}
+                        {payout.adminName || '--'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-[11px] font-semibold ${style.className}`}>
-                          {style.label}
-                        </span>
+                        {style ? (
+                          <span className={`inline-flex px-3 py-1 rounded-full text-[11px] font-semibold ${style.className}`}>
+                            {style.label}
+                          </span>
+                        ) : (
+                          '--'
+                        )}
                       </td>
                     </tr>
                   );
@@ -327,27 +422,34 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
               {t('vendors.payoutsLog.noPayoutsFound', 'No payouts found for this vendor.')}
             </div>
           ) : (
-            paginatedItems.map((payout) => {
-              const style = PAYOUT_STATUS_STYLES[payout.status] || {
-                label: payout.status,
+            paginatedItems.map((payout, idx) => {
+              const hasStatus = payout.status && payout.status !== '--';
+              const style = hasStatus ? PAYOUT_STATUS_STYLES[payout.status] || {
+                label: payout.status.toUpperCase(),
                 className: 'bg-gray-100 text-gray-700',
-              };
+              } : null;
 
               return (
-                <div key={payout.id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
+                <div key={payout.id || idx} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-500">{payout.id}</span>
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${style.className}`}>
-                      {style.label}
-                    </span>
+                    <span className="text-xs font-bold text-amber-500">{payout.id || '--'}</span>
+                    {style ? (
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${style.className}`}>
+                        {style.label}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">--</span>
+                    )}
                   </div>
-                  <p className="text-xs text-gray-400">{payout.date}</p>
+                  <p className="text-xs text-gray-400">{payout.date || '--'}</p>
                   <p className="text-base font-bold text-gray-900">
-                    SAR {payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {payout.amount > 0
+                      ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : '--'}
                   </p>
                   <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-50">
-                    <span>Ref Number: <strong className="text-gray-700">{payout.referenceNumber}</strong></span>
-                    <span>Admin: <strong className="text-gray-700">{payout.adminName}</strong></span>
+                    <span>Ref Number: <strong className="text-gray-700">{payout.referenceNumber || '--'}</strong></span>
+                    <span>Admin: <strong className="text-gray-700">{payout.adminName || '--'}</strong></span>
                   </div>
                 </div>
               );

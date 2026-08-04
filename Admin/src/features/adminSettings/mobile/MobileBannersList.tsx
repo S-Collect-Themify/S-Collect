@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash2, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
-import { getAdminCategories, type ApiCategoryItem } from '../../../services/categories';
-import { getVendors, type BackendVendor } from '../../../services/vendors';
-import { getAllProducts } from '../../../services/products';
+import { useBannersData } from '../hooks/useBannersData';
 
 const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
   CATEGORY: 'Category',
@@ -24,69 +22,15 @@ const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
 
 export const MobileBannersList: React.FC = () => {
   const { t } = useTranslation();
-  const {
-    banners,
-    fetchBanners,
-    setViewMode,
-    setEditingBanner,
-    openDeleteModal,
-  } = useAdminSettingsStore();
+  const { setViewMode, setEditingBanner, openDeleteModal } = useAdminSettingsStore();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
-  const [categories, setCategories] = useState<ApiCategoryItem[]>([]);
-  const [vendors, setVendors] = useState<BackendVendor[]>([]);
-  const [products, setProducts] = useState<{ id: string; name: string; nameEn?: string }[]>([]);
-
-  useEffect(() => {
-    fetchBanners();
-    const loadLookups = async () => {
-      try {
-        const [cats, vens, prods] = await Promise.all([
-          getAdminCategories(),
-          getVendors({ status: 'ACTIVE' }),
-          getAllProducts(),
-        ]);
-        setCategories(cats);
-        setVendors(vens);
-        const prodArr = (() => {
-          if (Array.isArray(prods)) return prods;
-          if (prods?.data && Array.isArray(prods.data)) return prods.data;
-          if (prods?.items && Array.isArray(prods.items)) return prods.items;
-          if (prods?.data?.items && Array.isArray(prods.data.items)) return prods.data.items;
-          return [];
-        })();
-        setProducts(prodArr);
-      } catch {
-        // ignore
-      }
-    };
-    loadLookups();
-  }, [fetchBanners]);
-
-  const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c.name || c.nameEn || c.nameAr || ''])), [categories]);
-  const productMap = useMemo(() => new Map(products.map((p) => [p.id, p.nameEn || p.name || ''])), [products]);
-  const vendorMap = useMemo(() => new Map(vendors.map((v) => [v.id, v.storeName || ''])), [vendors]);
+  const { banners, isLoading: bannersLoading } = useBannersData();
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
     setViewMode('banners-edit');
-  };
-
-  const getTargetName = (banner: BannerItem) => {
-    if (banner.linkType === 'EXTERNAL_URL') {
-      return banner.externalUrl || banner.redirectUrl || '—';
-    }
-    if (banner.linkType === 'CATEGORY' && banner.linkTargetId) {
-      return categoryMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    if (banner.linkType === 'PRODUCT' && banner.linkTargetId) {
-      return productMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    if (banner.linkType === 'VENDOR' && banner.linkTargetId) {
-      return vendorMap.get(banner.linkTargetId) || banner.linkTargetId;
-    }
-    return banner.externalUrl || banner.redirectUrl || banner.linkTargetId || '—';
   };
 
   return (
@@ -126,7 +70,21 @@ export const MobileBannersList: React.FC = () => {
       </div>
 
       {/* Cards List */}
-      {banners.length === 0 ? (
+      {bannersLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 animate-pulse space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-24 h-14 bg-gray-100 rounded-lg shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-gray-100 rounded w-3/4" />
+                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : banners.length === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center text-gray-400 text-xs border border-gray-100 shadow-2xs">
           {t('banners.noBanners', { defaultValue: 'No banners added yet.' })}
         </div>
@@ -153,7 +111,7 @@ export const MobileBannersList: React.FC = () => {
                   )}
                 </div>
 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 flex justify-between items-center">
                   <h3 className="font-bold text-gray-900 text-sm mb-0.5 truncate">
                     {banner.name}
                   </h3>
@@ -163,9 +121,6 @@ export const MobileBannersList: React.FC = () => {
                         {LINK_TYPE_LABEL[banner.linkType]}
                       </span>
                     )}
-                    <span className="text-xs text-gray-500 font-medium truncate">
-                      {getTargetName(banner)}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -192,7 +147,7 @@ export const MobileBannersList: React.FC = () => {
                     type="button"
                     onClick={() => handleEdit(banner)}
                     className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
-                    title={t('banners.edit', { defaultValue: 'Edit Banner' })}
+                    title={t('banners.edit.title', { defaultValue: 'Edit Banner' })}
                   >
                     <SquarePen size={15} />
                   </button>

@@ -13,9 +13,9 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
     <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
       {/* Top Row: Vendor Name & Status */}
       <div className="flex items-center justify-between gap-2">
-        <span className="font-extrabold text-sm text-gray-900">{item.vendorName}</span>
+        <span className="font-extrabold text-sm text-gray-900">{item.vendorName || '--'}</span>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/50">
-          {t('payouts.statusActive', 'Active')}
+          {item.status || '--'}
         </span>
       </div>
 
@@ -25,14 +25,16 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
           <span className="text-gray-500 font-medium">
             {t('payouts.totalGmvLabel', 'Total GMV')}
           </span>
-          <span className="font-bold text-gray-900">{item.totalGmv.toLocaleString()} SAR</span>
+          <span className="font-bold text-gray-900">
+            {item.totalGmv ? `${item.totalGmv.toLocaleString()} SAR` : '--'}
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-500 font-medium">
             {t('payouts.commissionLabel', 'Commission')}
           </span>
           <span className="font-bold text-gray-900">
-            {item.commission.toLocaleString()} SAR
+            {item.commission ? `${item.commission.toLocaleString()} SAR` : '--'}
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -40,7 +42,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.totalPayoutsLabel', 'Total Payouts')}
           </span>
           <span className="font-bold text-gray-900">
-            {item.totalPayouts.toLocaleString()} SAR
+            {item.totalPayouts ? `${item.totalPayouts.toLocaleString()} SAR` : '--'}
           </span>
         </div>
         <div className="flex items-center justify-between pt-1">
@@ -48,7 +50,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.pendingPayoutLabel', 'Pending Payout')}
           </span>
           <span className="font-extrabold text-gray-900">
-            {item.pendingPayout.toLocaleString()} SAR
+            {item.pendingPayout ? `${item.pendingPayout.toLocaleString()} SAR` : '--'}
           </span>
         </div>
       </div>

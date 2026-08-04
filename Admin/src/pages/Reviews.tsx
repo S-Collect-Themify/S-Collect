@@ -25,6 +25,7 @@ const Reviews = () => {
   const vendorFilter = useReviewStore((s) => s.vendorFilter);
   const ratingFilter = useReviewStore((s) => s.ratingFilter);
   const productFilter = useReviewStore((s) => s.productFilter);
+  const sortBy = useReviewStore((s) => s.sortBy);
   const currentPage = useReviewStore((s) => s.currentPage);
   const deleteModal = useReviewStore((s) => s.deleteModal);
 
@@ -44,9 +45,9 @@ const Reviews = () => {
     return list.sort();
   }, [reviews]);
 
-  // ── Filter Logic ──
+  // ── Filter & Sort Logic ──
   const filteredReviews = useMemo(() => {
-    return reviews.filter((item) => {
+    const filtered = reviews.filter((item) => {
       // Search Filter
       if (search.trim()) {
         const q = search.toLowerCase();
@@ -76,7 +77,25 @@ const Reviews = () => {
 
       return true;
     });
-  }, [reviews, search, vendorFilter, ratingFilter, productFilter]);
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'rating-desc') {
+        return b.rating - a.rating;
+      }
+      if (sortBy === 'rating-asc') {
+        return a.rating - b.rating;
+      }
+      if (sortBy === 'date-asc') {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.date ? new Date(a.date).getTime() : 0);
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+        return timeA - timeB;
+      }
+      // date-desc (default)
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.date ? new Date(a.date).getTime() : 0);
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+      return timeB - timeA;
+    });
+  }, [reviews, search, vendorFilter, ratingFilter, productFilter, sortBy]);
 
   // ── Pagination Calculation ──
   const totalPages = Math.max(1, Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE));

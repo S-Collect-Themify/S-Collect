@@ -7,13 +7,13 @@ export default function OrdersStatusDonut() {
     <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-2xs flex flex-col justify-between h-full">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 mb-2">
+        <h2 className="text-sm font-bold text-gray-900 mb-2">
           {t('dashboardOverview.ordersByStatus', 'Orders by Status')}
-        </h3>
-        <p className="text-xs text-gray-400 font-medium">
+        </h2>
+        <p className="text-xs text-gray-500 font-medium">
           {t('dashboardOverview.totalOrders', 'Total Orders')}
         </p>
-        <p className="text-xl font-bold text-gray-900">12,482</p>
+        <p className="text-xl font-bold text-gray-900">--</p>
       </div>
 
       {/* Center Donut SVG */}
@@ -28,51 +28,12 @@ export default function OrdersStatusDonut() {
             strokeWidth="12"
             fill="transparent"
           />
-
-          {/* Green Segment (Delivered ~ 70%) */}
-          <circle
-            cx="50"
-            cy="50"
-            r="38"
-            stroke="#22c55e"
-            strokeWidth="12"
-            fill="transparent"
-            strokeDasharray="238.76"
-            strokeDashoffset="71.6"
-            strokeLinecap="round"
-          />
-
-          {/* Orange Segment (Processing ~ 15%) */}
-          <circle
-            cx="50"
-            cy="50"
-            r="38"
-            stroke="#f59e0b"
-            strokeWidth="12"
-            fill="transparent"
-            strokeDasharray="238.76"
-            strokeDashoffset="203.0"
-            strokeLinecap="round"
-          />
-
-          {/* Blue Segment (Shipped ~ 15%) */}
-          <circle
-            cx="50"
-            cy="50"
-            r="38"
-            stroke="#3b82f6"
-            strokeWidth="12"
-            fill="transparent"
-            strokeDasharray="238.76"
-            strokeDashoffset="220.0"
-            strokeLinecap="round"
-          />
         </svg>
 
         {/* Center Label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-lg font-extrabold text-gray-900 leading-none">82%</span>
-          <span className="text-[10px] font-medium text-gray-400 mt-0.5">
+          <span className="text-lg font-extrabold text-gray-900 leading-none">--</span>
+          <span className="text-[10px] font-medium text-gray-500 mt-0.5">
             {t('dashboardOverview.success', 'Success')}
           </span>
         </div>

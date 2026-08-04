@@ -49,7 +49,7 @@ export const updateProductFull = async (
       `/vendor/products/${productId}`,
       formData,
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'multipart/form-data' },
       }
     );
 
@@ -62,7 +62,7 @@ export const updateProductFull = async (
 export const createProductFull = async (formData: FormData) => {
   try {
     const { data } = await api.post('/vendor/products/full', formData, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
     return data;
@@ -171,6 +171,35 @@ export const deleteProductImage = async (
     return data;
   } catch (err) {
     throw handleServiceError(err, `Failed to delete product image ${imageId}`);
+  }
+};
+
+export const uploadProductImage = async (
+  productId: string,
+  file: File
+) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await api.post(
+      `/vendor/products/${productId}/images`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+
+    const unwrapped =
+      data && typeof data === 'object' && 'success' in data && 'data' in data
+        ? (data as any).data
+        : data;
+
+    return unwrapped;
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to upload product image for product ${productId}`
+    );
   }
 };
 

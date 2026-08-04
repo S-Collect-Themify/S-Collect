@@ -1,14 +1,4 @@
-export const VENDOR_CATEGORIES = [
-  'Handicrafts',
-  'Florals',
-  'Electronics',
-  'Apparel',
-  'Food',
-  'Beauty',
-  'Sports',
-  'Home & Garden',
-  'Fashion',
-];
+export const VENDOR_CATEGORIES: string[] = [];
 
 // ── Per-vendor mock detail data ────────────────────────────────────────────────
 
