@@ -38,8 +38,8 @@ export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardPr
           {t('buyers.details.registrationDate', 'Registration Date:')}{' '}
           <strong className="font-semibold text-gray-800">{displayDate}</strong>
         </p>
-        <div className="flex items-center gap-1 text-xs text-red-500 font-medium">
-          <MapPin size={12} className="shrink-0" />
+        <div className="flex items-center gap-1 text-xs text-rose-600 font-medium">
+          <MapPin size={13} className="shrink-0 text-rose-500" />
           <span>{displayLocation}</span>
         </div>
       </motion.div>
@@ -49,20 +49,21 @@ export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardPr
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white rounded-lg border border-gray-100 p-5 shadow-sm"
+      className="bg-white rounded-2xl border border-gray-100 p-6 shadow-2xs"
     >
-      <div className="flex items-start gap-4">
-        <div className="w-14 h-14 rounded-full bg-gray-800 text-white font-bold text-lg flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-[#E9E9E9] text-gray-900 font-bold text-xl flex items-center justify-center shrink-0">
           {initials}
         </div>
-        <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold text-gray-900">{displayName}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">{displayEmail}</p>
-          <p className="text-xs text-gray-400 mt-1">
-            {t('buyers.details.registrationDate', 'Registration Date:')} {displayDate}
+        <div className="flex-1 min-w-0 space-y-1">
+          <h2 className="text-xl font-bold text-gray-900">{displayName}</h2>
+          <p className="text-xs text-gray-400">{displayEmail}</p>
+          <p className="text-xs text-gray-500">
+            {t('buyers.details.registrationDate', 'Registration Date:')}{' '}
+            <strong className="font-semibold text-gray-800">{displayDate}</strong>
           </p>
-          <div className="flex items-center gap-1.5 mt-1.5 text-xs text-red-500 font-medium">
-            <MapPin size={13} className="shrink-0" />
+          <div className="flex items-center gap-1.5 pt-0.5 text-xs text-rose-600 font-medium">
+            <MapPin size={13} className="shrink-0 text-rose-500" />
             <span>{displayLocation}</span>
           </div>
         </div>

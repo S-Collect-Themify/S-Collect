@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
@@ -39,32 +37,21 @@ interface BuyerOrdersTableProps {
 
 export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrdersTableProps) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const isRtl = i18n.language === 'ar';
+  const { t } = useTranslation();
 
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
-
-  const { data, isLoading, isFetching } = useBuyerOrders(buyerAccountId, page, pageSize);
+  // Fetch ONLY 4 orders for the Buyer Details page
+  const { data, isLoading, isFetching } = useBuyerOrders(buyerAccountId, 1, 4);
 
   const orders = data?.items || [];
-  const pagination = data?.pagination || {
-    currentPage: page,
-    pageSize,
-    totalItems: 0,
-    totalPages: 0,
+
+  const handleSeeMore = () => {
+    navigate(`/incoming-orders?buyerAccountId=${buyerAccountId}`);
   };
-
-  const totalPages = pagination.totalPages || 0;
-  const totalItems = pagination.totalItems || 0;
-
-  const startItem = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
-  const endItem = Math.min(page * pageSize, totalItems);
 
   return (
     <motion.div variants={cardVariants} className="space-y-3 pt-2">
       <h2 className="text-base font-bold text-gray-900">
-        {t('buyers.details.recentOrders', 'Recent Orders')}
+        {isMobile ? t('buyers.details.recentOrders', 'Recent Orders') : t('buyers.details.allOrders', 'All Orders')}
       </h2>
 
       {isLoading || isFetching ? (
@@ -78,74 +65,51 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
         </div>
       ) : isMobile ? (
         /* Mobile Cards View */
-        <>
-          <div className="space-y-3">
-            {orders.map((order) => {
-              const formattedAmount =
-                typeof order.amount === 'number'
-                  ? `${order.amount.toFixed(2)} SAR`
-                  : order.amount === '---'
-                  ? '---'
-                  : `${order.amount} SAR`;
+        <div className="space-y-3">
+          {orders.map((order) => {
+            const formattedAmount =
+              typeof order.amount === 'number'
+                ? `${order.amount.toFixed(2)} SAR`
+                : order.amount === '---'
+                ? '---'
+                : `${order.amount} SAR`;
 
-              return (
-                <div
-                  key={order.rawId || order.id}
-                  className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-gray-900">{order.id}</span>
-                    <OrderStatusBadge status={order.status} />
-                  </div>
-                  <p className="text-xs text-gray-400 mb-2">{order.date}</p>
-                  <p className="text-xs text-gray-500 mb-3">{order.products}</p>
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100/80">
-                    <span className="font-bold text-sm text-emerald-600">
-                      {formattedAmount}
-                    </span>
-                    <button
-                      onClick={() => navigate(`/orders/${order.rawId}`)}
-                      className="text-xs font-bold text-gray-900 underline hover:text-blue-600 transition-colors cursor-pointer"
-                    >
-                      {t('buyers.table.viewDetails', 'View details')}
-                    </button>
-                  </div>
+            return (
+              <div
+                key={order.rawId || order.id}
+                className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-sm text-gray-900">{order.id}</span>
+                  <OrderStatusBadge status={order.status} />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Mobile Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
-              <span className="text-xs text-gray-400">
-                {t('buyers.table.showing', {
-                  start: startItem,
-                  end: endItem,
-                  total: totalItems,
-                  defaultValue: `Showing ${startItem}-${endItem} of ${totalItems}`,
-                })}
-              </span>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                >
-                  {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-                </button>
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                >
-                  {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-                </button>
+                <p className="text-xs text-gray-400 mb-2">{order.date}</p>
+                <p className="text-xs text-gray-500 mb-3">{order.products}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100/80">
+                  <span className="font-bold text-sm text-emerald-600">
+                    {formattedAmount}
+                  </span>
+                  <button
+                    onClick={() => navigate(`/incoming-orders/${order.rawId}`)}
+                    className="text-xs font-bold text-gray-900 underline hover:text-blue-600 transition-colors cursor-pointer"
+                  >
+                    {t('buyers.table.viewDetails', 'View details')}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </>
+            );
+          })}
+
+          {/* Mobile See More Link */}
+          <div className="flex justify-center pt-2 pb-1">
+            <button
+              onClick={handleSeeMore}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-900 underline cursor-pointer transition-colors"
+            >
+              {t('buyers.details.seeMore', 'See More')}
+            </button>
+          </div>
+        </div>
       ) : (
         /* Desktop Table View */
         <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-5">
@@ -174,7 +138,7 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
                 {orders.map((order) => {
                   const formattedAmount =
                     typeof order.amount === 'number'
-                      ? `${order.amount.toLocaleString()} SAR`
+                      ? `${order.amount.toFixed(2)} SAR`
                       : order.amount === '---'
                       ? '---'
                       : `${order.amount} SAR`;
@@ -184,16 +148,16 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
                       key={order.rawId || order.id}
                       className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="px-4 py-3.5 text-sm font-medium text-gray-800 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-sm font-bold text-gray-900 whitespace-nowrap">
                         {order.id}
                       </td>
-                      <td className="px-4 py-3.5 text-sm text-gray-600 max-w-xs truncate">
+                      <td className="px-4 py-3.5 text-sm text-gray-500 max-w-xs truncate">
                         {order.products}
                       </td>
-                      <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-sm text-gray-400 whitespace-nowrap">
                         {order.date}
                       </td>
-                      <td className="px-4 py-3.5 text-sm font-semibold text-gray-800 whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-sm font-bold text-gray-900 whitespace-nowrap">
                         {formattedAmount}
                       </td>
                       <td className="px-4 py-3.5">
@@ -201,8 +165,8 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
                       </td>
                       <td className="px-4 py-3.5">
                         <button
-                          onClick={() => navigate(`/orders/${order.rawId}`)}
-                          className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer"
+                          onClick={() => navigate(`/incoming-orders/${order.rawId}`)}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors cursor-pointer"
                         >
                           {t('buyers.details.view', 'View')}
                         </button>
@@ -214,49 +178,15 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
             </table>
           </div>
 
-          {/* Desktop Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4 mt-2 border-t border-gray-100">
-              <span className="text-xs text-gray-400">
-                {t('buyers.table.showing', {
-                  start: startItem,
-                  end: endItem,
-                  total: totalItems,
-                  defaultValue: `Showing ${startItem}-${endItem} of ${totalItems}`,
-                })}
-              </span>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                >
-                  {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${
-                      n === page
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                >
-                  {isRtl ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Desktop See More Link */}
+          <div className="flex justify-center pt-4 border-t border-gray-100 mt-2">
+            <button
+              onClick={handleSeeMore}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-900 underline cursor-pointer transition-colors"
+            >
+              {t('buyers.details.seeMore', 'See More')}
+            </button>
+          </div>
         </div>
       )}
     </motion.div>

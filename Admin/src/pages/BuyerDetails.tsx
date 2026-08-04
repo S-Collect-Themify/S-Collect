@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
@@ -60,19 +60,29 @@ export default function BuyerDetails() {
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* ── Page Header Area ── */}
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-gray-900 heading-page-title">
-            {t('buyers.details.breadcrumbCurrent', 'Buyer Details')}
-          </h1>
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-            <Link
-              to="/buyers"
-              className="hover:underline cursor-pointer text-gray-500 font-medium"
+        <div className="flex items-center gap-3">
+          {isMobile && (
+            <button
+              onClick={() => navigate('/buyers')}
+              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 cursor-pointer shrink-0"
             >
-              {t('buyers.details.breadcrumbParent', 'Buyers')}
-            </Link>
-            <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
-            <span className="text-gray-900 font-semibold">{buyer.name || '---'}</span>
+              <ChevronLeft size={18} className={isRtl ? 'rotate-180' : ''} />
+            </button>
+          )}
+          <div className="flex flex-col gap-0.5">
+            <h1 className="font-bold text-gray-900 heading-page-title">
+              {t('buyers.details.breadcrumbCurrent', 'Buyer Details')}
+            </h1>
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <Link
+                to="/buyers"
+                className="hover:underline cursor-pointer text-gray-500 font-medium"
+              >
+                {t('buyers.details.breadcrumbParent', 'Buyers')}
+              </Link>
+              <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
+              <span className="text-gray-900 font-semibold">{buyer.name || '---'}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -97,7 +107,7 @@ export default function BuyerDetails() {
             isMobile={isMobile}
           />
 
-          {/* 3. Recent Orders Section Component */}
+          {/* 3. Orders Section Component (4 orders max + See More) */}
           <BuyerOrdersTable buyerAccountId={buyer.id} isMobile={isMobile} />
         </motion.div>
       </div>
