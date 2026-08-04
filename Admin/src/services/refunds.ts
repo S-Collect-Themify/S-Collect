@@ -42,6 +42,7 @@ export interface AdminRefund {
   customer?: AdminRefundCustomer;
   shipping?: AdminRefundShipping;
   vendorStoreName?: unknown;
+  paymentMethod?: string;
 }
 
 export interface AdminRefundsResponse {

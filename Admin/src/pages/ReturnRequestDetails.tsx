@@ -56,22 +56,23 @@ export default function ReturnRequestDetailsPage() {
     }
   }, [refund?.internalNotes]);
 
-  const shortId = id ? (id.length > 8 ? id.slice(-6).toUpperCase() : id) : '77492-CS';
+  const shortId = id ? (id.length > 8 ? id.slice(-6).toUpperCase() : id) : '--';
   const refundIdCode = `#REF-${shortId}`;
 
   const orderShortId = refund?.orderId
     ? refund.orderId.length > 8
       ? refund.orderId.slice(-6).toUpperCase()
       : refund.orderId
-    : '77492-CS';
+    : '--';
   const orderIdCode = `#ORD-${orderShortId}`;
 
   const customerName = refund?.customer
-    ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || 'Guest Buyer'
-    : refund?.shipping?.recipientName || 'Yousef Al-Harbi';
+    ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || '--'
+    : refund?.shipping?.recipientName || '--';
 
-  const customerEmail = refund?.customer?.email || 'yousef.alharbi@domain.sa';
-  const customerPhone = refund?.customer?.phoneNumber || refund?.shipping?.recipientPhone || '+966 50 123 4567';
+  const customerEmail = refund?.customer?.email || '--';
+  const customerPhone = refund?.customer?.phoneNumber || refund?.shipping?.recipientPhone || '--';
+  const paymentMethod = refund?.paymentMethod || (refund as any)?.paymentStatus || '--';
 
   const formattedDate = refund?.createdAt
     ? new Date(refund.createdAt).toLocaleDateString('en-US', {
@@ -81,7 +82,7 @@ export default function ReturnRequestDetailsPage() {
         hour: '2-digit',
         minute: '2-digit',
       })
-    : 'Oct 24, 2026, 14:32';
+    : '--';
 
   const currentStatus = refund?.status || 'PENDING';
   const isPending = currentStatus === 'PENDING' || currentStatus === 'PENDING_REVIEW';
@@ -92,7 +93,7 @@ export default function ReturnRequestDetailsPage() {
     ? primaryItem.reason.replace(/_/g, ' ')
     : typeof refund?.rejectionReason === 'string'
     ? refund.rejectionReason
-    : 'Item defect/wrong item received';
+    : '--';
 
   const handleConfirmApprove = async () => {
     if (!id) return;
@@ -104,7 +105,7 @@ export default function ReturnRequestDetailsPage() {
     if (!id) return;
     await rejectMutation.mutateAsync({
       id,
-      reason: rejectReasonInput.trim() || 'Item shows normal wear, not a defect.',
+      reason: rejectReasonInput.trim() || '--',
     });
     setShowRejectModal(false);
   };
@@ -188,7 +189,7 @@ export default function ReturnRequestDetailsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Payment Method:</span>
-                  <span className="text-gray-700 font-medium">Online Payment</span>
+                  <span className="text-gray-700 font-medium">{paymentMethod}</span>
                 </div>
               </div>
             </div>
@@ -357,7 +358,7 @@ export default function ReturnRequestDetailsPage() {
                   <p className="text-[11px] text-gray-400 font-semibold tracking-wider uppercase mb-1">
                     Payment Method
                   </p>
-                  <p className="font-bold text-gray-900 text-sm">Online Payment</p>
+                  <p className="font-bold text-gray-900 text-sm">{paymentMethod}</p>
                 </div>
               </div>
               <div>

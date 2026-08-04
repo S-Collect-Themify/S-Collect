@@ -1,18 +1,17 @@
-import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
+  useAdminBuyerDetail,
   useBuyerStore,
-  BUYER_MOCK_ORDERS,
   BuyerProfileCard,
   BuyerStatsGrid,
   BuyerOrdersTable,
+  type Buyer,
 } from '../features/buyers';
-import type { BuyerOrder } from '../features/buyers';
 
 // ── Motion variants ──────────────────────────────────────────────────────────
 
@@ -30,19 +29,28 @@ export default function BuyerDetails() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const buyers = useBuyerStore((s) => s.buyers);
+  const buyerId = id || '';
 
-  const buyerId = id ? parseInt(id, 10) : NaN;
-  const buyer = buyers.find((b) => b.id === buyerId);
+  // Fetch live buyer detail from GET /api/v1/admin/buyers/{id}
+  const { data: apiBuyer, isLoading: isBuyerLoading } = useAdminBuyerDetail(buyerId);
 
-  const orders: BuyerOrder[] = useMemo(
-    () => BUYER_MOCK_ORDERS[buyerId] ?? BUYER_MOCK_ORDERS[1] ?? [],
-    [buyerId]
-  );
+  // Fallback to store buyer if available while loading or if detail endpoint fails
+  const storeBuyer = useBuyerStore((s) => s.buyers.find((b) => b.id === buyerId));
 
-  if (!buyer) {
+  const buyer = apiBuyer || storeBuyer;
+
+  if (isBuyerLoading && !buyer) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center min-h-screen bg-gray-50">
+        <Loader2 className="animate-spin text-gray-900" size={24} />
+        <p className="text-gray-500 text-sm">{t('buyers.details.loading', 'Loading buyer details...')}</p>
+      </div>
+    );
+  }
+
+  if (!buyer && !isBuyerLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center min-h-screen bg-gray-50">
         <p className="text-gray-500 text-sm">{t('buyers.details.buyerNotFound', 'Buyer not found')}</p>
         <button
           onClick={() => navigate('/buyers')}
@@ -54,28 +62,49 @@ export default function BuyerDetails() {
     );
   }
 
-  const avgOrderValue =
-    buyer.ordersNum > 0 && buyer.totalSpent
-      ? Math.round(buyer.totalSpent / buyer.ordersNum)
-      : 0;
+  const fallbackBuyer: Buyer = {
+    id: buyerId,
+    name: '---',
+    email: '---',
+    phoneNumber: '---',
+    date: '---',
+    ordersNum: '---',
+    status: '---',
+    totalSpent: '---',
+    avgOrderValue: '---',
+    lastActive: '---',
+    location: '---',
+  };
+
+  const buyerData: Buyer = buyer || fallbackBuyer;
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* ── Page Header Area ── */}
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-bold text-gray-900 heading-page-title">
-            {t('buyers.details.breadcrumbCurrent', 'Buyer Details')}
-          </h1>
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-            <Link
-              to="/buyers"
-              className="hover:underline cursor-pointer text-gray-500 font-medium"
+        <div className="flex items-center gap-3">
+          {isMobile && (
+            <button
+              onClick={() => navigate('/buyers')}
+              className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 cursor-pointer shrink-0"
             >
-              {t('buyers.details.breadcrumbParent', 'Buyers')}
-            </Link>
-            <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
-            <span className="text-gray-900 font-semibold">{buyer.name}</span>
+              <ChevronLeft size={18} className={isRtl ? 'rotate-180' : ''} />
+            </button>
+          )}
+          <div className="flex flex-col gap-0.5">
+            <h1 className="font-bold text-gray-900 heading-page-title">
+              {t('buyers.details.breadcrumbCurrent', 'Buyer Details')}
+            </h1>
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <Link
+                to="/buyers"
+                className="hover:underline cursor-pointer text-gray-500 font-medium"
+              >
+                {t('buyers.details.breadcrumbParent', 'Buyers')}
+              </Link>
+              <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
+              <span className="text-gray-900 font-semibold">{buyerData.name || '---'}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -89,19 +118,19 @@ export default function BuyerDetails() {
           className="space-y-4"
         >
           {/* 1. Buyer Profile Card Component */}
-          <BuyerProfileCard buyer={buyer} isMobile={isMobile} />
+          <BuyerProfileCard buyer={buyerData} isMobile={isMobile} />
 
           {/* 2. Stats Grid Component */}
           <BuyerStatsGrid
-            ordersNum={buyer.ordersNum}
-            totalSpent={buyer.totalSpent ?? 0}
-            avgOrderValue={avgOrderValue}
-            lastActive={buyer.lastActive}
+            ordersNum={buyerData.ordersNum ?? '---'}
+            totalSpent={buyerData.totalSpent ?? '---'}
+            avgOrderValue={buyerData.avgOrderValue ?? '---'}
+            lastActive={buyerData.lastActive ?? '---'}
             isMobile={isMobile}
           />
 
-          {/* 3. Recent Orders Section Component */}
-          <BuyerOrdersTable orders={orders} isMobile={isMobile} />
+          {/* 3. Orders Section Component (4 orders max + See More) */}
+          <BuyerOrdersTable buyerAccountId={buyerId} isMobile={isMobile} />
         </motion.div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 
 interface BuyerBulkActionBarProps {
   selectedCount: number;
-  selectedRows: number[];
+  selectedRows: string[];
   onBulkActivate: () => void;
   onBulkSuspend: () => void;
   clearSelection: () => void;
@@ -30,14 +30,14 @@ export default function BuyerBulkActionBar({
 
       <button
         onClick={onBulkActivate}
-        className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-green-600 text-green-600 transition-colors hover:bg-green-50 text-xs font-semibold"
+        className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-green-600 text-green-600 transition-colors hover:bg-green-50 text-xs font-semibold cursor-pointer"
       >
         {t('buyers.table.activateSelected', 'Activate Selected')}
       </button>
 
       <button
         onClick={onBulkSuspend}
-        className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-red-500 text-red-600 transition-colors hover:bg-red-50 text-xs font-semibold"
+        className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-red-500 text-red-600 transition-colors hover:bg-red-50 text-xs font-semibold cursor-pointer"
       >
         {t('buyers.table.suspendSelected', 'Suspend Selected')}
       </button>

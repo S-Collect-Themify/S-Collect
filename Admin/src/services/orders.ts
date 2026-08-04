@@ -4,7 +4,15 @@ import type { TableItem } from '../features/Orders/types';
 
 export interface AdminOrderItem {
   id: string;
+  orderNumber?: number;
   buyerAccountId?: string;
+  customer?: {
+    buyerAccountId?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+  };
   recipientName?: string;
   recipientPhone?: string;
   shippingZone?: string;
@@ -85,7 +93,15 @@ export interface AdminSubOrder {
 
 export interface AdminOrderDetailResponse {
   id: string;
+  orderNumber?: number;
   buyerAccountId?: string;
+  customer?: {
+    buyerAccountId?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+  };
   recipientName?: string;
   recipientPhone?: string;
   shippingZone?: string;
@@ -107,12 +123,16 @@ export interface AdminOrderDetailResponse {
 export interface GetAdminOrdersParams {
   pageNum?: number;
   pageSize?: number;
+  buyerAccountId?: string;
   vendorId?: string;
   status?: string;
   search?: string;
   dateFilter?: string;
   startDate?: string;
   endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  orderNumber?: string;
 }
 
 /**
@@ -120,25 +140,26 @@ export interface GetAdminOrdersParams {
  */
 export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<AdminOrdersResponse> {
   const pageNum = params?.pageNum ?? 1;
-  const pageSize = params?.pageSize ?? 20;
+  const pageSize = params?.pageSize ?? 25;
+
+  const cleanParams: Record<string, any> = {
+    pageNum,
+    pageSize,
+  };
+
+  if (params?.buyerAccountId) cleanParams.buyerAccountId = params.buyerAccountId;
+  if (params?.vendorId) cleanParams.vendorId = params.vendorId;
+  if (params?.status && params.status !== 'All' && params.status !== 'all') cleanParams.status = params.status;
+  if (params?.search) cleanParams.search = params.search;
+  if (params?.dateFilter && params.dateFilter !== 'all') cleanParams.dateFilter = params.dateFilter;
+  if (params?.startDate) cleanParams.startDate = params.startDate;
+  if (params?.endDate) cleanParams.endDate = params.endDate;
+  if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
+  if (params?.dateTo) cleanParams.dateTo = params.dateTo;
+  if (params?.orderNumber) cleanParams.orderNumber = params.orderNumber;
 
   const response = await api.get('/admin/orders', {
-    params: {
-      pageNum,
-      page: pageNum,
-      pageSize,
-      limit: pageSize,
-      perPage: pageSize,
-      per_page: pageSize,
-      vendorId: params?.vendorId,
-      status: params?.status && params.status !== 'All' ? params.status : undefined,
-      search: params?.search ? params.search : undefined,
-      q: params?.search ? params.search : undefined,
-      query: params?.search ? params.search : undefined,
-      dateFilter: params?.dateFilter && params.dateFilter !== 'all' ? params.dateFilter : undefined,
-      startDate: params?.startDate,
-      endDate: params?.endDate,
-    },
+    params: cleanParams,
   });
 
   const resData = response.data;
@@ -309,21 +330,26 @@ export function mapAdminOrderToTransactionItem(order: AdminOrderItem): Transacti
   const rawStatus = order.paymentStatus || order.overallStatus || 'PENDING';
 
   const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : '';
-  const orderNo = order.id ? `#ORD-${shortId}` : '--';
+  const orderNo = order.orderNumber ? `#ORD-${order.orderNumber}` : (order.id ? `#ORD-${shortId}` : '---');
   const date = order.createdAt
     ? new Date(order.createdAt).toISOString().split('T')[0]
-    : '--';
+    : '---';
+
+  const custFirstName = order.customer?.firstName?.trim() || '';
+  const custLastName = order.customer?.lastName?.trim() || '';
+  const custFullName = `${custFirstName} ${custLastName}`.trim();
+  const customerName = custFullName || order.recipientName || '---';
 
   return {
     id: order.id || Math.random().toString(),
     orderNo,
     date,
-    buyerName: order.recipientName || '--',
+    buyerName: customerName,
     amount: order.grandTotalAmount ?? order.subtotalAmount ?? 0,
-    paymentMethod: (order as any).paymentMethod || '--',
+    paymentMethod: (order as any).paymentMethod || '---',
     status: rawStatus,
     rawPaymentStatus: rawStatus,
-    fatoorahRef: (order as any).fatoorahRef || (order as any).myFatoorahRef || '--',
+    fatoorahRef: (order as any).fatoorahRef || (order as any).myFatoorahRef || '---',
   };
 }
 
@@ -332,7 +358,7 @@ export function mapAdminOrderToTransactionItem(order: AdminOrderItem): Transacti
  */
 export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
   const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : 'N/A';
-  const code = `#ORD-${shortId}`;
+  const code = order.orderNumber ? `#ORD-${order.orderNumber}` : `#ORD-${shortId}`;
   const total = order.grandTotalAmount ?? order.subtotalAmount ?? 0;
   const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
 
@@ -346,13 +372,18 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     : '';
 
   const firstSubOrder = order.subOrders?.[0];
-  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || '--';
+  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || '---';
   const vendorId = firstSubOrder?.vendorId || (order as any).vendorId;
+
+  const custFirstName = order.customer?.firstName?.trim() || '';
+  const custLastName = order.customer?.lastName?.trim() || '';
+  const custFullName = `${custFirstName} ${custLastName}`.trim();
+  const customerName = custFullName || order.recipientName || '---';
 
   return {
     id: order.id,
     code,
-    customer: order.recipientName || '--',
+    customer: customerName,
     vendor: vendorName,
     vendorId,
     total,
@@ -369,7 +400,7 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
  */
 export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
   const shortId = sub.id ? (sub.id.length > 8 ? sub.id.slice(-6).toUpperCase() : sub.id) : 'N/A';
-  const code = `#SUB-${shortId}`;
+  const code = (sub as any).orderNumber ? `#SUB-${(sub as any).orderNumber}` : `#SUB-${shortId}`;
 
   const total = sub.totalAmount ?? sub.items?.reduce((acc, i) => acc + (i.lineTotal ?? 0), 0) ?? 0;
   const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
@@ -380,15 +411,15 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
     ? new Date(sub.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
 
-  const customerName = sub.customer
-    ? `${sub.customer.firstName ?? ''} ${sub.customer.lastName ?? ''}`.trim() || '--'
-    : '--';
+  const custFirstName = sub.customer?.firstName?.trim() || '';
+  const custLastName = sub.customer?.lastName?.trim() || '';
+  const customerName = `${custFirstName} ${custLastName}`.trim() || '---';
 
   return {
     id: sub.id,
     code,
     customer: customerName,
-    vendor: (sub as any).vendorName || '--',
+    vendor: (sub as any).storeName || (sub as any).vendorName || '---',
     vendorId: sub.vendorId,
     total,
     totalFormatted,
