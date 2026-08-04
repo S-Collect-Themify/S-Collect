@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getAdminProducts, getAdminVendors, getCategories, updateProductStatus } from '../../services/products';
+import {
+  getAdminProducts,
+  getAdminVendors,
+  getCategories,
+  updateProductStatus,
+} from '../../services/products';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
 
@@ -33,7 +38,11 @@ const extractVendorsArray = (response: any): any[] => {
   return [];
 };
 
-const getVendorDisplayName = (vId: string | undefined, vendorsList: any[], vendorProp: any): string => {
+const getVendorDisplayName = (
+  vId: string | undefined,
+  vendorsList: any[],
+  vendorProp: any
+): string => {
   if (vendorProp) {
     if (typeof vendorProp === 'string') return vendorProp;
     if (vendorProp.businessName) return vendorProp.businessName;
@@ -42,7 +51,8 @@ const getVendorDisplayName = (vId: string | undefined, vendorsList: any[], vendo
   }
   if (vId && vendorsList.length > 0) {
     const matched = vendorsList.find(
-      (v: any) => String(v.id || v._id).toLowerCase() === String(vId).toLowerCase()
+      (v: any) =>
+        String(v.id || v._id).toLowerCase() === String(vId).toLowerCase()
     );
     if (matched) {
       if (matched.businessName) return matched.businessName;
@@ -61,12 +71,14 @@ const getVendorDisplayName = (vId: string | undefined, vendorsList: any[], vendo
 const isProductActive = (p: any): boolean => {
   if (p.isDisabled !== undefined && p.isDisabled !== null) {
     if (typeof p.isDisabled === 'boolean') return !p.isDisabled;
-    if (typeof p.isDisabled === 'string') return p.isDisabled.toLowerCase() !== 'true';
+    if (typeof p.isDisabled === 'string')
+      return p.isDisabled.toLowerCase() !== 'true';
     if (typeof p.isDisabled === 'number') return p.isDisabled === 0;
   }
   if (p.isActive !== undefined && p.isActive !== null) {
     if (typeof p.isActive === 'boolean') return p.isActive;
-    if (typeof p.isActive === 'string') return p.isActive.toLowerCase() === 'true';
+    if (typeof p.isActive === 'string')
+      return p.isActive.toLowerCase() === 'true';
   }
   return true;
 };
@@ -74,7 +86,9 @@ const isProductActive = (p: any): boolean => {
 export const useProductsData = () => {
   const queryClient = useQueryClient();
   const setProducts = useProductStore((s) => s.setProducts);
-  const toggleProductStatusInStore = useProductStore((s) => s.toggleProductStatus);
+  const toggleProductStatusInStore = useProductStore(
+    (s) => s.toggleProductStatus
+  );
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
 
   // ── Fetch Products Query ──
@@ -87,8 +101,10 @@ export const useProductsData = () => {
           getAdminVendors(),
         ]);
 
-        const prodData = productsRes.status === 'fulfilled' ? productsRes.value : null;
-        const vendData = vendorsRes.status === 'fulfilled' ? vendorsRes.value : null;
+        const prodData =
+          productsRes.status === 'fulfilled' ? productsRes.value : null;
+        const vendData =
+          vendorsRes.status === 'fulfilled' ? vendorsRes.value : null;
 
         const itemsArray = extractProductsArray(prodData);
         const vendorsList = extractVendorsArray(vendData);
@@ -98,7 +114,9 @@ export const useProductsData = () => {
           const vName = getVendorDisplayName(vId, vendorsList, p.vendor);
 
           const catObj = typeof p.category === 'object' ? p.category : null;
-          const categoryName = catObj?.name || (typeof p.category === 'string' ? p.category : 'General');
+          const categoryName =
+            catObj?.name ||
+            (typeof p.category === 'string' ? p.category : 'General');
           const categoryNameAr = catObj?.nameAr || p.categoryAr || '';
 
           return {
@@ -112,7 +130,12 @@ export const useProductsData = () => {
             price: Number(p.minPrice ?? p.price ?? 0),
             stock: p.stock !== undefined && p.stock !== null ? p.stock : '',
             isActive: isProductActive(p),
-            image: p.thumbnailUrl || p.images?.[0]?.url || p.image || p.thumbnail || '',
+            image:
+              p.thumbnailUrl ||
+              p.images?.[0]?.url ||
+              p.image ||
+              p.thumbnail ||
+              '',
           };
         });
 
@@ -137,7 +160,13 @@ export const useProductsData = () => {
 
   // ── Toggle Status Mutation ──
   const statusMutation = useMutation({
-    mutationFn: async ({ id, isActive }: { id: string | number; isActive: boolean }) => {
+    mutationFn: async ({
+      id,
+      isActive,
+    }: {
+      id: string | number;
+      isActive: boolean;
+    }) => {
       return await updateProductStatus(id, isActive);
     },
     onMutate: async ({ id, isActive }) => {

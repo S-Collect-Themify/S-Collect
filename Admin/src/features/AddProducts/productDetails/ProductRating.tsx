@@ -18,24 +18,27 @@ export default function ProductRating({
   counts = [],
 }: ProductRatingProps) {
   const { t } = useTranslation();
-  const maxCount = Math.max(...counts.map((c) => c.count), 1);
-  const sorted = [...counts].sort((a, b) => b.stars - a.stars);
+  const safeAvg = typeof averageRating === 'number' && !isNaN(averageRating) ? averageRating : 0;
+  const safeTotal = typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
+  const safeCounts = Array.isArray(counts) ? counts : [];
+  const maxCount = Math.max(...safeCounts.map((c) => c?.count || 0), 1);
+  const sorted = [...safeCounts].sort((a, b) => (b?.stars || 0) - (a?.stars || 0));
 
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-8">
       <div className="flex items-center flex-col lg:flex-row gap-10">
         {/* Summary */}
-        <div className="flex shrink-0 flex-col items-center w-[25%]">
+        <div className="flex shrink-0 flex-col items-center w-full lg:w-[25%]">
           <h2 className="text-[64px] font-bold text-gray-900 pb-2">
-            {averageRating.toFixed(1)}
+            {safeAvg.toFixed(1)}
           </h2>
-          <div className=" flex gap-0.5">
+          <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
                 size={16}
                 className={
-                  i < Math.round(averageRating)
+                  i < Math.round(safeAvg)
                     ? "fill-amber-400 text-amber-400"
                     : "fill-gray-200 text-gray-200"
                 }
@@ -43,7 +46,7 @@ export default function ProductRating({
             ))}
           </div>
           <span className="mt-1 whitespace-nowrap text-xs text-gray-400">
-            {t("productDetails.rating.basedOn", { count: totalReviews })}
+            {t("productDetails.rating.basedOn", { count: safeTotal, defaultValue: `Based on ${safeTotal} Reviews` })}
           </span>
         </div>
 
@@ -52,7 +55,7 @@ export default function ProductRating({
           {sorted.map(({ stars, count }) => (
             <div key={stars} className="flex items-center gap-3 text-sm">
               <span className="w-14 shrink-0 text-gray-500">
-                {stars} {stars > 1 ? t("productDetails.rating.stars") : t("productDetails.rating.star")}
+                {stars} {stars > 1 ? t("productDetails.rating.stars", { defaultValue: "stars" }) : t("productDetails.rating.star", { defaultValue: "star" })}
               </span>
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
                 <div
@@ -69,4 +72,4 @@ export default function ProductRating({
       </div>
     </div>
   );
-}
+}

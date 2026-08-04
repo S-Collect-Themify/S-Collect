@@ -254,24 +254,22 @@ export default function ProductInfo({
                 </p>
               </div>
 
-              {(averageRating > 0 || totalReviews > 0) && (
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-xs text-gray-400">{t("productDetails.productInfo.averageRating", { defaultValue: "Average Rating" })}</p>
-                    <p className="mt-1.5 flex items-center gap-1 text-sm font-semibold text-gray-800">
-                      <Star size={15} className="fill-amber-400 text-amber-400" />
-                      {averageRating.toFixed(1)}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-400">{t("productDetails.productInfo.totalReviews", { defaultValue: "Total Reviews" })}</p>
-                    <p className="mt-1.5 text-sm font-semibold text-gray-800">
-                      {t("productDetails.productInfo.reviewsCount", { count: totalReviews, defaultValue: `${totalReviews} Reviews` })}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs text-gray-400">{t("productDetails.productInfo.averageRating", { defaultValue: "Average Rating" })}</p>
+                  <p className="mt-1.5 flex items-center gap-1 text-sm font-semibold text-gray-800">
+                    <Star size={15} className="fill-amber-400 text-amber-400" />
+                    {(typeof averageRating === 'number' && !isNaN(averageRating) ? averageRating : 0).toFixed(1)}
+                  </p>
                 </div>
-              )}
+
+                <div>
+                  <p className="text-xs text-gray-400">{t("productDetails.productInfo.totalReviews", { defaultValue: "Total Reviews" })}</p>
+                  <p className="mt-1.5 text-sm font-semibold text-gray-800">
+                    {t("productDetails.productInfo.reviewsCount", { count: totalReviews || 0, defaultValue: `${totalReviews || 0} Reviews` })}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
