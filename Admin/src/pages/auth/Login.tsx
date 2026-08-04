@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Clock3,
@@ -12,6 +12,7 @@ import {
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { type LoginState, useAuthStore } from '../../store/authStore';
 import { useLogin, type LoginFormValues } from '../../hooks/useLogin';
+import { getToken, getRefreshToken, getTokenExpiration } from '../../services/auth';
 
 const EyeIcon = ({ open }: { open: boolean }) => (
   <svg
@@ -40,6 +41,7 @@ const EyeIcon = ({ open }: { open: boolean }) => (
 
 const Login = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [remainingTime, setRemainingTime] = useState<number>(14 * 60);
 
@@ -84,6 +86,19 @@ const Login = () => {
   useEffect(() => {
     initializeLogin(initialState);
   }, [initialState, initializeLogin]);
+
+  useEffect(() => {
+    if (initialState === 'default') {
+      const token = getToken();
+      const refreshToken = getRefreshToken();
+      if (token || refreshToken) {
+        const exp = token ? getTokenExpiration(token) : null;
+        if (!exp || exp > Date.now()) {
+          navigate('/', { replace: true });
+        }
+      }
+    }
+  }, [initialState, navigate]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
