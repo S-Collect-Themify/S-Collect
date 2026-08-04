@@ -28,7 +28,7 @@ export const ProductMobileList = ({
               to={`/products/${product.id}`}
               className="flex items-start gap-3 flex-1 min-w-0 group"
             >
-              <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0 group-hover:opacity-90 transition-opacity">
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity">
                 <img
                   src={product.image}
                   alt={product.name}
