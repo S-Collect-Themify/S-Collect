@@ -1,7 +1,7 @@
 import type { VoucherStatus } from './types';
 
 export const checkVoucherExpired = (expiryDate?: string): boolean => {
-  if (!expiryDate) return false;
+  if (!expiryDate || expiryDate === '—') return false;
   const expiry = new Date(expiryDate);
   if (isNaN(expiry.getTime())) return false;
 
@@ -12,12 +12,15 @@ export const checkVoucherExpired = (expiryDate?: string): boolean => {
 
 export const getVoucherStatus = (
   expiryDate?: string,
-  currentStatus?: string
+  isActive?: boolean | string
 ): VoucherStatus => {
+  if (isActive === false) {
+    return 'Expired';
+  }
   if (checkVoucherExpired(expiryDate)) {
     return 'Expired';
   }
-  return currentStatus === 'Expired' ? 'Expired' : 'Active';
+  return isActive === 'Expired' ? 'Expired' : 'Active';
 };
 
 export const parseCategories = (cat?: any): string[] => {
