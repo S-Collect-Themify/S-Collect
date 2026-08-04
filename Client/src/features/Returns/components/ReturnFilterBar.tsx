@@ -39,7 +39,7 @@ export function ReturnFilterBar({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={t('returnsPage.searchPlaceholder', {
-            defaultValue: 'Search by ID or Customer...',
+            defaultValue: 'Search by Customer Name or Product Name',
           })}
           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-900 transition-colors bg-gray-50/50"
         />

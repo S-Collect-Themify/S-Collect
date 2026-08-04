@@ -38,13 +38,17 @@
   },
   "dashboardMetrics": {
     "totalSales": "إجمالي المبيعات",
+    "totalOrders": "إجمالي الطلبات الفرعية",
     "numberOfOrders": "عدد الطلبات",
     "newOrders": "الطلبات الجديدة",
+    "pendingPayouts": "المستحقات / الدفوعات المعلقة",
     "activeProducts": "المنتجات النشطة",
     "unit": {
       "sar": "ر.س",
       "order": "طلب",
-      "product": "منتج"
+      "orders": "طلبات",
+      "product": "عنصر",
+      "items": "عنصر"
     }
   },
   "topSelling": {
@@ -670,7 +674,7 @@
   "returnsPage": {
     "title": "طلبات الإرجاع",
     "breadcrumb": "تفاصيل طلب الإرجاع",
-    "searchPlaceholder": "البحث برقم الطلب أو اسم العميل...",
+    "searchPlaceholder": "البحث  اسم المنتج أو اسم العميل...",
     "allStatuses": "كل الحالات",
     "last30Days": "آخر 30 يومًا",
     "returnId": "رقم الإرجاع",

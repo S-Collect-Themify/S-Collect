@@ -69,6 +69,7 @@ export default function ProductTable() {
         titleKey: 'managementTable.publishConfirmTitle',
         confirmKey: 'managementTable.publish',
         confirmClassName: 'bg-green-600 hover:bg-green-700',
+        iconVariant: 'publish',
       }
     );
   };
@@ -81,7 +82,7 @@ export default function ProductTable() {
       {
         titleKey: 'managementTable.unpublishConfirmTitle',
         confirmKey: 'managementTable.unpublish',
-        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        confirmClassName: 'bg-amber-600 hover:bg-amber-700',
         iconVariant: 'unpublish',
       }
     );
@@ -135,46 +136,6 @@ export default function ProductTable() {
           selected={selectedStatus}
           onChange={setSelectedStatus}
         />
-
-        {selectedCount > 0 && (
-          <div className="flex items-center gap-1 sm:ml-auto select-none sm:order-last order-first w-full sm:w-auto justify-between sm:justify-start">
-            <span className="text-body-sm text-gray-400 font-bold px-2 py-1 rounded bg-gray-100 flex items-center gap-2.5">
-              <span>
-                {t('managementTable.selectedCount', { count: selectedCount })}
-              </span>
-              <button
-                onClick={clearSelection}
-                className="cursor-pointer hover:bg-gray-200 rounded p-0.5"
-                title={t('managementTable.clearSelection')}
-              >
-                <X size={14} color="gray" />
-              </button>
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={isPending}
-                className="flex items-center gap-1.5 h-9 px-3 border border-red-200 text-red-600 rounded-lg bg-red-50 text-sm cursor-pointer hover:bg-red-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleDeleteSelected}
-              >
-                {t('managementTable.deleteSelected')}
-              </button>
-              <button
-                disabled={isPending}
-                className="flex items-center gap-1.5 h-9 px-3 border border-green-200 text-green-700 rounded-lg bg-green-50 text-sm cursor-pointer hover:bg-green-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handlePublishSelected}
-              >
-                {t('managementTable.publishSelected')}
-              </button>
-              <button
-                disabled={isPending}
-                className="flex items-center gap-1.5 h-9 px-3 border border-amber-200 text-amber-700 rounded-lg bg-amber-50 text-sm cursor-pointer hover:bg-amber-100 whitespace-nowrap font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleUnpublishSelected}
-              >
-                {t('managementTable.unpublishSelected')}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="flex-1 overflow-x-auto select-none bg-white rounded-xl border border-gray-100">
@@ -191,9 +152,9 @@ export default function ProductTable() {
                   />
                   <span
                     className="w-4 h-4 rounded-[4px] border border-gray-300 bg-white
-                               flex items-center justify-center
-                               peer-checked:bg-gray-900 peer-checked:border-gray-900
-                               transition-colors"
+                                flex items-center justify-center
+                                peer-checked:bg-gray-900 peer-checked:border-gray-900
+                                transition-colors"
                   >
                     {allChecked && (
                       <Check className="text-white" size={11} strokeWidth={3} />
@@ -282,9 +243,8 @@ export default function ProductTable() {
       </div>
 
       {selectedCount > 0 && (
-        /* Replaced left-1/2 and -translate-x-1/2 with logical positioning */
-        <div className="fixed left-1/2 bottom-6 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-lg">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-black text-sm font-semibold">
+        <div className="fixed left-1/2 bottom-6 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur-md">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-900 text-sm font-bold">
             {selectedCount}
           </div>
           <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
@@ -294,7 +254,7 @@ export default function ProductTable() {
             type="button"
             disabled={isPending}
             onClick={handlePublishSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-green-600 text-green-600 transition-colors hover:bg-green-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-green-600 bg-white text-green-700 transition-all duration-200 hover:bg-green-600 hover:text-white shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             aria-label={t('managementTable.publishSelected')}
           >
             {t('managementTable.publish')}
@@ -303,7 +263,7 @@ export default function ProductTable() {
             type="button"
             disabled={isPending}
             onClick={handleUnpublishSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-black text-black transition-colors hover:bg-gray-100 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-amber-600 bg-white text-amber-700 transition-all duration-200 hover:bg-amber-600 hover:text-white shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             aria-label={t('managementTable.unpublishSelected')}
           >
             {t('managementTable.unpublish')}
@@ -312,7 +272,7 @@ export default function ProductTable() {
             type="button"
             disabled={isPending}
             onClick={handleDeleteSelected}
-            className="flex px-3.5 py-1 items-center justify-center rounded-md border border-red-600 text-white bg-red-600 hover:bg-red-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-red-600 text-white bg-red-600 transition-all duration-200 hover:bg-red-700 shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             aria-label={t('managementTable.deleteSelected')}
           >
             {t('managementTable.delete')}
@@ -320,7 +280,7 @@ export default function ProductTable() {
           <button
             type="button"
             onClick={clearSelection}
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 text-gray-500 transition-colors hover:bg-gray-100"
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 text-gray-500 transition-all duration-200 hover:bg-gray-200 hover:text-gray-800 active:scale-[0.95] cursor-pointer"
             aria-label={t('managementTable.clearSelection')}
           >
             <X size={17} />
