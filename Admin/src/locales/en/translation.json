@@ -1015,6 +1015,18 @@
       "clearSelection": "Clear selection"
     },
     "emptyState": "No categories found",
+    "errorState": {
+      "badge": "Error 502 • Bad Gateway",
+      "serverErrorBadge": "HTTP {{code}} Error",
+      "networkErrorBadge": "Connection Error",
+      "title": "Unable to Load Categories",
+      "description": "We encountered an issue connecting to the server. Please verify your connection or try again.",
+      "description502": "The server is currently unable to handle the request due to a gateway communication error (502 Bad Gateway). Please try again in a few moments.",
+      "retry": "Try Again",
+      "retrying": "Retrying...",
+      "reload": "Reload Page",
+      "technicalDetails": "Technical Details"
+    },
     "mobile": {
       "slug": "slug",
       "productsCount": "Products Count"
@@ -1197,7 +1209,7 @@
       "totalCosts": "Total Costs",
       "withinBudget": "Within quarterly budget",
       "redemptionsThisMonth": "Redemptions This Month",
-      "increaseFromLastWeek": "+12% increase from last week"
+      "increaseFromLastWeek": "-% increase from last week"
     },
     "tabs": {
       "active": "Active",

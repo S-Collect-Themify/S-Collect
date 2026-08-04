@@ -94,6 +94,8 @@ export const useCategoriesData = () => {
     isLoading: categoriesQuery.isLoading,
     isError: categoriesQuery.isError,
     error: categoriesQuery.error ? (categoriesQuery.error as any)?.message || 'Failed to fetch categories' : null,
+    rawError: categoriesQuery.error,
+    isFetching: categoriesQuery.isFetching,
     refetch: categoriesQuery.refetch,
 
     createCategoryMutation,

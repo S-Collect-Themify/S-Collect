@@ -1,7 +1,10 @@
-import { Star, Pencil } from "lucide-react";
+import { useState } from "react";
+import { Star, Pencil, CheckCircle, XCircle, Award, Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { SingleAdminProductDetail } from "../../../services/products";
 
 export interface ProductInfoProps {
+  productDetail?: SingleAdminProductDetail | null;
   imageUrl?: string;
   name?: string;
   category?: string;
@@ -19,6 +22,7 @@ export interface ProductInfoProps {
 }
 
 export default function ProductInfo({
+  productDetail,
   imageUrl,
   name,
   category,
@@ -31,109 +35,296 @@ export default function ProductInfo({
   inStock,
   stockCount,
   averageRating = 0,
-  totalReviews,
+  totalReviews = 0,
   onEdit,
 }: ProductInfoProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
+  // Compute values from productDetail if provided
+  const images = productDetail?.images || [];
+  const initialImage =
+    images.find((img) => img.isThumbnail)?.url ||
+    images[0]?.url ||
+    imageUrl ||
+    'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600';
+
+  const [selectedImage, setSelectedImage] = useState<string>(initialImage);
+
+  const displayName = productDetail
+    ? isAr && productDetail.nameAr
+      ? productDetail.nameAr
+      : productDetail.name
+    : name;
+
+  const displayCategory = productDetail
+    ? isAr && productDetail.category?.nameAr
+      ? productDetail.category.nameAr
+      : productDetail.category?.name || '-'
+    : category;
+
+  const displayVendor = productDetail
+    ? isAr && productDetail.vendor?.storeNameAr
+      ? productDetail.vendor.storeNameAr
+      : productDetail.vendor?.storeName || '-'
+    : brand;
+
+  const descriptionText = productDetail
+    ? isAr && productDetail.descriptionAr
+      ? productDetail.descriptionAr
+      : productDetail.description || ''
+    : '';
+
+  // Calculate prices and stock from variants if available
+  const variants = productDetail?.variants || [];
+  const prices = variants.map((v) => v.price).filter((p) => typeof p === 'number');
+  const minPrice = prices.length > 0 ? Math.min(...prices) : price || 0;
+  const comparePrice = variants[0]?.compareAtPrice || compareAtPrice;
+  const computedStock = variants.length > 0
+    ? variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+    : stockCount || 0;
+  const computedInStock = productDetail ? computedStock > 0 : (inStock ?? computedStock > 0);
+
+  const primarySku = variants[0]?.sku || sku || '-';
 
   return (
-    <div className="w-full  rounded-2xl border border-gray-200 bg-white p-4 lg:p-6">
-      <div className="flex gap-6 flex-col lg:flex-row ">
-        {/* Image */}
-        <div className="h-[280px] w-full lg:h-[400px] lg:w-[400px] shrink-0 overflow-hidden rounded-xl bg-gray-100">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="h-full w-full object-cover"
-          />
+    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-6 space-y-6">
+      <div className="flex gap-6 flex-col lg:flex-row">
+        {/* Gallery / Image Column */}
+        <div className="flex flex-col gap-3 lg:w-[400px] shrink-0">
+          <div className="h-[280px] w-full lg:h-[400px] overflow-hidden rounded-xl bg-gray-100 border border-gray-100 relative">
+            <img
+              src={selectedImage}
+              alt={displayName}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600';
+              }}
+            />
+          </div>
+
+          {/* Gallery Thumbnails */}
+          {images.length > 1 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {images.map((img) => (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => setSelectedImage(img.url)}
+                  className={`size-14 rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                    selectedImage === img.url
+                      ? 'border-gray-900 ring-2 ring-gray-900/10'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Details */}
-        <div className="flex flex-1 flex-col">
-          <div className="flex items-start justify-between pb-2">
-            <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl ">{name}</h2>
-            <button
-              type="button"
-              onClick={onEdit}
-              aria-label={t("productDetails.productInfo.editProduct")}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50"
-            >
-              <Pencil size={16} />
-            </button>
-          </div>
+        {/* Details Column */}
+        <div className="flex flex-1 flex-col justify-between">
+          <div>
+            <div className="flex items-start justify-between pb-2">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">{displayName}</h2>
+                
+                {/* Status Badges */}
+                {productDetail && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        productDetail.isActive && !productDetail.isDisabled
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-red-50 text-red-700 border border-red-200'
+                      }`}
+                    >
+                      {productDetail.isActive && !productDetail.isDisabled ? (
+                        <>
+                          <CheckCircle size={12} />
+                          {isAr ? 'نشط' : 'Active'}
+                        </>
+                      ) : (
+                        <>
+                          <XCircle size={12} />
+                          {isAr ? 'معطل' : 'Disabled'}
+                        </>
+                      )}
+                    </span>
 
-          <div className="mt-1 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">
-            <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">{t("productDetails.productInfo.category")}</span>
-              <span className="font-bold text-gray-700 ">{category}</span>
-            </div>
-            <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">{t("productDetails.productInfo.brand")}</span>
-              <span className="font-bold text-gray-700 ">{brand}</span>
-            </div>
-            <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">{t("productDetails.productInfo.sku")}</span>
-              <span className="font-bold text-gray-700">{sku}</span>
-            </div>
-          </div>
+                    {productDetail.isFeatured && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                        <Award size={12} />
+                        {isAr ? 'مميز' : 'Featured'}
+                      </span>
+                    )}
 
-          <div className="my-3 lg:my-6 flex flex-col  gap-2 sm:flex-row items-center sm:gap-2">
-            <div className="flex items-center gap-2 ">
-              <span className="text-[28px] font-bold text-gray-900">
-                {price} {currency}
-              </span>
-              {compareAtPrice && (
-                <span className="text-sm text-gray-400 line-through">
-                  {compareAtPrice} {currency}
-                </span>
+                    {productDetail.isBestSeller && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                        <Flame size={12} />
+                        {isAr ? 'الأكثر مبيعاً' : 'Best Seller'}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  aria-label={t("productDetails.productInfo.editProduct", { defaultValue: "Edit Product" })}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer shrink-0"
+                >
+                  <Pencil size={16} />
+                </button>
               )}
             </div>
-            <div className="flex items-center gap-2" >
-              <span className="text-sm text-gray-400 sm:ml-2">{t("productDetails.productInfo.cost")}</span>
-              <span className="text-sm font-semibold text-gray-700">
-                {cost} {currency}
-              </span>
+
+            <div className="mt-3 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">
+              <div className="flex gap-1 sm:gap-2">
+                <span className="text-gray-400">{t("productDetails.productInfo.category", { defaultValue: "Category:" })}</span>
+                <span className="font-bold text-gray-700">{displayCategory}</span>
+              </div>
+              <div className="flex gap-1 sm:gap-2">
+                <span className="text-gray-400">{isAr ? "المتجر / المورد:" : "Store / Vendor:"}</span>
+                <span className="font-bold text-gray-700">{displayVendor}</span>
+              </div>
+              <div className="flex gap-1 sm:gap-2">
+                <span className="text-gray-400">{t("productDetails.productInfo.sku", { defaultValue: "SKU:" })}</span>
+                <span className="font-bold text-gray-700">{primarySku}</span>
+              </div>
             </div>
+
+            <div className="my-4 lg:my-6 flex flex-col gap-2 sm:flex-row items-baseline sm:gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+                  {minPrice.toLocaleString()} {currency}
+                </span>
+                {comparePrice && (
+                  <span className="text-sm text-gray-400 line-through">
+                    {comparePrice.toLocaleString()} {currency}
+                  </span>
+                )}
+              </div>
+              {cost !== undefined && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">{t("productDetails.productInfo.cost", { defaultValue: "Cost:" })}</span>
+                  <span className="text-xs font-semibold text-gray-700">
+                    {cost.toLocaleString()} {currency}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Product Description */}
+            {descriptionText && (
+              <div className="mb-6 p-4 bg-gray-50/80 rounded-xl border border-gray-100">
+                <h4 className="text-xs font-bold text-gray-700 mb-1">
+                  {isAr ? 'الوصف' : 'Description'}
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">
+                  {descriptionText}
+                </p>
+              </div>
+            )}
           </div>
 
-          <hr className="mb-6 border-gray-100" />
+          <div>
+            <hr className="mb-4 border-gray-100" />
 
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-16">
-            <div>
-              <p className="text-xs text-gray-400">{t("productDetails.productInfo.inventory")}</p>
-              <p className="mt-1">
-                <span
-                  className={`rounded-md px-2 py-1 text-xs font-medium ${inStock
-                    ? "bg-green-50 text-green-600"
-                    : "bg-red-50 text-red-600"
-                    }`}
-                >
-                  {inStock
-                    ? `${t("productDetails.productInfo.inStock")} (${stockCount} ${t("productDetails.productInfo.units")})`
-                    : `${t("productDetails.productInfo.outOfStock")} (${stockCount} ${t("productDetails.productInfo.units")})`}
-                </span>
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4 " >
-              <div >
-                <p className="text-xs text-gray-400">{t("productDetails.productInfo.averageRating")}</p>
-                <p className="mt-1.5 flex items-center gap-1 text-sm font-semibold text-gray-800">
-                  <Star size={15} className="fill-amber-400 text-amber-400" />
-                  {averageRating.toFixed(1)}
-                </p>
-              </div>
-
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-12">
               <div>
-                <p className="text-xs text-gray-400">{t("productDetails.productInfo.totalReviews")}</p>
-                <p className="mt-1.5 text-sm font-semibold text-gray-800">
-                  {t("productDetails.productInfo.reviewsCount", { count: totalReviews })}
+                <p className="text-xs text-gray-400">{t("productDetails.productInfo.inventory", { defaultValue: "Inventory" })}</p>
+                <p className="mt-1">
+                  <span
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium ${
+                      computedInStock
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                        : "bg-red-50 text-red-700 border border-red-100"
+                    }`}
+                  >
+                    {computedInStock
+                      ? `${t("productDetails.productInfo.inStock", { defaultValue: "In Stock" })} (${computedStock} ${t("productDetails.productInfo.units", { defaultValue: "units" })})`
+                      : `${t("productDetails.productInfo.outOfStock", { defaultValue: "Out of Stock" })} (${computedStock} ${t("productDetails.productInfo.units", { defaultValue: "units" })})`}
+                  </span>
                 </p>
               </div>
+
+              {(averageRating > 0 || totalReviews > 0) && (
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-xs text-gray-400">{t("productDetails.productInfo.averageRating", { defaultValue: "Average Rating" })}</p>
+                    <p className="mt-1.5 flex items-center gap-1 text-sm font-semibold text-gray-800">
+                      <Star size={15} className="fill-amber-400 text-amber-400" />
+                      {averageRating.toFixed(1)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">{t("productDetails.productInfo.totalReviews", { defaultValue: "Total Reviews" })}</p>
+                    <p className="mt-1.5 text-sm font-semibold text-gray-800">
+                      {t("productDetails.productInfo.reviewsCount", { count: totalReviews, defaultValue: `${totalReviews} Reviews` })}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Options & Variants Table (if productDetail has variants) */}
+      {variants.length > 0 && (
+        <div className="mt-6 pt-6 border-t border-gray-100">
+          <h3 className="text-sm font-bold text-gray-900 mb-3">
+            {isAr ? 'خيارات المنتج والأنواع (Variants)' : 'Product Variants'}
+          </h3>
+          <div className="overflow-x-auto rounded-xl border border-gray-100">
+            <table className="w-full text-left text-xs border-collapse rtl:text-right">
+              <thead className="bg-gray-50 text-gray-500 font-semibold border-b border-gray-100">
+                <tr>
+                  <th className="py-3 px-4">SKU</th>
+                  <th className="py-3 px-4">{isAr ? 'الخيارات' : 'Options'}</th>
+                  <th className="py-3 px-4">{isAr ? 'السعر' : 'Price'}</th>
+                  <th className="py-3 px-4">{isAr ? 'المخزون' : 'Stock'}</th>
+                  <th className="py-3 px-4">{isAr ? 'الحالة' : 'Status'}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {variants.map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50/50">
+                    <td className="py-3 px-4 font-mono font-medium text-gray-800">{v.sku || '-'}</td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {v.optionValues && v.optionValues.length > 0
+                        ? v.optionValues
+                            .map((ov) => `${isAr && ov.optionNameAr ? ov.optionNameAr : ov.optionName}: ${isAr && ov.valueAr ? ov.valueAr : ov.value}`)
+                            .join(' / ')
+                        : '-'}
+                    </td>
+                    <td className="py-3 px-4 font-semibold text-gray-900">
+                      {v.price.toLocaleString()} {currency}
+                    </td>
+                    <td className="py-3 px-4 font-medium text-gray-700">{v.stock}</td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                          v.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {v.isActive ? (isAr ? 'نشط' : 'Active') : (isAr ? 'غير نشط' : 'Inactive')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

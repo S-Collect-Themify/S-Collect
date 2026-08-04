@@ -1,20 +1,99 @@
-import { api } from "./api";
+import { api, handleServiceError } from './api';
 
 export const login = async (email: string, password: string) => {
-  const { data } = await api.post("/admin/auth/login", {
-    email,
-    password,
-  });
-
-  return data;
+  try {
+    const { data } = await api.post('/admin/auth/login', {
+      email,
+      password,
+    });
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Login failed');
+  }
 };
 
 export const refresh = async (refreshToken: string) => {
-  const { data } = await api.post("/admin/auth/refresh", { refreshToken });
-  return data;
+  try {
+    const { data } = await api.post('/admin/auth/refresh', { refreshToken });
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Token refresh failed');
+  }
 };
 
 export const logout = async (refreshToken: string) => {
-  const { data } = await api.post("/admin/auth/logout", { refreshToken });
-  return data;
+  try {
+    const { data } = await api.post('/admin/auth/logout', { refreshToken });
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Logout failed');
+  }
+};
+
+export const getToken = (): string | null => localStorage.getItem('token');
+export const getRefreshToken = (): string | null =>
+  localStorage.getItem('refreshToken');
+
+let logoutTimer: ReturnType<typeof setTimeout> | null = null;
+
+export const clearTokens = (): void => {
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+};
+
+export const getTokenExpiration = (token: string): number | null => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+};
+
+export const logoutAndRedirect = (state: string = 'expired'): void => {
+  clearTokens();
+  if (typeof window !== 'undefined') {
+    const currentPath = window.location.pathname;
+    if (!currentPath.startsWith('/login')) {
+      window.location.href = `/login?state=${state}`;
+    }
+  }
+};
+
+export const scheduleRefreshTokenExpiration = (): void => {
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return;
+
+  const expTime = getTokenExpiration(refreshToken);
+  if (!expTime) return;
+
+  const now = Date.now();
+  const timeRemaining = expTime - now;
+
+  if (timeRemaining <= 0) {
+    logoutAndRedirect('expired');
+  } else {
+    logoutTimer = setTimeout(() => {
+      logoutAndRedirect('expired');
+    }, timeRemaining);
+  }
 };
