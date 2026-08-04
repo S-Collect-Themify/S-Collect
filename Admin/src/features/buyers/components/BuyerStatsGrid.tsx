@@ -8,10 +8,10 @@ const cardVariants: Variants = {
 };
 
 interface BuyerStatsGridProps {
-  ordersNum: number;
-  totalSpent: number;
-  avgOrderValue: number;
-  lastActive?: string;
+  ordersNum: number | string;
+  totalSpent?: number | string | null;
+  avgOrderValue?: number | string | null;
+  lastActive?: string | null;
   isMobile: boolean;
 }
 
@@ -24,26 +24,27 @@ export default function BuyerStatsGrid({
 }: BuyerStatsGridProps) {
   const { t } = useTranslation();
 
+  const formattedOrders = ordersNum ?? '---';
+  const formattedSpent = totalSpent !== undefined && totalSpent !== null ? `${Number(totalSpent).toLocaleString()} SAR` : '---';
+  const formattedAvg = avgOrderValue !== undefined && avgOrderValue !== null ? `${Number(avgOrderValue).toLocaleString()} SAR` : '---';
+  const formattedActive = lastActive || '---';
+
   const stats = [
     {
       label: t('buyers.details.totalOrders', 'Total Orders'),
-      value: ordersNum,
-      unit: '',
+      value: formattedOrders,
     },
     {
       label: t('buyers.details.totalSpent', 'Total Spent'),
-      value: (totalSpent ?? 0).toLocaleString(),
-      unit: 'SAR',
+      value: formattedSpent,
     },
     {
       label: t('buyers.details.avgOrderValue', 'Average Order'),
-      value: avgOrderValue.toLocaleString(),
-      unit: 'SAR',
+      value: formattedAvg,
     },
     {
       label: t('buyers.details.lastActive', 'Last Active'),
-      value: lastActive ?? '2 days ago',
-      unit: '',
+      value: formattedActive,
     },
   ];
 
@@ -53,10 +54,7 @@ export default function BuyerStatsGrid({
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs">
             <p className="text-xs font-semibold text-emerald-600 mb-1">{stat.label}</p>
-            <p className="text-lg font-bold text-gray-900">
-              {stat.value}
-              {stat.unit && <span className="text-xs font-normal text-gray-400 ms-1">{stat.unit}</span>}
-            </p>
+            <p className="text-lg font-bold text-gray-900">{stat.value}</p>
           </div>
         ))}
       </motion.div>
@@ -68,10 +66,7 @@ export default function BuyerStatsGrid({
       {stats.map((stat) => (
         <div key={stat.label} className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-500 mb-2">{stat.label}</p>
-          <p className="text-xl font-bold text-gray-900">
-            {stat.value}
-            {stat.unit && <span className="text-xs font-normal text-gray-400 ms-1">{stat.unit}</span>}
-          </p>
+          <p className="text-xl font-bold text-gray-900">{stat.value}</p>
         </div>
       ))}
     </motion.div>

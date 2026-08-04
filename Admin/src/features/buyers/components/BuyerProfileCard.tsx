@@ -17,7 +17,11 @@ interface BuyerProfileCardProps {
 
 export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardProps) {
   const { t } = useTranslation();
-  const initials = getInitials(buyer.name);
+  const displayName = buyer.name || '---';
+  const displayEmail = buyer.email || '---';
+  const displayDate = buyer.date || '---';
+  const displayLocation = buyer.location || '---';
+  const initials = getInitials(displayName);
 
   if (isMobile) {
     return (
@@ -28,18 +32,16 @@ export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardPr
         <div className="w-16 h-16 rounded-full bg-[#E9E9E9] text-gray-900 font-bold text-xl flex items-center justify-center mb-3 shrink-0">
           {initials}
         </div>
-        <h2 className="text-lg font-bold text-gray-900 mb-0.5">{buyer.name}</h2>
-        <p className="text-xs text-gray-400 mb-2">{buyer.email}</p>
+        <h2 className="text-lg font-bold text-gray-900 mb-0.5">{displayName}</h2>
+        <p className="text-xs text-gray-400 mb-2">{displayEmail}</p>
         <p className="text-xs text-gray-500 mb-2">
           {t('buyers.details.registrationDate', 'Registration Date:')}{' '}
-          <strong className="font-semibold text-gray-800">{buyer.date}</strong>
+          <strong className="font-semibold text-gray-800">{displayDate}</strong>
         </p>
-        {buyer.location && (
-          <div className="flex items-center gap-1 text-xs text-red-500 font-medium">
-            <MapPin size={12} className="shrink-0" />
-            <span>{buyer.location}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1 text-xs text-red-500 font-medium">
+          <MapPin size={12} className="shrink-0" />
+          <span>{displayLocation}</span>
+        </div>
       </motion.div>
     );
   }
@@ -54,17 +56,15 @@ export default function BuyerProfileCard({ buyer, isMobile }: BuyerProfileCardPr
           {initials}
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold text-gray-900">{buyer.name}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">{buyer.email}</p>
+          <h2 className="text-lg font-bold text-gray-900">{displayName}</h2>
+          <p className="text-sm text-gray-500 mt-0.5">{displayEmail}</p>
           <p className="text-xs text-gray-400 mt-1">
-            {t('buyers.details.registrationDate', 'Registration Date:')} {buyer.date}
+            {t('buyers.details.registrationDate', 'Registration Date:')} {displayDate}
           </p>
-          {buyer.location && (
-            <div className="flex items-center gap-1.5 mt-1.5 text-xs text-red-500 font-medium">
-              <MapPin size={13} className="shrink-0" />
-              <span>{buyer.location}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 mt-1.5 text-xs text-red-500 font-medium">
+            <MapPin size={13} className="shrink-0" />
+            <span>{displayLocation}</span>
+          </div>
         </div>
       </div>
     </motion.div>

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -7,12 +6,10 @@ import type { Variants } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   useBuyerStore,
-  BUYER_MOCK_ORDERS,
   BuyerProfileCard,
   BuyerStatsGrid,
   BuyerOrdersTable,
 } from '../features/buyers';
-import type { BuyerOrder } from '../features/buyers';
 
 // ── Motion variants ──────────────────────────────────────────────────────────
 
@@ -32,13 +29,8 @@ export default function BuyerDetails() {
 
   const buyers = useBuyerStore((s) => s.buyers);
 
-  const buyerId = id ? parseInt(id, 10) : NaN;
+  const buyerId = id || '';
   const buyer = buyers.find((b) => b.id === buyerId);
-
-  const orders: BuyerOrder[] = useMemo(
-    () => BUYER_MOCK_ORDERS[buyerId] ?? BUYER_MOCK_ORDERS[1] ?? [],
-    [buyerId]
-  );
 
   if (!buyer) {
     return (
@@ -54,10 +46,15 @@ export default function BuyerDetails() {
     );
   }
 
+  const numOrders =
+    typeof buyer.ordersNum === 'number'
+      ? buyer.ordersNum
+      : parseInt(String(buyer.ordersNum || 0), 10) || 0;
+
   const avgOrderValue =
-    buyer.ordersNum > 0 && buyer.totalSpent
-      ? Math.round(buyer.totalSpent / buyer.ordersNum)
-      : 0;
+    numOrders > 0 && buyer.totalSpent
+      ? Math.round(buyer.totalSpent / numOrders)
+      : null;
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -75,7 +72,7 @@ export default function BuyerDetails() {
               {t('buyers.details.breadcrumbParent', 'Buyers')}
             </Link>
             <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
-            <span className="text-gray-900 font-semibold">{buyer.name}</span>
+            <span className="text-gray-900 font-semibold">{buyer.name || '---'}</span>
           </div>
         </div>
       </div>
@@ -93,15 +90,15 @@ export default function BuyerDetails() {
 
           {/* 2. Stats Grid Component */}
           <BuyerStatsGrid
-            ordersNum={buyer.ordersNum}
-            totalSpent={buyer.totalSpent ?? 0}
+            ordersNum={buyer.ordersNum ?? '---'}
+            totalSpent={buyer.totalSpent}
             avgOrderValue={avgOrderValue}
             lastActive={buyer.lastActive}
             isMobile={isMobile}
           />
 
           {/* 3. Recent Orders Section Component */}
-          <BuyerOrdersTable orders={orders} isMobile={isMobile} />
+          <BuyerOrdersTable buyerAccountId={buyer.id} isMobile={isMobile} />
         </motion.div>
       </div>
     </div>

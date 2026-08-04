@@ -9,8 +9,8 @@ interface BuyerDesktopTableProps {
   isLoading?: boolean;
   allChecked: boolean;
   toggleAll: (e: ChangeEvent<HTMLInputElement>) => void;
-  selectedRows: number[];
-  toggleRow: (id: number) => void;
+  selectedRows: string[];
+  toggleRow: (id: string) => void;
   onToggleStatus: (buyer: Buyer) => void;
 }
 
@@ -26,6 +26,32 @@ export default function BuyerDesktopTable({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const renderStatusBadge = (status: string) => {
+    const s = (status || '').toUpperCase();
+    let badgeClass = 'bg-gray-100 text-gray-600';
+    let label = status || '---';
+
+    if (s === 'ACTIVE') {
+      badgeClass = 'bg-green-100 text-green-700';
+      label = t('buyers.table.statusActive', 'Active');
+    } else if (s === 'PENDING_VERIFICATION') {
+      badgeClass = 'bg-amber-100 text-amber-700';
+      label = t('buyers.table.statusPendingVerification', 'Pending Verification');
+    } else if (s === 'LOCKED') {
+      badgeClass = 'bg-orange-100 text-orange-700';
+      label = t('buyers.table.statusLocked', 'Locked');
+    } else if (s === 'DEACTIVATED' || s === 'SUSPENDED') {
+      badgeClass = 'bg-red-100 text-red-600';
+      label = t('buyers.table.statusDeactivated', 'Deactivated');
+    }
+
+    return (
+      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>
+        {label}
+      </span>
+    );
+  };
+
   return (
     <div className="w-full overflow-x-auto hidden md:block">
       <table className="w-full border-collapse text-sm">
@@ -40,13 +66,13 @@ export default function BuyerDesktopTable({
               />
             </th>
             {[
-              t('buyers.table.fullName'),
-              t('buyers.table.email'),
-              t('buyers.table.date'),
-              t('buyers.table.ordersNum'),
-              t('buyers.table.status'),
-              t('buyers.table.activate'),
-              t('buyers.table.action'),
+              t('buyers.table.fullName', 'Full Name'),
+              t('buyers.table.email', 'Email'),
+              t('buyers.table.date', 'Date'),
+              t('buyers.table.ordersNum', 'Orders num'),
+              t('buyers.table.status', 'Status'),
+              t('buyers.table.activate', 'Activate'),
+              t('buyers.table.action', 'Action'),
             ].map((h) => (
               <th
                 key={h}
@@ -88,14 +114,19 @@ export default function BuyerDesktopTable({
                   <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
                     <i className="ti ti-users text-2xl text-gray-400" aria-hidden="true" />
                   </div>
-                  <p className="text-sm text-gray-400">{t('buyers.table.noResults')}</p>
+                  <p className="text-sm text-gray-400">{t('buyers.table.noResults', 'No buyers found')}</p>
                 </div>
               </td>
             </tr>
           ) : (
             paginated.map((buyer) => {
-              const isActive = buyer.status === 'active';
+              const isActive = (buyer.status || '').toUpperCase() === 'ACTIVE';
               const isSelected = selectedRows.includes(buyer.id);
+              const displayName = buyer.name || '---';
+              const displayEmail = buyer.email || '---';
+              const displayDate = buyer.date || '---';
+              const displayOrders = buyer.ordersNum ?? '---';
+
               return (
                 <tr
                   key={buyer.id}
@@ -117,42 +148,32 @@ export default function BuyerDesktopTable({
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-[#E9E9E9] text-gray-700 text-xs font-bold flex items-center justify-center shrink-0">
-                        {getInitials(buyer.name)}
+                        {getInitials(displayName)}
                       </div>
                       <span className="font-medium text-gray-800 text-sm whitespace-nowrap">
-                        {buyer.name}
+                        {displayName}
                       </span>
                     </div>
                   </td>
 
                   {/* Email */}
                   <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
-                    {buyer.email}
+                    {displayEmail}
                   </td>
 
                   {/* Date */}
                   <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
-                    {buyer.date}
+                    {displayDate}
                   </td>
 
                   {/* Orders num */}
                   <td className="px-4 py-3.5 text-sm text-gray-700 font-medium">
-                    {buyer.ordersNum}
+                    {displayOrders}
                   </td>
 
                   {/* Status */}
                   <td className="px-4 py-3.5">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                        isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      {isActive
-                        ? t('buyers.table.active')
-                        : t('buyers.table.suspended')}
-                    </span>
+                    {renderStatusBadge(buyer.status)}
                   </td>
 
                   {/* Activate toggle */}
@@ -181,7 +202,7 @@ export default function BuyerDesktopTable({
                       onClick={() => navigate(`/buyers/${buyer.id}`)}
                       className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer"
                     >
-                      {t('buyers.table.viewDetails')}
+                      {t('buyers.table.viewDetails', 'View details')}
                     </button>
                   </td>
                 </tr>

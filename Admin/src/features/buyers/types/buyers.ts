@@ -1,15 +1,26 @@
-export type BuyerStatus = 'active' | 'suspended';
+export type BuyerStatus =
+  | 'PENDING_VERIFICATION'
+  | 'ACTIVE'
+  | 'LOCKED'
+  | 'DEACTIVATED'
+  | 'active'
+  | 'suspended'
+  | string;
 
 export interface Buyer {
-  id: number;
+  id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
+  phoneNumber?: string;
   date: string;
-  ordersNum: number;
+  ordersNum: number | string;
   status: BuyerStatus;
   location?: string;
   totalSpent?: number;
   lastActive?: string;
+  createdAt?: string;
 }
 
 export interface BuyerOrder {

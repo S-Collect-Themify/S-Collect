@@ -1,7 +1,8 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Search } from 'lucide-react';
-import { useBuyerStore, useBuyerTable } from '../store/buyerStore';
+import { useBuyerStore } from '../store/buyerStore';
+import { useAdminBuyers } from '../hooks/useBuyers';
 import BuyerDesktopTable from './BuyerDesktopTable';
 import BuyerMobileList from './BuyerMobileList';
 import BuyerPagination from './BuyerPagination';
@@ -10,7 +11,7 @@ import ActivateBuyerModal from '../modals/ActivateBuyerModal';
 import SuspendBuyerModal from '../modals/SuspendBuyerModal';
 import BuyerConfirmModal from '../modals/BuyerConfirmModal';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
-import type { Buyer, BuyerStatus } from '../types/buyers';
+import type { Buyer } from '../types/buyers';
 
 export default function BuyerTable() {
   const { t, i18n } = useTranslation();
@@ -18,9 +19,14 @@ export default function BuyerTable() {
 
   const search = useBuyerStore((s) => s.search);
   const statusFilter = useBuyerStore((s) => s.statusFilter);
+  const page = useBuyerStore((s) => s.page);
+  const pageSize = useBuyerStore((s) => s.pageSize);
+  const selectedRows = useBuyerStore((s) => s.selectedRows);
+
   const setSearch = useBuyerStore((s) => s.setSearch);
   const setStatusFilter = useBuyerStore((s) => s.setStatusFilter);
   const setPage = useBuyerStore((s) => s.setPage);
+  const setBuyers = useBuyerStore((s) => s.setBuyers);
   const suspendBuyer = useBuyerStore((s) => s.suspendBuyer);
   const activateBuyer = useBuyerStore((s) => s.activateBuyer);
   const bulkActivate = useBuyerStore((s) => s.bulkActivate);
@@ -29,26 +35,35 @@ export default function BuyerTable() {
   const setSelectedRows = useBuyerStore((s) => s.setSelectedRows);
   const clearSelection = useBuyerStore((s) => s.clearSelection);
 
-  const {
-    paginated,
-    totalItems,
-    totalPages,
-    page,
-    itemsPerPage,
-    selectedRows,
-    selectedCount,
-    allChecked,
-    paginatedIds,
-  } = useBuyerTable();
+  // ── React Query hook fetching from /api/v1/admin/buyers ─────────────────
+  const { data, isLoading, isFetching } = useAdminBuyers({
+    pageNum: page,
+    pageSize,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    search,
+  });
 
-  // ── Skeleton loading on filter/page change ───────────────────────────────
-  const [isLoading, setIsLoading] = useState(false);
+  const paginated = data?.items || [];
+  const pagination = data?.pagination || {
+    currentPage: page,
+    pageSize,
+    totalItems: 0,
+    totalPages: 0,
+  };
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, [page, statusFilter, search]);
+    if (data?.items) {
+      setBuyers(data.items);
+    }
+  }, [data?.items, setBuyers]);
+
+  const totalItems = pagination.totalItems;
+  const totalPages = pagination.totalPages;
+
+  const paginatedIds = paginated.map((b) => b.id);
+  const allChecked =
+    paginated.length > 0 && paginatedIds.every((id) => selectedRows.includes(id));
+  const selectedCount = selectedRows.length;
 
   // ── Individual action modals ─────────────────────────────────────────────
   const [activateModal, setActivateModal] = useState<{
@@ -65,14 +80,15 @@ export default function BuyerTable() {
   const [bulkConfirmModal, setBulkConfirmModal] = useState<{
     isOpen: boolean;
     type: 'activate' | 'suspend';
-    ids: number[];
+    ids: string[];
   }>({ isOpen: false, type: 'activate', ids: [] });
 
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
   const handleToggleStatus = (buyer: Buyer) => {
-    if (buyer.status === 'active') {
+    const isActive = (buyer.status || '').toUpperCase() === 'ACTIVE';
+    if (isActive) {
       setSuspendModal({ isOpen: true, buyer });
     } else {
       setActivateModal({ isOpen: true, buyer });
@@ -99,41 +115,47 @@ export default function BuyerTable() {
   };
 
   const handleBulkSuspendConfirm = () => {
-    bulkSuspend(bulkConfirmModal.ids);
+    bulkSuspend(bulkConfirmModal.ids, undefined);
     setBulkConfirmModal({ isOpen: false, type: 'suspend', ids: [] });
   };
 
-  const startItem = totalItems === 0 ? 0 : (page - 1) * itemsPerPage + 1;
-  const endItem = Math.min(page * itemsPerPage, totalItems);
+  const startItem = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, totalItems);
 
-  const statusOptions: { value: BuyerStatus | 'all'; label: string }[] = [
+  const statusOptions: { value: string; label: string }[] = [
     { value: 'all', label: t('buyers.table.statusAll', 'Status: All') },
-    { value: 'active', label: t('buyers.table.statusActive', 'Active') },
-    { value: 'suspended', label: t('buyers.table.statusSuspended', 'Suspended') },
+    { value: 'ACTIVE', label: t('buyers.table.statusActive', 'Active') },
+    {
+      value: 'PENDING_VERIFICATION',
+      label: t('buyers.table.statusPendingVerification', 'Pending Verification'),
+    },
+    { value: 'LOCKED', label: t('buyers.table.statusLocked', 'Locked') },
+    { value: 'DEACTIVATED', label: t('buyers.table.statusDeactivated', 'Deactivated') },
   ];
 
   const activeFilterLabel =
-    statusOptions.find((f) => f.value === statusFilter)?.label ?? t('buyers.table.statusFilter', 'Status');
+    statusOptions.find((f) => f.value === statusFilter)?.label ??
+    t('buyers.table.statusFilter', 'Status');
 
   return (
     <div className="font-sans text-gray-800" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Filters (Matching Image 1 layout with larger search bar on mobile) */}
+      {/* Filters (Search & Status Dropdown) */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mb-5 w-full">
         {/* Search */}
         <div className="flex items-center gap-2.5 border border-gray-200/90 rounded-2xl sm:rounded-lg px-4 py-2.5 bg-white flex-1 sm:max-w-xs shadow-2xs transition-colors focus-within:border-gray-400">
           <Search size={18} className="text-gray-400 shrink-0" />
           <input
             type="text"
-            placeholder={t('buyers.table.search', 'Search name or email...')}
+            placeholder={t('buyers.table.search', 'Search name, email, or phone...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="border-none outline-none bg-transparent text-sm w-full placeholder:text-gray-400 font-normal"
           />
         </div>
 
-        {/* PortalDropdown Status Selector */}
+        {/* Status Selector Dropdown */}
         <PortalDropdown
-          minWidth={160}
+          minWidth={180}
           animate={false}
           menuClassName="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50 py-1"
           trigger={({ isOpen, toggle }) => (
@@ -149,7 +171,9 @@ export default function BuyerTable() {
               </span>
               <ChevronDown
                 size={14}
-                className={`text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                className={`text-gray-500 transition-transform duration-200 ${
+                  isOpen ? 'rotate-180' : ''
+                }`}
               />
             </button>
           )}
@@ -182,7 +206,7 @@ export default function BuyerTable() {
       {/* Desktop Table */}
       <BuyerDesktopTable
         paginated={paginated}
-        isLoading={isLoading}
+        isLoading={isLoading || isFetching}
         allChecked={allChecked}
         toggleAll={toggleAll}
         selectedRows={selectedRows}
@@ -193,7 +217,7 @@ export default function BuyerTable() {
       {/* Mobile List */}
       <BuyerMobileList
         paginated={paginated}
-        isLoading={isLoading}
+        isLoading={isLoading || isFetching}
         allChecked={allChecked}
         toggleAll={toggleAll}
         selectedCount={selectedCount}

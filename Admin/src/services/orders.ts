@@ -107,12 +107,16 @@ export interface AdminOrderDetailResponse {
 export interface GetAdminOrdersParams {
   pageNum?: number;
   pageSize?: number;
+  buyerAccountId?: string;
   vendorId?: string;
   status?: string;
   search?: string;
   dateFilter?: string;
   startDate?: string;
   endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  orderNumber?: string;
 }
 
 /**
@@ -120,25 +124,26 @@ export interface GetAdminOrdersParams {
  */
 export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<AdminOrdersResponse> {
   const pageNum = params?.pageNum ?? 1;
-  const pageSize = params?.pageSize ?? 20;
+  const pageSize = params?.pageSize ?? 25;
+
+  const cleanParams: Record<string, any> = {
+    pageNum,
+    pageSize,
+  };
+
+  if (params?.buyerAccountId) cleanParams.buyerAccountId = params.buyerAccountId;
+  if (params?.vendorId) cleanParams.vendorId = params.vendorId;
+  if (params?.status && params.status !== 'All' && params.status !== 'all') cleanParams.status = params.status;
+  if (params?.search) cleanParams.search = params.search;
+  if (params?.dateFilter && params.dateFilter !== 'all') cleanParams.dateFilter = params.dateFilter;
+  if (params?.startDate) cleanParams.startDate = params.startDate;
+  if (params?.endDate) cleanParams.endDate = params.endDate;
+  if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
+  if (params?.dateTo) cleanParams.dateTo = params.dateTo;
+  if (params?.orderNumber) cleanParams.orderNumber = params.orderNumber;
 
   const response = await api.get('/admin/orders', {
-    params: {
-      pageNum,
-      page: pageNum,
-      pageSize,
-      limit: pageSize,
-      perPage: pageSize,
-      per_page: pageSize,
-      vendorId: params?.vendorId,
-      status: params?.status && params.status !== 'All' ? params.status : undefined,
-      search: params?.search ? params.search : undefined,
-      q: params?.search ? params.search : undefined,
-      query: params?.search ? params.search : undefined,
-      dateFilter: params?.dateFilter && params.dateFilter !== 'all' ? params.dateFilter : undefined,
-      startDate: params?.startDate,
-      endDate: params?.endDate,
-    },
+    params: cleanParams,
   });
 
   const resData = response.data;

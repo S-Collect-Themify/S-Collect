@@ -10,8 +10,8 @@ interface BuyerMobileListProps {
   allChecked: boolean;
   toggleAll: (e: ChangeEvent<HTMLInputElement>) => void;
   selectedCount: number;
-  selectedRows: number[];
-  toggleRow: (id: number) => void;
+  selectedRows: string[];
+  toggleRow: (id: string) => void;
   onToggleStatus: (buyer: Buyer) => void;
 }
 
@@ -27,6 +27,32 @@ export default function BuyerMobileList({
 }: BuyerMobileListProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const renderStatusBadge = (status: string) => {
+    const s = (status || '').toUpperCase();
+    let badgeClass = 'bg-gray-100 text-gray-600';
+    let label = status || '---';
+
+    if (s === 'ACTIVE') {
+      badgeClass = 'bg-emerald-100/80 text-emerald-700';
+      label = t('buyers.table.statusActive', 'Active');
+    } else if (s === 'PENDING_VERIFICATION') {
+      badgeClass = 'bg-amber-100/80 text-amber-700';
+      label = t('buyers.table.statusPendingVerification', 'Pending Verification');
+    } else if (s === 'LOCKED') {
+      badgeClass = 'bg-orange-100/80 text-orange-700';
+      label = t('buyers.table.statusLocked', 'Locked');
+    } else if (s === 'DEACTIVATED' || s === 'SUSPENDED') {
+      badgeClass = 'bg-rose-100/80 text-rose-700';
+      label = t('buyers.table.statusDeactivated', 'Deactivated');
+    }
+
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>
+        {label}
+      </span>
+    );
+  };
 
   return (
     <div className="md:hidden space-y-3">
@@ -76,8 +102,13 @@ export default function BuyerMobileList({
         </div>
       ) : (
         paginated.map((buyer) => {
-          const isActive = buyer.status === 'active';
+          const isActive = (buyer.status || '').toUpperCase() === 'ACTIVE';
           const isSelected = selectedRows.includes(buyer.id);
+          const displayName = buyer.name || '---';
+          const displayEmail = buyer.email || '---';
+          const displayDate = buyer.date || '---';
+          const displayOrders = buyer.ordersNum ?? '---';
+
           return (
             <div
               key={buyer.id}
@@ -94,35 +125,29 @@ export default function BuyerMobileList({
                   className="accent-black w-4 h-4 cursor-pointer rounded mt-3 shrink-0"
                 />
                 <div className="w-10 h-10 rounded-full bg-[#E9E9E9] text-gray-800 text-xs font-bold flex items-center justify-center shrink-0">
-                  {getInitials(buyer.name)}
+                  {getInitials(displayName)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-sm text-gray-900 truncate">{buyer.name}</h3>
-                  <p className="text-xs text-gray-400 truncate">{buyer.email}</p>
+                  <h3 className="font-bold text-sm text-gray-900 truncate">{displayName}</h3>
+                  <p className="text-xs text-gray-400 truncate">{displayEmail}</p>
                 </div>
               </div>
 
               {/* Info row: Date & Orders */}
               <div className="flex items-center justify-between text-xs text-gray-400 my-2.5 ps-7">
                 <span>
-                  {t('buyers.table.dateLabel', 'Date:')} {buyer.date}
+                  {t('buyers.table.dateLabel', 'Date:')} {displayDate}
                 </span>
                 <span className="text-gray-900">
                   {t('buyers.table.ordersLabel', 'Orders:')}{' '}
-                  <strong className="font-semibold">{buyer.ordersNum}</strong>
+                  <strong className="font-semibold">{displayOrders}</strong>
                 </span>
               </div>
 
               {/* Action row: Status pill + Toggle + View details */}
               <div className="flex items-center justify-between pt-3 border-t border-gray-100/80 ps-7">
                 <div className="flex items-center gap-2.5">
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                      isActive ? 'bg-emerald-100/80 text-emerald-700' : 'bg-rose-100/80 text-rose-700'
-                    }`}
-                  >
-                    {isActive ? t('buyers.table.active', 'Active') : t('buyers.table.suspended', 'Suspended')}
-                  </span>
+                  {renderStatusBadge(buyer.status)}
                   <button
                     type="button"
                     role="switch"
