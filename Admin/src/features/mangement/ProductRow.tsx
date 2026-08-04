@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash, Check, Star } from 'lucide-react';
-import Toggle from './Toggle';
+import Toggle from '../../components/ui/Toggle';
 import StatusBadge from './StatusBadge';
 import { showDeleteConfirmation } from './deleteConfirmation';
 import { THUMB_STYLES } from './constant';

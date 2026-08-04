@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from '../types';
 import { useMobileAddProductStore } from './mobileAddProductStore';
-import type { Visibility } from './mobileAddProductStore';
 import { AnimateNumber } from 'motion-plus/react';
 
 const LOW_STOCK_THRESHOLD = 10;
@@ -21,8 +20,6 @@ const MobileInventoryStep = () => {
     decrementQuantity,
     isActive,
     setIsActive,
-    visibility,
-    setVisibility,
     previousStep,
     nextStep,
   } = useMobileAddProductStore();
@@ -136,41 +133,6 @@ const MobileInventoryStep = () => {
           />
           <div className="peer h-6 w-11 rounded-full bg-gray-200 transition peer-checked:bg-green-500 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition after:content-[''] peer-checked:after:translate-x-5" />
         </label>
-      </div>
-
-      {/* Visibility */}
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
-          {t('addProduct.mobile.visibility')}
-        </p>
-        <div className="flex flex-col gap-2">
-          {(
-            [
-              { key: 'homepage', label: t('addProduct.homepage', 'Homepage') },
-              {
-                key: 'promotions',
-                label: t('addProduct.promotions', 'Promotions'),
-              },
-              {
-                key: 'searchResults',
-                label: t('addProduct.searchResults', 'Search Results'),
-              },
-            ] as { key: keyof Visibility; label: string }[]
-          ).map(({ key, label }) => (
-            <label
-              key={key}
-              className="flex items-center gap-3 rounded-xl border border-gray-100 px-4 py-2.5 cursor-pointer hover:bg-gray-50"
-            >
-              <input
-                type="checkbox"
-                checked={visibility[key]}
-                onChange={(e) => setVisibility(key, e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-gray-900 accent-gray-900"
-              />
-              <span className="text-sm text-gray-700">{label}</span>
-            </label>
-          ))}
-        </div>
       </div>
 
       {/* Navigation */}

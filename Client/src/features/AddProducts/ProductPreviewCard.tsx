@@ -10,13 +10,13 @@ interface ProductPreviewCardProps {
 }
 
 const TagList = ({ label, items }: { label: string; items: string[] }) => (
-  <div className="mt-4">
-    <p className="text-gray-400 text-xs mb-2">{label}</p>
+  <div className="mt-6 border-t border-gray-100 pt-5">
+    <p className="text-xs text-gray-400 font-medium mb-3">{label}</p>
     <div className="flex flex-wrap gap-2">
       {items.map((item, i) => (
         <span
           key={i}
-          className="rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium"
+          className="rounded-lg bg-gray-100 px-3.5 py-1.5 text-xs font-semibold text-gray-800"
         >
           {item}
         </span>
@@ -41,14 +41,25 @@ const ProductPreviewCard = ({
     thumbnailUrl ||
     (newImagePreview ? URL.createObjectURL(newImagePreview) : undefined);
 
+  const productName = formData.nameEn || formData.nameAr || 'Product Name';
+  const categoryName = categories[0] || 'Uncategorized';
+  const price = formData.basePrice ? `$${formData.basePrice}` : '$0.00';
+  const discountPrice = formData.comparePrice
+    ? `$${formData.comparePrice}`
+    : '—';
+  const costPrice = formData.basePrice ? `$${formData.basePrice}` : '—';
+  const sku = formData.sku || '—';
+  const brand = categories[0] || 'Generic';
+
   return (
-    <div className="rounded-2xl border border-gray-200 p-6 bg-white">
-      <div className="flex gap-5">
-        <div className="h-24 w-24 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden">
+    <div className="rounded-2xl border border-gray-200 p-6 md:p-8 bg-white shadow-xs">
+      {/* Top Section: Image + Title + Category + Price */}
+      <div className="flex gap-6 items-start">
+        <div className="h-28 w-28 md:h-36 md:w-36 shrink-0 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
           {thumbnailSrc ? (
             <img
               src={thumbnailSrc}
-              alt={formData.nameEn || formData.nameAr}
+              alt={productName}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -68,68 +79,68 @@ const ProductPreviewCard = ({
           )}
         </div>
 
-        <div>
-          <p className="text-xs text-gray-400 mb-0.5">Product</p>
-          <h2 className="text-lg font-bold leading-tight">
-            {formData.nameEn || formData.nameAr || '—'}
+        <div className="flex-1 min-w-0 pt-1">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 truncate leading-snug">
+            {productName}
           </h2>
-          {formData.basePrice && (
-            <p className="mt-1 text-base font-semibold text-gray-800">
-              ${formData.basePrice}
-            </p>
-          )}
+          <p className="mt-1 text-sm font-medium text-gray-400">
+            {categoryName}
+          </p>
+          <p className="mt-3 text-lg md:text-xl font-bold text-gray-900">
+            {price}
+          </p>
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
+      {/* Middle Grid Section */}
+      <div className="mt-6 border-t border-gray-100 pt-6 grid grid-cols-2 gap-x-8 gap-y-5">
         <div>
-          <p className="text-gray-400 text-xs mb-0.5">Brand</p>
-          <p className="font-medium">{formData.sku || '—'}</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">Brand</p>
+          <p className="text-sm font-bold text-gray-900">{brand}</p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-0.5">SKU</p>
-          <p className="font-medium">{formData.sku || '—'}</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">SKU</p>
+          <p className="text-sm font-bold text-gray-900">{sku}</p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-0.5">Stock</p>
-          <p className="font-medium">{quantity} units</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">Stock</p>
+          <p className="text-sm font-bold text-gray-900">{quantity} units</p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs mb-0.5">Status</p>
-          <span className="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
-            Active
-          </span>
-        </div>
-        {formData.comparePrice && (
+          <p className="text-xs text-gray-400 font-medium mb-1">Status</p>
           <div>
-            <p className="text-gray-400 text-xs mb-0.5">Discount</p>
-            <p className="font-medium">${formData.comparePrice}</p>
+            <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-600">
+              Active
+            </span>
           </div>
-        )}
-        {formData.basePrice && (
-          <div>
-            <p className="text-gray-400 text-xs mb-0.5">Cost</p>
-            <p className="font-medium">${formData.basePrice}</p>
-          </div>
-        )}
+        </div>
+        <div>
+          <p className="text-xs text-gray-400 font-medium mb-1">Discount</p>
+          <p className="text-sm font-bold text-gray-900">{discountPrice}</p>
+        </div>
+        <div>
+          <p className="text-xs text-gray-400 font-medium mb-1">Cost</p>
+          <p className="text-sm font-bold text-gray-900">{costPrice}</p>
+        </div>
       </div>
 
+      {/* Descriptions */}
       {(formData.description || formData.descriptionAr) && (
-        <div className="mt-4 space-y-2">
+        <div className="mt-6 border-t border-gray-100 pt-5 space-y-3">
           {formData.description && (
             <div>
-              <p className="text-gray-400 text-xs mb-0.5">Description</p>
-              <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">
+              <p className="text-xs text-gray-400 font-medium mb-1">Description</p>
+              <p className="text-sm text-gray-700 leading-relaxed">
                 {formData.description}
               </p>
             </div>
           )}
           {formData.descriptionAr && (
             <div>
-              <p className="text-gray-400 text-xs mb-0.5">الوصف</p>
+              <p className="text-xs text-gray-400 font-medium mb-1">الوصف</p>
               <p
                 dir="rtl"
-                className="text-sm text-gray-700 leading-relaxed line-clamp-2"
+                className="text-sm text-gray-700 leading-relaxed"
               >
                 {formData.descriptionAr}
               </p>
@@ -138,6 +149,7 @@ const ProductPreviewCard = ({
         </div>
       )}
 
+      {/* Categories & Tags */}
       {categories.length > 0 && (
         <TagList label="Categories" items={categories} />
       )}

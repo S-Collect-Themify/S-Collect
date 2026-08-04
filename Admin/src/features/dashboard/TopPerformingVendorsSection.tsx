@@ -28,7 +28,7 @@ export default function TopPerformingVendorsSection() {
           <h2 className="text-base font-bold text-gray-900">
             {t('dashboardOverview.topPerformingVendors', 'Top Performing Vendors')}
           </h2>
-          <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+          <p className="text-[11px] text-gray-500 font-medium mt-0.5">
             {t('dashboardOverview.tableHeaders.activeVendors', { defaultValue: 'Active Vendors: --' })}
           </p>
         </div>
@@ -47,7 +47,7 @@ export default function TopPerformingVendorsSection() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-400">
+              <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500">
                 <th className="px-5 py-3.5 text-start font-semibold">{t('dashboardOverview.tableHeaders.vendor', 'Vendor')}</th>
                 <th className="px-5 py-3.5 text-start font-semibold">{t('dashboardOverview.tableHeaders.revenue', 'Revenue')}</th>
                 <th className="px-5 py-3.5 text-start font-semibold">{t('dashboardOverview.tableHeaders.orders', 'Orders')}</th>
@@ -58,7 +58,7 @@ export default function TopPerformingVendorsSection() {
             <tbody className="divide-y divide-gray-100 text-gray-700">
               {TOP_VENDORS.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-8 text-center text-gray-400 text-xs">
+                  <td colSpan={5} className="px-5 py-8 text-center text-gray-500 text-xs">
                     No top performing vendors found.
                   </td>
                 </tr>
@@ -106,7 +106,7 @@ export default function TopPerformingVendorsSection() {
         {/* Mobile Cards */}
         <div className="md:hidden divide-y divide-gray-100">
           {TOP_VENDORS.length === 0 ? (
-            <div className="p-6 text-center text-gray-400 text-xs">
+            <div className="p-6 text-center text-gray-500 text-xs">
               No top performing vendors found.
             </div>
           ) : (

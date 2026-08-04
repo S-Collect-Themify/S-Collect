@@ -2,7 +2,7 @@ import React from 'react';
 import { SquarePen, Trash, Tag, Image as ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
-import Toggle from './Toggle';
+import Toggle from '../../../components/ui/Toggle';
 
 interface CategoryRowProps {
   category: Category;

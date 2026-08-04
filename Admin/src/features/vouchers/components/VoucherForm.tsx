@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { Calendar, ChevronDown, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import type { VoucherItem, VoucherType } from '../types';
 import { useCategories } from '../../../hooks/useCategories';
 import { parseCategories } from '../utils';

@@ -15,7 +15,7 @@ export { useCategoriesData } from './useCategoriesData';
 export { toSlug } from './utils';
 
 // Components
-export { default as Toggle } from './components/Toggle';
+export { default as Toggle } from '../../components/ui/Toggle';
 export { CategoryHeader } from './components/CategoryHeader';
 export { CategoryFilterBar } from './components/CategoryFilterBar';
 export { StatusConfirmModal, DeleteModal, CategoryFormModal, CannotDeleteModal } from './components/CategoryModals';

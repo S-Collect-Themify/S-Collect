@@ -5,7 +5,7 @@ import { useAdminSettingsStore } from '../store';
 import { useShippingZonesData } from '../hooks/useShippingZonesData';
 import type { ShippingZoneItem } from '../types';
 import i18n from '../../../i18n';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 
 export const ShippingZonesList: React.FC = () => {
   const { t } = useTranslation();

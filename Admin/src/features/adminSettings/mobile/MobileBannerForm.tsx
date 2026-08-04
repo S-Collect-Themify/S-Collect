@@ -5,7 +5,7 @@ import { Upload, ChevronRight, ChevronLeft, AlertCircle, CheckCircle2, Loader2 }
 import { useAdminSettingsStore, MAX_ACTIVE_BANNERS } from '../store';
 import i18n from '../../../i18n';
 import toast from 'react-hot-toast';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import type { BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
 

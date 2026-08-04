@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import Toggle from '../../categories/components/Toggle';
+import Toggle from '../../../components/ui/Toggle';
 import type { ProductItem } from '../types';
 
 interface ProductMobileListProps {
