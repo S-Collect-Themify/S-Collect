@@ -30,6 +30,36 @@ export interface GetBuyersResponse {
   pagination: BuyerPagination;
 }
 
+export interface AdminSavedAddress {
+  id?: string;
+  label?: unknown;
+  recipientName?: string;
+  recipientPhone?: string;
+  zone?: {
+    id?: string;
+    code?: string;
+    nameEn?: string;
+    nameAr?: string;
+  };
+  city?: string;
+  streetAddress?: string;
+  buildingNumber?: unknown;
+  additionalDirections?: unknown;
+  isDefault?: boolean;
+  createdAt?: string;
+}
+
+export interface AdminBuyerDetailResponse {
+  id: string;
+  image?: unknown;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  address?: unknown;
+  jointDate?: string;
+  savedAddresses?: AdminSavedAddress[];
+}
+
 export async function getAdminBuyers(params: BuyerQueryParams): Promise<any> {
   const cleanParams: Record<string, any> = {};
 
@@ -51,4 +81,10 @@ export async function getAdminBuyers(params: BuyerQueryParams): Promise<any> {
   });
 
   return response.data;
+}
+
+export async function getAdminBuyerDetail(id: string): Promise<AdminBuyerDetailResponse> {
+  const response = await api.get(`/admin/buyers/${id}`);
+  const data = response.data;
+  return data?.data || data;
 }

@@ -180,9 +180,12 @@ export default function OrderDetailsPage() {
   ].filter(Boolean);
   const addressString = addressParts.length > 0 ? addressParts.join(', ') : '--';
 
-  const customerName = orderData?.recipientName || '--';
-  const customerEmail = (orderData as any)?.recipientEmail || (orderData as any)?.email || '--';
-  const customerPhone = orderData?.recipientPhone || '--';
+  const custFirstName = orderData?.customer?.firstName?.trim() || '';
+  const custLastName = orderData?.customer?.lastName?.trim() || '';
+  const custFullName = `${custFirstName} ${custLastName}`.trim();
+  const customerName = custFullName || orderData?.recipientName || '--';
+  const customerEmail = orderData?.customer?.email || (orderData as any)?.recipientEmail || (orderData as any)?.email || '--';
+  const customerPhone = orderData?.customer?.phoneNumber || orderData?.recipientPhone || '--';
   const paymentMethod = (orderData as any)?.paymentMethod || '--';
   const shippingCountry = (orderData as any)?.shippingCountry || '--';
 

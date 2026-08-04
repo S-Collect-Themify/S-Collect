@@ -18,8 +18,9 @@ export interface Buyer {
   ordersNum: number | string;
   status: BuyerStatus;
   location?: string;
-  totalSpent?: number;
-  lastActive?: string;
+  totalSpent?: number | string | null;
+  avgOrderValue?: number | string | null;
+  lastActive?: string | null;
   createdAt?: string;
 }
 
@@ -27,6 +28,6 @@ export interface BuyerOrder {
   id: string;
   products: string;
   date: string;
-  amount: number;
-  status: 'Active' | 'Completed' | 'Cancelled' | 'Pending';
+  amount: number | string;
+  status: 'Active' | 'Completed' | 'Cancelled' | 'Pending' | string;
 }

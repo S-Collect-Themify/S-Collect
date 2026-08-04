@@ -8,12 +8,25 @@ const cardVariants: Variants = {
 };
 
 interface BuyerStatsGridProps {
-  ordersNum: number | string;
+  ordersNum?: number | string | null;
   totalSpent?: number | string | null;
   avgOrderValue?: number | string | null;
   lastActive?: string | null;
   isMobile: boolean;
 }
+
+const formatCurrencyStat = (val?: number | string | null): string => {
+  if (val === undefined || val === null || val === '' || val === '---') return '---';
+  const num = typeof val === 'number' ? val : parseFloat(String(val));
+  if (isNaN(num)) return '---';
+  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} SAR`;
+};
+
+const formatGeneralStat = (val?: number | string | null): string => {
+  if (val === undefined || val === null || val === '' || val === '---' || val === 'NaN') return '---';
+  if (typeof val === 'number' && isNaN(val)) return '---';
+  return String(val);
+};
 
 export default function BuyerStatsGrid({
   ordersNum,
@@ -24,10 +37,10 @@ export default function BuyerStatsGrid({
 }: BuyerStatsGridProps) {
   const { t } = useTranslation();
 
-  const formattedOrders = ordersNum ?? '---';
-  const formattedSpent = totalSpent !== undefined && totalSpent !== null ? `${Number(totalSpent).toLocaleString()} SAR` : '---';
-  const formattedAvg = avgOrderValue !== undefined && avgOrderValue !== null ? `${Number(avgOrderValue).toLocaleString()} SAR` : '---';
-  const formattedActive = lastActive || '---';
+  const formattedOrders = formatGeneralStat(ordersNum);
+  const formattedSpent = formatCurrencyStat(totalSpent);
+  const formattedAvg = formatCurrencyStat(avgOrderValue);
+  const formattedActive = formatGeneralStat(lastActive);
 
   const stats = [
     {

@@ -1,14 +1,16 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
+  useAdminBuyerDetail,
   useBuyerStore,
   BuyerProfileCard,
   BuyerStatsGrid,
   BuyerOrdersTable,
+  type Buyer,
 } from '../features/buyers';
 
 // ── Motion variants ──────────────────────────────────────────────────────────
@@ -27,14 +29,28 @@ export default function BuyerDetails() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const buyers = useBuyerStore((s) => s.buyers);
-
   const buyerId = id || '';
-  const buyer = buyers.find((b) => b.id === buyerId);
 
-  if (!buyer) {
+  // Fetch live buyer detail from GET /api/v1/admin/buyers/{id}
+  const { data: apiBuyer, isLoading: isBuyerLoading } = useAdminBuyerDetail(buyerId);
+
+  // Fallback to store buyer if available while loading or if detail endpoint fails
+  const storeBuyer = useBuyerStore((s) => s.buyers.find((b) => b.id === buyerId));
+
+  const buyer = apiBuyer || storeBuyer;
+
+  if (isBuyerLoading && !buyer) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center min-h-screen bg-gray-50">
+        <Loader2 className="animate-spin text-gray-900" size={24} />
+        <p className="text-gray-500 text-sm">{t('buyers.details.loading', 'Loading buyer details...')}</p>
+      </div>
+    );
+  }
+
+  if (!buyer && !isBuyerLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 py-40 text-center min-h-screen bg-gray-50">
         <p className="text-gray-500 text-sm">{t('buyers.details.buyerNotFound', 'Buyer not found')}</p>
         <button
           onClick={() => navigate('/buyers')}
@@ -46,15 +62,21 @@ export default function BuyerDetails() {
     );
   }
 
-  const numOrders =
-    typeof buyer.ordersNum === 'number'
-      ? buyer.ordersNum
-      : parseInt(String(buyer.ordersNum || 0), 10) || 0;
+  const fallbackBuyer: Buyer = {
+    id: buyerId,
+    name: '---',
+    email: '---',
+    phoneNumber: '---',
+    date: '---',
+    ordersNum: '---',
+    status: '---',
+    totalSpent: '---',
+    avgOrderValue: '---',
+    lastActive: '---',
+    location: '---',
+  };
 
-  const avgOrderValue =
-    numOrders > 0 && buyer.totalSpent
-      ? Math.round(buyer.totalSpent / numOrders)
-      : null;
+  const buyerData: Buyer = buyer || fallbackBuyer;
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -81,7 +103,7 @@ export default function BuyerDetails() {
                 {t('buyers.details.breadcrumbParent', 'Buyers')}
               </Link>
               <ChevronRight size={12} className={isRtl ? 'rotate-180' : ''} />
-              <span className="text-gray-900 font-semibold">{buyer.name || '---'}</span>
+              <span className="text-gray-900 font-semibold">{buyerData.name || '---'}</span>
             </div>
           </div>
         </div>
@@ -96,19 +118,19 @@ export default function BuyerDetails() {
           className="space-y-4"
         >
           {/* 1. Buyer Profile Card Component */}
-          <BuyerProfileCard buyer={buyer} isMobile={isMobile} />
+          <BuyerProfileCard buyer={buyerData} isMobile={isMobile} />
 
           {/* 2. Stats Grid Component */}
           <BuyerStatsGrid
-            ordersNum={buyer.ordersNum ?? '---'}
-            totalSpent={buyer.totalSpent}
-            avgOrderValue={avgOrderValue}
-            lastActive={buyer.lastActive}
+            ordersNum={buyerData.ordersNum ?? '---'}
+            totalSpent={buyerData.totalSpent ?? '---'}
+            avgOrderValue={buyerData.avgOrderValue ?? '---'}
+            lastActive={buyerData.lastActive ?? '---'}
             isMobile={isMobile}
           />
 
           {/* 3. Orders Section Component (4 orders max + See More) */}
-          <BuyerOrdersTable buyerAccountId={buyer.id} isMobile={isMobile} />
+          <BuyerOrdersTable buyerAccountId={buyerId} isMobile={isMobile} />
         </motion.div>
       </div>
     </div>

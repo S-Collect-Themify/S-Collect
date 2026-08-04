@@ -1,7 +1,9 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   getAdminBuyers,
+  getAdminBuyerDetail,
   type BuyerQueryParams,
+  type AdminBuyerDetailResponse,
 } from '../../../services/buyers';
 import type { Buyer } from '../types/buyers';
 import {
@@ -105,5 +107,60 @@ export function useAdminBuyers(params: BuyerQueryParams) {
     },
     staleTime: 2 * 60 * 1000,
     placeholderData: keepPreviousData,
+  });
+}
+
+export function mapAdminBuyerDetailToBuyer(data?: AdminBuyerDetailResponse | null): Buyer {
+  if (!data) {
+    return {
+      id: '---',
+      name: '---',
+      email: '---',
+      phoneNumber: '---',
+      date: '---',
+      ordersNum: '---',
+      status: '---',
+      totalSpent: '---',
+      avgOrderValue: '---',
+      lastActive: '---',
+      location: '---',
+    };
+  }
+
+  const nameParts = [data.firstName, data.lastName].filter(Boolean);
+  const name = nameParts.length > 0 ? nameParts.join(' ') : '---';
+
+  const email = data.email?.trim() || '---';
+
+  const date = data.jointDate ? formatBuyerDate(data.jointDate) : '---';
+
+  const defaultAddr = data.savedAddresses?.find((a) => a.isDefault) || data.savedAddresses?.[0];
+  const locParts = [defaultAddr?.city, defaultAddr?.zone?.nameEn || defaultAddr?.zone?.code].filter(Boolean);
+  const location = locParts.length > 0 ? locParts.join(', ') : '---';
+
+  return {
+    id: data.id || '---',
+    name,
+    firstName: data.firstName || undefined,
+    lastName: data.lastName || undefined,
+    email,
+    phoneNumber: '---',
+    date,
+    ordersNum: '---',
+    status: '---',
+    totalSpent: '---',
+    avgOrderValue: '---',
+    lastActive: '---',
+    location,
+  };
+}
+
+export function useAdminBuyerDetail(id?: string) {
+  return useQuery({
+    queryKey: ['admin-buyer-detail', id],
+    queryFn: () => getAdminBuyerDetail(id!),
+    enabled: Boolean(id),
+    staleTime: 5 * 60 * 1000,
+    select: mapAdminBuyerDetailToBuyer,
   });
 }
