@@ -946,7 +946,7 @@
     "description": "Manage product categories across the marketplace.",
     "columns": {
       "image": "Image",
-      "category": "Category",
+      "category": "Category Name",
       "slug": "Slug",
       "productsCount": "Products Count",
       "status": "Status",

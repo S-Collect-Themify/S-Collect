@@ -942,7 +942,7 @@
     "description": "إدارة فئات المنتجات عبر السوق.",
     "columns": {
       "image": "الصورة",
-      "category": "الفئة",
+      "category": "اسم الفئة",
       "slug": "الرابط (Slug)",
       "productsCount": "عدد المنتجات",
       "status": "الحالة",

@@ -60,7 +60,9 @@ const MobileCard = ({
 
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-gray-900 text-base leading-snug">
-            {i18n.language === 'ar' ? category.nameAr : category.nameEn}
+            {i18n.language === 'ar'
+              ? (category.nameAr || category.name || category.nameEn || '—')
+              : (category.nameEn || category.name || category.nameAr || '—')}
           </h3>
           <p className="text-xs text-gray-400 mt-0.5 font-normal">
             {t('categories.mobile.slug')}: {category.slug}

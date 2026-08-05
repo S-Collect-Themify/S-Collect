@@ -6,26 +6,31 @@ export interface ApiCategoryItem {
   nameAr?: string;
   nameEn?: string;
   slug: string;
-  image?: string;
-  imageUrl?: string;
+  description?: string | Record<string, any> | null;
+  parentCategoryId?: string | Record<string, any> | null;
   isActive?: boolean;
+  image?: string | Record<string, any> | null;
+  imageUrl?: string | null;
   createdAt?: string;
+  productCount?: number;
   productsCount?: number;
 }
 
 export interface CreateCategoryPayload {
   name: string;
-  nameEn?: string;
   nameAr: string;
   slug: string;
+  description?: string | null;
+  parentCategoryId?: string | null;
   image?: string | File | null;
 }
 
 export interface UpdateCategoryPayload {
   name?: string;
-  nameEn?: string;
   nameAr?: string;
   slug?: string;
+  description?: string | null;
+  parentCategoryId?: string | null;
   image?: string | File | null;
   isActive?: boolean;
 }
@@ -42,6 +47,22 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
   return new File([u8arr], filename, { type: mime });
 };
 
+function extractCategoriesArray(resData: any): ApiCategoryItem[] {
+  if (!resData) return [];
+  if (Array.isArray(resData)) return resData;
+  if (typeof resData === 'object') {
+    if (Array.isArray(resData.items)) return resData.items;
+    if (Array.isArray(resData.categories)) return resData.categories;
+    if (Array.isArray(resData.data)) return resData.data;
+    if (resData.data && typeof resData.data === 'object') {
+      if (Array.isArray(resData.data.items)) return resData.data.items;
+      if (Array.isArray(resData.data.categories)) return resData.data.categories;
+      if (Array.isArray(resData.data.data)) return resData.data.data;
+    }
+  }
+  return [];
+}
+
 export const getAdminCategories = async (params?: { pageNum?: number; pageSize?: number }): Promise<ApiCategoryItem[]> => {
   const { data } = await api.get('/admin/categories', {
     params: {
@@ -49,21 +70,7 @@ export const getAdminCategories = async (params?: { pageNum?: number; pageSize?:
       pageSize: params?.pageSize ?? 100,
     },
   });
-  if (Array.isArray(data)) {
-    return data;
-  }
-  if (data && typeof data === 'object') {
-    if (Array.isArray((data as any).items)) {
-      return (data as any).items;
-    }
-    if (Array.isArray((data as any).data)) {
-      return (data as any).data;
-    }
-    if (Array.isArray((data as any).categories)) {
-      return (data as any).categories;
-    }
-  }
-  return [];
+  return extractCategoriesArray(data);
 };
 
 export const createAdminCategory = async (payload: CreateCategoryPayload): Promise<ApiCategoryItem> => {
@@ -77,9 +84,10 @@ export const createAdminCategory = async (payload: CreateCategoryPayload): Promi
   if (fileToUpload) {
     const formData = new FormData();
     formData.append('name', payload.name);
-    if (payload.nameEn) formData.append('nameEn', payload.nameEn);
-    if (payload.nameAr) formData.append('nameAr', payload.nameAr);
-    if (payload.slug) formData.append('slug', payload.slug);
+    formData.append('nameAr', payload.nameAr);
+    formData.append('slug', payload.slug);
+    if (payload.description) formData.append('description', payload.description);
+    if (payload.parentCategoryId) formData.append('parentCategoryId', payload.parentCategoryId);
     formData.append('image', fileToUpload);
 
     const { data } = await api.post('/admin/categories', formData, {
@@ -95,9 +103,10 @@ export const createAdminCategory = async (payload: CreateCategoryPayload): Promi
     nameAr: payload.nameAr,
     slug: payload.slug,
   };
-  if (payload.nameEn) body.nameEn = payload.nameEn;
-  if (payload.image !== undefined) {
-    body.image = payload.image ? payload.image : null;
+  if (payload.description) body.description = payload.description;
+  if (payload.parentCategoryId) body.parentCategoryId = payload.parentCategoryId;
+  if (payload.image !== undefined && payload.image !== null) {
+    body.image = payload.image;
   }
 
   const { data } = await api.post('/admin/categories', body);
@@ -118,9 +127,10 @@ export const updateAdminCategory = async (
   if (fileToUpload) {
     const formData = new FormData();
     if (payload.name) formData.append('name', payload.name);
-    if (payload.nameEn) formData.append('nameEn', payload.nameEn);
     if (payload.nameAr) formData.append('nameAr', payload.nameAr);
     if (payload.slug) formData.append('slug', payload.slug);
+    if (payload.description) formData.append('description', payload.description);
+    if (payload.parentCategoryId) formData.append('parentCategoryId', payload.parentCategoryId);
     if (payload.isActive !== undefined) formData.append('isActive', String(payload.isActive));
     formData.append('image', fileToUpload);
 
@@ -134,9 +144,10 @@ export const updateAdminCategory = async (
 
   const body: Record<string, any> = {};
   if (payload.name !== undefined) body.name = payload.name;
-  if (payload.nameEn !== undefined) body.nameEn = payload.nameEn;
   if (payload.nameAr !== undefined) body.nameAr = payload.nameAr;
   if (payload.slug !== undefined) body.slug = payload.slug;
+  if (payload.description !== undefined) body.description = payload.description;
+  if (payload.parentCategoryId !== undefined) body.parentCategoryId = payload.parentCategoryId;
   if (payload.isActive !== undefined) body.isActive = payload.isActive;
   if (payload.image !== undefined) {
     body.image = payload.image ? payload.image : null;
@@ -147,13 +158,44 @@ export const updateAdminCategory = async (
 };
 
 export const deactivateAdminCategory = async (id: string): Promise<ApiCategoryItem> => {
-  const { data } = await api.post(`/admin/categories/${id}/deactivate`);
-  return data;
+  try {
+    const { data } = await api.put(`/admin/categories/${id}/deactivate`);
+    return data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const { data } = await api.post(`/admin/categories/${id}/deactivate`);
+        return data;
+      } catch {
+        const { data } = await api.patch(`/admin/categories/${id}`, { isActive: false });
+        return data;
+      }
+    }
+    throw err;
+  }
 };
 
 export const reactivateAdminCategory = async (id: string): Promise<ApiCategoryItem> => {
-  const { data } = await api.post(`/admin/categories/${id}/reactivate`);
-  return data;
+  try {
+    const { data } = await api.put(`/admin/categories/${id}/reactivate`);
+    return data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const { data } = await api.post(`/admin/categories/${id}/reactivate`);
+        return data;
+      } catch {
+        try {
+          const { data } = await api.put(`/admin/categories/${id}/activate`);
+          return data;
+        } catch {
+          const { data } = await api.patch(`/admin/categories/${id}`, { isActive: true });
+          return data;
+        }
+      }
+    }
+    throw err;
+  }
 };
 
 export const deleteAdminCategory = async (id: string): Promise<void> => {
