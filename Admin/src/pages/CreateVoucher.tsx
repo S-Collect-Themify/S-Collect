@@ -29,12 +29,14 @@ const CreateVoucher = () => {
       category: formData.category,
       scope: formData.scope,
       type: formData.type,
+      value: Number(formData.discountValue || 0),
       discountValue: formData.discountValue,
       minOrder: formData.minOrder,
       maxDiscount: formData.maxDiscount,
       expiryDate: formData.expiryDate,
       maxUsage: formData.maxUsage,
       limitOnePerCustomer: formData.limitOnePerCustomer,
+      startsAt: new Date().toISOString(),
     };
 
     if (isEditing && id) {

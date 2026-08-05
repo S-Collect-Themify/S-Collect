@@ -1,4 +1,4 @@
-export type VoucherType = 'Percentage' | 'Amount' | 'Free Shipping';
+export type VoucherType = 'Percentage' | 'Amount' ;
 export type VoucherStatus = 'Active' | 'Expired';
 export type VoucherTab = 'active' | 'expired' | 'all';
 
