@@ -53,6 +53,7 @@ const TagInput = ({
               >
                 {item}
                 <button
+                  type="button"
                   onClick={() => onRemove(index)}
                   className="ml-1 rounded-full p-0.5 hover:bg-gray-200"
                 >
@@ -71,15 +72,22 @@ const TagInput = ({
               value={value}
               placeholder={placeholder}
               onChange={(e) => setValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAdd();
+                }
+              }}
             />
             <button
+              type="button"
               onClick={handleAdd}
               className="rounded-xl bg-gray-950 px-4 py-2 text-white"
             >
               {addBtnLabel}
             </button>
             <button
+              type="button"
               onClick={() => {
                 setShow(false);
                 setValue('');
@@ -91,6 +99,7 @@ const TagInput = ({
           </div>
         ) : (
           <button
+            type="button"
             onClick={() => setShow(true)}
             className="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-gray-600 transition hover:border-gray-950 hover:text-gray-950"
           >

@@ -40,12 +40,13 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
 
   const handlePublish = () => {
     useMobileAddProductStore.setState({ isLoading: true });
-    const multipartData = mapFormToMultipartFormData({
+    const productFormData = {
       ...formData,
       sizes,
       colors,
       quantity,
-    });
+    };
+    const multipartData = mapFormToMultipartFormData(productFormData);
 
     const onSuccess = (response: any) => {
       const thumbnail =
@@ -71,24 +72,8 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
     };
 
     if (isEdit && productId) {
-      const price = parseFloat(formData.basePrice) || 0;
-      const compareAtPrice = formData.comparePrice
-        ? parseFloat(formData.comparePrice)
-        : 0;
-      const stock = formData.quantity || 0;
-
-      const variants = (formData.variantsMeta || [])
-        .filter((vm) => vm.id)
-        .map((vm) => ({
-          id: vm.id,
-          price,
-          compareAtPrice,
-          stock,
-          isActive: true,
-        }));
-
       updateProduct(
-        { productId, formData: multipartData, variants },
+        { productId, formData: multipartData, productFormData },
         { onSuccess, onError }
       );
     } else {
