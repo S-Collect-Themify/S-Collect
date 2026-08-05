@@ -82,7 +82,6 @@ export const VoucherForm = ({
     }
   }, [initialVoucher, reset]);
 
-  const selectedType = watch('type');
   const selectedScope = watch('scope');
 
   const onFormSubmit = (data: VoucherFormData) => {
