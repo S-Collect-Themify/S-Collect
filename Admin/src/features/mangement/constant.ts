@@ -2,13 +2,7 @@ import type { Product, ProductStatus, StatusFilter } from './mangement';
 
 export const INITIAL_PRODUCTS: Product[] = [];
 
-export const CATEGORIES = [
-  "Women's clothing",
-  "Men's clothing",
-  'Shoes',
-  'Accessories',
-  'Youth clothes',
-];
+export const CATEGORIES = [];
 
 export const STATUS_FILTERS: StatusFilter[] = [
   'All',
