@@ -2,11 +2,21 @@ import { useState } from 'react';
 import { Star, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { ProductOption, ProductVariant } from '../types';
 
 export interface ProductImageInfo {
   id?: string;
   url?: string;
   isThumbnail?: boolean;
+}
+
+interface VariantOptionValue {
+  optionId?: string;
+  optionName?: string;
+  optionNameAr?: string;
+  valueId?: string;
+  value?: string;
+  valueAr?: string;
 }
 
 export interface ProductInfoProps {
@@ -25,6 +35,8 @@ export interface ProductInfoProps {
   stockCount?: number;
   averageRating?: number;
   totalReviews?: number;
+  options?: ProductOption[];
+  variants?: ProductVariant[];
   onEdit?: () => void;
 }
 
@@ -44,6 +56,8 @@ export default function ProductInfo({
   stockCount,
   averageRating = 0,
   totalReviews,
+  options = [],
+  variants = [],
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -65,8 +79,12 @@ export default function ProductInfo({
     .map((img) => img?.url)
     .filter((u): u is string => Boolean(u));
 
-  const safeAvg = typeof averageRating === 'number' && !isNaN(averageRating) ? averageRating : 0;
-  const safeTotal = typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
+  const safeAvg =
+    typeof averageRating === 'number' && !isNaN(averageRating)
+      ? averageRating
+      : 0;
+  const safeTotal =
+    typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
 
   const [activeIndex, setActiveIndex] = useState(0);
   const mainImage = imageUrls[activeIndex];
@@ -248,6 +266,103 @@ export default function ProductInfo({
           </div>
         </div>
       </div>
+
+      {variants.length > 0 && (
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <h3 className="mb-3 text-sm font-bold text-gray-900">
+            {isArabic ? 'خيارات المنتج والأنواع' : 'Product Options & Variants'}
+          </h3>
+          <div className="overflow-x-auto rounded-xl border border-gray-100">
+            <table className="w-full border-collapse text-left text-xs rtl:text-right">
+              <thead className="border-b border-gray-100 bg-gray-50 font-semibold text-gray-500">
+                <tr>
+                  <th className="px-4 py-3">SKU</th>
+                  {options.map((option, index) => (
+                    <th key={option.id || index} className="px-4 py-3">
+                      {isArabic
+                        ? option.nameAr || option.name || '-'
+                        : option.name || option.nameAr || '-'}
+                    </th>
+                  ))}
+                  <th className="px-4 py-3">{isArabic ? 'السعر' : 'Price'}</th>
+                  <th className="px-4 py-3">
+                    {isArabic ? 'المخزون' : 'Stock'}
+                  </th>
+                  <th className="px-4 py-3">
+                    {isArabic ? 'الحالة' : 'Status'}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {variants.map((variant, variantIndex) => {
+                  const optionValues = Array.isArray(variant.optionValues)
+                    ? (variant.optionValues as VariantOptionValue[])
+                    : [];
+
+                  return (
+                    <tr
+                      key={variant.id || variant.sku || variantIndex}
+                      className="hover:bg-gray-50/50"
+                    >
+                      <td className="px-4 py-3 font-mono font-medium text-gray-800">
+                        {variant.sku || '-'}
+                      </td>
+                      {options.map((option, optionIndex) => {
+                        const optionValue = optionValues.find((value) =>
+                          option.id
+                            ? value.optionId === option.id
+                            : value.optionName === option.name ||
+                              value.optionNameAr === option.nameAr
+                        );
+
+                        return (
+                          <td
+                            key={option.id || optionIndex}
+                            className="px-4 py-3 text-gray-700"
+                          >
+                            {optionValue
+                              ? isArabic
+                                ? optionValue.valueAr ||
+                                  optionValue.value ||
+                                  '-'
+                                : optionValue.value ||
+                                  optionValue.valueAr ||
+                                  '-'
+                              : '-'}
+                          </td>
+                        );
+                      })}
+                      <td className="px-4 py-3 font-semibold text-gray-900">
+                        {(variant.price ?? 0).toLocaleString()} {currency}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-700">
+                        {variant.stock ?? 0}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                            variant.isActive
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-gray-100 text-gray-500'
+                          }`}
+                        >
+                          {variant.isActive
+                            ? isArabic
+                              ? 'نشط'
+                              : 'Active'
+                            : isArabic
+                              ? 'غير نشط'
+                              : 'Inactive'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

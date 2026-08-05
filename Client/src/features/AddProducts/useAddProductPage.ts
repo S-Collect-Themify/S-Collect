@@ -8,6 +8,8 @@ import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useCategories } from '../../hooks/useCategories';
 import { useProduct } from './useProduct';
 import { useSaveProduct } from './useSaveProduct';
+import { deleteProductOptionValue } from '../../services/products';
+import toast from 'react-hot-toast';
 
 const defaultFormValues: ProductFormData = {
   nameAr: '',
@@ -77,7 +79,9 @@ export const useAddProductPage = () => {
       );
     } else if (newStep === 'form') {
       setIsSuccessStep(false);
-      navigate(isEdit ? `/edit-product/${productId}` : '/add-product?state=add');
+      navigate(
+        isEdit ? `/edit-product/${productId}` : '/add-product?state=add'
+      );
     }
   };
   const [createdThumbnail, setCreatedThumbnail] = useState<string | undefined>(
@@ -122,8 +126,58 @@ export const useAddProductPage = () => {
     };
 
   const makeRemover =
-    (fieldName: 'categories' | 'sizes' | 'colors') => (index: number) => {
+    (fieldName: 'categories' | 'sizes' | 'colors') => async (index: number) => {
       const prev = methods.getValues(fieldName) || [];
+      const value = prev[index];
+
+      if (
+        isEdit &&
+        productId &&
+        (fieldName === 'sizes' || fieldName === 'colors')
+      ) {
+        const optionName = fieldName === 'sizes' ? 'size' : 'color';
+        const option = methods
+          .getValues('optionsMeta')
+          ?.find((item) => item.name.trim().toLowerCase() === optionName);
+        const optionValue = option?.values.find(
+          (item) =>
+            item.value.trim().toLowerCase() === value.trim().toLowerCase() ||
+            item.valueAr.trim().toLowerCase() === value.trim().toLowerCase()
+        );
+
+        if (option?.id && optionValue?.id) {
+          const isUsedByVariant = methods
+            .getValues('variantsMeta')
+            ?.some((variant) =>
+              variant.optionValueIds.includes(optionValue.id)
+            );
+
+          if (isUsedByVariant) {
+            toast.error(
+              isArabic
+                ? 'لا يمكن حذف هذه القيمة لأنها مستخدمة في نوع منتج. يجب حذف النوع المرتبط أولاً.'
+                : 'This value is used by a variant. Delete the linked variant first.'
+            );
+            return;
+          }
+
+          try {
+            await deleteProductOptionValue(
+              productId,
+              option.id,
+              optionValue.id
+            );
+          } catch (error) {
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : 'Failed to delete option value'
+            );
+            return;
+          }
+        }
+      }
+
       methods.setValue(
         fieldName,
         prev.filter((_, i) => i !== index)
@@ -146,24 +200,8 @@ export const useAddProductPage = () => {
     const data = methods.getValues();
     const multipartData = mapFormToMultipartFormData(data);
 
-    // Build variant updates for the dedicated variant endpoint (price/stock)
-    const price = parseFloat(data.basePrice) || 0;
-    const compareAtPrice = data.comparePrice
-      ? parseFloat(data.comparePrice)
-      : 0;
-    const stock = data.quantity || 0;
-    const variants = (data.variantsMeta || [])
-      .filter((vm) => vm.id)
-      .map((vm) => ({
-        id: vm.id,
-        price,
-        compareAtPrice,
-        stock,
-        isActive: true,
-      }));
-
     saveProduct(
-      { formData: multipartData, variants },
+      { formData: multipartData, productFormData: data },
       {
         onSuccess: (response: unknown) => {
           const thumbnail = getProductThumbnail(response, data.images?.[0]);
