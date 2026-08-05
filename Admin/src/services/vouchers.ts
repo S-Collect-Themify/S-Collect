@@ -3,7 +3,7 @@ import { api } from './api';
 export interface BackendVoucherItem {
   id: string;
   code: string;
-  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING' | string;
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | string;
   value: number;
   scope?: string;
   categoryIds?: string[] | null;
@@ -43,10 +43,8 @@ export interface VoucherApiData {
 const mapTypeToBackend = (type: string): string => {
   if (!type) return 'PERCENTAGE';
   const upper = type.toUpperCase();
-  if (upper === 'PERCENTAGE' || upper === 'PERCENT') return 'PERCENTAGE';
   if (upper === 'FIXED_AMOUNT' || upper === 'AMOUNT' || upper === 'FIXED') return 'FIXED_AMOUNT';
-  if (upper === 'FREE_SHIPPING' || upper === 'FREE SHIPPING' || upper === 'FREESHIPPING') return 'FREE_SHIPPING';
-  return upper;
+  return 'PERCENTAGE';
 };
 
 export const getVouchersList = async (params?: any) => {

@@ -47,19 +47,15 @@ export const useVouchersData = () => {
           const mapped: VoucherItem[] = itemsArray.map((v: any, idx: number) => {
             const rawType = v.type || 'PERCENTAGE';
             const type: VoucherType =
-              rawType === 'PERCENTAGE' || rawType === 'Percentage'
-                ? 'Percentage'
-                : rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
+              rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
                 ? 'Amount'
-                : 'Free Shipping';
+                : 'Percentage';
 
             const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
             const discountText =
               type === 'Percentage'
                 ? `${val ?? 0}%`
-                : type === 'Amount'
-                ? `SAR ${val ?? 0}`
-                : 'Free Shipping';
+                : `SAR ${val ?? 0}`;
 
             const endsAtStr = v.endsAt || v.expiryDate;
             const expiryDate = endsAtStr ? String(endsAtStr).split('T')[0] : '—';
@@ -133,9 +129,7 @@ export const useVouchersData = () => {
       const discountText =
         variables.type === 'Percentage' || variables.type === 'PERCENTAGE'
           ? `${variables.discountValue || variables.value || 0}%`
-          : variables.type === 'Amount' || variables.type === 'FIXED_AMOUNT' || variables.type === 'AMOUNT'
-          ? `SAR ${variables.discountValue || variables.value || 0}`
-          : 'Free Shipping';
+          : `SAR ${variables.discountValue || variables.value || 0}`;
 
       const expiryDate = variables.expiryDate || (variables.endsAt ? String(variables.endsAt).split('T')[0] : '2026-12-31');
 

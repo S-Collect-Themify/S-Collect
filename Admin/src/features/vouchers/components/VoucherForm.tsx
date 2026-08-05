@@ -207,9 +207,6 @@ export const VoucherForm = ({
                   {t('vouchersListing.types.percentage')}
                 </option>
                 <option value="Amount">{t('vouchersListing.types.amount')}</option>
-                <option value="Free Shipping">
-                  {t('vouchersListing.types.freeShipping')}
-                </option>
               </select>
               <ChevronDown
                 size={16}
@@ -225,12 +222,8 @@ export const VoucherForm = ({
             <input
               type="text"
               placeholder={t('vouchersListing.form.discountValuePlaceholder')}
-              disabled={selectedType === 'Free Shipping'}
               {...register('discountValue', {
-                required:
-                  selectedType !== 'Free Shipping'
-                    ? t('vouchersListing.form.errors.discountValueRequired')
-                    : false,
+                required: t('vouchersListing.form.errors.discountValueRequired'),
                 pattern: {
                   value: /^\d+(\.\d+)?$/,
                   message: t('vouchersListing.form.errors.discountValueInvalid'),
@@ -240,7 +233,7 @@ export const VoucherForm = ({
                 errors.discountValue
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
                   : 'border-gray-200 focus:ring-2 focus:ring-black/5 focus:border-gray-400'
-              } ${selectedType === 'Free Shipping' ? 'bg-gray-50 opacity-60 cursor-not-allowed' : ''}`}
+              }`}
             />
             {errors.discountValue && (
               <div className="flex items-center gap-1 text-xs text-red-500 mt-1">
