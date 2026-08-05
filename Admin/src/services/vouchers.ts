@@ -41,10 +41,12 @@ export interface VoucherApiData {
 }
 
 const mapTypeToBackend = (type: string): string => {
-  if (type === 'Percentage' || type === 'PERCENTAGE') return 'PERCENTAGE';
-  if (type === 'Amount' || type === 'FIXED_AMOUNT' || type === 'AMOUNT') return 'FIXED_AMOUNT';
-  if (type === 'Free Shipping' || type === 'FREE_SHIPPING') return 'FREE_SHIPPING';
-  return type || 'PERCENTAGE';
+  if (!type) return 'PERCENTAGE';
+  const upper = type.toUpperCase();
+  if (upper === 'PERCENTAGE' || upper === 'PERCENT') return 'PERCENTAGE';
+  if (upper === 'FIXED_AMOUNT' || upper === 'AMOUNT' || upper === 'FIXED') return 'FIXED_AMOUNT';
+  if (upper === 'FREE_SHIPPING' || upper === 'FREE SHIPPING' || upper === 'FREESHIPPING') return 'FREE_SHIPPING';
+  return upper;
 };
 
 export const getVouchersList = async (params?: any) => {
@@ -52,68 +54,150 @@ export const getVouchersList = async (params?: any) => {
     const { data } = await api.get('/admin/vouchers', { params });
     return data;
   } catch (err) {
-    console.warn('API getVouchersList fallback to local data');
+    console.warn('API getVouchersList fallback to local data', err);
     return null;
   }
 };
 
 export const createVoucherApi = async (voucherData: VoucherApiData) => {
   try {
-    const scope = voucherData.scope || 'ALL_ORDERS';
-    const payload = {
+    const scope =
+      voucherData.scope === 'All' || !voucherData.scope
+        ? 'ALL_ORDERS'
+        : voucherData.scope;
+
+    // startsAt is creation time as ISO 8601 string
+    const startsAt = voucherData.startsAt
+      ? new Date(voucherData.startsAt).toISOString()
+      : new Date().toISOString();
+
+    // format endsAt as ISO 8601 string
+    let endsAt: string;
+    if (voucherData.endsAt) {
+      endsAt = new Date(voucherData.endsAt).toISOString();
+    } else if (voucherData.expiryDate) {
+      const d = voucherData.expiryDate.includes('T')
+        ? new Date(voucherData.expiryDate)
+        : new Date(`${voucherData.expiryDate}T23:59:59.000Z`);
+      endsAt = !isNaN(d.getTime()) ? d.toISOString() : new Date().toISOString();
+    } else {
+      endsAt = new Date().toISOString();
+    }
+
+    const payload: Record<string, any> = {
       code: voucherData.code,
       type: mapTypeToBackend(voucherData.type),
       value: Number(voucherData.value ?? voucherData.discountValue ?? 0),
       scope,
-      categoryIds:
-        scope === 'Category'
-          ? Array.isArray(voucherData.category)
-            ? voucherData.category
-            : voucherData.categoryIds || null
-          : null,
-      minOrderAmount: Number(voucherData.minOrderAmount ?? voucherData.minOrder ?? 0),
-      maxDiscountAmount: voucherData.maxDiscountAmount !== undefined
-        ? voucherData.maxDiscountAmount
-        : (voucherData.maxDiscount ? Number(voucherData.maxDiscount) : null),
-      startsAt: voucherData.startsAt || new Date().toISOString(),
-      endsAt: voucherData.endsAt || (voucherData.expiryDate ? `${voucherData.expiryDate}T23:59:59.000Z` : new Date().toISOString()),
-      maxTotalUses: Number(voucherData.maxTotalUses ?? voucherData.maxUsage ?? 100),
-      oneUsePerUser: voucherData.oneUsePerUser ?? voucherData.limitOnePerCustomer ?? false,
-      isActive: true,
+      startsAt,
+      endsAt,
     };
+
+    if (scope === 'Category') {
+      const catIds = Array.isArray(voucherData.category)
+        ? voucherData.category
+        : voucherData.categoryIds || null;
+      if (catIds && catIds.length > 0) {
+        payload.categoryIds = catIds;
+      }
+    }
+
+    const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
+    if (minOrder !== undefined && minOrder !== '' && minOrder !== null) {
+      const val = Number(minOrder);
+      if (!isNaN(val) && val > 0) payload.minOrderAmount = val;
+    }
+
+    const maxDisc = voucherData.maxDiscountAmount ?? voucherData.maxDiscount;
+    if (maxDisc !== undefined && maxDisc !== '' && maxDisc !== null) {
+      const val = Number(maxDisc);
+      if (!isNaN(val) && val > 0) payload.maxDiscountAmount = val;
+    }
+
+    const maxUses = voucherData.maxTotalUses ?? voucherData.maxUsage;
+    if (maxUses !== undefined && maxUses !== '' && maxUses !== null) {
+      const val = Number(maxUses);
+      if (!isNaN(val) && val > 0) payload.maxTotalUses = val;
+    }
+
+    const oneUse = voucherData.oneUsePerUser ?? voucherData.limitOnePerCustomer;
+    if (oneUse !== undefined && oneUse !== null) {
+      payload.oneUsePerUser = Boolean(oneUse);
+    }
+
     const { data } = await api.post('/admin/vouchers', payload);
     return data;
   } catch (err) {
-    return { success: true, ...voucherData };
+    console.error('Failed to create voucher via API:', err);
+    throw err;
   }
 };
 
 export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) => {
   try {
-    const scope = voucherData.scope || 'ALL_ORDERS';
-    const payload = {
+    const scope =
+      voucherData.scope === 'All' || !voucherData.scope
+        ? 'ALL_ORDERS'
+        : voucherData.scope;
+
+    let endsAt: string | undefined;
+    if (voucherData.endsAt) {
+      endsAt = new Date(voucherData.endsAt).toISOString();
+    } else if (voucherData.expiryDate) {
+      const d = voucherData.expiryDate.includes('T')
+        ? new Date(voucherData.expiryDate)
+        : new Date(`${voucherData.expiryDate}T23:59:59.000Z`);
+      endsAt = !isNaN(d.getTime()) ? d.toISOString() : undefined;
+    }
+
+    const payload: Record<string, any> = {
       code: voucherData.code,
       type: mapTypeToBackend(voucherData.type),
       value: Number(voucherData.value ?? voucherData.discountValue ?? 0),
       scope,
-      categoryIds:
-        scope === 'Category'
-          ? Array.isArray(voucherData.category)
-            ? voucherData.category
-            : voucherData.categoryIds || null
-          : null,
-      minOrderAmount: Number(voucherData.minOrderAmount ?? voucherData.minOrder ?? 0),
-      maxDiscountAmount: voucherData.maxDiscountAmount !== undefined
-        ? voucherData.maxDiscountAmount
-        : (voucherData.maxDiscount ? Number(voucherData.maxDiscount) : null),
-      endsAt: voucherData.endsAt || (voucherData.expiryDate ? `${voucherData.expiryDate}T23:59:59.000Z` : undefined),
-      maxTotalUses: Number(voucherData.maxTotalUses ?? voucherData.maxUsage ?? 100),
-      oneUsePerUser: voucherData.oneUsePerUser ?? voucherData.limitOnePerCustomer ?? false,
     };
+
+    if (endsAt) {
+      payload.endsAt = endsAt;
+    }
+
+    if (scope === 'Category') {
+      const catIds = Array.isArray(voucherData.category)
+        ? voucherData.category
+        : voucherData.categoryIds || null;
+      if (catIds && catIds.length > 0) {
+        payload.categoryIds = catIds;
+      }
+    }
+
+    const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
+    if (minOrder !== undefined && minOrder !== '' && minOrder !== null) {
+      const val = Number(minOrder);
+      if (!isNaN(val)) payload.minOrderAmount = val;
+    }
+
+    const maxDisc = voucherData.maxDiscountAmount ?? voucherData.maxDiscount;
+    if (maxDisc !== undefined && maxDisc !== '' && maxDisc !== null) {
+      const val = Number(maxDisc);
+      if (!isNaN(val)) payload.maxDiscountAmount = val;
+    }
+
+    const maxUses = voucherData.maxTotalUses ?? voucherData.maxUsage;
+    if (maxUses !== undefined && maxUses !== '' && maxUses !== null) {
+      const val = Number(maxUses);
+      if (!isNaN(val)) payload.maxTotalUses = val;
+    }
+
+    const oneUse = voucherData.oneUsePerUser ?? voucherData.limitOnePerCustomer;
+    if (oneUse !== undefined && oneUse !== null) {
+      payload.oneUsePerUser = Boolean(oneUse);
+    }
+
     const { data } = await api.put(`/admin/vouchers/${id}`, payload);
     return data;
   } catch (err) {
-    return { success: true, id, ...voucherData };
+    console.error(`Failed to update voucher ${id} via API:`, err);
+    throw err;
   }
 };
 
@@ -122,6 +206,7 @@ export const deleteVoucherApi = async (id: string) => {
     const { data } = await api.delete(`/admin/vouchers/${id}`);
     return data;
   } catch (err) {
-    return { success: true, id };
+    console.error(`Failed to delete voucher ${id} via API:`, err);
+    throw err;
   }
 };
