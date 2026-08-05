@@ -95,8 +95,13 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   console.log('Header Logo URL:', logoUrl);
   console.log('Full Profile:', profile);
 
+  const isArabic = i18n.language === 'ar';
+  const storeName = isArabic
+    ? profile?.storeNameAr || profile?.storeName || ''
+    : profile?.storeName || profile?.storeNameAr || '';
+
   const today = new Date().toLocaleDateString(
-    i18n.language === 'ar' ? 'ar-EG' : 'en-US',
+    isArabic ? 'ar-EG' : 'en-US',
     {
       weekday: 'long',
       year: 'numeric',
@@ -148,9 +153,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
           <div>
             <h1 className="text-2xl font-bold">
-              {i18n.language === 'ar'
-                ? `مرحباً, ${profile?.storeName || ''} 👋`
-                : `Hello, ${profile?.storeName || ''} 👋`}
+              {isArabic
+                ? `مرحباً, ${storeName} 👋`
+                : `Hello, ${storeName} 👋`}
             </h1>
             <p className="text-sm text-gray-200">{today}</p>
           </div>
