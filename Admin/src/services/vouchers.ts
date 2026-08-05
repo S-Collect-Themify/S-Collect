@@ -59,14 +59,18 @@ export const getVouchersList = async (params?: any) => {
 
 export const createVoucherApi = async (voucherData: VoucherApiData) => {
   try {
+    const scope = voucherData.scope || 'ALL_ORDERS';
     const payload = {
       code: voucherData.code,
       type: mapTypeToBackend(voucherData.type),
       value: Number(voucherData.value ?? voucherData.discountValue ?? 0),
-      scope: voucherData.scope || 'ALL_ORDERS',
-      categoryIds: Array.isArray(voucherData.category)
-        ? voucherData.category
-        : (voucherData.categoryIds || null),
+      scope,
+      categoryIds:
+        scope === 'Category'
+          ? Array.isArray(voucherData.category)
+            ? voucherData.category
+            : voucherData.categoryIds || null
+          : null,
       minOrderAmount: Number(voucherData.minOrderAmount ?? voucherData.minOrder ?? 0),
       maxDiscountAmount: voucherData.maxDiscountAmount !== undefined
         ? voucherData.maxDiscountAmount
@@ -86,14 +90,18 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
 
 export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) => {
   try {
+    const scope = voucherData.scope || 'ALL_ORDERS';
     const payload = {
       code: voucherData.code,
       type: mapTypeToBackend(voucherData.type),
       value: Number(voucherData.value ?? voucherData.discountValue ?? 0),
-      scope: voucherData.scope || 'ALL_ORDERS',
-      categoryIds: Array.isArray(voucherData.category)
-        ? voucherData.category
-        : (voucherData.categoryIds || null),
+      scope,
+      categoryIds:
+        scope === 'Category'
+          ? Array.isArray(voucherData.category)
+            ? voucherData.category
+            : voucherData.categoryIds || null
+          : null,
       minOrderAmount: Number(voucherData.minOrderAmount ?? voucherData.minOrder ?? 0),
       maxDiscountAmount: voucherData.maxDiscountAmount !== undefined
         ? voucherData.maxDiscountAmount

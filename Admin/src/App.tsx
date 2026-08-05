@@ -34,6 +34,9 @@ import Buyers from './pages/Buyers.js';
 import BuyerDetails from './pages/BuyerDetails.js';
 import AdminSettings from './pages/AdminSettings.js';
 
+import ProtectedRoute from './components/auth/ProtectedRoute.js';
+import { scheduleRefreshTokenExpiration } from './services/auth.js';
+
 function App() {
   const { i18n } = useTranslation();
 
@@ -41,12 +44,35 @@ function App() {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    scheduleRefreshTokenExpiration();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        scheduleRefreshTokenExpiration();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        <Route path="/" element={<AppLayout />}>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/management" element={<Management />} />
