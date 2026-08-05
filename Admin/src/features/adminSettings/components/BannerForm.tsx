@@ -116,6 +116,11 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const activeCount = banners.filter(
+    (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
+  ).length;
+  const isMaxActiveReached = activeCount >= MAX_ACTIVE_BANNERS;
+
   // ── Populate on open ──
   useEffect(() => {
     if (mode === 'edit' && editingBanner) {
@@ -194,15 +199,13 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   // ── Active Toggle ──
   const handleToggleActive = (checked: boolean) => {
     if (checked) {
-      const activeCount = banners.filter(
-        (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
-      ).length;
-      if (activeCount >= MAX_ACTIVE_BANNERS) {
+      if (isMaxActiveReached) {
         toast.error(
           isArabic
-            ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+            ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
             : 'Cannot activate more than 5 banners at the same time.'
         );
+        setValue('isActive', false);
         return;
       }
       setValue('isActive', true);
@@ -258,6 +261,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             formData.linkType === 'EXTERNAL_URL' ? formData.externalUrl.trim() || undefined : undefined,
           endsAt: endsAtPayload || undefined,
           sortOrder: banners.length + 1,
+          isActive: Boolean(formData.isActive),
         });
         setViewMode('banners');
       } else if (editingBanner) {
@@ -567,8 +571,19 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                     defaultValue: 'Active banners will display on platform home page instantly.',
                   })}
                 </p>
+                {isMaxActiveReached && !isActive && (
+                  <p className="text-xs text-amber-600 font-semibold mt-1">
+                    {isArabic
+                      ? 'تم الوصول للحد الأقصى للبانرات المفعلة (5 بانرات). سينشأ البنر كغير مفعل.'
+                      : 'Maximum active banners limit reached (5 active banners). Banner will be created as inactive.'}
+                  </p>
+                )}
               </div>
-              <Toggle checked={isActive} onChange={handleToggleActive} />
+              <Toggle
+                checked={isActive}
+                onChange={handleToggleActive}
+                disabled={isMaxActiveReached && !isActive}
+              />
             </div>
           </div>
 

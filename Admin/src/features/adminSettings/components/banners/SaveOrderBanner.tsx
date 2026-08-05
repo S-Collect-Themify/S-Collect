@@ -19,7 +19,7 @@ export const SaveOrderBanner: React.FC<SaveOrderBannerProps> = ({
         <Save size={18} className="text-amber-600" />
         <span>
           {isArabic
-            ? 'لقد قمت بتغيير ترتيب البنرات. انقر على حفظ الترتيب لتطبيق التغييرات.'
+            ? 'لقد قمت بتغيير ترتيب البانرات. انقر على حفظ الترتيب لتطبيق التغييرات.'
             : 'You have reordered the banners. Click save order to apply changes.'}
         </span>
       </div>
