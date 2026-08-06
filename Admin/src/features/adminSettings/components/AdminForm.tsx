@@ -1,94 +1,58 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, Upload, X, User } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
+import { useAdminsData, isValidSaudiPhone, normalizeSaudiPhone } from '../hooks/useAdminsData';
 import i18n from '../../../i18n';
 
 interface AdminFormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  role: string;
-  phoneNumber?: string;
-  avatarUrl?: string;
+  phoneNumber: string;
 }
 
 interface AdminFormProps {
   mode: 'add' | 'edit';
 }
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
-
 export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
   const { t } = useTranslation();
-  const { setViewMode, addAdmin, updateAdmin, editingAdmin } = useAdminSettingsStore();
+  const { setViewMode, updateAdmin, editingAdmin } = useAdminSettingsStore();
+  const { createAdminMutation } = useAdminsData();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
-
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
-    mode === 'edit' ? editingAdmin?.avatarUrl : undefined
-  );
-  const [fileError, setFileError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<AdminFormData>({
     defaultValues: {
-      name: mode === 'edit' ? editingAdmin?.name || '' : '',
+      firstName: mode === 'edit' ? editingAdmin?.firstName || editingAdmin?.name.split(' ')[0] || '' : '',
+      lastName: mode === 'edit' ? editingAdmin?.lastName || editingAdmin?.name.split(' ').slice(1).join(' ') || '' : '',
       email: mode === 'edit' ? editingAdmin?.email || '' : '',
-      role: mode === 'edit' ? editingAdmin?.role || 'Admin' : 'Admin',
       phoneNumber: mode === 'edit' ? editingAdmin?.phoneNumber || '' : '',
-      avatarUrl: mode === 'edit' ? editingAdmin?.avatarUrl || '' : '',
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > MAX_FILE_SIZE) {
-      const msg = t('adminSettings.fileTooLarge', { defaultValue: 'Image file size must be 2MB or less' });
-      setFileError(msg);
-      toast.error(msg);
-      return;
-    }
-
-    setFileError(null);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setAvatarPreview(result);
-      setValue('avatarUrl', result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(undefined);
-    setValue('avatarUrl', '');
-    setFileError(null);
-  };
-
   const onSubmit = (data: AdminFormData) => {
+    const normalizedPhone = normalizeSaudiPhone(data.phoneNumber);
     if (mode === 'add') {
-      addAdmin({
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        phoneNumber: data.phoneNumber,
-        avatarUrl: avatarPreview,
+      createAdminMutation.mutate({
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        email: data.email.trim(),
+        phoneNumber: normalizedPhone,
       });
     } else if (mode === 'edit' && editingAdmin) {
       updateAdmin(editingAdmin.id, {
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        phoneNumber: data.phoneNumber,
-        avatarUrl: avatarPreview,
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        name: `${data.firstName.trim()} ${data.lastName.trim()}`,
+        email: data.email.trim(),
+        phoneNumber: normalizedPhone,
       });
     }
   };
@@ -130,80 +94,69 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
       {/* Form Card */}
       <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-xs">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Avatar Upload Field */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-2">
-              {t('adminSettings.adminAccounts.profileImage', {
-                defaultValue: 'Admin Profile Image (Optional, Max 2MB)',
-              })}
-            </label>
-            <div className="flex items-center gap-4">
-              {avatarPreview ? (
-                <div className="relative size-16 rounded-full overflow-hidden border border-gray-200 shrink-0 group">
-                  <img
-                    src={avatarPreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveAvatar}
-                    className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                    title="Remove Image"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="size-16 rounded-full bg-gray-100 border border-dashed border-gray-300 text-gray-400 flex items-center justify-center shrink-0">
-                  <User size={24} />
-                </div>
+          {/* First Name & Last Name */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* First Name */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                {t('adminSettings.adminAccounts.firstName', { defaultValue: 'First Name' })}{' '}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder={t('adminSettings.adminAccounts.firstNamePlaceholder', {
+                  defaultValue: 'e.g. John',
+                })}
+                {...register('firstName', {
+                  required: t('adminSettings.adminAccounts.firstNameRequired', {
+                    defaultValue: 'First name is required',
+                  }),
+                  minLength: {
+                    value: 2,
+                    message: t('adminSettings.adminAccounts.firstNameRequired', {
+                      defaultValue: 'First name is required',
+                    }),
+                  },
+                })}
+                className={`w-full bg-white border ${
+                  errors.firstName ? 'border-red-500' : 'border-gray-200'
+                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+              />
+              {errors.firstName && (
+                <p className="text-xs text-red-500 mt-1">{errors.firstName.message}</p>
               )}
-
-              <div className="flex-1">
-                <label className="inline-flex items-center gap-2 px-3.5 py-2 border border-gray-200 hover:border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer shadow-2xs">
-                  <Upload size={14} />
-                  {t('adminSettings.adminAccounts.chooseFile', { defaultValue: 'Choose File' })}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-[11px] text-gray-400 mt-1">
-                  {t('adminSettings.adminAccounts.imageHint', {
-                    defaultValue: 'Supported formats: JPG, PNG, WEBP. Maximum file size: 2MB.',
-                  })}
-                </p>
-                {fileError && <p className="text-xs text-red-500 mt-1">{fileError}</p>}
-              </div>
             </div>
-          </div>
 
-          {/* Full Name */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              {t('adminSettings.adminAccounts.fullName', { defaultValue: 'Full Name' })}{' '}
-              <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder={t('adminSettings.adminAccounts.fullNamePlaceholder', {
-                defaultValue: 'e.g. John Doe',
-              })}
-              {...register('name', {
-                required: t('adminSettings.adminAccounts.nameRequired', {
-                  defaultValue: 'Full name is required',
-                }),
-              })}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
-            />
-            {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
-            )}
+            {/* Last Name */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                {t('adminSettings.adminAccounts.lastName', { defaultValue: 'Last Name' })}{' '}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder={t('adminSettings.adminAccounts.lastNamePlaceholder', {
+                  defaultValue: 'e.g. Doe',
+                })}
+                {...register('lastName', {
+                  required: t('adminSettings.adminAccounts.lastNameRequired', {
+                    defaultValue: 'Last name is required',
+                  }),
+                  minLength: {
+                    value: 2,
+                    message: t('adminSettings.adminAccounts.lastNameRequired', {
+                      defaultValue: 'Last name is required',
+                    }),
+                  },
+                })}
+                className={`w-full bg-white border ${
+                  errors.lastName ? 'border-red-500' : 'border-gray-200'
+                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+              />
+              {errors.lastName && (
+                <p className="text-xs text-red-500 mt-1">{errors.lastName.message}</p>
+              )}
+            </div>
           </div>
 
           {/* Email Address */}
@@ -237,44 +190,38 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
             )}
           </div>
 
-            {/* Role */}
-            {/* <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                {t('adminSettings.adminAccounts.role', { defaultValue: 'Role' })}{' '}
-                <span className="text-red-500">*</span>
-              </label>
-              <select
-                {...register('role', {
-                  required: t('adminSettings.adminAccounts.roleRequired', {
-                    defaultValue: 'Role is required',
+          {/* Saudi Phone Number */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              {t('adminSettings.adminAccounts.phoneNumber', {
+                defaultValue: 'Saudi Phone Number',
+              })}{' '}
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              placeholder={t('adminSettings.adminAccounts.phoneNumberPlaceholder', {
+                defaultValue: '+966 50 000 0000',
+              })}
+              {...register('phoneNumber', {
+                required: t('adminSettings.adminAccounts.phoneNumberRequired', {
+                  defaultValue: 'Saudi phone number is required',
+                }),
+                validate: (value) =>
+                  isValidSaudiPhone(value) ||
+                  t('adminSettings.adminAccounts.phoneInvalidSaudi', {
+                    defaultValue:
+                      'Please enter a valid Saudi phone number (e.g. +966500000000 or 0500000000)',
                   }),
-                })}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors cursor-pointer"
-              >
-                <option value="Admin">Admin</option>
-                <option value="Super Admin">Super Admin</option>
-                <option value="Finance Admin">Finance Admin</option>
-                <option value="Support Lead">Support Lead</option>
-              </select>
-            </div> */}
-
-            {/* Phone Number (Optional) */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                {t('adminSettings.adminAccounts.phoneNumber', {
-                  defaultValue: 'Phone Number (Optional)',
-                })}
-              </label>
-              <input
-                type="text"
-                placeholder={t('adminSettings.adminAccounts.phoneNumberPlaceholder', {
-                  defaultValue: '+966 50 000 0000',
-                })}
-                {...register('phoneNumber')}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors"
-              />
-            </div>
-
+              })}
+              className={`w-full bg-white border ${
+                errors.phoneNumber ? 'border-red-500' : 'border-gray-200'
+              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+            />
+            {errors.phoneNumber && (
+              <p className="text-xs text-red-500 mt-1">{errors.phoneNumber.message}</p>
+            )}
+          </div>
 
           {/* Form Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
@@ -287,8 +234,12 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white font-semibold text-xs rounded-lg transition-colors cursor-pointer shadow-xs"
+              disabled={createAdminMutation.isPending}
+              className="px-5 py-2.5 bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white font-semibold text-xs rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-2"
             >
+              {createAdminMutation.isPending && (
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              )}
               {mode === 'add'
                 ? t('adminSettings.adminAccounts.addAdminBtn', { defaultValue: 'Add Admin' })
                 : t('adminSettings.adminAccounts.saveChangesBtn', { defaultValue: 'Save Changes' })}

@@ -444,7 +444,8 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   },
 
   openDeleteAdminModal: (admin) => {
-    const isSuperAdminAlert = admin.role === 'Super Admin';
+    const isSuperAdminAlert =
+      admin.role === 'Super Admin' || admin.role?.toUpperCase() === 'SUPER_ADMIN';
     set({
       deleteAdminModal: {
         open: true,
