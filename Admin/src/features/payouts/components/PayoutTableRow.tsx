@@ -15,16 +15,16 @@ export default function PayoutTableRow({ item, onRegisterPayout }: PayoutTableRo
         {item.vendorName || '--'}
       </td>
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-        {item.totalGmv ? item.totalGmv.toLocaleString() : '--'}
+        {item.totalGmv != null ? item.totalGmv.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-        {item.commission ? item.commission.toLocaleString() : '--'}
+        {item.commission != null ? item.commission.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-        {item.totalPayouts ? item.totalPayouts.toLocaleString() : '--'}
+        {item.totalPayouts != null ? item.totalPayouts.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
-        {item.pendingPayout ? item.pendingPayout.toLocaleString() : '--'}
+        {item.pendingPayout != null ? item.pendingPayout.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 text-end whitespace-nowrap">
         <button
