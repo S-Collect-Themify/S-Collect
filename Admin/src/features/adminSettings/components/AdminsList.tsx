@@ -81,8 +81,8 @@ export const AdminsList: React.FC = () => {
                   <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.name', { defaultValue: 'Name' })}</th>
                   <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.email', { defaultValue: 'Email' })}</th>
                   <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.role', { defaultValue: 'Role' })}</th>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.status', { defaultValue: 'Status' })}</th>
                   <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.dateAdded', { defaultValue: 'Date Added' })}</th>
+                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.status', { defaultValue: 'Status' })}</th>
                   <th className="py-4 px-6 text-right rtl:text-left">{t('adminSettings.adminAccounts.table.actions', { defaultValue: 'Actions' })}</th>
                 </tr>
               </thead>
@@ -112,6 +112,9 @@ export const AdminsList: React.FC = () => {
                         </span>
                       </td>
 
+                      {/* Date Added */}
+                      <td className="py-4 px-6 text-gray-500">{admin.dateAdded}</td>
+
                       {/* Status Toggle & Badge */}
                       <td className="py-4 px-6">
                         {admin.status ? (
@@ -138,9 +141,6 @@ export const AdminsList: React.FC = () => {
                           <span className="text-gray-300 font-medium">-</span>
                         )}
                       </td>
-
-                    {/* Date Added */}
-                    <td className="py-4 px-6 text-gray-500">{admin.dateAdded}</td>
 
                     {/* Actions (Delete only) */}
                     <td className="py-4 px-6 text-right rtl:text-left">

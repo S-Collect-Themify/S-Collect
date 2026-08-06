@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Star, Pencil, CheckCircle, XCircle, Award, Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SingleAdminProductDetail } from "../../../services/products";
+import ProductVariantsTable from "./ProductVariantsTable";
 
 export interface ProductInfoProps {
   productDetail?: SingleAdminProductDetail | null;
@@ -275,54 +276,9 @@ export default function ProductInfo({
         </div>
       </div>
 
-      {/* Options & Variants Table (if productDetail has variants) */}
-      {variants.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-sm font-bold text-gray-900 mb-3">
-            {isAr ? 'خيارات المنتج والأنواع (Variants)' : 'Product Variants'}
-          </h3>
-          <div className="overflow-x-auto rounded-xl border border-gray-100">
-            <table className="w-full text-left text-xs border-collapse rtl:text-right">
-              <thead className="bg-gray-50 text-gray-500 font-semibold border-b border-gray-100">
-                <tr>
-                  <th className="py-3 px-4">SKU</th>
-                  <th className="py-3 px-4">{isAr ? 'الخيارات' : 'Options'}</th>
-                  <th className="py-3 px-4">{isAr ? 'السعر' : 'Price'}</th>
-                  <th className="py-3 px-4">{isAr ? 'المخزون' : 'Stock'}</th>
-                  <th className="py-3 px-4">{isAr ? 'الحالة' : 'Status'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {variants.map((v) => (
-                  <tr key={v.id} className="hover:bg-gray-50/50">
-                    <td className="py-3 px-4 font-mono font-medium text-gray-800">{v.sku || '-'}</td>
-                    <td className="py-3 px-4 text-gray-700">
-                      {v.optionValues && v.optionValues.length > 0
-                        ? v.optionValues
-                            .map((ov) => `${isAr && ov.optionNameAr ? ov.optionNameAr : ov.optionName}: ${isAr && ov.valueAr ? ov.valueAr : ov.value}`)
-                            .join(' / ')
-                        : '-'}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-gray-900">
-                      {v.price.toLocaleString()} {currency}
-                    </td>
-                    <td className="py-3 px-4 font-medium text-gray-700">{v.stock}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                          v.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {v.isActive ? (isAr ? 'نشط' : 'Active') : (isAr ? 'غير نشط' : 'Inactive')}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* Product Variants Table with Skeleton & 20-item Pagination */}
+      <ProductVariantsTable variants={variants} currency={currency} />
     </div>
   );
 }
+
