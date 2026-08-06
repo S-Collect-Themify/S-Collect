@@ -233,6 +233,24 @@ const ProductDetails = () => {
     { stars: 1, count: s1 },
   ];
 
+  const totalVariantsStock =
+    Array.isArray(product.variants) && product.variants.length > 0
+      ? product.variants.reduce(
+          (sum: number, v: any) =>
+            sum + (typeof v?.stock === 'number' ? v.stock : 0),
+          0
+        )
+      : null;
+
+  const displayStock =
+    totalVariantsStock !== null
+      ? totalVariantsStock
+      : typeof product.stock === 'number'
+        ? product.stock
+        : typeof product.stockCount === 'number'
+          ? product.stockCount
+          : (variant?.stock ?? 0);
+
   return (
     <>
       <div className="sidebar-page-container-header">
@@ -285,13 +303,8 @@ const ProductDetails = () => {
           }
           cost={undefined}
           currency="SAR"
-          inStock={
-            (variant?.stock ?? product.stock ?? product.stockCount ?? 0) > 0 ||
-            product.isActive === true
-          }
-          stockCount={
-            variant?.stock ?? product.stock ?? product.stockCount ?? 0
-          }
+          inStock={displayStock > 0 || product.isActive === true}
+          stockCount={displayStock}
           averageRating={computedAverage}
           totalReviews={computedTotal}
           options={Array.isArray(product.options) ? product.options : []}

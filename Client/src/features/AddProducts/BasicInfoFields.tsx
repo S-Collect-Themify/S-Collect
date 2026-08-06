@@ -4,17 +4,13 @@ import type { ProductFormData } from './types';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import MobileImageUploader from './mobile/MobileImageUploader';
 
-import { useCategories } from '../../hooks/useCategories';
-
 const BasicInfoFields = () => {
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
+  const { t } = useTranslation();
   const {
     register,
     formState: { errors },
   } = useFormContext<ProductFormData>();
   const { isMobile } = useBreakpoint();
-  const { categories: categoriesList, isLoading } = useCategories();
 
   const inputCls = (hasError?: string) =>
     `w-full rounded-xl border py-2.5 focus:outline-none ${
@@ -42,62 +38,43 @@ const BasicInfoFields = () => {
       {isMobile && <MobileImageUploader />}
       <div>
         <label className={labelCls}>
-          {t('addProduct.nameAr')} <span className="text-red-500">*</span>
+          {t('addProduct.nameAr', 'Product Name ( in arabic )')}{' '}
+          <span className="text-red-500">*</span>
         </label>
         <input
           className={inputCls(errors.nameAr?.message)}
-          placeholder={t('addProduct.nameArPlaceholder')}
+          placeholder={t('addProduct.nameArPlaceholder', 'Summer Dress')}
           {...register('nameAr', {
             required: t('addProduct.errors.nameArRequired'),
           })}
         />
-        {errors.nameAr && <p className={errorCls}>{errors.nameAr.message}</p>}
+        {errors.nameAr ? (
+          <p className={errorCls}>{errors.nameAr.message}</p>
+        ) : (
+          <p className="mt-1 text-xs text-gray-400">Hint...</p>
+        )}
       </div>
 
       <div>
         <label className={labelCls}>
-          {t('addProduct.nameEn')} <span className="text-red-500">*</span>
+          {t('addProduct.nameEn', 'Product Name ( in english )')}{' '}
+          <span className="text-red-500">*</span>
         </label>
         <input
           className={inputCls(errors.nameEn?.message)}
-          placeholder={t('addProduct.nameEnPlaceholder')}
+          placeholder={t('addProduct.nameEnPlaceholder', 'Summer Dress')}
           {...register('nameEn', {
             required: t('addProduct.errors.nameEnRequired'),
           })}
         />
-        {errors.nameEn && <p className={errorCls}>{errors.nameEn.message}</p>}
-      </div>
-
-      <div>
-        <label className={labelCls}>
-          {t('addProduct.category', 'Category')}{' '}
-          <span className="text-red-500">*</span>
-        </label>
-        <select
-          className={inputCls(errors.categoryId?.message)}
-          {...register('categoryId', {
-            required: t(
-              'addProduct.errors.categoryRequired',
-              'Category is required'
-            ),
-          })}
-        >
-          <option value="">
-            {isLoading
-              ? t('addProduct.loadingCategories', 'Loading categories...')
-              : t('addProduct.selectCategory', 'Select a category')}
-          </option>
-          {Array.isArray(categoriesList) &&
-            categoriesList.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {isArabic ? cat.nameAr : cat.name}
-              </option>
-            ))}
-        </select>
-        {errors.categoryId && (
-          <p className={errorCls}>{errors.categoryId.message}</p>
+        {errors.nameEn ? (
+          <p className={errorCls}>{errors.nameEn.message}</p>
+        ) : (
+          <p className="mt-1 text-xs text-gray-400">Hint...</p>
         )}
       </div>
+
+
 
       <div>
         <label className={labelCls}>

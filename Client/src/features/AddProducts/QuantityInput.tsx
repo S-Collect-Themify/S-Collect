@@ -94,8 +94,8 @@ const QuantityInput = ({ value, onChange }: QuantityInputProps) => {
       </div>
 
       {value > 0 && value <= LOW_STOCK_THRESHOLD && (
-        <div className="mt-2 flex items-center gap-1.5 text-sm text-amber-600">
-          <AlertCircle size={14} />
+        <div className="mt-3 flex items-center gap-2 rounded-xl bg-gray-50/80 border border-gray-100 px-3.5 py-2.5 text-xs text-gray-600">
+          <AlertCircle size={14} className="shrink-0 text-gray-500" />
           <span>
             Low stock alert will trigger at {LOW_STOCK_THRESHOLD} units.
           </span>

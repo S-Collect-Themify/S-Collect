@@ -21,17 +21,16 @@ const PricingFields = () => {
 
   return (
     <>
-      <h6 className="pt-6 font-semibold">{t('addProduct.pricingRules')}</h6>
-
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block font-medium">
-            {t('addProduct.basePrice')} <span className="text-red-500">*</span>
+          <label className="mb-2 block text-xs font-semibold text-gray-800">
+            {t('addProduct.basePrice', 'Base Price')}{' '}
+            <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             className={inputCls(errors.basePrice?.message)}
-            placeholder="0.00"
+            placeholder="189 SAR"
             step="0.01"
             min="0"
             {...register('basePrice', {
@@ -40,21 +39,21 @@ const PricingFields = () => {
             })}
           />
           {errors.basePrice && (
-            <p className="mt-1 text-sm text-red-500">
+            <p className="mt-1 text-xs text-red-500">
               {errors.basePrice.message}
             </p>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block font-medium">
-            {t('addProduct.comparePrice')}{' '}
+          <label className="mb-2 block text-xs font-semibold text-gray-800">
+            {t('addProduct.comparePrice', 'Compare-at Price')}{' '}
             <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             className={inputCls(errors.comparePrice?.message)}
-            placeholder="0.00"
+            placeholder="250 SAR"
             step="0.01"
             min="0"
             {...register('comparePrice', {
@@ -63,29 +62,27 @@ const PricingFields = () => {
             })}
           />
           {errors.comparePrice && (
-            <p className="mt-1 text-sm text-red-500">
+            <p className="mt-1 text-xs text-red-500">
               {errors.comparePrice.message}
             </p>
           )}
         </div>
       </div>
 
-      {isEdit ? (
-        ''
-      ) : (
-        <div className="max-w-md">
-          <label className="mb-2 block font-medium">
-            {t('addProduct.sku')} <span className="text-red-500">*</span>
+      {isEdit ? null : (
+        <div className="pt-2">
+          <label className="mb-2 block text-xs font-semibold text-gray-800">
+            SKU <span className="text-red-500">*</span>
           </label>
           <input
             className={inputCls(errors.sku?.message)}
-            placeholder="SKU-001"
+            placeholder="PRD-NAN-001"
             {...register('sku', {
               required: t('addProduct.errors.skuRequired'),
             })}
           />
           {errors.sku && (
-            <p className="mt-1 text-sm text-red-500">{errors.sku.message}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.sku.message}</p>
           )}
         </div>
       )}

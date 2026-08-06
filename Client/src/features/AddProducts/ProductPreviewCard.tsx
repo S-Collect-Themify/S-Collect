@@ -1,5 +1,5 @@
-// pages/AddProduct/ProductPreviewCard.tsx
 import type { ProductFormData } from './types';
+import type { VarianceCardItem } from './ReviewPage';
 
 interface ProductPreviewCardProps {
   formData: ProductFormData;
@@ -7,6 +7,7 @@ interface ProductPreviewCardProps {
   sizes: string[];
   colors: string[];
   quantity: number;
+  varianceCards?: VarianceCardItem[];
 }
 
 const TagList = ({ label, items }: { label: string; items: string[] }) => (
@@ -31,6 +32,7 @@ const ProductPreviewCard = ({
   sizes,
   colors,
   quantity,
+  varianceCards,
 }: ProductPreviewCardProps) => {
   const thumbnailImage =
     formData.existingImages?.find((img) => img.isThumbnail) ||
@@ -153,8 +155,66 @@ const ProductPreviewCard = ({
       {categories.length > 0 && (
         <TagList label="Categories" items={categories} />
       )}
-      {sizes.length > 0 && <TagList label="Sizes" items={sizes} />}
-      {colors.length > 0 && <TagList label="Colors" items={colors} />}
+
+      {/* Variance Cards List */}
+      {varianceCards && varianceCards.length > 0 ? (
+        <div className="mt-6 border-t border-gray-100 pt-5 space-y-3">
+          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+            Product Variances ({varianceCards.length})
+          </p>
+          <div className="grid grid-cols-1 gap-3">
+            {varianceCards.map((card, idx) => (
+              <div
+                key={card.id || idx}
+                className="rounded-xl border border-gray-150 bg-gray-50/70 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-gray-500 uppercase">
+                    Variance #{idx + 1}
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {card.sizes.map((s, i) => (
+                      <span
+                        key={i}
+                        className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
+                      >
+                        Size: {s}
+                      </span>
+                    ))}
+                    {card.colors.map((c, i) => (
+                      <span
+                        key={i}
+                        className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
+                      >
+                        Color: {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {(card.basePrice || card.comparePrice) && (
+                  <div className="text-left sm:text-right">
+                    {card.basePrice && (
+                      <p className="text-sm font-bold text-gray-900">
+                        {card.basePrice} SAR
+                      </p>
+                    )}
+                    {card.comparePrice && (
+                      <p className="text-xs text-gray-400 line-through">
+                        {card.comparePrice} SAR
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <>
+          {sizes.length > 0 && <TagList label="Sizes" items={sizes} />}
+          {colors.length > 0 && <TagList label="Colors" items={colors} />}
+        </>
+      )}
     </div>
   );
 };

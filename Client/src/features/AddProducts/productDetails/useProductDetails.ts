@@ -6,6 +6,6 @@ export const useProductDetails = (productId?: string) =>
     queryKey: ['product-details', productId],
     queryFn: () => getProductById(productId!),
     enabled: !!productId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
     retry: 1,
   });
