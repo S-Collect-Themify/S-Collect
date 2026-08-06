@@ -36,15 +36,25 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
       break;
   }
 
-  const submittedDate = v.createdAt
-    ? new Date(v.createdAt).toLocaleDateString('en-US', {
+  const rawSubmittedDate = v.submittedDate || v.createdAt;
+  const submittedDate = rawSubmittedDate
+    ? new Date(rawSubmittedDate).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       })
     : '--';
 
-  const rawEmail = typeof v.email === 'string' && v.email.trim() ? v.email.trim() : undefined;
+  let rawEmail: string | undefined = undefined;
+  if (typeof v.email === 'string' && v.email.trim()) {
+    rawEmail = v.email.trim();
+  } else if (v.email && typeof v.email === 'object') {
+    const emailObj = v.email as Record<string, unknown>;
+    const val = emailObj.email || emailObj.value || emailObj.en || emailObj.ar;
+    if (typeof val === 'string' && val.trim()) {
+      rawEmail = val.trim();
+    }
+  }
   const email = rawEmail || (v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : '--');
 
   const commRate =
@@ -66,9 +76,9 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
     active,
     taxId: v.commercialRegisterNumber || '--',
     commissionRate: commRate,
-    revenue: undefined,
-    orders: undefined,
-    createdAt: v.createdAt,
+    revenue: v.totalRevenue,
+    orders: v.totalOrders,
+    createdAt: v.createdAt || v.submittedDate,
   };
 }
 

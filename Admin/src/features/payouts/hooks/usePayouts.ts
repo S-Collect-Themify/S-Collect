@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
-import { getVendors } from '../../../services/vendors';
-import { INITIAL_PAYOUT_STATS } from '../data';
+import {
+  getAdminPayoutsSummary,
+  getAdminPendingVendorPayouts,
+  createVendorPayout,
+} from '../../../services/payouts';
 import type { PayoutStatCardData, PendingPayoutItem } from '../types';
 
 interface PendingRegistration {
@@ -17,12 +21,8 @@ export function usePayouts() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState<PayoutStatCardData[]>(INITIAL_PAYOUT_STATS);
-  const [pendingPayouts, setPendingPayouts] = useState<PendingPayoutItem[]>([]);
-
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 25;
 
   const [selectedVendor, setSelectedVendor] = useState<PendingPayoutItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,126 +33,124 @@ export function usePayouts() {
   );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  // 1. Fetch Summary GET /api/v1/admin/payouts/summary
+  const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
+    queryKey: ['admin-payouts-summary'],
+    queryFn: getAdminPayoutsSummary,
+    staleTime: 5 * 60 * 1000,
+  });
 
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const vendors = await getVendors();
-        if (!isMounted) return;
+  // 2. Fetch Pending Vendors List GET /api/v1/admin/payouts/pending-vendors
+  const { data: pendingData, isLoading: isPendingLoading } = useQuery({
+    queryKey: ['admin-pending-vendors', currentPage, itemsPerPage],
+    queryFn: () => getAdminPendingVendorPayouts({ pageNum: currentPage, pageSize: itemsPerPage }),
+    staleTime: 5 * 60 * 1000,
+  });
 
-        const mappedItems: PendingPayoutItem[] = (vendors || []).map((v) => {
-          const vName =
-            v.storeName ||
-            [v.firstName, v.lastName].filter(Boolean).join(' ') ||
-            '--';
-          return {
-            id: v.id,
-            vendorName: vName,
-            bankAccount: '--',
-            totalGmv: 0,
-            commission: 0,
-            totalPayouts: 0,
-            pendingPayout: 0,
-            status: v.status || '--',
-          };
-        });
+  const isLoading = isSummaryLoading || isPendingLoading;
 
-        setPendingPayouts(mappedItems);
+  const pendingPayouts: PendingPayoutItem[] = useMemo(() => {
+    if (!pendingData?.items) return [];
+    return pendingData.items.map((item: any) => {
+      const vId = item.vendorId || item.id || item._id || '';
+      const vName = item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--';
 
-        setStats([
-          {
-            id: 'stat1',
-            titleKey: 'payouts.totalRegisteredTitle',
-            defaultTitle: 'Total Payouts Registered',
-            value: '--',
-            unit: 'SAR',
-            badgeTextKey: 'payouts.badgeActivePeriod',
-            defaultBadgeText: 'Active Period',
-            badgeVariant: 'emerald',
-            iconType: 'check',
-          },
-          {
-            id: 'stat2',
-            titleKey: 'payouts.pendingPayoutsTitle',
-            defaultTitle: 'Pending Payouts',
-            value: '--',
-            unit: 'SAR',
-            badgeTextKey: 'payouts.badgeRequiresAction',
-            defaultBadgeText: 'Requires Action',
-            badgeVariant: 'amber',
-            iconType: 'clock',
-          },
-          {
-            id: 'stat3',
-            titleKey: 'payouts.vendorsWithPendingTitle',
-            defaultTitle: 'Vendors with Pending',
-            value: mappedItems.length > 0 ? String(mappedItems.length) : '--',
-            unit: 'Vendors',
-            badgeTextKey: 'payouts.badgeAllAccounts',
-            defaultBadgeText: 'All Accounts',
-            badgeVariant: 'blue',
-            iconType: 'users',
-          },
-        ]);
-      } catch (err) {
-        console.error('Failed to load payouts data:', err);
-        if (isMounted) {
-          setPendingPayouts([]);
-          setStats([
-            {
-              id: 'stat1',
-              titleKey: 'payouts.totalRegisteredTitle',
-              defaultTitle: 'Total Payouts Registered',
-              value: '--',
-              unit: 'SAR',
-              badgeTextKey: 'payouts.badgeActivePeriod',
-              defaultBadgeText: 'Active Period',
-              badgeVariant: 'emerald',
-              iconType: 'check',
-            },
-            {
-              id: 'stat2',
-              titleKey: 'payouts.pendingPayoutsTitle',
-              defaultTitle: 'Pending Payouts',
-              value: '--',
-              unit: 'SAR',
-              badgeTextKey: 'payouts.badgeRequiresAction',
-              defaultBadgeText: 'Requires Action',
-              badgeVariant: 'amber',
-              iconType: 'clock',
-            },
-            {
-              id: 'stat3',
-              titleKey: 'payouts.vendorsWithPendingTitle',
-              defaultTitle: 'Vendors with Pending',
-              value: '--',
-              unit: 'Vendors',
-              badgeTextKey: 'payouts.badgeAllAccounts',
-              defaultBadgeText: 'All Accounts',
-              badgeVariant: 'blue',
-              iconType: 'users',
-            },
-          ]);
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    }
+      const parseNum = (val: any) => {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') return parseFloat(val) || 0;
+        return 0;
+      };
 
-    loadData();
+      return {
+        id: vId,
+        vendorName: vName,
+        bankAccount: '--',
+        totalGmv: parseNum(item.totalGmv),
+        commission: parseNum(item.commission),
+        totalPayouts: parseNum(item.totalPayouts),
+        pendingPayout: parseNum(item.pendingPayout),
+        status: 'Pending',
+      };
+    });
+  }, [pendingData]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const totalItems = pendingData?.pagination?.totalItems ?? pendingPayouts.length;
+  const totalPages = pendingData?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-  const totalPages = Math.ceil(pendingPayouts.length / itemsPerPage);
-  const paginatedItems = pendingPayouts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const stats: PayoutStatCardData[] = useMemo(() => {
+    return [
+      {
+        id: 'stat1',
+        titleKey: 'payouts.totalRegisteredTitle',
+        defaultTitle: 'Total Payouts Registered',
+        value: summaryData?.totalPayoutsRegistered != null
+          ? summaryData.totalPayoutsRegistered.toLocaleString('en-US')
+          : '--',
+        unit: 'SAR',
+        badgeTextKey: 'payouts.badgeActivePeriod',
+        defaultBadgeText: 'Active Period',
+        badgeVariant: 'emerald',
+        iconType: 'check',
+      },
+      {
+        id: 'stat2',
+        titleKey: 'payouts.pendingPayoutsTitle',
+        defaultTitle: 'Pending Payouts',
+        value: summaryData?.pendingPayouts != null
+          ? summaryData.pendingPayouts.toLocaleString('en-US')
+          : '--',
+        unit: 'SAR',
+        badgeTextKey: 'payouts.badgeRequiresAction',
+        defaultBadgeText: 'Requires Action',
+        badgeVariant: 'amber',
+        iconType: 'clock',
+      },
+      {
+        id: 'stat3',
+        titleKey: 'payouts.vendorsWithPendingTitle',
+        defaultTitle: 'Vendors with Pending',
+        value: summaryData?.vendorsWithPending != null
+          ? summaryData.vendorsWithPending.toLocaleString('en-US')
+          : '--',
+        unit: 'Vendors',
+        badgeTextKey: 'payouts.badgeAllAccounts',
+        defaultBadgeText: 'All Accounts',
+        badgeVariant: 'blue',
+        iconType: 'users',
+      },
+    ];
+  }, [summaryData]);
+
+  const queryClient = useQueryClient();
+
+  const createPayoutMutation = useMutation({
+    mutationFn: ({
+      vendorId,
+      payload,
+    }: {
+      vendorId: string;
+      payload: {
+        amount: number;
+        isAdjustment?: boolean;
+        referenceNote?: string;
+        transferDate?: string;
+        clarifyingNote?: string;
+      };
+    }) => createVendorPayout(vendorId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-payouts-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pending-vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-payouts'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-payout-summary'] });
+      toast.success(t('payouts.registerSuccessToast', 'Payout registered successfully!'));
+    },
+    onError: (error: any) => {
+      console.error('Failed to register payout:', error);
+      const rawMsg = error?.response?.data?.message || error?.response?.data?.error;
+      const formattedMsg = Array.isArray(rawMsg) ? rawMsg.join(' | ') : rawMsg;
+      toast.error(formattedMsg || error?.message || t('payouts.registerError', 'Failed to register payout.'));
+    },
+  });
 
   const handleOpenRegisterModal = (vendor: PendingPayoutItem) => {
     setSelectedVendor(vendor);
@@ -172,31 +170,28 @@ export function usePayouts() {
   const handleExecuteRegister = () => {
     if (!pendingRegistration) return;
 
-    const { id, amount } = pendingRegistration;
+    const { id, amount, notes, date } = pendingRegistration;
 
-    setPendingPayouts((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const newPending = Math.max(0, item.pendingPayout - amount);
-          const newTotalPayouts = item.totalPayouts + amount;
-          return {
-            ...item,
-            pendingPayout: newPending,
-            totalPayouts: newTotalPayouts,
-          };
-        }
-        return item;
-      })
+    createPayoutMutation.mutate(
+      {
+        vendorId: id,
+        payload: {
+          amount,
+          isAdjustment: false,
+          referenceNote: notes?.trim() || undefined,
+          transferDate: date || new Date().toISOString().split('T')[0],
+          clarifyingNote: notes?.trim() || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsConfirmOpen(false);
+          setIsModalOpen(false);
+          setSelectedVendor(null);
+          setPendingRegistration(null);
+        },
+      }
     );
-
-    toast.success(
-      t('payouts.registerSuccessToast', 'Payout registered successfully!')
-    );
-
-    setIsConfirmOpen(false);
-    setIsModalOpen(false);
-    setSelectedVendor(null);
-    setPendingRegistration(null);
   };
 
   const handleExportExcel = () => {
@@ -247,12 +242,13 @@ export function usePayouts() {
   return {
     isRtl,
     isLoading,
+    isRegistering: createPayoutMutation.isPending,
     stats,
     pendingPayouts,
-    paginatedItems,
+    paginatedItems: pendingPayouts,
     currentPage,
     totalPages,
-    totalItems: pendingPayouts.length,
+    totalItems,
     itemsPerPage,
     selectedVendor,
     isModalOpen,

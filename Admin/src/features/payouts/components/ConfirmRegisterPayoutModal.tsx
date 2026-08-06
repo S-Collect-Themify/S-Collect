@@ -5,6 +5,7 @@ interface ConfirmRegisterPayoutModalProps {
   isOpen: boolean;
   vendorName?: string;
   amount?: number;
+  isLoading?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -13,6 +14,7 @@ export default function ConfirmRegisterPayoutModal({
   isOpen,
   vendorName = '',
   amount = 0,
+  isLoading = false,
   onClose,
   onConfirm,
 }: ConfirmRegisterPayoutModalProps) {
@@ -49,21 +51,26 @@ export default function ConfirmRegisterPayoutModal({
         </div>
 
         {/* Action Buttons */}
-        {/* Desktop: Side by Side (Cancel, Confirm). Mobile: Stacked (Confirm top, Cancel bottom) */}
         <div className="flex flex-col md:flex-row items-center gap-3 pt-2">
           <button
             type="button"
+            disabled={isLoading}
             onClick={onClose}
-            className="w-full md:w-1/2 h-11 border border-gray-200 rounded-lg text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer order-2 md:order-1 flex items-center justify-center"
+            className="w-full md:w-1/2 h-11 border border-gray-200 rounded-lg text-sm font-bold text-gray-800 hover:bg-gray-50 transition-all cursor-pointer order-2 md:order-1 flex items-center justify-center disabled:opacity-50"
           >
             {t('payouts.cancel', 'Cancel')}
           </button>
           <button
             type="button"
+            disabled={isLoading}
             onClick={onConfirm}
-            className="w-full md:w-1/2 h-11 bg-black text-white hover:bg-gray-800 rounded-lg text-sm font-bold shadow-2xs transition-all active:scale-95 cursor-pointer order-1 md:order-2 flex items-center justify-center"
+            className="w-full md:w-1/2 h-11 bg-black text-white hover:bg-gray-800 rounded-lg text-sm font-bold shadow-2xs transition-all active:scale-95 cursor-pointer order-1 md:order-2 flex items-center justify-center disabled:opacity-50"
           >
-            {t('payouts.confirm', 'Confirm')}
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              t('payouts.confirm', 'Confirm')
+            )}
           </button>
         </div>
       </div>

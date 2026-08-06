@@ -37,9 +37,20 @@ export default function VendorTable() {
   const setSelectedRows = useVendorStore((s) => s.setSelectedRows);
   const clearSelection = useVendorStore((s) => s.clearSelection);
 
-  // Status query parameter: PENDING_APPROVAL for pending tab, ACTIVE,DEACTIVATED for all vendors tab
-  const statusParam = activeTab === 'pending' ? 'PENDING_APPROVAL' : 'ACTIVE,DEACTIVATED';
-  const { data: fetchedVendors = [], isLoading, isFetching, refetch } = useVendors(statusParam);
+  // Status query parameter: PENDING_APPROVAL for pending tab, filter value for all tab
+  const statusParam =
+    activeTab === 'pending'
+      ? 'PENDING_APPROVAL'
+      : activeFilter === 'active'
+      ? 'ACTIVE'
+      : activeFilter === 'inactive'
+      ? 'DEACTIVATED'
+      : undefined;
+
+  const { data: fetchedVendors = [], isLoading, isFetching, refetch } = useVendors({
+    status: statusParam,
+    search: search.trim() || undefined,
+  });
 
   const approveMutation = useApproveVendor();
   const rejectMutation = useRejectVendor();

@@ -15,6 +15,7 @@ export default function Payouts() {
   const {
     isRtl,
     isLoading,
+    isRegistering,
     stats,
     paginatedItems,
     currentPage,
@@ -99,6 +100,7 @@ export default function Payouts() {
         isOpen={isConfirmOpen}
         vendorName={selectedVendor?.vendorName}
         amount={pendingRegistration?.amount}
+        isLoading={isRegistering}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleExecuteRegister}
       />

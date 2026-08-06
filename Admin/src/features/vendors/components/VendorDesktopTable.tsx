@@ -134,7 +134,7 @@ export default function VendorDesktopTable({
                     {vendor.owner || '----'}
                   </td>
                   <td className="px-4 py-3.5 font-semibold text-gray-900 whitespace-nowrap">
-                    {vendor.revenue != null && vendor.revenue > 0 ? vendor.revenue.toLocaleString() : '----'}
+                    {vendor.revenue != null ? vendor.revenue.toLocaleString() : '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-500 whitespace-nowrap">
                     {vendor.submittedDate || '----'}
@@ -143,7 +143,7 @@ export default function VendorDesktopTable({
                     {vendor.email || '----'}
                   </td>
                   <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
-                    {vendor.orders != null && vendor.orders > 0 ? vendor.orders : '----'}
+                    {vendor.orders != null ? vendor.orders : '----'}
                   </td>
                   <td
                     className="px-4 py-3.5 whitespace-nowrap"

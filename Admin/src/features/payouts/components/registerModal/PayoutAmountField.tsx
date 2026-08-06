@@ -30,6 +30,7 @@ export default function PayoutAmountField({
         type="text"
         required
         value={amountInput}
+        onFocus={(e) => e.target.select()}
         onChange={(e) => onChangeAmount(e.target.value)}
         className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors ${
           hasValidationError

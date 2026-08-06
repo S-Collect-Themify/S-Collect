@@ -26,20 +26,26 @@ export default function RegisterPayoutModal({
   const [dateInput, setDateInput] = useState('');
 
   useEffect(() => {
-    if (item) {
-      setAmountInput(item.pendingPayout.toString());
+    if (isOpen && item) {
+      setAmountInput(item.pendingPayout > 0 ? String(item.pendingPayout) : '');
       setNotesInput('');
       setDateInput(new Date().toISOString().split('T')[0]);
     }
-  }, [item]);
+  }, [isOpen, item?.id]);
 
   if (!isOpen || !item) return null;
 
-  const cleanedAmount = amountInput.replace(/,/g, '').trim();
-  const parsedAmount = parseFloat(cleanedAmount);
+  const parsePayoutAmount = (val: string): number => {
+    if (!val) return 0;
+    const cleaned = val.replace(/,/g, '').trim();
+    const num = Number(cleaned);
+    return isNaN(num) || num <= 0 ? 0 : num;
+  };
+
+  const parsedAmount = parsePayoutAmount(amountInput);
 
   const isZeroOrNegative = isNaN(parsedAmount) || parsedAmount <= 0;
-  const isExceedsPending = !isNaN(parsedAmount) && parsedAmount > item.pendingPayout;
+  const isExceedsPending = !isNaN(parsedAmount) && item.pendingPayout > 0 && parsedAmount > item.pendingPayout;
   const hasValidationError = isZeroOrNegative || isExceedsPending;
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -12,7 +12,10 @@ export const useBannerFormData = () => {
 
   const vendorsQuery = useQuery({
     queryKey: ['admin-vendors-ddl'],
-    queryFn: () => getVendors({ status: 'ACTIVE' }),
+    queryFn: async () => {
+      const res = await getVendors({ status: 'ACTIVE' });
+      return Array.isArray(res) ? res : res.items || [];
+    },
     staleTime: 5 * 60 * 1000,
   });
 
