@@ -110,7 +110,7 @@ export const useBannersData = () => {
     onSuccess: () => {
       toast.success(
         i18n.language === 'ar'
-          ? 'تم حفظ ترتيب البنرات بنجاح'
+          ? 'تم حفظ ترتيب البانرات بنجاح'
           : 'Banner order saved successfully'
       );
       queryClient.invalidateQueries({ queryKey: BANNERS_QUERY_KEY });

@@ -11,13 +11,14 @@ import {
   VoucherMobileList,
   VoucherDeleteModal,
   VoucherPagination,
+  VoucherSkeleton,
 } from '../features/vouchers';
 
 const Vouchers = () => {
   const { isMobile } = useBreakpoint();
 
   // ── Query & Mutation Hook ──
-  const { deleteMutation } = useVouchersData();
+  const { vouchersQuery, deleteMutation } = useVouchersData();
 
   // ── Store State ──
   const vouchers = useVoucherStore((s) => s.vouchers);
@@ -104,7 +105,9 @@ const Vouchers = () => {
         />
 
         {/* Voucher List Content */}
-        {isMobile ? (
+        {vouchersQuery.isLoading ? (
+          <VoucherSkeleton isMobile={isMobile} />
+        ) : isMobile ? (
           <div className="space-y-3">
             <VoucherMobileList
               vouchers={paginatedVouchers}

@@ -74,25 +74,39 @@ const Categories = () => {
   const handleSave = async (data: Omit<Category, 'id' | 'productsCount' | 'image'> & { image?: string | File | null }) => {
     if (formModal.mode === 'add') {
       await createCategoryMutation.mutateAsync({
-        name: data.nameEn || data.name || '',
-        nameEn: data.nameEn || '',
+        name: data.nameEn || data.name || data.nameAr || '',
         nameAr: data.nameAr || '',
         slug: data.slug,
+        description: data.description || null,
+        parentCategoryId: data.parentCategoryId || null,
         image: data.image !== undefined ? data.image : null,
       });
       closeForm();
     } else if (formModal.category) {
+      const catId = formModal.category.id;
+      const initialIsActive = formModal.category.isActive;
+
       await updateCategoryMutation.mutateAsync({
-        id: formModal.category.id,
+        id: catId,
         payload: {
-          name: data.nameEn || data.name || '',
-          nameEn: data.nameEn || '',
+          name: data.nameEn || data.name || data.nameAr || '',
           nameAr: data.nameAr || '',
           slug: data.slug,
+          description: data.description || null,
+          parentCategoryId: data.parentCategoryId || null,
           image: data.image !== undefined ? data.image : null,
           isActive: data.isActive,
         },
       });
+
+      if (data.isActive !== initialIsActive) {
+        if (data.isActive) {
+          await reactivateCategoryMutation.mutateAsync(catId);
+        } else {
+          await deactivateCategoryMutation.mutateAsync(catId);
+        }
+      }
+
       closeForm();
     }
   };

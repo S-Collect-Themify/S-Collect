@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/sortable';
 import type { BannerItem } from '../../types';
 import { SortableBannerRow } from './SortableBannerRow';
+import { BannersSkeleton } from '../skeletons/BannersSkeleton';
 
 export interface BannersTableProps {
   banners: BannerItem[];
@@ -37,18 +38,7 @@ export const BannersTable: React.FC<BannersTableProps> = ({
   return (
     <div className="bg-white rounded-2xl p-6 shadow-xs border border-gray-100 overflow-hidden w-full">
       {bannersLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 py-3">
-              <div className="w-8 h-4 bg-gray-100 rounded animate-pulse" />
-              <div className="w-36 h-14 bg-gray-100 rounded-xl animate-pulse shrink-0" />
-              <div className="flex-1 h-4 bg-gray-100 rounded animate-pulse" />
-              <div className="w-20 h-6 bg-gray-100 rounded-lg animate-pulse" />
-              <div className="w-16 h-6 bg-gray-100 rounded-full animate-pulse" />
-              <div className="w-16 h-8 bg-gray-100 rounded-lg animate-pulse" />
-            </div>
-          ))}
-        </div>
+        <BannersSkeleton />
       ) : (
         <DndContext
           sensors={sensors}

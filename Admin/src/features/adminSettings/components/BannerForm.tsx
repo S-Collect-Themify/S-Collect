@@ -116,6 +116,11 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const activeCount = banners.filter(
+    (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
+  ).length;
+  const isMaxActiveReached = activeCount >= MAX_ACTIVE_BANNERS;
+
   // ── Populate on open ──
   useEffect(() => {
     if (mode === 'edit' && editingBanner) {
@@ -194,15 +199,13 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
   // ── Active Toggle ──
   const handleToggleActive = (checked: boolean) => {
     if (checked) {
-      const activeCount = banners.filter(
-        (b) => b.isActive && (mode === 'add' || b.id !== editingBanner?.id)
-      ).length;
-      if (activeCount >= MAX_ACTIVE_BANNERS) {
+      if (isMaxActiveReached) {
         toast.error(
           isArabic
-            ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+            ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
             : 'Cannot activate more than 5 banners at the same time.'
         );
+        setValue('isActive', false);
         return;
       }
       setValue('isActive', true);
@@ -258,6 +261,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
             formData.linkType === 'EXTERNAL_URL' ? formData.externalUrl.trim() || undefined : undefined,
           endsAt: endsAtPayload || undefined,
           sortOrder: banners.length + 1,
+          isActive: Boolean(formData.isActive),
         });
         setViewMode('banners');
       } else if (editingBanner) {
@@ -336,17 +340,17 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
               type="text"
               maxLength={50}
               {...register('title', {
-                required: isArabic ? 'عنوان البانر مطلوب (2-50 حرف)' : 'Banner title is required (2–50 chars)',
+                required: t('banners.form.errors.titleRequired', { defaultValue: 'Banner title is required (2–50 chars)' }),
                 minLength: {
                   value: 2,
-                  message: isArabic ? 'عنوان البانر مطلوب (2-50 حرف)' : 'Banner title is required (2–50 chars)',
+                  message: t('banners.form.errors.titleRequired', { defaultValue: 'Banner title is required (2–50 chars)' }),
                 },
                 maxLength: {
                   value: 50,
-                  message: isArabic ? 'العنوان لا يتجاوز 50 حرف' : 'Title must not exceed 50 characters',
+                  message: t('banners.form.errors.titleMaxLength', { defaultValue: 'Title must not exceed 50 characters' }),
                 },
               })}
-              placeholder={isArabic ? 'أدخل عنوان البانر (مثال: عروض الشتاء)' : 'Enter banner title (e.g. Winter Sale)'}
+              placeholder={t('banners.form.bannerTitlePlaceholder', { defaultValue: 'Enter banner title (e.g. Winter Sale)' })}
               className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all ${
                 errors.title ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
               }`}
@@ -416,7 +420,8 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           {/* Link Type Selector */}
           <div>
             <label className="text-sm font-semibold text-gray-900 mb-3 block">
-              Link Type <span className="text-red-500">*</span>
+              {t('banners.form.linkType', { defaultValue: 'Link Type' })}{' '}
+              <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
               {LINK_TYPE_OPTIONS.map((opt) => (
@@ -431,7 +436,13 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                   }`}
                 >
                   <span className="text-base">{opt.icon}</span>
-                  {opt.label}
+                  {opt.value === 'CATEGORY'
+                    ? t('banners.linkTypes.category', { defaultValue: 'Category' })
+                    : opt.value === 'PRODUCT'
+                    ? t('banners.linkTypes.product', { defaultValue: 'Product' })
+                    : opt.value === 'VENDOR'
+                    ? t('banners.linkTypes.vendor', { defaultValue: 'Vendor' })
+                    : t('banners.linkTypes.externalUrl', { defaultValue: 'External Link' })}
                 </button>
               ))}
             </div>
@@ -441,18 +452,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           {linkType === 'CATEGORY' && (
             <div>
               <label className="text-sm font-semibold text-gray-900 mb-2 block">
-                {isArabic ? 'اختر القسم' : 'Select Category'} <span className="text-red-500">*</span>
+                {t('banners.form.selectCategory', { defaultValue: 'Select Category' })}{' '}
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'CATEGORY' ? (isArabic ? 'القسم مطلوب' : 'Category is required') : false,
+                    required:
+                      linkType === 'CATEGORY'
+                        ? t('banners.form.errors.categoryRequired', { defaultValue: 'Category is required' })
+                        : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر قسم --' : '-- Select Category --'}</option>
+                  <option value="">
+                    {t('banners.form.selectCategoryPlaceholder', { defaultValue: '-- Select Category --' })}
+                  </option>
                   {categories.map((cat: any) => (
                     <option key={cat.id} value={cat.id}>
                       {isArabic && cat.nameAr ? cat.nameAr : cat.name}
@@ -468,18 +485,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           {linkType === 'PRODUCT' && (
             <div>
               <label className="text-sm font-semibold text-gray-900 mb-2 block">
-                {isArabic ? 'اختر المنتج' : 'Select Product'} <span className="text-red-500">*</span>
+                {t('banners.form.selectProduct', { defaultValue: 'Select Product' })}{' '}
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'PRODUCT' ? (isArabic ? 'المنتج مطلوب' : 'Product is required') : false,
+                    required:
+                      linkType === 'PRODUCT'
+                        ? t('banners.form.errors.productRequired', { defaultValue: 'Product is required' })
+                        : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر منتج --' : '-- Select Product --'}</option>
+                  <option value="">
+                    {t('banners.form.selectProductPlaceholder', { defaultValue: '-- Select Product --' })}
+                  </option>
                   {products.map((prod: any) => (
                     <option key={prod.id} value={prod.id}>
                       {isArabic && prod.nameAr ? prod.nameAr : prod.name}
@@ -495,18 +518,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           {linkType === 'VENDOR' && (
             <div>
               <label className="text-sm font-semibold text-gray-900 mb-2 block">
-                {isArabic ? 'اختر المتجر / البائع' : 'Select Vendor'} <span className="text-red-500">*</span>
+                {t('banners.form.selectVendor', { defaultValue: 'Select Vendor' })}{' '}
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'VENDOR' ? (isArabic ? 'المتجر مطلوب' : 'Vendor is required') : false,
+                    required:
+                      linkType === 'VENDOR'
+                        ? t('banners.form.errors.vendorRequired', { defaultValue: 'Vendor is required' })
+                        : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر متجر --' : '-- Select Vendor --'}</option>
+                  <option value="">
+                    {t('banners.form.selectVendorPlaceholder', { defaultValue: '-- Select Vendor --' })}
+                  </option>
                   {vendors.map((vend: any) => {
                     const vendorName = vend.storeName || `${vend.firstName || ''} ${vend.lastName || ''}`.trim() || vend.id;
                     return (
@@ -525,15 +554,19 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
           {linkType === 'EXTERNAL_URL' && (
             <div>
               <label className="text-sm font-semibold text-gray-900 mb-2 block">
-                {isArabic ? 'الرابط الخارجي' : 'External Link URL'} <span className="text-red-500">*</span>
+                {t('banners.form.externalUrl', { defaultValue: 'External Link URL' })}{' '}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="url"
                 {...register('externalUrl', {
-                  required: linkType === 'EXTERNAL_URL' ? (isArabic ? 'الرابط مطلوب' : 'External URL is required') : false,
+                  required:
+                    linkType === 'EXTERNAL_URL'
+                      ? t('banners.form.errors.urlRequired', { defaultValue: 'External URL is required' })
+                      : false,
                   pattern: {
                     value: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}.*$/i,
-                    message: isArabic ? 'يرجى إدخال رابط صحيح' : 'Please enter a valid URL',
+                    message: t('banners.form.errors.urlInvalid', { defaultValue: 'Please enter a valid URL' }),
                   },
                 })}
                 placeholder="https://example.com"
@@ -547,7 +580,9 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
           {/* Expiration Date */}
           <div>
-            <label className="text-sm font-semibold text-gray-900 mb-2 block">Ends At</label>
+            <label className="text-sm font-semibold text-gray-900 mb-2 block">
+              {t('banners.form.endsAt', { defaultValue: 'Expiration Date (Ends At)' })}
+            </label>
             <input
               type="datetime-local"
               {...register('endsAt')}
@@ -567,8 +602,19 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                     defaultValue: 'Active banners will display on platform home page instantly.',
                   })}
                 </p>
+                {isMaxActiveReached && !isActive && (
+                  <p className="text-xs text-amber-600 font-semibold mt-1">
+                    {isArabic
+                      ? 'تم الوصول للحد الأقصى للبانرات المفعلة (5 بانرات). سينشأ البنر كغير مفعل.'
+                      : 'Maximum active banners limit reached (5 active banners). Banner will be created as inactive.'}
+                  </p>
+                )}
               </div>
-              <Toggle checked={isActive} onChange={handleToggleActive} />
+              <Toggle
+                checked={isActive}
+                onChange={handleToggleActive}
+                disabled={isMaxActiveReached && !isActive}
+              />
             </div>
           </div>
 

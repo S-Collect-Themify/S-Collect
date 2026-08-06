@@ -73,7 +73,7 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
                 checked={selected.includes(cat)}
                 className="accent-black w-3.5 h-3.5 cursor-pointer"
               />
-              <span>{t(`managementTable.categories.${cat}`)}</span>
+              <span>{t(`managementTable.categories.${cat}`, { defaultValue: cat })}</span>
             </div>
           ))}
         </>

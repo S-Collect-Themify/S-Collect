@@ -27,6 +27,7 @@ export interface CreateBannerPayload {
   startsAt?: string;
   endsAt?: string;
   sortOrder?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateBannerPayload {
@@ -69,13 +70,26 @@ export const createAdminBanner = async (payload: CreateBannerPayload): Promise<A
   if (payload.endsAt) formData.append('endsAt', payload.endsAt);
   if (payload.sortOrder !== undefined && payload.sortOrder !== null)
     formData.append('sortOrder', String(payload.sortOrder));
+  if (payload.isActive !== undefined && payload.isActive !== null)
+    formData.append('isActive', String(payload.isActive));
 
   const { data } = await api.post('/admin/content/banners', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
-  if (data?.data) return data.data as ApiBanner;
-  return data as ApiBanner;
+  const created: ApiBanner = data?.data ? (data.data as ApiBanner) : (data as ApiBanner);
+
+  // If payload requested inactive (isActive: false) and backend created it as active (isActive: true):
+  if (payload.isActive === false && created && created.id) {
+    try {
+      const updated = await updateAdminBanner(created.id, { isActive: false });
+      return updated;
+    } catch {
+      created.isActive = false;
+    }
+  }
+
+  return created;
 };
 
 export const updateAdminBanner = async (
