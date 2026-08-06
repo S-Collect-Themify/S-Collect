@@ -1250,8 +1250,9 @@
       "freeShipping": "شحن مجاني"
     },
     "scopes": {
-      "allOrders": "جميع الطلبات (ALL_ORDERS)",
-      "category": "فئة"
+      "allOrders": "جميع الطلبات",
+      "specificCategories": "أقسام محددة",
+      "category": "أقسام محددة"
     },
     "statuses": {
       "active": "نشطة",

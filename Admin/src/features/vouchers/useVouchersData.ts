@@ -155,8 +155,11 @@ export const useVouchersData = () => {
       toast.success('Voucher created successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
     },
-    onError: () => {
-      toast.error('Failed to create voucher');
+    onError: (err: any) => {
+      console.error('Create voucher error:', err?.response?.data || err);
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || err?.message;
+      const errorText = typeof serverMsg === 'string' ? serverMsg : Array.isArray(serverMsg) ? serverMsg.join(', ') : 'Failed to create voucher';
+      toast.error(errorText);
     },
   });
 
@@ -179,10 +182,14 @@ export const useVouchersData = () => {
       toast.success('Voucher updated successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
     },
-    onError: () => {
-      toast.error('Failed to update voucher');
+    onError: (err: any) => {
+      console.error('Update voucher error:', err?.response?.data || err);
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || err?.message;
+      const errorText = typeof serverMsg === 'string' ? serverMsg : Array.isArray(serverMsg) ? serverMsg.join(', ') : 'Failed to update voucher';
+      toast.error(errorText);
     },
   });
+
 
   // ── Delete Voucher Mutation ──
   const deleteMutation = useMutation({

@@ -59,10 +59,11 @@ export const getVouchersList = async (params?: any) => {
 
 export const createVoucherApi = async (voucherData: VoucherApiData) => {
   try {
-    const scope =
-      voucherData.scope === 'All' || !voucherData.scope
-        ? 'ALL_ORDERS'
-        : voucherData.scope;
+    const isCategory =
+      voucherData.scope === 'SPECIFIC_CATEGORIES' ||
+      voucherData.scope === 'Category';
+
+    const scope = isCategory ? 'SPECIFIC_CATEGORIES' : (voucherData.scope || 'ALL_ORDERS');
 
     // startsAt is creation time as ISO 8601 string
     const startsAt = voucherData.startsAt
@@ -91,13 +92,14 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
       endsAt,
     };
 
-    if (scope === 'Category') {
-      const catIds = Array.isArray(voucherData.category)
-        ? voucherData.category
-        : voucherData.categoryIds || null;
-      if (catIds && catIds.length > 0) {
-        payload.categoryIds = catIds;
-      }
+    const catIds = Array.isArray(voucherData.category)
+      ? voucherData.category
+      : Array.isArray(voucherData.categoryIds)
+      ? voucherData.categoryIds
+      : null;
+
+    if (catIds && catIds.length > 0) {
+      payload.categoryIds = catIds;
     }
 
     const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
@@ -133,10 +135,11 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
 
 export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) => {
   try {
-    const scope =
-      voucherData.scope === 'All' || !voucherData.scope
-        ? 'ALL_ORDERS'
-        : voucherData.scope;
+    const isCategory =
+      voucherData.scope === 'SPECIFIC_CATEGORIES' ||
+      voucherData.scope === 'Category';
+
+    const scope = isCategory ? 'SPECIFIC_CATEGORIES' : (voucherData.scope || 'ALL_ORDERS');
 
     let endsAt: string | undefined;
     if (voucherData.endsAt) {
@@ -159,14 +162,16 @@ export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) 
       payload.endsAt = endsAt;
     }
 
-    if (scope === 'Category') {
-      const catIds = Array.isArray(voucherData.category)
-        ? voucherData.category
-        : voucherData.categoryIds || null;
-      if (catIds && catIds.length > 0) {
-        payload.categoryIds = catIds;
-      }
+    const catIds = Array.isArray(voucherData.category)
+      ? voucherData.category
+      : Array.isArray(voucherData.categoryIds)
+      ? voucherData.categoryIds
+      : null;
+
+    if (catIds && catIds.length > 0) {
+      payload.categoryIds = catIds;
     }
+
 
     const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
     if (minOrder !== undefined && minOrder !== '' && minOrder !== null) {
