@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Inbox } from 'lucide-react';
+import { Inbox, Star } from 'lucide-react';
 import Toggle from '../../../components/ui/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
@@ -19,6 +19,7 @@ interface VendorDesktopTableProps {
   isAllTab: boolean;
   openConfirm: (type: ModalType, ids: string[], vendorName?: string) => void;
   toggleVendorActive?: (id: string) => void;
+  toggleFeatureVendor?: (id: string, isFeatured: boolean) => void;
   isLoading?: boolean;
 }
 
@@ -33,6 +34,7 @@ export default function VendorDesktopTable({
   activeTab,
   isAllTab,
   openConfirm,
+  toggleFeatureVendor,
   isLoading,
 }: VendorDesktopTableProps) {
   const { t } = useTranslation();
@@ -159,6 +161,27 @@ export default function VendorDesktopTable({
                         }
                       }}
                     />
+                  </td>
+                  <td
+                    className="px-4 py-3.5 whitespace-nowrap text-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleFeatureVendor?.(vendor.id, Boolean(vendor.isFeatured))}
+                      title={vendor.isFeatured ? 'Unmark as featured' : 'Mark as featured'}
+                      className="p-1.5 rounded-lg hover:bg-amber-50 transition-all cursor-pointer inline-flex items-center justify-center active:scale-90"
+                    >
+                      <Star
+                        size={20}
+                        fill={vendor.isFeatured ? '#fbbf24' : 'none'}
+                        className={
+                          vendor.isFeatured
+                            ? 'text-amber-400 fill-amber-400'
+                            : 'text-amber-400 stroke-amber-400 fill-none hover:fill-amber-400/30'
+                        }
+                      />
+                    </button>
                   </td>
                 </tr>
               );

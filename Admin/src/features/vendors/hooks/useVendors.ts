@@ -10,6 +10,8 @@ import {
   getVendorPayouts,
   getVendorPayoutSummary,
   getVendorPayoutStats,
+  featureVendor,
+  unfeatureVendor,
   type GetVendorsParams,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
@@ -208,6 +210,42 @@ export function useReactivateVendor() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to reactivate vendor');
+    },
+  });
+}
+
+export function useFeatureVendor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => featureVendor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      toast.success('Vendor marked as featured');
+    },
+    onError: (error: any) => {
+      console.error('Failed to feature vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || 'Failed to feature vendor');
+    },
+  });
+}
+
+export function useUnfeatureVendor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => unfeatureVendor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      toast.success('Vendor unmarked as featured');
+    },
+    onError: (error: any) => {
+      console.error('Failed to unfeature vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || 'Failed to unfeature vendor');
     },
   });
 }
