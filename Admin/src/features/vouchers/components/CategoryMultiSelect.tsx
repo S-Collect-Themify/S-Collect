@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ChevronDown, X, Check } from 'lucide-react';
 
 export interface CategoryMultiSelectProps {
@@ -33,6 +33,15 @@ export function CategoryMultiSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const getCategoryId = (cat: any): string => {
+    if (!cat) return '';
+    if (typeof cat === 'string') return cat;
+    if (typeof cat === 'number') return String(cat);
+    if (cat.id) return String(cat.id);
+    if (cat._id) return String(cat._id);
+    return String(cat);
+  };
+
   const getCategoryName = (cat: any): string => {
     if (!cat) return '';
     if (typeof cat === 'string') return cat;
@@ -63,37 +72,41 @@ export function CategoryMultiSelect({
     return String(cat);
   };
 
-  const allCategoryNames = categories.map(getCategoryName).filter(Boolean);
+  const getCategoryLabelById = (catId: string): string => {
+    const found = categories.find((c) => getCategoryId(c) === catId || getCategoryName(c) === catId);
+    if (found) return getCategoryName(found);
+    return catId;
+  };
 
-  const toggleCategory = (catName: string) => {
-    if (!catName) return;
-    const exists = value.some((v) => String(v).toLowerCase() === catName.toLowerCase());
+  const allCategoryIds = categories.map(getCategoryId).filter(Boolean);
+
+  const toggleCategory = (catId: string) => {
+    if (!catId) return;
+    const exists = value.includes(catId);
     let newValue: string[];
     if (exists) {
-      newValue = value.filter((v) => String(v).toLowerCase() !== catName.toLowerCase());
+      newValue = value.filter((v) => v !== catId);
     } else {
-      newValue = [...value, catName];
+      newValue = [...value, catId];
     }
     onChange(newValue);
   };
 
-  const removeCategory = (catName: string, e: React.MouseEvent) => {
+  const removeCategory = (catId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const newValue = value.filter((v) => String(v).toLowerCase() !== catName.toLowerCase());
+    const newValue = value.filter((v) => v !== catId);
     onChange(newValue);
   };
 
   const isAllSelected =
-    allCategoryNames.length > 0 &&
-    allCategoryNames.every((name) =>
-      value.some((v) => String(v).toLowerCase() === name.toLowerCase())
-    );
+    allCategoryIds.length > 0 &&
+    allCategoryIds.every((id) => value.includes(id));
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       onChange([]);
     } else {
-      onChange([...allCategoryNames]);
+      onChange([...allCategoryIds]);
     }
   };
 
@@ -113,15 +126,15 @@ export function CategoryMultiSelect({
           {value.length === 0 ? (
             <span className="text-sm text-gray-400 font-normal px-1">{placeholder}</span>
           ) : (
-            value.map((catName) => (
+            value.map((catId) => (
               <span
-                key={catName}
+                key={catId}
                 className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-gray-100 text-gray-800 text-xs font-semibold border border-gray-200 animate-in fade-in duration-150"
               >
-                <span>{catName}</span>
+                <span>{getCategoryLabelById(catId)}</span>
                 <button
                   type="button"
-                  onClick={(e) => removeCategory(catName, e)}
+                  onClick={(e) => removeCategory(catId, e)}
                   className="hover:text-red-500 transition-colors cursor-pointer rounded-full p-0.5"
                 >
                   <X size={12} />
@@ -171,14 +184,13 @@ export function CategoryMultiSelect({
             </div>
           ) : (
             categories.map((cat) => {
+              const catId = getCategoryId(cat);
               const catName = getCategoryName(cat);
-              const isSelected = value.some(
-                (v) => String(v).toLowerCase() === catName.toLowerCase()
-              );
+              const isSelected = value.includes(catId);
               return (
                 <div
-                  key={cat.id || cat._id || catName}
-                  onClick={() => toggleCategory(catName)}
+                  key={catId}
+                  onClick={() => toggleCategory(catId)}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors select-none ${
                     isSelected ? 'bg-gray-50/80 font-semibold text-gray-900' : 'text-gray-700'
                   }`}

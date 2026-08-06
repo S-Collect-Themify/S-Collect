@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useCategories } from '../../../hooks/useCategories';
 import type { VoucherItem } from '../types';
 
 interface VoucherMobileListProps {
@@ -7,7 +8,7 @@ interface VoucherMobileListProps {
   onDeleteClick: (voucher: VoucherItem) => void;
 }
 
-const renderCategoryBadges = (catData: any) => {
+const renderCategoryBadges = (catData: any, categoriesList: any[], language: string) => {
   const catArray: string[] = Array.isArray(catData)
     ? catData.map((c) => String(c).trim()).filter(Boolean)
     : typeof catData === 'string' && catData.trim()
@@ -18,9 +19,23 @@ const renderCategoryBadges = (catData: any) => {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const firstCat = catArray[0];
-  const extraCount = catArray.length - 1;
-  const fullTooltip = catArray.join(', ');
+  const getCatName = (idOrCat: string): string => {
+    const found = categoriesList.find(
+      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
+    );
+    if (found) {
+      if (language === 'ar') {
+        return found.nameAr || found.name_ar || found.name?.ar || found.nameEn || found.name || idOrCat;
+      }
+      return found.nameEn || found.name_en || found.name?.en || found.nameAr || found.name || idOrCat;
+    }
+    return idOrCat;
+  };
+
+  const resolvedNames = catArray.map(getCatName);
+  const firstCat = resolvedNames[0];
+  const extraCount = resolvedNames.length - 1;
+  const fullTooltip = resolvedNames.join(', ');
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap" title={fullTooltip}>
@@ -40,8 +55,31 @@ export const VoucherMobileList = ({
   vouchers,
   onDeleteClick,
 }: VoucherMobileListProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { categories } = useCategories();
+
+  const formatScope = (scope?: string) => {
+    if (!scope) return '—';
+    if (scope === 'SPECIFIC_CATEGORIES' || scope === 'Category') {
+      return t('vouchersListing.scopes.specificCategories', { defaultValue: 'Specific Categories' });
+    }
+    if (scope === 'ALL_ORDERS' || scope === 'All') {
+      return t('vouchersListing.scopes.allOrders', { defaultValue: 'All Orders' });
+    }
+    return scope;
+  };
+
+  const formatType = (type?: string) => {
+    if (!type) return '—';
+    if (type === 'FIXED_AMOUNT' || type === 'Amount') {
+      return t('vouchersListing.types.amount', { defaultValue: 'Amount' });
+    }
+    if (type === 'PERCENTAGE' || type === 'Percentage') {
+      return t('vouchersListing.types.percentage', { defaultValue: 'Percentage' });
+    }
+    return type;
+  };
 
   return (
     <div className="space-y-3">
@@ -77,14 +115,15 @@ export const VoucherMobileList = ({
           <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-500 items-center">
             <span className="text-gray-400">{t('vouchersListing.table.category')}:</span>
             <span className="font-medium text-gray-800">
-              {renderCategoryBadges(voucher.category)}
+              {renderCategoryBadges(voucher.category, categories, i18n.language)}
             </span>
 
             <span className="text-gray-400">{t('vouchersListing.table.scope')}:</span>
-            <span className="font-medium text-gray-800">{voucher.scope || '—'}</span>
+            <span className="font-medium text-gray-800">{formatScope(voucher.scope)}</span>
 
             <span className="text-gray-400">{t('vouchersListing.table.type')}:</span>
-            <span className="font-medium text-gray-800">{voucher.type}</span>
+            <span className="font-medium text-gray-800">{formatType(voucher.type)}</span>
+
 
             <span className="text-gray-400">{t('vouchersListing.table.discount')}:</span>
             <span className="font-medium text-gray-800">{voucher.discount}</span>

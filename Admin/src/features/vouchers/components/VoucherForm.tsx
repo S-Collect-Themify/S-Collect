@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Calendar, ChevronDown, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,50 +37,51 @@ export const VoucherForm = ({
   const navigate = useNavigate();
   const { categories, isLoading: isCategoriesLoading } = useCategories();
 
+  const formValues = useMemo<VoucherFormData>(() => {
+    if (!initialVoucher) {
+      return {
+        code: '',
+        category: [],
+        scope: 'ALL_ORDERS',
+        type: 'PERCENTAGE',
+        discountValue: '',
+        minOrder: '',
+        maxDiscount: '',
+        expiryDate: '',
+        maxUsage: '',
+        limitOnePerCustomer: true,
+      };
+    }
+    return {
+      code: initialVoucher.code || '',
+      category: parseCategories(initialVoucher.category),
+      scope:
+        initialVoucher.scope === 'SPECIFIC_CATEGORIES' || initialVoucher.scope === 'Category'
+          ? 'SPECIFIC_CATEGORIES'
+          : 'ALL_ORDERS',
+      type:
+        initialVoucher.type === 'Amount' || initialVoucher.type === 'FIXED_AMOUNT'
+          ? 'FIXED_AMOUNT'
+          : 'PERCENTAGE',
+      discountValue: initialVoucher.discountValue ? String(initialVoucher.discountValue) : '',
+      minOrder: initialVoucher.minOrder?.replace('SAR ', '') || '',
+      maxDiscount: initialVoucher.maxDiscount?.replace('SAR ', '') || '',
+      expiryDate: initialVoucher.expiryDate || '',
+      maxUsage: initialVoucher.maxUsage ? String(initialVoucher.maxUsage) : '',
+      limitOnePerCustomer: initialVoucher.limitOnePerCustomer ?? true,
+    };
+  }, [initialVoucher]);
+
   const {
     register,
     handleSubmit,
-    reset,
     watch,
     control,
     formState: { errors },
   } = useForm<VoucherFormData>({
-    defaultValues: {
-      code: initialVoucher?.code || '',
-      category: parseCategories(initialVoucher?.category),
-      scope: initialVoucher?.scope === 'SPECIFIC_CATEGORIES' || initialVoucher?.scope === 'Category' ? 'SPECIFIC_CATEGORIES' : 'ALL_ORDERS',
-      type: initialVoucher?.type || 'Percentage',
-      discountValue: initialVoucher?.discountValue
-        ? String(initialVoucher.discountValue)
-        : '',
-      minOrder: initialVoucher?.minOrder?.replace('SAR ', '') || '',
-      maxDiscount: initialVoucher?.maxDiscount?.replace('SAR ', '') || '',
-      expiryDate: initialVoucher?.expiryDate || '',
-      maxUsage: initialVoucher?.maxUsage ? String(initialVoucher.maxUsage) : '',
-      limitOnePerCustomer: initialVoucher?.limitOnePerCustomer ?? true,
-    },
+    values: formValues,
   });
 
-  useEffect(() => {
-    if (initialVoucher) {
-      reset({
-        code: initialVoucher.code || '',
-        category: parseCategories(initialVoucher.category),
-        scope: initialVoucher.scope === 'SPECIFIC_CATEGORIES' || initialVoucher.scope === 'Category' ? 'SPECIFIC_CATEGORIES' : 'ALL_ORDERS',
-        type: initialVoucher.type || 'Percentage',
-        discountValue: initialVoucher.discountValue
-          ? String(initialVoucher.discountValue)
-          : '',
-        minOrder: initialVoucher.minOrder?.replace('SAR ', '') || '',
-        maxDiscount: initialVoucher.maxDiscount?.replace('SAR ', '') || '',
-        expiryDate: initialVoucher.expiryDate || '',
-        maxUsage: initialVoucher.maxUsage
-          ? String(initialVoucher.maxUsage)
-          : '',
-        limitOnePerCustomer: initialVoucher.limitOnePerCustomer ?? true,
-      });
-    }
-  }, [initialVoucher, reset]);
 
   const selectedScope = watch('scope');
 

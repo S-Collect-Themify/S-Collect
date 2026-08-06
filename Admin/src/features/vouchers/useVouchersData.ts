@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   getVouchersList,
+  getVoucherByIdApi,
   createVoucherApi,
   updateVoucherApi,
   deleteVoucherApi,
@@ -11,6 +12,92 @@ import {
 import { useVoucherStore } from './voucherStore';
 import { getVoucherStatus } from './utils';
 import type { VoucherItem, VoucherType } from './types';
+
+export const mapBackendVoucherToItem = (v: any): VoucherItem => {
+  const rawType = v.type || 'PERCENTAGE';
+  const type: VoucherType =
+    rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
+      ? 'Amount'
+      : 'Percentage';
+
+  const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
+  const discountText =
+    type === 'Percentage'
+      ? `${val ?? 0}%`
+      : `SAR ${val ?? 0}`;
+
+  const endsAtStr = v.endsAt || v.expiryDate;
+  const expiryDate = endsAtStr ? String(endsAtStr).split('T')[0] : '—';
+
+  const usedCount = v.usesCount ?? v.usedCount ?? 0;
+  const maxUsage = v.maxTotalUses ?? v.maxUsage ?? 100;
+  const minOrderNum = v.minOrderAmount ?? v.minOrder;
+  const minOrderStr =
+    minOrderNum !== undefined && minOrderNum !== null
+      ? String(minOrderNum).startsWith('SAR')
+        ? String(minOrderNum)
+        : `SAR ${minOrderNum}`
+      : 'SAR 0';
+
+  const maxDiscNum = v.maxDiscountAmount ?? v.maxDiscount;
+  const maxDiscStr =
+    maxDiscNum !== undefined && maxDiscNum !== null && maxDiscNum !== ''
+      ? String(maxDiscNum).startsWith('SAR')
+        ? String(maxDiscNum)
+        : `SAR ${maxDiscNum}`
+      : '—';
+
+  const limitOne =
+    v.oneUsePerUser !== undefined
+      ? Boolean(v.oneUsePerUser)
+      : Boolean(v.limitOnePerCustomer);
+
+  return {
+    id: v.id || v._id || '',
+    code: v.code || '',
+    category: Array.isArray(v.categoryIds)
+      ? v.categoryIds
+      : Array.isArray(v.category)
+      ? v.category
+      : v.category
+      ? [v.category]
+      : [],
+    scope: v.scope || 'ALL_ORDERS',
+    type,
+    discount: discountText,
+    discountValue: val,
+    minOrder: minOrderStr,
+    maxDiscount: maxDiscStr,
+    usage: `${usedCount}/${maxUsage}`,
+    usedCount,
+    maxUsage,
+    expiryDate,
+    status: getVoucherStatus(endsAtStr || expiryDate, v.isActive),
+    limitOnePerCustomer: limitOne,
+  };
+};
+
+export const useSingleVoucherQuery = (id?: string) => {
+  const vouchers = useVoucherStore((s) => s.vouchers);
+
+  return useQuery({
+    queryKey: ['admin-voucher', id],
+    queryFn: async () => {
+      if (!id) return null;
+      try {
+        const res = await getVoucherByIdApi(id);
+        if (res && typeof res === 'object' && (res.id || res._id || res.code)) {
+          return mapBackendVoucherToItem(res);
+        }
+      } catch (err) {
+        console.warn('Single voucher query exception:', err);
+      }
+      return vouchers.find((v) => v.id === id || v.code === id) || null;
+    },
+    enabled: Boolean(id),
+  });
+};
+
 
 const extractVouchersArray = (response: any): BackendVoucherItem[] => {
   if (!response) return [];
