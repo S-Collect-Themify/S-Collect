@@ -1,11 +1,16 @@
 import type {
   ProductFormData,
   RawProductResponse,
+  ProductOption,
   ProductOptionValue,
   OptionMeta,
   VariantMeta,
   ExistingImage,
 } from './types';
+import {
+  addProductOptionValue,
+  createProductOption,
+} from '../../services/products';
 
 export const urlToFile = async (
   url: string,
@@ -146,6 +151,216 @@ export const mapProductToFormData = async (
   };
 };
 
+export interface ProductVariantMutation {
+  id?: string;
+  optionValueIds: string[];
+  sku: string;
+  price: number;
+  compareAtPrice?: number;
+  stock: number;
+  isActive: boolean;
+}
+
+const normalizeOptionText = (value?: string) =>
+  value?.trim().toLocaleLowerCase() || '';
+
+const unwrapApiData = <T>(response: unknown): T =>
+  response &&
+  typeof response === 'object' &&
+  'data' in response &&
+  (response as { data?: T }).data
+    ? (response as { data: T }).data
+    : (response as T);
+
+export const syncProductOptions = async (
+  productId: string,
+  formData: ProductFormData,
+  product: unknown
+): Promise<ProductOption[]> => {
+  const raw = unwrapApiData<RawProductResponse>(product) || {};
+  const existingOptions = Array.isArray(raw.options) ? raw.options : [];
+  const desiredOptions = [
+    {
+      name: 'Size',
+      nameAr: 'المقاس',
+      values: formData.sizes || [],
+    },
+    {
+      name: 'Color',
+      nameAr: 'اللون',
+      values: formData.colors || [],
+    },
+  ].filter((option) => option.values.length > 0);
+
+  return Promise.all(
+    desiredOptions.map(async (desiredOption) => {
+      const existingOption = existingOptions.find(
+        (option) =>
+          normalizeOptionText(option.name) ===
+            normalizeOptionText(desiredOption.name) ||
+          normalizeOptionText(option.nameAr) ===
+            normalizeOptionText(desiredOption.nameAr)
+      );
+
+      if (!existingOption?.id) {
+        const createdOption = unwrapApiData<ProductOption>(
+          await createProductOption(productId, {
+            name: desiredOption.name,
+            nameAr: desiredOption.nameAr,
+            values: desiredOption.values.map((value) => ({
+              value,
+              valueAr: value,
+            })),
+          })
+        );
+        return createdOption;
+      }
+
+      const existingValues = Array.isArray(existingOption.values)
+        ? existingOption.values
+        : [];
+      const missingValues = desiredOption.values.filter((value) => {
+        const normalizedValue = normalizeOptionText(value);
+        return !existingValues.some(
+          (optionValue) =>
+            normalizeOptionText(optionValue.value) === normalizedValue ||
+            normalizeOptionText(optionValue.valueAr) === normalizedValue
+        );
+      });
+      const createdValues = await Promise.all(
+        missingValues.map(async (value) =>
+          unwrapApiData<ProductOptionValue>(
+            await addProductOptionValue(productId, existingOption.id!, {
+              value,
+              valueAr: value,
+            })
+          )
+        )
+      );
+
+      return {
+        ...existingOption,
+        values: [...existingValues, ...createdValues],
+      };
+    })
+  );
+};
+
+export const buildProductVariantMutations = (
+  formData: ProductFormData,
+  productSources: unknown | unknown[]
+): ProductVariantMutation[] => {
+  const sources = Array.isArray(productSources)
+    ? productSources
+    : [productSources];
+  const products = sources.map((product) =>
+    product &&
+    typeof product === 'object' &&
+    'data' in product &&
+    (product as { data?: RawProductResponse }).data
+      ? (product as { data: RawProductResponse }).data
+      : (product as RawProductResponse) || {}
+  );
+
+  const productOptions = products.flatMap((product) =>
+    Array.isArray(product.options) ? product.options : []
+  );
+  const productVariants = products.flatMap((product) =>
+    Array.isArray(product.variants) ? product.variants : []
+  );
+  const price = parseFloat(formData.basePrice) || 0;
+  const compareAtPrice = formData.comparePrice
+    ? parseFloat(formData.comparePrice)
+    : 0;
+  const sku = formData.sku || '';
+
+  const findOption = (name: string, nameAr: string) =>
+    productOptions.find(
+      (option) =>
+        normalizeOptionText(option.name) === normalizeOptionText(name) ||
+        normalizeOptionText(option.nameAr) === normalizeOptionText(nameAr)
+    );
+
+  const resolveValues = (
+    values: string[],
+    option: (typeof productOptions)[number] | undefined,
+    optionName: string
+  ) =>
+    values.map((value) => {
+      const normalizedValue = normalizeOptionText(value);
+      const matchedValue = option?.values?.find(
+        (optionValue) =>
+          normalizeOptionText(optionValue.value) === normalizedValue ||
+          normalizeOptionText(optionValue.valueAr) === normalizedValue
+      );
+      if (!matchedValue?.id) {
+        console.error('Missing option value ID while building variant:', {
+          optionName,
+          requestedValue: value,
+          availableValues: (option?.values || []).map((optionValue) => ({
+            id: optionValue.id,
+            value: optionValue.value,
+            valueAr: optionValue.valueAr,
+          })),
+        });
+        throw new Error(`Missing option value ID for ${optionName}: ${value}`);
+      }
+      return { id: matchedValue.id, value };
+    });
+
+  const sizeValues = resolveValues(
+    formData.sizes || [],
+    findOption('Size', 'المقاس'),
+    'Size'
+  );
+  const colorValues = resolveValues(
+    formData.colors || [],
+    findOption('Color', 'اللون'),
+    'Color'
+  );
+  const combinations =
+    sizeValues.length === 0 && colorValues.length === 0
+      ? [{ optionValueIds: [] as string[], skuParts: [] as string[] }]
+      : (sizeValues.length > 0 ? sizeValues : [null]).flatMap((sizeValue) =>
+          (colorValues.length > 0 ? colorValues : [null]).map((colorValue) => ({
+            optionValueIds: [sizeValue?.id, colorValue?.id].filter(
+              (id): id is string => Boolean(id)
+            ),
+            skuParts: [sizeValue?.value, colorValue?.value].filter(
+              (value): value is string => Boolean(value)
+            ),
+          }))
+        );
+  const stockPerVariant =
+    combinations.length > 0
+      ? Math.round((formData.quantity || 0) / combinations.length)
+      : 0;
+
+  return combinations.map(({ optionValueIds, skuParts }) => {
+    const existingVariant = productVariants.find((variant) => {
+      const existingValueIds = Array.isArray(variant.optionValues)
+        ? variant.optionValues
+            .map((optionValue) => optionValue?.valueId)
+            .filter((id): id is string => Boolean(id))
+        : [];
+      return (
+        existingValueIds.length === optionValueIds.length &&
+        existingValueIds.every((id) => optionValueIds.includes(id))
+      );
+    });
+
+    return {
+      id: existingVariant?.id,
+      optionValueIds,
+      sku: [sku, ...skuParts].filter(Boolean).join('-'),
+      price,
+      compareAtPrice,
+      stock: stockPerVariant,
+      isActive: true,
+    };
+  });
+};
+
 export const mapFormToMultipartFormData = (
   formData: ProductFormData
 ): FormData => {
@@ -171,9 +386,18 @@ export const mapFormToMultipartFormData = (
 
   // Helper: find real value ID for a given option meta and value string
   const findValueId = (
-    meta: { values: { id: string; value: string }[] },
+    meta: { values: { id: string; value: string; valueAr?: string }[] },
     val: string
-  ) => meta.values.find((v) => v.value === val)?.id || '';
+  ) => {
+    const normalizedValue = normalizeOptionText(val);
+    return (
+      meta.values.find(
+        (value) =>
+          normalizeOptionText(value.value) === normalizedValue ||
+          normalizeOptionText(value.valueAr) === normalizedValue
+      )?.id || ''
+    );
+  };
 
   // Helper: find real variant ID by matching option value IDs
   const findVariantId = (valueIds: string[]): string => {
@@ -191,27 +415,33 @@ export const mapFormToMultipartFormData = (
   if (formData.sizes && formData.sizes.length > 0) {
     const sizeMeta = findOptionMeta('Size');
     options.push({
-      id: sizeMeta?.id || '',
+      ...(sizeMeta?.id ? { id: sizeMeta.id } : {}),
       name: 'Size',
       nameAr: sizeMeta?.nameAr || 'المقاس',
-      values: formData.sizes.map((size) => ({
-        id: sizeMeta ? findValueId(sizeMeta, size) : '',
-        value: size,
-        valueAr: size,
-      })),
+      values: formData.sizes.map((size) => {
+        const valueId = sizeMeta ? findValueId(sizeMeta, size) : '';
+        return {
+          ...(valueId ? { id: valueId } : {}),
+          value: size,
+          valueAr: size,
+        };
+      }),
     });
   }
   if (formData.colors && formData.colors.length > 0) {
     const colorMeta = findOptionMeta('Color');
     options.push({
-      id: colorMeta?.id || '',
+      ...(colorMeta?.id ? { id: colorMeta.id } : {}),
       name: 'Color',
       nameAr: colorMeta?.nameAr || 'اللون',
-      values: formData.colors.map((color) => ({
-        id: colorMeta ? findValueId(colorMeta, color) : '',
-        value: color,
-        valueAr: color,
-      })),
+      values: formData.colors.map((color) => {
+        const valueId = colorMeta ? findValueId(colorMeta, color) : '';
+        return {
+          ...(valueId ? { id: valueId } : {}),
+          value: color,
+          valueAr: color,
+        };
+      }),
     });
   }
   multipart.append('options', JSON.stringify(options));
