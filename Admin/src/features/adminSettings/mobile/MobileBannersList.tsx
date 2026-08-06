@@ -5,13 +5,7 @@ import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
-
-const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
-  CATEGORY: 'Category',
-  PRODUCT: 'Product',
-  VENDOR: 'Vendor',
-  EXTERNAL_URL: 'External',
-};
+import { BannersSkeleton } from '../components/skeletons/BannersSkeleton';
 
 const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
   CATEGORY: 'bg-violet-50 text-violet-700 border-violet-100',
@@ -27,6 +21,21 @@ export const MobileBannersList: React.FC = () => {
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
   const { banners, isLoading: bannersLoading } = useBannersData();
+
+  const getLinkTypeLabel = (type: BannerLinkType) => {
+    switch (type) {
+      case 'CATEGORY':
+        return t('banners.linkTypes.category', { defaultValue: 'Category' });
+      case 'PRODUCT':
+        return t('banners.linkTypes.product', { defaultValue: 'Product' });
+      case 'VENDOR':
+        return t('banners.linkTypes.vendor', { defaultValue: 'Vendor' });
+      case 'EXTERNAL_URL':
+        return t('banners.linkTypes.externalUrl', { defaultValue: 'External Link' });
+      default:
+        return type;
+    }
+  };
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
@@ -71,19 +80,7 @@ export const MobileBannersList: React.FC = () => {
 
       {/* Cards List */}
       {bannersLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 animate-pulse space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-24 h-14 bg-gray-100 rounded-lg shrink-0" />
-                <div className="space-y-2 flex-1">
-                  <div className="h-4 bg-gray-100 rounded w-3/4" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <BannersSkeleton isMobile />
       ) : banners.length === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center text-gray-400 text-xs border border-gray-100 shadow-2xs">
           {t('banners.noBanners', { defaultValue: 'No banners added yet.' })}
@@ -106,7 +103,7 @@ export const MobileBannersList: React.FC = () => {
                     />
                   ) : (
                     <div className="size-full flex items-center justify-center text-gray-400 text-[10px] font-medium">
-                      No Img
+                      {t('banners.noImage', { defaultValue: 'No Image' })}
                     </div>
                   )}
                 </div>
@@ -118,7 +115,7 @@ export const MobileBannersList: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     {banner.linkType && (
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${LINK_TYPE_COLOR[banner.linkType]}`}>
-                        {LINK_TYPE_LABEL[banner.linkType]}
+                        {getLinkTypeLabel(banner.linkType)}
                       </span>
                     )}
                   </div>

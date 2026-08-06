@@ -22,6 +22,14 @@ export interface VariantMeta {
   optionValueIds: string[];
 }
 
+export interface VarianceCardData {
+  id: string;
+  sizes: string[];
+  colors: string[];
+  basePrice: string;
+  comparePrice: string;
+}
+
 export interface ProductFormData {
   nameAr: string;
   nameEn: string;
@@ -40,6 +48,7 @@ export interface ProductFormData {
   categories?: string[];
   sizes?: string[];
   colors?: string[];
+  varianceCards?: VarianceCardData[];
 }
 
 export type AddProductStep = 'form' | 'review' | 'success';
@@ -86,6 +95,8 @@ export interface RawProductResponse {
   isActive?: boolean;
   isDisabled?: boolean;
   isFeatured?: boolean;
+  stock?: number;
+  stockCount?: number;
   options?: ProductOption[];
   variants?: ProductVariant[];
   images?: ProductImage[];

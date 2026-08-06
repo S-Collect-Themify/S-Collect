@@ -1,17 +1,27 @@
+import { useState, useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
 import BasicInfoFields from '../features/AddProducts/BasicInfoFields';
 import QuantityInput from '../features/AddProducts/QuantityInput';
 import TagInput from '../features/AddProducts/TagInput';
-import PricingFields from '../features/AddProducts/PricingFields';
+import CategorySelect from '../features/AddProducts/CategorySelect';
 import SuccessPopup from '../features/AddProducts/SuccessPopup';
 import MobileAddProduct from '../features/AddProducts/mobile/MobileAddProduct';
 import { useAddProductPage } from '../features/AddProducts/useAddProductPage';
 import { motion } from 'motion/react';
 
 import { containerVariants, itemVariants } from '../utils/animations';
+
+interface VarianceCardData {
+  id: string;
+  sizes: string[];
+  colors: string[];
+  basePrice: string;
+  comparePrice: string;
+}
 
 const AddProduct = () => {
   const {
@@ -20,6 +30,7 @@ const AddProduct = () => {
     productId,
     isMobile,
     isProductLoading,
+    fetchedProductData,
     methods,
     step,
     setStep,
@@ -27,16 +38,123 @@ const AddProduct = () => {
     createdThumbnail,
     enabled,
     quantity,
-    sizes,
-    colors,
     categories,
-    makeAdder,
-    makeRemover,
     onSubmit,
     handlePublish,
     handleCloseSuccess,
     handleCancel,
   } = useAddProductPage();
+
+  const [varianceCards, setVarianceCards] = useState<VarianceCardData[]>([
+    { id: '1', sizes: [], colors: [], basePrice: '', comparePrice: '' },
+  ]);
+
+  // Sync varianceCards when edit product data is loaded
+  useEffect(() => {
+    if (isEdit && fetchedProductData) {
+      if (
+        Array.isArray(fetchedProductData.varianceCards) &&
+        fetchedProductData.varianceCards.length > 0
+      ) {
+        setVarianceCards(fetchedProductData.varianceCards);
+      } else if (
+        (fetchedProductData.sizes && fetchedProductData.sizes.length > 0) ||
+        (fetchedProductData.colors && fetchedProductData.colors.length > 0) ||
+        fetchedProductData.basePrice
+      ) {
+        setVarianceCards([
+          {
+            id: '1',
+            sizes: fetchedProductData.sizes || [],
+            colors: fetchedProductData.colors || [],
+            basePrice: fetchedProductData.basePrice || '',
+            comparePrice: fetchedProductData.comparePrice || '',
+          },
+        ]);
+      }
+    }
+  }, [isEdit, fetchedProductData]);
+
+  useEffect(() => {
+    const allSizes = Array.from(new Set(varianceCards.flatMap((c) => c.sizes)));
+    const allColors = Array.from(
+      new Set(varianceCards.flatMap((c) => c.colors))
+    );
+    methods.setValue('sizes', allSizes);
+    methods.setValue('colors', allColors);
+    const firstPrice = varianceCards.find((c) => c.basePrice)?.basePrice || '';
+    const firstCompare =
+      varianceCards.find((c) => c.comparePrice)?.comparePrice || '';
+    if (firstPrice) methods.setValue('basePrice', firstPrice);
+    if (firstCompare) methods.setValue('comparePrice', firstCompare);
+  }, [varianceCards, methods]);
+
+  const handleAddVarianceCard = () => {
+    setVarianceCards((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        sizes: [],
+        colors: [],
+        basePrice: '',
+        comparePrice: '',
+      },
+    ]);
+  };
+
+  const handleRemoveVarianceCard = (id: string) => {
+    if (varianceCards.length > 1) {
+      setVarianceCards((prev) => prev.filter((c) => c.id !== id));
+    }
+  };
+
+  const handleAddCardTag = (
+    cardId: string,
+    field: 'sizes' | 'colors',
+    val: string
+  ) => {
+    setVarianceCards((prev) =>
+      prev.map((c) => {
+        if (c.id === cardId && !c[field].includes(val)) {
+          return { ...c, [field]: [...c[field], val] };
+        }
+        return c;
+      })
+    );
+  };
+
+  const handleRemoveCardTag = (
+    cardId: string,
+    field: 'sizes' | 'colors',
+    index: number
+  ) => {
+    setVarianceCards((prev) =>
+      prev.map((c) => {
+        if (c.id === cardId) {
+          return {
+            ...c,
+            [field]: c[field].filter((_, i) => i !== index),
+          };
+        }
+        return c;
+      })
+    );
+  };
+
+  const handleUpdateCardPrice = (
+    cardId: string,
+    field: 'basePrice' | 'comparePrice',
+    val: string
+  ) => {
+    setVarianceCards((prev) =>
+      prev.map((c) => {
+        if (c.id === cardId) {
+          return { ...c, [field]: val };
+        }
+        return c;
+      })
+    );
+  };
 
   if (isMobile) {
     return <MobileAddProduct productId={productId} />;
@@ -55,9 +173,10 @@ const AddProduct = () => {
       <ReviewPage
         formData={methods.getValues()}
         categories={categories}
-        sizes={sizes}
-        colors={colors}
+        sizes={varianceCards[0]?.sizes || []}
+        colors={varianceCards[0]?.colors || []}
         quantity={quantity}
+        varianceCards={varianceCards}
         onPrevious={() => setStep('form')}
         onPublish={handlePublish}
         isPublishing={isPending}
@@ -100,31 +219,126 @@ const AddProduct = () => {
                     onChange={(val) => methods.setValue('quantity', val)}
                   />
 
-                  <TagInput
-                    label={t('addProduct.sizes')}
-                    required
-                    items={sizes}
-                    onAdd={makeAdder('sizes')}
-                    onRemove={makeRemover('sizes')}
-                    placeholder={t('addProduct.enterSize')}
-                    addLabel={t('addProduct.addSize')}
-                    addBtnLabel={t('addProduct.add')}
-                    cancelBtnLabel={t('addProduct.cancel')}
-                  />
+                  {/* Category Dropdown (Right below Quantity) */}
+                  <CategorySelect />
 
-                  <TagInput
-                    label={t('addProduct.colors')}
-                    required
-                    items={colors}
-                    onAdd={makeAdder('colors')}
-                    onRemove={makeRemover('colors')}
-                    placeholder={t('addProduct.enterColor')}
-                    addLabel={t('addProduct.addColor')}
-                    addBtnLabel={t('addProduct.add')}
-                    cancelBtnLabel={t('addProduct.cancel')}
-                  />
+                  {/* Options & Variance Cards */}
+                  <div className="space-y-5">
+                    {varianceCards.map((card, cardIdx) => (
+                      <div
+                        key={card.id}
+                        className="relative rounded-2xl border border-gray-200/80 bg-gray-50/40 p-5 space-y-5"
+                      >
+                        {varianceCards.length > 1 && (
+                          <div className="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                              Variance #{cardIdx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveVarianceCard(card.id)}
+                              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer font-medium"
+                            >
+                              <Trash2 size={13} />
+                              {t('addProduct.removeVarianceCard', 'Remove Card')}
+                            </button>
+                          </div>
+                        )}
 
-                  <PricingFields />
+                        <TagInput
+                          label={t('addProduct.sizes', 'Size')}
+                          required
+                          items={card.sizes}
+                          onAdd={(val) => handleAddCardTag(card.id, 'sizes', val)}
+                          onRemove={(idx) => handleRemoveCardTag(card.id, 'sizes', idx)}
+                          placeholder={t('addProduct.enterSize')}
+                          addLabel={t('addProduct.addSize', 'Add Size')}
+                          addBtnLabel={t('addProduct.add')}
+                          cancelBtnLabel={t('addProduct.cancel')}
+                        />
+
+                        <TagInput
+                          label={t('addProduct.colors', 'Color')}
+                          required
+                          items={card.colors}
+                          onAdd={(val) => handleAddCardTag(card.id, 'colors', val)}
+                          onRemove={(idx) => handleRemoveCardTag(card.id, 'colors', idx)}
+                          placeholder={t('addProduct.enterColor')}
+                          addLabel={t('addProduct.addColor', 'Add Color')}
+                          addBtnLabel={t('addProduct.add')}
+                          cancelBtnLabel={t('addProduct.cancel')}
+                        />
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div>
+                            <label className="mb-2 block text-xs font-semibold text-gray-800">
+                              {t('addProduct.basePrice', 'Base Price')}{' '}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
+                              placeholder="189 SAR"
+                              step="0.01"
+                              min="0"
+                              value={card.basePrice}
+                              onChange={(e) =>
+                                handleUpdateCardPrice(card.id, 'basePrice', e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <div>
+                            <label className="mb-2 block text-xs font-semibold text-gray-800">
+                              {t('addProduct.comparePrice', 'Compare-at Price')}{' '}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
+                              placeholder="250 SAR"
+                              step="0.01"
+                              min="0"
+                              value={card.comparePrice}
+                              onChange={(e) =>
+                                handleUpdateCardPrice(card.id, 'comparePrice', e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add Variance Link/Button */}
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={handleAddVarianceCard}
+                      className="flex items-center gap-1.5 text-sm font-bold text-gray-900 underline hover:text-gray-700 cursor-pointer"
+                    >
+                      <Plus size={16} />
+                      {t('addProduct.addVariance', 'Add Variance')}
+                    </button>
+                  </div>
+
+
+
+                  {/* SKU Field */}
+                  {!isEdit && (
+                    <div className="pt-2">
+                      <label className="mb-2 block text-xs font-semibold text-gray-800">
+                        SKU <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none"
+                        placeholder="PRD-NAN-001"
+                        {...methods.register('sku', {
+                          required: t('addProduct.errors.skuRequired'),
+                        })}
+                      />
+                    </div>
+                  )}
                 </form>
               </motion.div>
 

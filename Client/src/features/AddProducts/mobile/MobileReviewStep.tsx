@@ -6,6 +6,7 @@ import { useMobileAddProductStore } from './mobileAddProductStore';
 import { mapFormToMultipartFormData } from '../utils';
 import { useCreateProduct } from '../useCreateProduct';
 import { useUpdateProduct } from '../useUpdateProduct';
+import VariantsPreviewCard from '../VariantsPreviewCard';
 
 const STEPS = [
   { key: 'basicInfo', label: 'Basic Info' },
@@ -194,6 +195,14 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
             </div>
           </div>
         )}
+
+        <VariantsPreviewCard
+          sizes={sizes}
+          colors={colors}
+          basePrice={formData.basePrice}
+          sku={formData.sku}
+          quantity={quantity}
+        />
       </div>
 
       {/* Step summary */}

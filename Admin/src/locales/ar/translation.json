@@ -210,6 +210,17 @@
     "mobileTitle": "طوّر متجرك",
     "mobileSubtitle": "سجّل الدخول لإدارة حساب البائع الخاص بك"
   },
+  "admin": {
+    "tagline1": "لوحة التحكم لإدارة منصتك",
+    "subtitle": "راقب البائعين، وتحكّم بكل شيء، وحافظ على تشغيل منصتك بسلاسة من مكان واحد.",
+    "becomeAdmin": "لوحة التحكم",
+    "becomeAdminDesc": "لوحة التحكم لإدارة منصتك، ومراقبة البائعين، والتحكم بكل شيء من مكان واحد.",
+    "feature1": "مراقبة أداء البائعين",
+    "feature2": "التحكم في المدفوعات والرسوم",
+    "feature3": "تحليلات فورية للمنصة",
+    "mobileTitle": "لوحة التحكم لإدارة منصتك",
+    "mobileSubtitle": "راقب البائعين، وتحكّم بكل شيء، وحافظ على تشغيل منصتك بسلاسة من مكان واحد."
+  },
   "addProduct": {
     "title": "إضافة منتج",
     "subtitle": "أضف منتجًا جديدًا إلى المخزون الخاص بك",
@@ -942,7 +953,7 @@
     "description": "إدارة فئات المنتجات عبر السوق.",
     "columns": {
       "image": "الصورة",
-      "category": "الفئة",
+      "category": "اسم الفئة",
       "slug": "الرابط (Slug)",
       "productsCount": "عدد المنتجات",
       "status": "الحالة",
@@ -1376,12 +1387,28 @@
     "addNewBanner": "إضافة بانر جديد",
     "noBanners": "لم يتم إضافة بانرات حتى الآن.",
     "delete": "حذف البانر",
+    "edit": "تعديل البانر",
+    "refreshBanners": "تحديث البانرات",
+    "dragToReorder": "سحب لإعادة الترتيب",
+    "noImage": "لا توجد صورة",
+    "reorderedNotice": "لقد قمت بتغيير ترتيب البانرات. انقر على حفظ الترتيب لتطبيق التغييرات.",
+    "saveOrder": "حفظ الترتيب",
     "table": {
+      "order": "الترتيب",
+      "thumbnail": "الصورة",
+      "title": "عنوان البانر",
+      "linkType": "نوع الرابط",
+      "status": "الحالة",
+      "actions": "الإجراءات",
       "name": "الاسم",
       "redirectLink": "رابط التوجيه",
-      "role": "الحالة",
-      "dateAdded": "تاريخ الإضافة",
-      "actions": "الإجراءات"
+      "dateAdded": "تاريخ الإضافة"
+    },
+    "linkTypes": {
+      "category": "قسم",
+      "product": "منتج",
+      "vendor": "متجر / بائع",
+      "externalUrl": "رابط خارجي"
     },
     "status": {
       "active": "نشط",
@@ -1400,17 +1427,39 @@
       "editBanner": "تعديل البانر"
     },
     "form": {
+      "bannerTitle": "عنوان البانر",
+      "bannerTitlePlaceholder": "أدخل عنوان البانر (مثال: عروض الشتاء)",
       "bannerImage": "صورة البانر",
       "uploadBannerImage": "رفع صورة البانر",
       "removeImage": "إزالة الصورة",
-      "redirectLinkUrl": "رابط التوجيه (URL)",
+      "uploadHint": "PNG, JPG, WEBP — بحد أقصى 3MB",
+      "linkType": "نوع الرابط",
+      "selectCategory": "اختر القسم",
+      "selectCategoryPlaceholder": "-- اختر قسم --",
+      "selectProduct": "اختر المنتج",
+      "selectProductPlaceholder": "-- اختر منتج --",
+      "selectVendor": "اختر المتجر / البائع",
+      "selectVendorPlaceholder": "-- اختر متجر --",
+      "externalUrl": "رابط التوجيه الخارجي",
+      "endsAt": "تاريخ الانتهاء",
       "bannerStatus": "حالة البانر",
       "bannerStatusHint": "البانرات النشطة تظهر على الصفحة الرئيسية للمنصة فوراً.",
+      "maxActiveReached": "تم الوصول للحد الأقصى للبانرات المفعلة (5 بانرات). سينشأ البنر كغير مفعل.",
       "cancel": "إلغاء",
       "saveBanner": "حفظ البانر",
       "saveChanges": "حفظ التغييرات",
       "errors": {
-        "urlRequired": "رابط التوجيه مطلوب"
+        "titleRequired": "عنوان البانر مطلوب (2-50 حرف)",
+        "titleMaxLength": "العنوان لا يتجاوز 50 حرف",
+        "imageRequired": "صورة البانر مطلوبة",
+        "imageSize": "حجم صورة البانر لا يتجاوز 3MB — الصيغ: PNG, JPG, WEBP.",
+        "categoryRequired": "القسم مطلوب",
+        "productRequired": "المنتج مطلوب",
+        "vendorRequired": "المتجر مطلوب",
+        "urlRequired": "رابط التوجيه الخارجي مطلوب",
+        "urlInvalid": "يرجى إدخال رابط صحيح",
+        "endsAtPast": "لا يمكن تفعيل البنر لأن تاريخ الانتهاء قد مضى. يرجى تحديث التاريخ أو مسحه.",
+        "maxActiveError": "لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت."
       }
     },
     "deleteModal": {

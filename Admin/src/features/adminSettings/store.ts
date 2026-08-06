@@ -165,6 +165,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
         startsAt: data.startsAt,
         endsAt: data.endsAt,
         sortOrder: data.sortOrder,
+        // isActive: data.isActive,
       });
       const newBanner: BannerItem = {
         id: created.id,
@@ -181,7 +182,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
         sortOrder: created.sortOrder,
       };
       set((state) => ({ banners: [newBanner, ...state.banners], viewMode: 'banners' }));
-      toast.success(i18n.language === 'ar' ? 'تم إضافة البنر بنجاح' : 'Banner added successfully');
+      toast.success(i18n.language === 'ar' ? 'تم إضافة البانر بنجاح' : 'Banner added successfully');
       return true;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || err?.message || 'Failed to create banner');
@@ -252,7 +253,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       );
       toast.success(
         i18n.language === 'ar'
-          ? 'تم حفظ ترتيب البنرات بنجاح'
+          ? 'تم حفظ ترتيب البانرات بنجاح'
           : 'Banner order saved successfully'
       );
       return true;
@@ -282,7 +283,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
     if (bannerData.isActive && activeCount >= MAX_ACTIVE_BANNERS) {
       const errMsg =
         i18n.language === 'ar'
-          ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+          ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
           : 'Cannot activate more than 5 banners at the same time.';
       toast.error(errMsg);
       return false;
@@ -317,7 +318,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       if (activeCount >= MAX_ACTIVE_BANNERS) {
         const errMsg =
           i18n.language === 'ar'
-            ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+            ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
             : 'Cannot activate more than 5 banners at the same time.';
         toast.error(errMsg);
         return false;
@@ -345,7 +346,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       if (activeCount >= MAX_ACTIVE_BANNERS) {
         const errMsg =
           i18n.language === 'ar'
-            ? 'لا يمكن تفعيل أكثر من 5 بنرات في نفس الوقت.'
+            ? 'لا يمكن تفعيل أكثر من 5 بانرات في نفس الوقت.'
             : 'Cannot activate more than 5 banners at the same time.';
         toast.error(errMsg);
         return;

@@ -184,15 +184,9 @@ export const useAddProductPage = () => {
       );
     };
 
-  // Form submission handler
-  // - In edit mode: update the product immediately and show success popup
-  // - In create mode: transition to Review step
+  // Form submission handler -> transition to Review step
   const onSubmit = () => {
-    if (isEdit) {
-      handlePublish();
-    } else {
-      setStep('review');
-    }
+    setStep('review');
   };
 
   // Publish / Save handler -> execute saveProduct mutation and transition to Success step
@@ -237,6 +231,7 @@ export const useAddProductPage = () => {
     productId,
     isMobile,
     isProductLoading,
+    fetchedProductData,
     methods,
     step,
     setStep,

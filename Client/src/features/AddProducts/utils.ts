@@ -5,6 +5,7 @@ import type {
   ProductOptionValue,
   OptionMeta,
   VariantMeta,
+  VarianceCardData,
   ExistingImage,
 } from './types';
 import {
@@ -110,9 +111,20 @@ export const mapProductToFormData = async (
 
   const firstVariant = raw.variants?.[0];
 
-  let quantity = 0;
-  if (Array.isArray(raw.variants)) {
-    quantity = raw.variants.reduce((sum: number, v) => sum + (v.stock ?? 0), 0);
+  let quantity =
+    typeof raw.stock === 'number' && raw.stock > 0
+      ? raw.stock
+      : typeof raw.stockCount === 'number' && raw.stockCount > 0
+        ? raw.stockCount
+        : 0;
+  if (Array.isArray(raw.variants) && raw.variants.length > 0) {
+    const sumVariantsStock = raw.variants.reduce(
+      (sum: number, v) => sum + (typeof v.stock === 'number' ? v.stock : 0),
+      0
+    );
+    if (sumVariantsStock > 0) {
+      quantity = sumVariantsStock;
+    }
   }
 
   // Preserve real variant IDs matched by their option value combination
@@ -129,6 +141,73 @@ export const mapProductToFormData = async (
       url: img.url || '',
       isThumbnail: Boolean(img.isThumbnail),
     }));
+
+  const varianceCards: VarianceCardData[] = [];
+
+  if (Array.isArray(raw.variants) && raw.variants.length > 0) {
+    const groupMap = new Map<string, VarianceCardData>();
+
+    raw.variants.forEach((variant, index) => {
+      const vPrice = variant.price?.toString() || '';
+      const vCompare = variant.compareAtPrice?.toString() || '';
+
+      const vSizes: string[] = [];
+      const vColors: string[] = [];
+
+      if (Array.isArray(variant.optionValues)) {
+        variant.optionValues.forEach((ov: any) => {
+          const optName = (ov.optionName || ov.name || '').toLowerCase();
+          const val = ov.value || ov.valueAr || '';
+          if (!val) return;
+          if (optName === 'size' || optName === 'المقاس') {
+            if (!vSizes.includes(val)) vSizes.push(val);
+          } else if (optName === 'color' || optName === 'اللون') {
+            if (!vColors.includes(val)) vColors.push(val);
+          }
+        });
+      }
+
+      const colorKey = vColors.slice().sort().join(',');
+      const sizeKey = vSizes.slice().sort().join(',');
+      const key = colorKey
+        ? `${colorKey}_${vPrice}_${vCompare}`
+        : vPrice || vCompare
+          ? `${vPrice}_${vCompare}`
+          : sizeKey
+            ? `${sizeKey}_${vPrice}`
+            : index.toString();
+
+      if (!groupMap.has(key)) {
+        groupMap.set(key, {
+          id: (groupMap.size + 1).toString(),
+          sizes: vSizes,
+          colors: vColors,
+          basePrice: vPrice,
+          comparePrice: vCompare,
+        });
+      } else {
+        const existing = groupMap.get(key)!;
+        vSizes.forEach((s) => {
+          if (!existing.sizes.includes(s)) existing.sizes.push(s);
+        });
+        vColors.forEach((c) => {
+          if (!existing.colors.includes(c)) existing.colors.push(c);
+        });
+      }
+    });
+
+    varianceCards.push(...Array.from(groupMap.values()));
+  }
+
+  if (varianceCards.length === 0) {
+    varianceCards.push({
+      id: '1',
+      sizes,
+      colors,
+      basePrice: firstVariant?.price?.toString() ?? '',
+      comparePrice: firstVariant?.compareAtPrice?.toString() ?? '',
+    });
+  }
 
   return {
     nameAr: raw.nameAr || raw.name || '',
@@ -148,6 +227,7 @@ export const mapProductToFormData = async (
     categories: [],
     sizes,
     colors,
+    varianceCards,
   };
 };
 
@@ -331,10 +411,12 @@ export const buildProductVariantMutations = (
             ),
           }))
         );
+  const totalStock =
+    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
   const stockPerVariant =
     combinations.length > 0
-      ? Math.round((formData.quantity || 0) / combinations.length)
-      : 0;
+      ? Math.max(1, Math.round(totalStock / combinations.length))
+      : totalStock;
 
   return combinations.map(({ optionValueIds, skuParts }) => {
     const existingVariant = productVariants.find((variant) => {
@@ -344,6 +426,7 @@ export const buildProductVariantMutations = (
             .filter((id): id is string => Boolean(id))
         : [];
       return (
+        optionValueIds.length > 0 &&
         existingValueIds.length === optionValueIds.length &&
         existingValueIds.every((id) => optionValueIds.includes(id))
       );
@@ -370,6 +453,16 @@ export const mapFormToMultipartFormData = (
   multipart.append('name', formData.nameEn || formData.nameAr || '');
   multipart.append('nameAr', formData.nameAr || formData.nameEn || '');
   multipart.append('categoryId', formData.categoryId || '');
+
+  const topStock =
+    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
+  multipart.append('stock', topStock.toString());
+  if (formData.basePrice) {
+    multipart.append('price', formData.basePrice);
+  }
+  if (formData.comparePrice) {
+    multipart.append('compareAtPrice', formData.comparePrice);
+  }
 
   // 2. Optional description fields
   multipart.append('description', formData.description || '');
@@ -405,7 +498,7 @@ export const mapFormToMultipartFormData = (
     const matched = formData.variantsMeta.find(
       (vm) =>
         vm.optionValueIds.length === valueIds.length &&
-        vm.optionValueIds.every((id) => valueIds.includes(id))
+        vm.optionValueIds.every((id: string) => valueIds.includes(id))
     );
     return matched?.id || '';
   };
@@ -451,7 +544,8 @@ export const mapFormToMultipartFormData = (
   const compareAtPrice = formData.comparePrice
     ? parseFloat(formData.comparePrice)
     : 0;
-  const stock = formData.quantity || 0;
+  const stock =
+    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
   const sku = formData.sku || '';
 
   const variants = [];
@@ -472,6 +566,8 @@ export const mapFormToMultipartFormData = (
 
     const sizeValues = sizeOption?.values || [null];
     const colorValues = colorOption?.values || [null];
+    const combinationsCount = sizeValues.length * colorValues.length || 1;
+    const variantStock = Math.max(1, Math.round(stock / combinationsCount));
 
     sizeValues.forEach((sizeVal) => {
       colorValues.forEach((colorVal) => {
@@ -509,8 +605,7 @@ export const mapFormToMultipartFormData = (
           sku: variantSkuParts.join('-'),
           price,
           compareAtPrice,
-          stock:
-            Math.round(stock / (sizeValues.length * colorValues.length)) || 1,
+          stock: variantStock,
           isActive: true,
           optionValues,
         });

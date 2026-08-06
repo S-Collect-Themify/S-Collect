@@ -10,14 +10,15 @@ import {
   ReviewMobileList,
   ReviewDeleteModal,
   ReviewEmptyState,
-  ReviewPagination
+  ReviewPagination,
+  ReviewSkeleton,
 } from '../features/reviews';
 
 const Reviews = () => {
   const { isMobile } = useBreakpoint();
 
   // ── Query & Mutation Hook ──
-  const { deleteMutation } = useReviewsData();
+  const { reviewsQuery, deleteMutation } = useReviewsData();
 
   // ── Store State ──
   const reviews = useReviewStore((s) => s.reviews);
@@ -126,7 +127,9 @@ const Reviews = () => {
         />
 
         {/* Review List Content or Empty State */}
-        {filteredReviews.length === 0 ? (
+        {reviewsQuery.isLoading ? (
+          <ReviewSkeleton isMobile={isMobile} />
+        ) : filteredReviews.length === 0 ? (
           <ReviewEmptyState />
         ) : isMobile ? (
           <div className="space-y-3">

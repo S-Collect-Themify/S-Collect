@@ -211,6 +211,17 @@
     "mobileTitle": "Power your store",
     "mobileSubtitle": "Sign in to manage your marketplace account"
   },
+  "admin": {
+    "tagline1": "Admin Panel Manage your platform",
+    "subtitle": "Monitor vendors, control everything, and keep your marketplace running smoothly from one place.",
+    "becomeAdmin": "Admin Access",
+    "becomeAdminDesc": "Sign in to manage your platform, monitor vendors, and control everything from one dashboard.",
+    "feature1": "Monitor vendor performance",
+    "feature2": "Control payouts & fees",
+    "feature3": "Real-time platform insights",
+    "mobileTitle": "Admin Panel Manage",
+    "mobileSubtitle": "Monitor vendors, control everything, and keep your marketplace running smoothly from one place."
+  },
   "addProduct": {
     "title": "Add Product",
     "subtitle": "Add a new product to your inventory",
@@ -946,7 +957,7 @@
     "description": "Manage product categories across the marketplace.",
     "columns": {
       "image": "Image",
-      "category": "Category",
+      "category": "Category Name",
       "slug": "Slug",
       "productsCount": "Products Count",
       "status": "Status",
@@ -1380,12 +1391,28 @@
     "addNewBanner": "Add New Banner",
     "noBanners": "No banners added yet.",
     "delete": "Delete Banner",
+    "edit": "Edit Banner",
+    "refreshBanners": "Refresh banners",
+    "dragToReorder": "Drag to reorder",
+    "noImage": "No Image",
+    "reorderedNotice": "You have reordered the banners. Click save order to apply changes.",
+    "saveOrder": "Save Banner Order",
     "table": {
+      "order": "Order",
+      "thumbnail": "Thumbnail",
+      "title": "Banner Title",
+      "linkType": "Link Type",
+      "status": "Status",
+      "actions": "Actions",
       "name": "Name",
       "redirectLink": "Redirect Link",
-      "role": "Role",
-      "dateAdded": "Date Added",
-      "actions": "Actions"
+      "dateAdded": "Date Added"
+    },
+    "linkTypes": {
+      "category": "Category",
+      "product": "Product",
+      "vendor": "Vendor",
+      "externalUrl": "External Link"
     },
     "status": {
       "active": "Active",
@@ -1404,17 +1431,39 @@
       "editBanner": "Edit Banner"
     },
     "form": {
+      "bannerTitle": "Banner Title",
+      "bannerTitlePlaceholder": "Enter banner title (e.g. Winter Sale)",
       "bannerImage": "Banner Image",
       "uploadBannerImage": "Upload Banner Image",
       "removeImage": "Remove Image",
-      "redirectLinkUrl": "Redirect Link URL",
+      "uploadHint": "PNG, JPG, WEBP — Max 3MB",
+      "linkType": "Link Type",
+      "selectCategory": "Select Category",
+      "selectCategoryPlaceholder": "-- Select Category --",
+      "selectProduct": "Select Product",
+      "selectProductPlaceholder": "-- Select Product --",
+      "selectVendor": "Select Vendor",
+      "selectVendorPlaceholder": "-- Select Vendor --",
+      "externalUrl": "External Link URL",
+      "endsAt": "Expiration Date (Ends At)",
       "bannerStatus": "Banner Status",
       "bannerStatusHint": "Active banners will display on platform home page instantly.",
+      "maxActiveReached": "Maximum active banners limit reached (5 active banners). Banner will be created as inactive.",
       "cancel": "Cancel",
       "saveBanner": "Save Banner",
       "saveChanges": "Save Changes",
       "errors": {
-        "urlRequired": "Redirect link URL is required"
+        "titleRequired": "Banner title is required (2–50 chars)",
+        "titleMaxLength": "Title must not exceed 50 characters",
+        "imageRequired": "Banner image is required",
+        "imageSize": "Banner image size must not exceed 3MB — Formats: PNG, JPG, WEBP.",
+        "categoryRequired": "Category is required",
+        "productRequired": "Product is required",
+        "vendorRequired": "Vendor is required",
+        "urlRequired": "External URL is required",
+        "urlInvalid": "Please enter a valid URL",
+        "endsAtPast": "Cannot activate banner because the expiration date (Ends At) is in the past. Please update or clear the expiration date.",
+        "maxActiveError": "Cannot activate more than 5 banners at the same time."
       }
     },
     "deleteModal": {

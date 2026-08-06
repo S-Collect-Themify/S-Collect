@@ -59,7 +59,9 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
       {/* Category Name */}
       <td className="py-3.5 px-4">
         <p className="font-semibold text-gray-900">
-          {i18n.language === 'ar' ? cat.nameAr : cat.nameEn}
+          {i18n.language === 'ar'
+            ? (cat.nameAr || cat.name || cat.nameEn || '—')
+            : (cat.nameEn || cat.name || cat.nameAr || '—')}
         </p>
       </td>
 

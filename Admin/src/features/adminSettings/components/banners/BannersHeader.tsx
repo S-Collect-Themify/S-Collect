@@ -46,7 +46,7 @@ export const BannersHeader: React.FC<BannersHeaderProps> = ({
           type="button"
           onClick={onRefresh}
           disabled={bannersLoading}
-          title="Refresh banners"
+          title={t('banners.refreshBanners', { defaultValue: 'Refresh banners' })}
           className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all cursor-pointer disabled:opacity-50"
         >
           <RefreshCw size={15} className={bannersLoading ? 'animate-spin' : ''} />

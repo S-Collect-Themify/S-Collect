@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { useShippingZonesData } from '../hooks/useShippingZonesData';
+import { ShippingZonesSkeleton } from '../components/skeletons/ShippingZonesSkeleton';
 import i18n from '../../../i18n';
 import Toggle from '../../../components/ui/Toggle';
 
@@ -42,10 +43,7 @@ export const MobileShippingZonesList: React.FC = () => {
 
       {/* Cards List */}
       {isLoading ? (
-        <div className="p-8 flex items-center justify-center text-gray-400 gap-2">
-          <Loader2 size={18} className="animate-spin" />
-          <span className="text-xs font-medium">Loading shipping zones...</span>
-        </div>
+        <ShippingZonesSkeleton isMobile />
       ) : (
         <div className="space-y-3.5">
           {shippingZones.length === 0 ? (

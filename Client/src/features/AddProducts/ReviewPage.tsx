@@ -7,12 +7,21 @@ import StepSummary from './StepSummary';
 import type { ProductFormData } from './types';
 import { containerVariants, itemVariants } from '../../utils/animations';
 
+export interface VarianceCardItem {
+  id: string;
+  sizes: string[];
+  colors: string[];
+  basePrice: string;
+  comparePrice: string;
+}
+
 interface ReviewPageProps {
   formData: ProductFormData;
   categories: string[];
   sizes: string[];
   colors: string[];
   quantity: number;
+  varianceCards?: VarianceCardItem[];
   onPrevious: () => void;
   onPublish: () => void;
   isPublishing?: boolean;
@@ -25,6 +34,7 @@ const ReviewPage = ({
   sizes,
   colors,
   quantity,
+  varianceCards,
   onPrevious,
   onPublish,
   isPublishing,
@@ -69,6 +79,7 @@ const ReviewPage = ({
                 sizes={sizes}
                 colors={colors}
                 quantity={quantity}
+                varianceCards={varianceCards}
               />
             </motion.div>
             <motion.div variants={itemVariants} className="h-full">

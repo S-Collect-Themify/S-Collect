@@ -3,16 +3,18 @@ import { Switch } from '@headlessui/react';
 interface ToggleProps {
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
 }
 
-export default function Toggle({ checked, onChange }: ToggleProps) {
+export default function Toggle({ checked, onChange, disabled }: ToggleProps) {
   return (
     <Switch
       checked={checked}
-      onChange={onChange}
+      onChange={disabled ? () => {} : onChange}
+      disabled={disabled}
       className={`${
         checked ? 'bg-green-500' : 'bg-gray-300'
-      } relative inline-flex h-6 w-11 items-center cursor-pointer rounded-full transition-colors`}
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
     >
       <span
         className={`${
