@@ -7,13 +7,6 @@ import type { BannerItem, BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
 import { BannersSkeleton } from '../components/skeletons/BannersSkeleton';
 
-const LINK_TYPE_LABEL: Record<BannerLinkType, string> = {
-  CATEGORY: 'Category',
-  PRODUCT: 'Product',
-  VENDOR: 'Vendor',
-  EXTERNAL_URL: 'External',
-};
-
 const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
   CATEGORY: 'bg-violet-50 text-violet-700 border-violet-100',
   PRODUCT: 'bg-blue-50 text-blue-700 border-blue-100',
@@ -28,6 +21,21 @@ export const MobileBannersList: React.FC = () => {
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
   const { banners, isLoading: bannersLoading } = useBannersData();
+
+  const getLinkTypeLabel = (type: BannerLinkType) => {
+    switch (type) {
+      case 'CATEGORY':
+        return t('banners.linkTypes.category', { defaultValue: 'Category' });
+      case 'PRODUCT':
+        return t('banners.linkTypes.product', { defaultValue: 'Product' });
+      case 'VENDOR':
+        return t('banners.linkTypes.vendor', { defaultValue: 'Vendor' });
+      case 'EXTERNAL_URL':
+        return t('banners.linkTypes.externalUrl', { defaultValue: 'External Link' });
+      default:
+        return type;
+    }
+  };
 
   const handleEdit = (banner: BannerItem) => {
     setEditingBanner(banner);
@@ -95,7 +103,7 @@ export const MobileBannersList: React.FC = () => {
                     />
                   ) : (
                     <div className="size-full flex items-center justify-center text-gray-400 text-[10px] font-medium">
-                      No Img
+                      {t('banners.noImage', { defaultValue: 'No Image' })}
                     </div>
                   )}
                 </div>
@@ -107,7 +115,7 @@ export const MobileBannersList: React.FC = () => {
                   <div className="flex items-center gap-2 mt-1">
                     {banner.linkType && (
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${LINK_TYPE_COLOR[banner.linkType]}`}>
-                        {LINK_TYPE_LABEL[banner.linkType]}
+                        {getLinkTypeLabel(banner.linkType)}
                       </span>
                     )}
                   </div>

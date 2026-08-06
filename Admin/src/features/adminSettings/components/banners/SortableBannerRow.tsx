@@ -58,6 +58,21 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
     backgroundColor: isDragging ? '#f9fafb' : undefined,
   };
 
+  const getLinkTypeLabel = (type: BannerLinkType) => {
+    switch (type) {
+      case 'CATEGORY':
+        return t('banners.linkTypes.category', { defaultValue: 'Category' });
+      case 'PRODUCT':
+        return t('banners.linkTypes.product', { defaultValue: 'Product' });
+      case 'VENDOR':
+        return t('banners.linkTypes.vendor', { defaultValue: 'Vendor' });
+      case 'EXTERNAL_URL':
+        return t('banners.linkTypes.externalUrl', { defaultValue: 'External Link' });
+      default:
+        return type;
+    }
+  };
+
   const linkCfg = banner.linkType ? LINK_TYPE_CONFIG[banner.linkType] : null;
 
   return (
@@ -74,7 +89,7 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 transition-colors rounded"
-            title="Drag to reorder"
+            title={t('banners.dragToReorder', { defaultValue: 'Drag to reorder' })}
           >
             <GripVertical size={16} />
           </button>
@@ -93,7 +108,7 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
             />
           ) : (
             <div className="size-full flex items-center justify-center text-gray-400 text-xs font-medium">
-              No Img
+              {t('banners.noImage', { defaultValue: 'No Image' })}
             </div>
           )}
         </div>
@@ -106,10 +121,10 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
 
       {/* Link Type */}
       <td className="py-4 px-6">
-        {linkCfg ? (
+        {linkCfg && banner.linkType ? (
           <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-medium ${linkCfg.color}`}>
             {linkCfg.icon}
-            {linkCfg.label}
+            {getLinkTypeLabel(banner.linkType)}
           </span>
         ) : (
           <span className="text-xs text-gray-400">—</span>

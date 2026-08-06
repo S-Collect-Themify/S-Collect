@@ -304,17 +304,17 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
               type="text"
               maxLength={50}
               {...register('title', {
-                required: isArabic ? 'عنوان البانر مطلوب (2-50 حرف)' : 'Banner title is required (2–50 chars)',
+                required: t('banners.form.errors.titleRequired', { defaultValue: 'Banner title is required (2–50 chars)' }),
                 minLength: {
                   value: 2,
-                  message: isArabic ? 'عنوان البانر مطلوب (2-50 حرف)' : 'Banner title is required (2–50 chars)',
+                  message: t('banners.form.errors.titleRequired', { defaultValue: 'Banner title is required (2–50 chars)' }),
                 },
                 maxLength: {
                   value: 50,
-                  message: isArabic ? 'العنوان لا يتجاوز 50 حرف' : 'Title must not exceed 50 characters',
+                  message: t('banners.form.errors.titleMaxLength', { defaultValue: 'Title must not exceed 50 characters' }),
                 },
               })}
-              placeholder={isArabic ? 'أدخل عنوان البانر' : 'Enter banner title'}
+              placeholder={t('banners.form.bannerTitlePlaceholder', { defaultValue: 'Enter banner title' })}
               className={`w-full border rounded-lg px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black transition-all ${
                 errors.title ? 'border-red-400 bg-red-50/20' : 'border-gray-200'
               }`}
@@ -350,7 +350,7 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
                 {imageError ? (
                   <><AlertCircle className="size-6 text-red-500 mb-1.5 stroke-[1.5]" /><p className="text-xs font-semibold text-red-500">{imageError}</p></>
                 ) : (
-                  <><Upload className="size-5 text-gray-400 mb-1.5" /><p className="text-xs font-semibold text-gray-700">{t('banners.form.uploadBannerImage', { defaultValue: 'Upload Image' })}</p><p className="text-[10px] text-gray-400">PNG, JPG, WEBP — Max 3MB</p></>
+                  <><Upload className="size-5 text-gray-400 mb-1.5" /><p className="text-xs font-semibold text-gray-700">{t('banners.form.uploadBannerImage', { defaultValue: 'Upload Image' })}</p><p className="text-[10px] text-gray-400">{t('banners.form.uploadHint', { defaultValue: 'PNG, JPG, WEBP — Max 3MB' })}</p></>
                 )}
               </div>
             )}
@@ -358,7 +358,9 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
 
           {/* Link Type */}
           <div>
-            <label className="text-sm font-semibold text-gray-900 mb-2 block">Link Type <span className="text-red-500">*</span></label>
+            <label className="text-sm font-semibold text-gray-900 mb-2 block">
+              {t('banners.form.linkType', { defaultValue: 'Link Type' })} <span className="text-red-500">*</span>
+            </label>
             <div className="grid grid-cols-2 gap-2">
               {LINK_TYPE_OPTIONS.map((opt) => (
                 <button
@@ -370,7 +372,13 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
                   }`}
                 >
                   <span>{opt.icon}</span>
-                  {opt.label}
+                  {opt.value === 'CATEGORY'
+                    ? t('banners.linkTypes.category', { defaultValue: 'Category' })
+                    : opt.value === 'PRODUCT'
+                    ? t('banners.linkTypes.product', { defaultValue: 'Product' })
+                    : opt.value === 'VENDOR'
+                    ? t('banners.linkTypes.vendor', { defaultValue: 'Vendor' })
+                    : t('banners.linkTypes.externalUrl', { defaultValue: 'External Link' })}
                 </button>
               ))}
             </div>
@@ -380,18 +388,18 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
           {linkType === 'CATEGORY' && (
             <div>
               <label className="text-xs font-semibold text-gray-900 mb-1 block">
-                {isArabic ? 'اختر القسم' : 'Select Category'} <span className="text-red-500">*</span>
+                {t('banners.form.selectCategory', { defaultValue: 'Select Category' })} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'CATEGORY' ? (isArabic ? 'القسم مطلوب' : 'Category is required') : false,
+                    required: linkType === 'CATEGORY' ? t('banners.form.errors.categoryRequired', { defaultValue: 'Category is required' }) : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر قسم --' : '-- Select Category --'}</option>
+                  <option value="">{t('banners.form.selectCategoryPlaceholder', { defaultValue: '-- Select Category --' })}</option>
                   {categories.map((cat: any) => (
                     <option key={cat.id} value={cat.id}>
                       {isArabic && cat.nameAr ? cat.nameAr : cat.name}
@@ -407,18 +415,18 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
           {linkType === 'PRODUCT' && (
             <div>
               <label className="text-xs font-semibold text-gray-900 mb-1 block">
-                {isArabic ? 'اختر المنتج' : 'Select Product'} <span className="text-red-500">*</span>
+                {t('banners.form.selectProduct', { defaultValue: 'Select Product' })} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'PRODUCT' ? (isArabic ? 'المنتج مطلوب' : 'Product is required') : false,
+                    required: linkType === 'PRODUCT' ? t('banners.form.errors.productRequired', { defaultValue: 'Product is required' }) : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر منتج --' : '-- Select Product --'}</option>
+                  <option value="">{t('banners.form.selectProductPlaceholder', { defaultValue: '-- Select Product --' })}</option>
                   {products.map((prod: any) => (
                     <option key={prod.id} value={prod.id}>
                       {isArabic && prod.nameAr ? prod.nameAr : prod.name}
@@ -434,18 +442,18 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
           {linkType === 'VENDOR' && (
             <div>
               <label className="text-xs font-semibold text-gray-900 mb-1 block">
-                {isArabic ? 'اختر المتجر / البائع' : 'Select Vendor'} <span className="text-red-500">*</span>
+                {t('banners.form.selectVendor', { defaultValue: 'Select Vendor' })} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   {...register('linkTargetId', {
-                    required: linkType === 'VENDOR' ? (isArabic ? 'المتجر مطلوب' : 'Vendor is required') : false,
+                    required: linkType === 'VENDOR' ? t('banners.form.errors.vendorRequired', { defaultValue: 'Vendor is required' }) : false,
                   })}
                   className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
                     errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                   }`}
                 >
-                  <option value="">{isArabic ? '-- اختر متجر --' : '-- Select Vendor --'}</option>
+                  <option value="">{t('banners.form.selectVendorPlaceholder', { defaultValue: '-- Select Vendor --' })}</option>
                   {vendors.map((vend: any) => {
                     const vendorName = vend.storeName || `${vend.firstName || ''} ${vend.lastName || ''}`.trim() || vend.id;
                     return (
@@ -464,15 +472,15 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
           {linkType === 'EXTERNAL_URL' && (
             <div>
               <label className="text-xs font-semibold text-gray-900 mb-1 block">
-                {isArabic ? 'الرابط الخارجي' : 'External Link URL'} <span className="text-red-500">*</span>
+                {t('banners.form.externalUrl', { defaultValue: 'External Link URL' })} <span className="text-red-500">*</span>
               </label>
               <input
                 type="url"
                 {...register('externalUrl', {
-                  required: linkType === 'EXTERNAL_URL' ? (isArabic ? 'الرابط مطلوب' : 'External URL is required') : false,
+                  required: linkType === 'EXTERNAL_URL' ? t('banners.form.errors.urlRequired', { defaultValue: 'External URL is required' }) : false,
                   pattern: {
                     value: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}.*$/i,
-                    message: isArabic ? 'يرجى إدخال رابط صحيح' : 'Please enter a valid URL',
+                    message: t('banners.form.errors.urlInvalid', { defaultValue: 'Please enter a valid URL' }),
                   },
                 })}
                 placeholder="https://example.com"
@@ -486,7 +494,9 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
 
           {/* Expiration Date */}
           <div>
-            <label className="text-xs font-semibold text-gray-900 mb-1 block">Ends At</label>
+            <label className="text-xs font-semibold text-gray-900 mb-1 block">
+              {t('banners.form.endsAt', { defaultValue: 'Expiration Date (Ends At)' })}
+            </label>
             <input
               type="datetime-local"
               {...register('endsAt')}
