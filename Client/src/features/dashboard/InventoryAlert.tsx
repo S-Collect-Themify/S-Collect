@@ -16,19 +16,21 @@ const InventoryAlert = () => {
 
   const { data: inventoryData, isLoading: isInvLoading } = useQuery({
     queryKey: ['dashboardInventoryAlerts'],
-    queryFn: () => getVendorInventory({ pageNum: 1, pageSize: 20 }),
+    queryFn: () => getVendorInventory({ pageNum: 1, pageSize: 50, maxStock: 5 }),
     refetchOnWindowFocus: false,
     staleTime: 2 * 60 * 1000,
   });
 
-  const { data: productsData } = useQuery({
+  const { data: productsData, isLoading: isProdLoading } = useQuery({
     queryKey: ['dashboardInventoryProductsMap'],
     queryFn: () => searchVendorProducts({ pageNum: 1, pageSize: 50 }),
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isInvLoading) {
+  const isLoading = isInvLoading || isProdLoading;
+
+  if (isLoading) {
     return <InventoryAlertSkeleton />;
   }
 
@@ -51,7 +53,10 @@ const InventoryAlert = () => {
     }
   });
 
-  const alertItems = (inventoryData?.items || [])
+  const inventoryItems = inventoryData?.items || [];
+
+  const alertItems = inventoryItems
+    .filter((item) => typeof item.stock === 'number' && item.stock <= 5)
     .map((item) => {
       const name = isAr
         ? item.productNameAr || item.productName || ''
@@ -60,14 +65,14 @@ const InventoryAlert = () => {
         ? item.labelNameAr || item.labelName
         : item.labelName || item.labelNameAr;
       const fullName = label ? `${name} - ${label}` : name;
-      const stockCount = item.stock || 0;
+      const stockCount = item.stock;
 
       let status: 'Out of Stock' | 'Low Stock' | 'In Stock' = 'In Stock';
-      let text: 'var(--red)' | 'var(--yellow)' | 'var(--green)' =
-        'var(--green)';
+      let text: 'var(--red)' | 'var(--yellow)' | 'var(--green)' = 'var(--green)';
       let background:
-        'var(--red-light)' | 'var(--yellow-light)' | 'var(--green-light)' =
-        'var(--green-light)';
+        | 'var(--red-light)'
+        | 'var(--yellow-light)'
+        | 'var(--green-light)' = 'var(--green-light)';
 
       if (stockCount === 0) {
         status = 'Out of Stock';
@@ -93,12 +98,13 @@ const InventoryAlert = () => {
     })
     .sort((a, b) => {
       const priority = { 'Out of Stock': 0, 'Low Stock': 1, 'In Stock': 2 };
-      return priority[a.status] - priority[b.status];
+      if (priority[a.status] !== priority[b.status]) {
+        return priority[a.status] - priority[b.status];
+      }
+      return a.stockCount - b.stockCount;
     });
 
-  const lowOrNoStockCount = alertItems.filter(
-    (item) => item.status === 'Out of Stock' || item.status === 'Low Stock'
-  ).length;
+  const lowOrNoStockCount = alertItems.length;
 
   return (
     <motion.div
@@ -133,7 +139,7 @@ const InventoryAlert = () => {
         variants={containerVariants}
         className="mb-6 flex flex-col gap-3 h-[60%] overflow-y-auto pr-1"
       >
-        {isInvLoading ? (
+        {isLoading ? (
           <div className="text-center py-8 text-gray-400 animate-pulse text-sm">
             Loading inventory alerts...
           </div>
