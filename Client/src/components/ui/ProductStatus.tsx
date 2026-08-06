@@ -126,15 +126,15 @@ const ProductStatus = ({ enabled, setEnabled, productId }: ProductStatusProps) =
 
       {/* Main content */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h6 className="font-semibold">{t('addProduct.productStatus')}</h6>
+        <div className="flex items-center justify-between">
+          <h6 className="font-semibold">{t('addProduct.productStatus', 'Product Status')}</h6>
 
           <Switch
             checked={enabled}
             onChange={handleToggle}
             className={`${
-              enabled ? 'bg-green' : 'bg-gray-300'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+              enabled ? 'bg-green-600' : 'bg-gray-300'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer`}
           >
             <span
               className={`${

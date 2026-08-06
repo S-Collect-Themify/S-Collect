@@ -39,36 +39,36 @@ const TagInput = ({
 
   return (
     <div>
-      <label className="mb-2 block font-medium">
+      <label className="mb-2 block text-xs font-semibold text-gray-800">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+      <div className="flex flex-wrap items-center gap-2">
         {items.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <>
             {items.map((item, index) => (
               <span
                 key={index}
-                className="inline-flex items-center gap-1 rounded-lg bg-[#E9E9E9] px-3 py-2 text-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-800"
               >
                 {item}
                 <button
                   type="button"
                   onClick={() => onRemove(index)}
-                  className="ml-1 rounded-full p-0.5 hover:bg-gray-200"
+                  className="rounded-full p-0.5 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-colors"
                 >
-                  <X size={14} />
+                  <X size={12} />
                 </button>
               </span>
             ))}
-          </div>
+          </>
         )}
 
         {show ? (
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               autoFocus
-              className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-2 focus:border-gray-950 focus:outline-none"
+              className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-1 text-xs focus:border-gray-950 focus:outline-none"
               value={value}
               placeholder={placeholder}
               onChange={(e) => setValue(e.target.value)}
@@ -82,7 +82,7 @@ const TagInput = ({
             <button
               type="button"
               onClick={handleAdd}
-              className="rounded-xl bg-gray-950 px-4 py-2 text-white"
+              className="rounded-lg bg-gray-950 px-3 py-1 text-xs text-white hover:bg-gray-800"
             >
               {addBtnLabel}
             </button>
@@ -92,7 +92,7 @@ const TagInput = ({
                 setShow(false);
                 setValue('');
               }}
-              className="rounded-xl border border-gray-300 px-4 py-2"
+              className="rounded-lg border border-gray-300 px-3 py-1 text-xs"
             >
               {cancelBtnLabel}
             </button>
@@ -101,9 +101,9 @@ const TagInput = ({
           <button
             type="button"
             onClick={() => setShow(true)}
-            className="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-gray-600 transition hover:border-gray-950 hover:text-gray-950"
+            className="flex w-fit cursor-pointer items-center gap-1 rounded-lg border border-dashed border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-gray-950 hover:text-gray-950"
           >
-            <Plus size={15} /> {addLabel}
+            <Plus size={13} /> {addLabel}
           </button>
         )}
       </div>

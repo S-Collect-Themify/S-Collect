@@ -272,7 +272,7 @@ export default function ProductInfo({
           <h3 className="mb-3 text-sm font-bold text-gray-900">
             {isArabic ? 'خيارات المنتج والأنواع' : 'Product Options & Variants'}
           </h3>
-          <div className="overflow-x-auto rounded-xl border border-gray-100">
+          <div className="max-h-80 overflow-y-auto overflow-x-auto rounded-xl border border-gray-100">
             <table className="w-full border-collapse text-left text-xs rtl:text-right">
               <thead className="border-b border-gray-100 bg-gray-50 font-semibold text-gray-500">
                 <tr>

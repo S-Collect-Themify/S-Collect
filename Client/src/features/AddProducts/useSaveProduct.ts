@@ -35,61 +35,62 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
       let rawResponse: unknown;
 
       if (isEdit && productId) {
-        const productForm = new FormData();
-        formData.forEach((value, key) => {
-          if (key !== 'options' && key !== 'variants') {
-            productForm.append(key, value);
+        try {
+          rawResponse = await updateProductFull(productId, formData);
+        } catch (fullError) {
+          console.warn(
+            'updateProductFull with variants failed, falling back:',
+            fullError
+          );
+          const productForm = new FormData();
+          formData.forEach((value, key) => {
+            if (key !== 'options' && key !== 'variants') {
+              productForm.append(key, value);
+            }
+          });
+          rawResponse = await updateProductFull(productId, productForm);
+
+          try {
+            const latestProduct = await getProductById(productId);
+            await syncProductOptions(productId, productFormData, latestProduct);
+            const productWithSyncedOptions = await getProductById(productId);
+            const variantMutations = buildProductVariantMutations(
+              productFormData,
+              productWithSyncedOptions
+            );
+
+            await Promise.all(
+              variantMutations.map((variant) =>
+                variant.id
+                  ? updateProductVariant(productId, variant.id, {
+                      price: variant.price,
+                      compareAtPrice: variant.compareAtPrice,
+                      stock: variant.stock,
+                      isActive: variant.isActive,
+                    }).catch((err) => {
+                      console.warn(
+                        `Failed to update variant ${variant.id}:`,
+                        err
+                      );
+                    })
+                  : createProductVariant(productId, {
+                      optionValueIds: variant.optionValueIds,
+                      sku: variant.sku,
+                      price: variant.price,
+                      compareAtPrice: variant.compareAtPrice,
+                      stock: variant.stock,
+                    }).catch((err) => {
+                      console.warn(
+                        `Failed to create variant ${variant.sku}:`,
+                        err
+                      );
+                    })
+              )
+            );
+          } catch (syncErr) {
+            console.warn('Sync options/variants error:', syncErr);
           }
-        });
-        rawResponse = await updateProductFull(productId, productForm);
-
-        const latestProduct = await getProductById(productId);
-        await syncProductOptions(productId, productFormData, latestProduct);
-        const productWithSyncedOptions = await getProductById(productId);
-        const variantMutations = buildProductVariantMutations(
-          productFormData,
-          productWithSyncedOptions
-        );
-        console.log(
-          'Product variant requests:',
-          variantMutations.map((variant) => ({
-            method: variant.id ? 'PATCH' : 'POST',
-            variantId: variant.id,
-            body: variant.id
-              ? {
-                  price: variant.price,
-                  compareAtPrice: variant.compareAtPrice,
-                  stock: variant.stock,
-                  isActive: variant.isActive,
-                }
-              : {
-                  optionValueIds: variant.optionValueIds,
-                  sku: variant.sku,
-                  price: variant.price,
-                  stock: variant.stock,
-                  compareAtPrice: variant.compareAtPrice,
-                },
-          }))
-        );
-
-        await Promise.all(
-          variantMutations.map((variant) =>
-            variant.id
-              ? updateProductVariant(productId, variant.id, {
-                  price: variant.price,
-                  compareAtPrice: variant.compareAtPrice,
-                  stock: variant.stock,
-                  isActive: variant.isActive,
-                })
-              : createProductVariant(productId, {
-                  optionValueIds: variant.optionValueIds,
-                  sku: variant.sku,
-                  price: variant.price,
-                  compareAtPrice: variant.compareAtPrice,
-                  stock: variant.stock,
-                })
-          )
-        );
+        }
       } else {
         rawResponse = await createProductFull(formData);
       }
