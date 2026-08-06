@@ -6,6 +6,7 @@ export interface ApiShippingZone {
   nameEn: string;
   nameAr: string;
   isEnabled: boolean;
+  vendorCount?: number;
   vendorsCount?: number;
 }
 
