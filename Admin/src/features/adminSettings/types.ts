@@ -45,6 +45,7 @@ export interface ShippingZoneItem {
   nameEn?: string;
   nameAr?: string;
   vendorsCount: number;
+  vendorCount?: number;
   isActive: boolean;
 }
 

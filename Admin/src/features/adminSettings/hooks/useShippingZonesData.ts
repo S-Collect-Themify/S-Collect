@@ -20,7 +20,7 @@ export const useShippingZonesData = () => {
         nameEn: z.nameEn,
         nameAr: z.nameAr,
         name: isArabic ? z.nameAr || z.nameEn : z.nameEn || z.nameAr,
-        vendorsCount: z.vendorsCount ?? 0,
+        vendorsCount: z.vendorCount ?? z.vendorsCount ?? 0,
         isActive: z.isEnabled ?? true,
       }));
     },
