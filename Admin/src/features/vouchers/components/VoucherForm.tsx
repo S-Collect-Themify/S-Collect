@@ -48,7 +48,7 @@ export const VoucherForm = ({
     defaultValues: {
       code: initialVoucher?.code || '',
       category: parseCategories(initialVoucher?.category),
-      scope: initialVoucher?.scope || 'All',
+      scope: initialVoucher?.scope === 'All' ? 'ALL_ORDERS' : (initialVoucher?.scope || 'ALL_ORDERS'),
       type: initialVoucher?.type || 'Percentage',
       discountValue: initialVoucher?.discountValue
         ? String(initialVoucher.discountValue)
@@ -66,7 +66,7 @@ export const VoucherForm = ({
       reset({
         code: initialVoucher.code || '',
         category: parseCategories(initialVoucher.category),
-        scope: initialVoucher.scope || 'All',
+        scope: initialVoucher.scope === 'All' ? 'ALL_ORDERS' : (initialVoucher.scope || 'ALL_ORDERS'),
         type: initialVoucher.type || 'Percentage',
         discountValue: initialVoucher.discountValue
           ? String(initialVoucher.discountValue)
@@ -82,14 +82,15 @@ export const VoucherForm = ({
     }
   }, [initialVoucher, reset]);
 
-  const selectedType = watch('type');
+  const selectedScope = watch('scope');
 
   const onFormSubmit = (data: VoucherFormData) => {
+    const isCategoryScope = data.scope === 'Category';
     onSubmit({
       ...data,
       code: data.code.trim(),
-      category: Array.isArray(data.category) ? data.category : [],
-      scope: data.scope?.trim() || 'All',
+      category: isCategoryScope && Array.isArray(data.category) ? data.category : [],
+      scope: data.scope?.trim() || 'ALL_ORDERS',
       discountValue: data.discountValue.trim(),
       minOrder: data.minOrder.trim(),
       maxDiscount: data.maxDiscount.trim(),
@@ -126,43 +127,6 @@ export const VoucherForm = ({
           )}
         </div>
 
-        {/* Category Multi-Select */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            {t('vouchersListing.form.category')}
-          </label>
-          <Controller
-            name="category"
-            control={control}
-            rules={{
-              validate: (val: any) => {
-                if (Array.isArray(val) && val.length > 0) return true;
-                if (typeof val === 'string' && (val as string).trim().length > 0) return true;
-                return t('vouchersListing.form.errors.categoryRequired');
-              },
-            }}
-            render={({ field: { value, onChange } }) => (
-              <CategoryMultiSelect
-                value={Array.isArray(value) ? value : []}
-                onChange={onChange}
-                categories={categories}
-                isLoading={isCategoriesLoading}
-                error={Boolean(errors.category)}
-                language={i18n.language}
-                placeholder={t('vouchersListing.form.categoryPlaceholder', {
-                  defaultValue: 'Select Categories',
-                })}
-              />
-            )}
-          />
-          {errors.category && (
-            <div className="flex items-center gap-1 text-xs text-red-500 mt-1">
-              <AlertCircle size={13} />
-              <span>{errors.category.message}</span>
-            </div>
-          )}
-        </div>
-
         {/* Scope Dropdown */}
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -173,20 +137,11 @@ export const VoucherForm = ({
               {...register('scope', { required: true })}
               className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-9 rtl:pr-4"
             >
-              <option value="All">
-                {t('vouchersListing.scopes.all', { defaultValue: 'All' })}
-              </option>
-              <option value="Percentage">
-                {t('vouchersListing.scopes.percentage', { defaultValue: 'Percentage' })}
+              <option value="ALL_ORDERS">
+                {t('vouchersListing.scopes.allOrders', { defaultValue: 'ALL_ORDERS' })}
               </option>
               <option value="Category">
                 {t('vouchersListing.scopes.category', { defaultValue: 'Category' })}
-              </option>
-              <option value="Vendor">
-                {t('vouchersListing.scopes.vendor', { defaultValue: 'Vendor' })}
-              </option>
-              <option value="Product">
-                {t('vouchersListing.scopes.product', { defaultValue: 'Product' })}
               </option>
             </select>
             <ChevronDown
@@ -195,6 +150,46 @@ export const VoucherForm = ({
             />
           </div>
         </div>
+
+        {/* Category Multi-Select (Only visible if scope is Category) */}
+        {selectedScope === 'Category' && (
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              {t('vouchersListing.form.category')}
+            </label>
+            <Controller
+              name="category"
+              control={control}
+              rules={{
+                validate: (val: string[] | string) => {
+                  if (selectedScope !== 'Category') return true;
+                  if (Array.isArray(val) && val.length > 0) return true;
+                  if (typeof val === 'string' && val.trim().length > 0) return true;
+                  return t('vouchersListing.form.errors.categoryRequired');
+                },
+              }}
+              render={({ field: { value, onChange } }) => (
+                <CategoryMultiSelect
+                  value={Array.isArray(value) ? value : []}
+                  onChange={onChange}
+                  categories={categories}
+                  isLoading={isCategoriesLoading}
+                  error={Boolean(errors.category)}
+                  language={i18n.language}
+                  placeholder={t('vouchersListing.form.categoryPlaceholder', {
+                    defaultValue: 'Select Categories',
+                  })}
+                />
+              )}
+            />
+            {errors.category && (
+              <div className="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <AlertCircle size={13} />
+                <span>{errors.category.message}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Voucher Type * & Discount Value * Grid (Mandatory) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -211,9 +206,6 @@ export const VoucherForm = ({
                   {t('vouchersListing.types.percentage')}
                 </option>
                 <option value="Amount">{t('vouchersListing.types.amount')}</option>
-                <option value="Free Shipping">
-                  {t('vouchersListing.types.freeShipping')}
-                </option>
               </select>
               <ChevronDown
                 size={16}
@@ -229,12 +221,8 @@ export const VoucherForm = ({
             <input
               type="text"
               placeholder={t('vouchersListing.form.discountValuePlaceholder')}
-              disabled={selectedType === 'Free Shipping'}
               {...register('discountValue', {
-                required:
-                  selectedType !== 'Free Shipping'
-                    ? t('vouchersListing.form.errors.discountValueRequired')
-                    : false,
+                required: t('vouchersListing.form.errors.discountValueRequired'),
                 pattern: {
                   value: /^\d+(\.\d+)?$/,
                   message: t('vouchersListing.form.errors.discountValueInvalid'),
@@ -244,7 +232,7 @@ export const VoucherForm = ({
                 errors.discountValue
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
                   : 'border-gray-200 focus:ring-2 focus:ring-black/5 focus:border-gray-400'
-              } ${selectedType === 'Free Shipping' ? 'bg-gray-50 opacity-60 cursor-not-allowed' : ''}`}
+              }`}
             />
             {errors.discountValue && (
               <div className="flex items-center gap-1 text-xs text-red-500 mt-1">

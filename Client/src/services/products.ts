@@ -139,15 +139,101 @@ export const deleteCategory = async (id: string): Promise<void> => {
   }
 };
 
+export interface ProductOptionValueBody {
+  value: string;
+  valueAr: string;
+}
+
+export interface CreateProductOptionBody {
+  name: string;
+  nameAr: string;
+  values: ProductOptionValueBody[];
+}
+
+export const createProductOption = async (
+  productId: string,
+  body: CreateProductOptionBody
+) => {
+  try {
+    const { data } = await api.post(
+      `/vendor/products/${productId}/options`,
+      body
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to create option for ${productId}`);
+  }
+};
+
+export const addProductOptionValue = async (
+  productId: string,
+  optionId: string,
+  body: ProductOptionValueBody
+) => {
+  try {
+    const { data } = await api.post(
+      `/vendor/products/${productId}/options/${optionId}/values`,
+      body
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to add option value for ${optionId}`);
+  }
+};
+
+export const deleteProductOptionValue = async (
+  productId: string,
+  optionId: string,
+  valueId: string
+) => {
+  try {
+    const { data } = await api.delete(
+      `/vendor/products/${productId}/options/${optionId}/values/${valueId}`
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to delete option value ${valueId}`);
+  }
+};
+
+export interface CreateProductVariantBody {
+  optionValueIds: string[];
+  sku: string;
+  price: number;
+  compareAtPrice?: number;
+  stock: number;
+}
+
+export interface UpdateProductVariantBody {
+  price?: number;
+  compareAtPrice?: number;
+  stock?: number;
+  isActive?: boolean;
+}
+
+export const createProductVariant = async (
+  productId: string,
+  body: CreateProductVariantBody
+) => {
+  const url = `/vendor/products/${productId}/variants`;
+  console.log('Create product variant request:', {
+    method: 'POST',
+    url,
+    body,
+  });
+
+  try {
+    const { data } = await api.post(url, body);
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to create variant for ${productId}`);
+  }
+};
+
 export const updateProductVariant = async (
   productId: string,
   variantId: string,
-  body: {
-    stock?: number;
-    price?: number;
-    compareAtPrice?: number;
-    isActive?: boolean;
-  }
+  body: UpdateProductVariantBody
 ) => {
   try {
     const { data } = await api.patch(
@@ -174,10 +260,7 @@ export const deleteProductImage = async (
   }
 };
 
-export const uploadProductImage = async (
-  productId: string,
-  file: File
-) => {
+export const uploadProductImage = async (productId: string, file: File) => {
   try {
     const formData = new FormData();
     formData.append('file', file);
@@ -250,12 +333,16 @@ export const activateProduct = async (productId: string) => {
 
 export const deactivateProduct = async (productId: string) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}/deactivate`);
+    const { data } = await api.patch(
+      `/vendor/products/${productId}/deactivate`
+    );
     return data;
   } catch (err) {
     const serviceErr = handleServiceError(err);
     if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
-      const { data } = await api.post(`/vendor/products/${productId}/deactivate`);
+      const { data } = await api.post(
+        `/vendor/products/${productId}/deactivate`
+      );
       return data;
     }
     throw serviceErr;

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import Toggle from '../../../components/ui/Toggle';
 import type { ProductItem } from '../types';
 
@@ -32,8 +33,11 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
             >
               {/* Product Name & Image */}
               <td className="py-4 px-6">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0">
+                <Link
+                  to={`/products/${product.id}`}
+                  className="flex items-center gap-3.5 group cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0 group-hover:opacity-90 transition-opacity">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -44,10 +48,10 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
                       }}
                     />
                   </div>
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-gray-900 group-hover:text-black group-hover:underline transition-colors">
                     {isAr && product.nameAr ? product.nameAr : product.name}
                   </span>
-                </div>
+                </Link>
               </td>
 
               {/* Vendor */}

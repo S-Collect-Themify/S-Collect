@@ -102,7 +102,9 @@ const ProductDetails = () => {
     } else if (activeFilter === '1') {
       result = result.filter((r) => r.rating === 1);
     } else if (activeFilter === 'photos') {
-      result = result.filter((r) => Array.isArray(r.photoUrls) && r.photoUrls.length > 0);
+      result = result.filter(
+        (r) => Array.isArray(r.photoUrls) && r.photoUrls.length > 0
+      );
     } else if (activeFilter === 'newest') {
       result.sort((a, b) => {
         const tA = a.date ? new Date(a.date).getTime() : 0;
@@ -152,11 +154,15 @@ const ProductDetails = () => {
     );
   }
 
-  const product = data && typeof data === 'object' && 'data' in data && (data as any).data
-    ? (data as any).data
-    : data;
+  const product =
+    data && typeof data === 'object' && 'data' in data && (data as any).data
+      ? (data as any).data
+      : data;
 
-  const isValidProduct = product && typeof product === 'object' && (Boolean(product.id) || Boolean(product.name) || Boolean(product.nameAr));
+  const isValidProduct =
+    product &&
+    typeof product === 'object' &&
+    (Boolean(product.id) || Boolean(product.name) || Boolean(product.nameAr));
 
   if (!isValidProduct) {
     return (
@@ -174,17 +180,32 @@ const ProductDetails = () => {
     );
   }
 
-  const variant = Array.isArray(product.variants) ? product.variants[0] : undefined;
+  const variant = Array.isArray(product.variants)
+    ? product.variants[0]
+    : undefined;
   const categoryList = Array.isArray(categories) ? categories : [];
-  const category = categoryList.find((c: any) => c && c.id === product.categoryId);
+  const category = categoryList.find(
+    (c: any) => c && c.id === product.categoryId
+  );
 
-  const productName = (i18n.language === 'ar' ? product.nameAr : product.name) || product.name || product.nameAr || 'Product';
-  const categoryName = (i18n.language === 'ar' ? category?.nameAr : category?.name) || category?.name || category?.nameAr || '-';
+  const productName =
+    (i18n.language === 'ar' ? product.nameAr : product.name) ||
+    product.name ||
+    product.nameAr ||
+    'Product';
+  const categoryName =
+    (i18n.language === 'ar' ? category?.nameAr : category?.name) ||
+    category?.name ||
+    category?.nameAr ||
+    '-';
 
   const reviewsCount = reviewsList.length;
 
   let computedAverage = summaryData?.averageRating ?? 0;
-  let computedTotal = summaryData?.totalReviews ?? (reviewsData?.pagination?.totalItems ?? reviewsCount);
+  let computedTotal =
+    summaryData?.totalReviews ??
+    reviewsData?.pagination?.totalItems ??
+    reviewsCount;
 
   let s5 = summaryData?.counts?.stars5 ?? 0;
   let s4 = summaryData?.counts?.stars4 ?? 0;
@@ -211,8 +232,6 @@ const ProductDetails = () => {
     { stars: 2, count: s2 },
     { stars: 1, count: s1 },
   ];
-
-
 
   return (
     <>
@@ -256,16 +275,27 @@ const ProductDetails = () => {
               : typeof product.minPrice === 'number'
                 ? product.minPrice
                 : typeof product.minPrice === 'object'
-                  ? Number(product.minPrice?.amount || product.minPrice?.value || 0)
+                  ? Number(
+                      product.minPrice?.amount || product.minPrice?.value || 0
+                    )
                   : 0)
           }
-          compareAtPrice={variant?.compareAtPrice ?? product.compareAtPrice ?? undefined}
+          compareAtPrice={
+            variant?.compareAtPrice ?? product.compareAtPrice ?? undefined
+          }
           cost={undefined}
           currency="SAR"
-          inStock={((variant?.stock ?? product.stock ?? product.stockCount ?? 0) > 0) || product.isActive === true}
-          stockCount={variant?.stock ?? product.stock ?? product.stockCount ?? 0}
+          inStock={
+            (variant?.stock ?? product.stock ?? product.stockCount ?? 0) > 0 ||
+            product.isActive === true
+          }
+          stockCount={
+            variant?.stock ?? product.stock ?? product.stockCount ?? 0
+          }
           averageRating={computedAverage}
           totalReviews={computedTotal}
+          options={Array.isArray(product.options) ? product.options : []}
+          variants={Array.isArray(product.variants) ? product.variants : []}
         />
 
         <ProductRating
@@ -317,9 +347,12 @@ class ProductDetailsErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="p-8 text-center space-y-4 bg-white rounded-2xl m-6 border border-red-100 shadow-sm">
-          <h2 className="text-xl font-bold text-red-600">Product Details Render Exception</h2>
+          <h2 className="text-xl font-bold text-red-600">
+            Product Details Render Exception
+          </h2>
           <p className="text-sm text-gray-600 max-w-xl mx-auto font-mono bg-red-50 p-3 rounded-lg text-left overflow-x-auto">
-            {this.state.error?.message || 'An unexpected rendering error occurred.'}
+            {this.state.error?.message ||
+              'An unexpected rendering error occurred.'}
           </p>
           <button
             type="button"

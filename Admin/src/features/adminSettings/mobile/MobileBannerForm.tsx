@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { Upload, ChevronRight, ChevronLeft, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Upload, ChevronRight, ChevronLeft, ChevronDown, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAdminSettingsStore, MAX_ACTIVE_BANNERS } from '../store';
 import i18n from '../../../i18n';
 import toast from 'react-hot-toast';
 import Toggle from '../../../components/ui/Toggle';
 import type { BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
+import { getAdminCategories } from '../../../services/categories';
+import { getAdminProducts } from '../../../services/products';
+import { getVendors } from '../../../services/vendors';
 
 interface MobileBannerFormProps {
   mode: 'add' | 'edit';
@@ -29,6 +33,19 @@ const LINK_TYPE_OPTIONS: { value: BannerLinkType; label: string; icon: string }[
   { value: 'EXTERNAL_URL', label: 'External Link', icon: '🔗' },
 ];
 
+const extractProductsArray = (res: any): any[] => {
+  if (!res) return [];
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res.items)) return res.items;
+  if (Array.isArray(res.products)) return res.products;
+  if (Array.isArray(res.data)) return res.data;
+  if (res.data && typeof res.data === 'object') {
+    if (Array.isArray(res.data.items)) return res.data.items;
+    if (Array.isArray(res.data.products)) return res.data.products;
+  }
+  return [];
+};
+
 export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
   const { t } = useTranslation();
   const { editingBanner, setEditingBanner, setViewMode } =
@@ -39,6 +56,25 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmEnableModalOpen, setConfirmEnableModalOpen] = useState(false);
+
+  // ── Options Data Fetching via Dedicated Endpoints ──
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-categories-banner-options-mobile'],
+    queryFn: () => getAdminCategories({ pageNum: 1, pageSize: 100 }),
+  });
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+
+  const { data: rawProductsData } = useQuery({
+    queryKey: ['admin-products-banner-options-mobile'],
+    queryFn: () => getAdminProducts({ pageNum: 1, pageSize: 100 }),
+  });
+  const products = extractProductsArray(rawProductsData);
+
+  const { data: vendorsData } = useQuery({
+    queryKey: ['admin-vendors-banner-options-mobile'],
+    queryFn: () => getVendors(),
+  });
+  const vendors = Array.isArray(vendorsData) ? vendorsData : [];
 
   // ── React Hook Form ──
   const {
@@ -333,6 +369,114 @@ export const MobileBannerForm: React.FC<MobileBannerFormProps> = ({ mode }) => {
               ))}
             </div>
           </div>
+
+          {/* Link Target DDL / Input Field */}
+          {linkType === 'CATEGORY' && (
+            <div>
+              <label className="text-xs font-semibold text-gray-900 mb-1 block">
+                {isArabic ? 'اختر القسم' : 'Select Category'} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  {...register('linkTargetId', {
+                    required: linkType === 'CATEGORY' ? (isArabic ? 'القسم مطلوب' : 'Category is required') : false,
+                  })}
+                  className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
+                    errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <option value="">{isArabic ? '-- اختر قسم --' : '-- Select Category --'}</option>
+                  {categories.map((cat: any) => (
+                    <option key={cat.id} value={cat.id}>
+                      {isArabic && cat.nameAr ? cat.nameAr : cat.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3" />
+              </div>
+              {errors.linkTargetId && <p className="text-xs text-red-500 mt-1">{errors.linkTargetId.message}</p>}
+            </div>
+          )}
+
+          {linkType === 'PRODUCT' && (
+            <div>
+              <label className="text-xs font-semibold text-gray-900 mb-1 block">
+                {isArabic ? 'اختر المنتج' : 'Select Product'} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  {...register('linkTargetId', {
+                    required: linkType === 'PRODUCT' ? (isArabic ? 'المنتج مطلوب' : 'Product is required') : false,
+                  })}
+                  className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
+                    errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <option value="">{isArabic ? '-- اختر منتج --' : '-- Select Product --'}</option>
+                  {products.map((prod: any) => (
+                    <option key={prod.id} value={prod.id}>
+                      {isArabic && prod.nameAr ? prod.nameAr : prod.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3" />
+              </div>
+              {errors.linkTargetId && <p className="text-xs text-red-500 mt-1">{errors.linkTargetId.message}</p>}
+            </div>
+          )}
+
+          {linkType === 'VENDOR' && (
+            <div>
+              <label className="text-xs font-semibold text-gray-900 mb-1 block">
+                {isArabic ? 'اختر المتجر / البائع' : 'Select Vendor'} <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  {...register('linkTargetId', {
+                    required: linkType === 'VENDOR' ? (isArabic ? 'المتجر مطلوب' : 'Vendor is required') : false,
+                  })}
+                  className={`w-full appearance-none border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer ${
+                    errors.linkTargetId ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <option value="">{isArabic ? '-- اختر متجر --' : '-- Select Vendor --'}</option>
+                  {vendors.map((vend: any) => {
+                    const vendorName = vend.storeName || `${vend.firstName || ''} ${vend.lastName || ''}`.trim() || vend.id;
+                    return (
+                      <option key={vend.id} value={vend.id}>
+                        {vendorName}
+                      </option>
+                    );
+                  })}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3" />
+              </div>
+              {errors.linkTargetId && <p className="text-xs text-red-500 mt-1">{errors.linkTargetId.message}</p>}
+            </div>
+          )}
+
+          {linkType === 'EXTERNAL_URL' && (
+            <div>
+              <label className="text-xs font-semibold text-gray-900 mb-1 block">
+                {isArabic ? 'الرابط الخارجي' : 'External Link URL'} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="url"
+                {...register('externalUrl', {
+                  required: linkType === 'EXTERNAL_URL' ? (isArabic ? 'الرابط مطلوب' : 'External URL is required') : false,
+                  pattern: {
+                    value: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}.*$/i,
+                    message: isArabic ? 'يرجى إدخال رابط صحيح' : 'Please enter a valid URL',
+                  },
+                })}
+                placeholder="https://example.com"
+                className={`w-full border rounded-lg px-3 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-black transition-all ${
+                  errors.externalUrl ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
+                }`}
+              />
+              {errors.externalUrl && <p className="text-xs text-red-500 mt-1">{errors.externalUrl.message}</p>}
+            </div>
+          )}
 
           {/* Expiration Date */}
           <div>

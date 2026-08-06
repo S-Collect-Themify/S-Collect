@@ -1011,6 +1011,18 @@
       "clearSelection": "إلغاء التحديد"
     },
     "emptyState": "لم يتم العثور على فئات",
+    "errorState": {
+      "badge": "خطأ 502 • بوابة غير صالحة",
+      "serverErrorBadge": "خطأ في الخادم ({{code}})",
+      "networkErrorBadge": "خطأ في الاتصال الشبكي",
+      "title": "تعذر تحميل التصنيفات",
+      "description": "لم نتمكن من الاتصال بالخادم لجلب قائمة التصنيفات. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
+      "description502": "الخادم غير قادر حالياً على معالجة الطلب بسبب خطأ في اتصال البوابة (502 Bad Gateway). يرجى إعادة المحاولة بعد لحظات.",
+      "retry": "إعادة المحاولة",
+      "retrying": "جاري المحاولة...",
+      "reload": "تحديث الصفحة",
+      "technicalDetails": "التفاصيل التقنية"
+    },
     "mobile": {
       "slug": "الرابط",
       "productsCount": "عدد المنتجات"
@@ -1193,7 +1205,7 @@
       "totalCosts": "إجمالي التكاليف",
       "withinBudget": "ضمن ميزانية الربع",
       "redemptionsThisMonth": "الاستخدامات هذا الشهر",
-      "increaseFromLastWeek": "+12% زيادة عن الأسبوع الماضي"
+      "increaseFromLastWeek": "-% زيادة عن الأسبوع الماضي"
     },
     "tabs": {
       "active": "نشطة",
@@ -1227,11 +1239,8 @@
       "freeShipping": "شحن مجاني"
     },
     "scopes": {
-      "percentage": "نسبة مئوية",
-      "all": "الكل",
-      "category": "فئة",
-      "vendor": "تاجر",
-      "product": "منتج"
+      "allOrders": "جميع الطلبات (ALL_ORDERS)",
+      "category": "فئة"
     },
     "statuses": {
       "active": "نشطة",

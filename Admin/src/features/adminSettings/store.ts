@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { PlatformSettings, BannerItem, AdminAccount, ShippingZoneItem, VendorShippingRate, AdminSettingsViewMode } from './types';
-import { INITIAL_PLATFORM_SETTINGS, INITIAL_ADMINS, INITIAL_SHIPPING_ZONES, INITIAL_VENDOR_RATES } from './data';
+import type { PlatformSettings, BannerItem, AdminAccount, ShippingZoneItem, AdminSettingsViewMode } from './types';
+import { INITIAL_PLATFORM_SETTINGS, INITIAL_ADMINS, INITIAL_SHIPPING_ZONES } from './data';
 import toast from 'react-hot-toast';
 import i18n from '../../i18n';
 import {
@@ -19,8 +19,6 @@ interface AdminSettingsStore {
   bannersError: string | null;
   admins: AdminAccount[];
   shippingZones: ShippingZoneItem[];
-  vendorRates: VendorShippingRate[];
-  selectedZoneForReport: ShippingZoneItem | null;
   viewMode: AdminSettingsViewMode;
   editingBanner: BannerItem | null;
   editingAdmin: AdminAccount | null;
@@ -95,7 +93,6 @@ interface AdminSettingsStore {
   openDisableZoneModal: (zone: ShippingZoneItem) => void;
   closeDisableZoneModal: () => void;
   confirmDisableZone: () => void;
-  viewZoneReport: (zone: ShippingZoneItem) => void;
 }
 
 export const MAX_ACTIVE_BANNERS = 5;
@@ -107,8 +104,6 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   bannersError: null,
   admins: INITIAL_ADMINS,
   shippingZones: INITIAL_SHIPPING_ZONES,
-  vendorRates: INITIAL_VENDOR_RATES,
-  selectedZoneForReport: INITIAL_SHIPPING_ZONES[0],
   viewMode: 'settings',
   editingBanner: null,
   editingAdmin: null,
@@ -524,10 +519,4 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       );
     }
   },
-
-  viewZoneReport: (zone) => {
-    set({ selectedZoneForReport: zone, viewMode: 'shipping-rates' });
-  },
 }));
-
-

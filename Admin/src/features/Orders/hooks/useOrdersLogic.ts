@@ -15,6 +15,7 @@ export const useOrdersLogic = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlVendorId = searchParams.get('vendorId');
+  const urlBuyerAccountId = searchParams.get('buyerAccountId');
   const { isMobile } = useBreakpoint();
 
   // Tab State
@@ -25,12 +26,15 @@ export const useOrdersLogic = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('all');
 
-  // vendorId from URL — triggers sub-orders mode
+  // vendorId & buyerAccountId from URL
   const [vendorIdFilter, setVendorIdFilter] = useState<string | undefined>(urlVendorId || undefined);
+  const [buyerAccountIdFilter, setBuyerAccountIdFilter] = useState<string | undefined>(urlBuyerAccountId || undefined);
 
   useEffect(() => {
     const vId = searchParams.get('vendorId');
+    const bId = searchParams.get('buyerAccountId');
     setVendorIdFilter(vId || undefined);
+    setBuyerAccountIdFilter(bId || undefined);
     setPage(1);
   }, [searchParams]);
 
@@ -82,6 +86,7 @@ export const useOrdersLogic = () => {
     {
       pageNum: page,
       pageSize: itemsPerPage,
+      buyerAccountId: buyerAccountIdFilter,
       status: statusParam,
       search: searchParam,
       dateFilter: dateFilter !== 'all' ? dateFilter : undefined,

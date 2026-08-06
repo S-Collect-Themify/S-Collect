@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Tag, RefreshCw } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -15,6 +15,7 @@ import {
   CannotDeleteModal,
   CategoryTable,
   CategorySkeleton,
+  CategoryErrorState,
   MobileCard,
   Pagination,
   BulkNavbar,
@@ -32,6 +33,8 @@ const Categories = () => {
     isLoading,
     isError,
     error,
+    rawError,
+    isFetching,
     refetch,
     createCategoryMutation,
     updateCategoryMutation,
@@ -181,16 +184,12 @@ const Categories = () => {
         {isLoading ? (
           <CategorySkeleton isMobile={isMobile} />
         ) : isError && categories.length === 0 ? (
-          <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-xs flex flex-col items-center justify-center">
-            <p className="text-red-500 text-sm font-medium mb-3">{error}</p>
-            <button
-              onClick={() => refetch()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-xl hover:bg-gray-800 transition-all cursor-pointer"
-            >
-              <RefreshCw size={14} />
-              Retry
-            </button>
-          </div>
+          <CategoryErrorState
+            error={error}
+            rawError={rawError}
+            refetch={refetch}
+            isFetching={isFetching}
+          />
         ) : isMobile ? (
           <div className="space-y-3">
             <AnimatePresence>

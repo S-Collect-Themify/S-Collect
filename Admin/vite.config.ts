@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v1': {
-        target: 'https://api.collect-s.com',
+        target: 'https://api.collects.ihkam.tech',
         changeOrigin: true,
       },
     },

@@ -1,34 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth';
+import { login, scheduleRefreshTokenExpiration } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
+import { getErrorMessage } from '../types/api';
 
 export interface LoginFormValues {
   email: string;
   password: string;
 }
-
-interface ApiErrorResponse {
-  response?: {
-    data?: {
-      error?: {
-        message?: string;
-      };
-      message?: string;
-    };
-  };
-  message?: string;
-}
-
-const getLoginErrorMessage = (error: unknown) => {
-  const apiError = error as ApiErrorResponse;
-  return (
-    apiError.response?.data?.error?.message ||
-    apiError.response?.data?.message ||
-    apiError.message ||
-    'Login failed'
-  );
-};
 
 export const useLogin = () => {
   const navigate = useNavigate();
@@ -43,17 +22,22 @@ export const useLogin = () => {
         }
         return response;
       } catch (error: unknown) {
-        throw new Error(getLoginErrorMessage(error), { cause: error });
+        throw new Error(getErrorMessage(error, 'Login failed'));
       }
     },
     onSuccess: (data) => {
-      const token = data?.accessToken || data?.token || data?.data?.accessToken || data?.data?.token;
+      const token =
+        data?.accessToken ||
+        data?.token ||
+        data?.data?.accessToken ||
+        data?.data?.token;
       const refreshToken = data?.refreshToken || data?.data?.refreshToken;
       if (token) {
         localStorage.setItem('token', token);
       }
       if (refreshToken) {
         localStorage.setItem('refreshToken', refreshToken);
+        scheduleRefreshTokenExpiration();
       }
 
       const result = data?.status ?? 'success';

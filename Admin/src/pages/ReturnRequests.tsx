@@ -79,15 +79,15 @@ export default function ReturnRequestsPage() {
     return apiItems.map((ref) => {
       const firstProduct = ref.items?.[0];
       const customerName = ref.customer
-        ? `${ref.customer.firstName || ''} ${ref.customer.lastName || ''}`.trim() || 'Customer'
-        : ref.shipping?.recipientName || 'Customer';
+        ? `${ref.customer.firstName || ''} ${ref.customer.lastName || ''}`.trim() || '--'
+        : ref.shipping?.recipientName || '--';
 
-      const shortId = ref.id ? (ref.id.length > 8 ? ref.id.slice(-6).toUpperCase() : ref.id) : 'N/A';
-      const orderShortId = ref.orderId ? (ref.orderId.length > 8 ? ref.orderId.slice(-6).toUpperCase() : ref.orderId) : 'N/A';
+      const shortId = ref.id ? (ref.id.length > 8 ? ref.id.slice(-6).toUpperCase() : ref.id) : '--';
+      const orderShortId = ref.orderId ? (ref.orderId.length > 8 ? ref.orderId.slice(-6).toUpperCase() : ref.orderId) : '--';
 
       const dateObj = new Date(ref.createdAt);
       const formattedDate = isNaN(dateObj.getTime())
-        ? 'Oct 24, 2026'
+        ? '--'
         : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
       return {
@@ -95,7 +95,7 @@ export default function ReturnRequestsPage() {
         id: `#REF-${shortId}`,
         orderId: `#ORD-${orderShortId}`,
         customerName,
-        productTitle: firstProduct?.productNameSnapshot || 'Product Item',
+        productTitle: firstProduct?.productNameSnapshot || '--',
         productQty: (firstProduct as any)?.quantity || 1,
         productPrice: `SAR ${(ref.totalRefundAmount || 0).toFixed(2)}`,
         productImage: typeof firstProduct?.thumbnailUrl === 'string' && firstProduct.thumbnailUrl

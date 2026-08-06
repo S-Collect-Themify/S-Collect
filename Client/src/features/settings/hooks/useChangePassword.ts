@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
-import { changePassword } from '../../../services/auth';
+import { changePassword, saveAuthSession } from '../../../services/auth';
 import { getErrorMessage } from '../../../types/api';
 
 export interface ChangePasswordPayload {
@@ -16,12 +16,9 @@ export const useChangePassword = () => {
     onSuccess: (data: Record<string, any>) => {
       const newAccessToken = data?.accessToken || data?.data?.accessToken;
       const newRefreshToken = data?.refreshToken || data?.data?.refreshToken;
-      if (newAccessToken) {
-        localStorage.setItem('token', newAccessToken);
-      }
-      if (newRefreshToken) {
-        localStorage.setItem('refreshToken', newRefreshToken);
-      }
+      const expiresInSeconds =
+        data?.expiresInSeconds || data?.data?.expiresInSeconds;
+      saveAuthSession(newAccessToken, newRefreshToken, expiresInSeconds);
     },
     onError: (err: unknown) => {
       console.error('Failed to change password:', err);

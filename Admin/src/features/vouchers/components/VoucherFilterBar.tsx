@@ -8,7 +8,7 @@ interface VoucherFilterBarProps {
 }
 
 export const VoucherFilterBar = ({
-  availableTypes = ['Percentage', 'Amount', 'Free Shipping'],
+  availableTypes = ['Percentage', 'Amount'],
   activeCount = 12,
 }: VoucherFilterBarProps) => {
   const { t } = useTranslation();

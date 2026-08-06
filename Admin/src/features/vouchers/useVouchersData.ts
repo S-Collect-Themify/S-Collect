@@ -1,9 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getVouchersList, createVoucherApi, updateVoucherApi, deleteVoucherApi, type VoucherApiData } from '../../services/vouchers';
+import {
+  getVouchersList,
+  createVoucherApi,
+  updateVoucherApi,
+  deleteVoucherApi,
+  type VoucherApiData,
+  type BackendVoucherItem,
+} from '../../services/vouchers';
 import { useVoucherStore } from './voucherStore';
 import { getVoucherStatus } from './utils';
-import type { VoucherItem } from './types';
+import type { VoucherItem, VoucherType } from './types';
+
+const extractVouchersArray = (response: any): BackendVoucherItem[] => {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (typeof response === 'object') {
+    if (Array.isArray(response.items)) return response.items;
+    if (Array.isArray(response.vouchers)) return response.vouchers;
+    if (Array.isArray(response.data)) return response.data;
+    if (response.data && typeof response.data === 'object') {
+      if (Array.isArray(response.data.items)) return response.data.items;
+      if (Array.isArray(response.data.vouchers)) return response.data.vouchers;
+    }
+  }
+  return [];
+};
 
 export const useVouchersData = () => {
   const queryClient = useQueryClient();
@@ -19,32 +41,78 @@ export const useVouchersData = () => {
     queryFn: async () => {
       try {
         const response = await getVouchersList();
-        if (Array.isArray(response)) {
-          const mapped: VoucherItem[] = response.map((v: any, idx: number) => {
-            const expiryDate = v.expiryDate || '2025-12-31';
+        const itemsArray = extractVouchersArray(response);
+
+        if (itemsArray.length > 0) {
+          const mapped: VoucherItem[] = itemsArray.map((v: any, idx: number) => {
+            const rawType = v.type || 'PERCENTAGE';
+            const type: VoucherType =
+              rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
+                ? 'Amount'
+                : 'Percentage';
+
+            const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
+            const discountText =
+              type === 'Percentage'
+                ? `${val ?? 0}%`
+                : `SAR ${val ?? 0}`;
+
+            const endsAtStr = v.endsAt || v.expiryDate;
+            const expiryDate = endsAtStr ? String(endsAtStr).split('T')[0] : '—';
+
+            const usedCount = v.usesCount ?? v.usedCount ?? 0;
+            const maxUsage = v.maxTotalUses ?? v.maxUsage ?? 100;
+            const minOrderNum = v.minOrderAmount ?? v.minOrder;
+            const minOrderStr =
+              minOrderNum !== undefined && minOrderNum !== null
+                ? String(minOrderNum).startsWith('SAR')
+                  ? String(minOrderNum)
+                  : `SAR ${minOrderNum}`
+                : 'SAR 0';
+
+            const maxDiscNum = v.maxDiscountAmount ?? v.maxDiscount;
+            const maxDiscStr =
+              maxDiscNum !== undefined && maxDiscNum !== null && maxDiscNum !== ''
+                ? String(maxDiscNum).startsWith('SAR')
+                  ? String(maxDiscNum)
+                  : `SAR ${maxDiscNum}`
+                : '—';
+
+            const limitOne =
+              v.oneUsePerUser !== undefined
+                ? Boolean(v.oneUsePerUser)
+                : Boolean(v.limitOnePerCustomer);
+
             return {
               id: v.id || v._id || String(idx + 1),
               code: v.code || `VOUCHER-${idx + 1}`,
-              category: Array.isArray(v.category) ? v.category : (v.category ? [v.category] : (Array.isArray(v.categories) ? v.categories : [])),
-              scope: v.scope || 'All',
-              type: v.type || 'Percentage',
-              discount: v.discount || (v.type === 'Percentage' ? `${v.discountValue || 20}%` : `SAR ${v.discountValue || 50}`),
-              discountValue: v.discountValue,
-              minOrder: v.minOrder ? (v.minOrder.startsWith('SAR') ? v.minOrder : `SAR ${v.minOrder}`) : 'SAR 100',
-              maxDiscount: v.maxDiscount ? (v.maxDiscount.startsWith('SAR') ? v.maxDiscount : `SAR ${v.maxDiscount}`) : '—',
-              usage: v.usage || `0/${v.maxUsage || 100}`,
-              usedCount: v.usedCount || 0,
-              maxUsage: v.maxUsage || 100,
+              category: Array.isArray(v.categoryIds)
+                ? v.categoryIds
+                : Array.isArray(v.category)
+                ? v.category
+                : v.category
+                ? [v.category]
+                : [],
+              scope: v.scope || 'ALL_ORDERS',
+              type,
+              discount: discountText,
+              discountValue: val,
+              minOrder: minOrderStr,
+              maxDiscount: maxDiscStr,
+              usage: `${usedCount}/${maxUsage}`,
+              usedCount,
+              maxUsage,
               expiryDate,
-              status: getVoucherStatus(expiryDate, v.status),
-              limitOnePerCustomer: Boolean(v.limitOnePerCustomer),
+              status: getVoucherStatus(endsAtStr || expiryDate, v.isActive),
+              limitOnePerCustomer: limitOne,
             };
           });
+
           setVouchers(mapped);
           return mapped;
         }
       } catch (e) {
-        console.warn('Vouchers API fallback to initial data');
+        console.warn('Vouchers API fetch exception:', e);
       }
       return null;
     },
@@ -59,30 +127,28 @@ export const useVouchersData = () => {
     },
     onSuccess: (_data: any, variables: VoucherApiData) => {
       const discountText =
-        variables.type === 'Percentage'
-          ? `${variables.discountValue}%`
-          : variables.type === 'Amount'
-          ? `SAR ${variables.discountValue}`
-          : '—';
+        variables.type === 'Percentage' || variables.type === 'PERCENTAGE'
+          ? `${variables.discountValue || variables.value || 0}%`
+          : `SAR ${variables.discountValue || variables.value || 0}`;
 
-      const expiryDate = variables.expiryDate || '2025-12-31';
+      const expiryDate = variables.expiryDate || (variables.endsAt ? String(variables.endsAt).split('T')[0] : '2026-12-31');
 
       const newVoucher: VoucherItem = {
         id: String(Date.now()),
         code: variables.code || `VOUCHER-${Math.floor(Math.random() * 1000)}`,
         category: Array.isArray(variables.category) ? variables.category : (variables.category ? [variables.category] : []),
-        scope: variables.scope || 'All',
-        type: variables.type,
+        scope: variables.scope || 'ALL_ORDERS',
+        type: (variables.type === 'PERCENTAGE' ? 'Percentage' : variables.type === 'FIXED_AMOUNT' ? 'Amount' : variables.type) as VoucherType,
         discount: discountText,
-        discountValue: variables.discountValue,
-        minOrder: variables.minOrder ? `SAR ${variables.minOrder}` : 'SAR 0.00',
+        discountValue: variables.discountValue || variables.value,
+        minOrder: variables.minOrder ? `SAR ${variables.minOrder}` : 'SAR 0',
         maxDiscount: variables.maxDiscount ? `SAR ${variables.maxDiscount}` : '—',
-        usage: `0/${variables.maxUsage || 100}`,
+        usage: `0/${variables.maxUsage || variables.maxTotalUses || 100}`,
         usedCount: 0,
-        maxUsage: variables.maxUsage || 100,
+        maxUsage: variables.maxUsage || variables.maxTotalUses || 100,
         expiryDate,
         status: getVoucherStatus(expiryDate),
-        limitOnePerCustomer: variables.limitOnePerCustomer,
+        limitOnePerCustomer: variables.limitOnePerCustomer ?? variables.oneUsePerUser ?? false,
       };
 
       addVoucherToStore(newVoucher);
@@ -100,15 +166,15 @@ export const useVouchersData = () => {
       return await updateVoucherApi(id, payload);
     },
     onSuccess: (_, variables) => {
-      const expiryDate = variables.payload.expiryDate;
+      const expiryDate = variables.payload.expiryDate || (variables.payload.endsAt ? String(variables.payload.endsAt).split('T')[0] : '—');
       updateVoucherInStore(variables.id, {
         code: variables.payload.code,
         category: variables.payload.category,
         scope: variables.payload.scope,
-        type: variables.payload.type,
+        type: (variables.payload.type === 'PERCENTAGE' ? 'Percentage' : variables.payload.type === 'FIXED_AMOUNT' ? 'Amount' : variables.payload.type) as VoucherType,
         expiryDate,
         status: getVoucherStatus(expiryDate),
-        limitOnePerCustomer: variables.payload.limitOnePerCustomer,
+        limitOnePerCustomer: variables.payload.limitOnePerCustomer ?? variables.payload.oneUsePerUser,
       });
       toast.success('Voucher updated successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
