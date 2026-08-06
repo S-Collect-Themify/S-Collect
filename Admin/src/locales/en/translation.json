@@ -211,6 +211,17 @@
     "mobileTitle": "Power your store",
     "mobileSubtitle": "Sign in to manage your marketplace account"
   },
+  "admin": {
+    "tagline1": "Admin Panel Manage your platform",
+    "subtitle": "Monitor vendors, control everything, and keep your marketplace running smoothly from one place.",
+    "becomeAdmin": "Admin Access",
+    "becomeAdminDesc": "Sign in to manage your platform, monitor vendors, and control everything from one dashboard.",
+    "feature1": "Monitor vendor performance",
+    "feature2": "Control payouts & fees",
+    "feature3": "Real-time platform insights",
+    "mobileTitle": "Admin Panel Manage",
+    "mobileSubtitle": "Monitor vendors, control everything, and keep your marketplace running smoothly from one place."
+  },
   "addProduct": {
     "title": "Add Product",
     "subtitle": "Add a new product to your inventory",

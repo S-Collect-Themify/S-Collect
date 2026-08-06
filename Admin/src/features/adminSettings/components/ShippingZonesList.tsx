@@ -4,6 +4,7 @@ import { ChevronRight, ChevronLeft, Loader2, CheckCircle2, AlertTriangle } from 
 import { useAdminSettingsStore } from '../store';
 import { useShippingZonesData } from '../hooks/useShippingZonesData';
 import type { ShippingZoneItem } from '../types';
+import { ShippingZonesSkeleton } from './skeletons/ShippingZonesSkeleton';
 import i18n from '../../../i18n';
 import Toggle from '../../../components/ui/Toggle';
 
@@ -77,10 +78,7 @@ export const ShippingZonesList: React.FC = () => {
       {/* Table Container */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
         {isLoading ? (
-          <div className="p-8 flex items-center justify-center text-gray-400 gap-2">
-            <Loader2 size={18} className="animate-spin" />
-            <span className="text-sm font-medium">Loading shipping zones...</span>
-          </div>
+          <ShippingZonesSkeleton />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">

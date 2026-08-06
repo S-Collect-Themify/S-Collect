@@ -11,6 +11,7 @@ import {
   ProductMobileList,
   ProductDisableModal,
   ProductPagination,
+  ProductSkeleton,
   type ProductItem,
 } from '../features/products';
 
@@ -19,7 +20,7 @@ const Products = () => {
   const [searchParams] = useSearchParams();
 
   // ── Query & Mutation Hook ──
-  const { statusMutation } = useProductsData();
+  const { productsQuery, statusMutation } = useProductsData();
 
   // ── Store State ──
   const products = useProductStore((s) => s.products);
@@ -148,7 +149,9 @@ const Products = () => {
         />
 
         {/* Product List Content */}
-        {isMobile ? (
+        {productsQuery.isLoading ? (
+          <ProductSkeleton isMobile={isMobile} />
+        ) : isMobile ? (
           <div className="space-y-3">
             <ProductMobileList
               products={paginatedProducts}

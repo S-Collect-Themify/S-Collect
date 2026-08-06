@@ -11,3 +11,4 @@ export * from './components/VoucherMobileList';
 export * from './components/VoucherDeleteModal';
 export * from './components/VoucherPagination';
 export * from './components/VoucherForm';
+export * from './components/VoucherSkeleton';
