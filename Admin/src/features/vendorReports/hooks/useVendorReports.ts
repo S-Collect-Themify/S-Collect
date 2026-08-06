@@ -1,78 +1,155 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { getAdminSubOrders } from '../../../services/orders';
+import {
+  getVendorSalesReportSummary,
+  getVendorSalesReportOrders,
+  type BackendSalesReportOrderItem,
+  type VendorSalesReportSummary,
+} from '../../../services/vendorReports';
 import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
-import type { DetailedOrder, OrderStatus } from '../types';
+import type { DateRangeKey, DetailedOrder, OrderStatus } from '../types';
 
-async function fetchVendorReportOrdersData(vendorId: string | undefined, pageNum: number, pageSize: number) {
-  if (!vendorId) {
-    return { orders: [], totalOrdersCount: 0, totalPages: 1 };
+export function getDateRangeStrings(rangeKey: DateRangeKey): { dateFrom: string; dateTo: string } {
+  const now = new Date();
+  const dateTo = now.toISOString().split('T')[0];
+  let fromDate = new Date();
+
+  switch (rangeKey) {
+    case 'last7Days':
+      fromDate.setDate(now.getDate() - 7);
+      break;
+    case 'last30Days':
+      fromDate.setDate(now.getDate() - 30);
+      break;
+    case 'thisMonth':
+      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+    case 'thisYear':
+      fromDate = new Date(now.getFullYear(), 0, 1);
+      break;
+    default:
+      fromDate.setDate(now.getDate() - 30);
+      break;
   }
 
-  const res = await getAdminSubOrders({ vendorId, pageNum, pageSize });
-  const mapped: DetailedOrder[] = (res.items || []).map((ord: any) => {
-    const idStr = ord.id ? String(ord.id) : ord.orderId ? String(ord.orderId) : '';
-    const shortId = idStr ? (idStr.length > 8 ? idStr.slice(-6).toUpperCase() : idStr) : '--';
-    const orderIdStr = shortId !== '--' ? `#ORD-${shortId}` : '--';
-    const dateStr = ord.createdAt || ord.shippedAt
-      ? new Date(ord.createdAt || ord.shippedAt).toISOString().split('T')[0]
-      : '--';
+  const dateFrom = fromDate.toISOString().split('T')[0];
+  return { dateFrom, dateTo };
+}
 
-    const amt = typeof ord.totalAmount === 'number'
-      ? ord.totalAmount
-      : typeof ord.subtotalAmount === 'number'
-      ? ord.subtotalAmount
-      : parseFloat(ord.totalAmount) || 0;
+function mapBackendOrderItemToDetailedOrder(item: BackendSalesReportOrderItem): DetailedOrder {
+  const orderIdStr = item.orderId
+    ? String(item.orderId).startsWith('#')
+      ? String(item.orderId)
+      : `#ORD-${String(item.orderId).slice(-6).toUpperCase()}`
+    : item.orderNumber
+    ? `#ORD-${String(item.orderNumber)}`
+    : '--';
 
-    const commissionRate = typeof ord.commissionRateApplied === 'number' ? ord.commissionRateApplied : 10;
-    const commissionAmt = (amt * commissionRate) / 100;
-    const netAmt = Math.max(0, amt - commissionAmt);
+  let dateStr = '--';
+  if (item.date) {
+    const parsed = new Date(item.date);
+    if (!isNaN(parsed.getTime())) {
+      dateStr = parsed.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+  }
 
-    const statusLower = (ord.status || 'processing').toLowerCase();
-    let parsedStatus: OrderStatus = 'processing';
-    if (['delivered', 'completed'].includes(statusLower)) parsedStatus = 'delivered';
-    else if (['canceled', 'cancelled', 'rejected'].includes(statusLower)) parsedStatus = 'canceled';
-    else if (['shipped'].includes(statusLower)) parsedStatus = 'shipped';
+  const amt = typeof item.amount === 'number' ? item.amount : parseFloat(item.amount) || 0;
+  const comm = typeof item.commission === 'number' ? item.commission : parseFloat(item.commission) || 0;
+  const net = typeof item.net === 'number' ? item.net : parseFloat(item.net) || 0;
 
-    return {
-      id: orderIdStr,
-      date: dateStr,
-      amount: amt,
-      commission: Math.round(commissionAmt * 100) / 100,
-      net: Math.round(netAmt * 100) / 100,
-      status: parsedStatus,
-    };
-  });
+  const rawStatus = (item.overallStatus || 'PENDING').toLowerCase();
+  let parsedStatus: OrderStatus = 'processing';
+  if (['delivered', 'completed', 'accepted'].includes(rawStatus)) {
+    parsedStatus = 'delivered';
+  } else if (['canceled', 'cancelled', 'rejected'].includes(rawStatus)) {
+    parsedStatus = 'canceled';
+  } else if (['shipped', 'dispatched'].includes(rawStatus)) {
+    parsedStatus = 'shipped';
+  } else {
+    parsedStatus = 'processing';
+  }
 
   return {
-    orders: mapped,
-    totalOrdersCount: res.pagination?.totalItems ?? mapped.length,
-    totalPages: res.pagination?.totalPages ?? 1,
+    id: orderIdStr,
+    date: dateStr,
+    amount: Math.round(amt * 100) / 100,
+    commission: Math.round(comm * 100) / 100,
+    net: Math.round(net * 100) / 100,
+    status: parsedStatus,
   };
 }
 
-export function useVendorReportOrders(vendorId?: string, pageNum: number = 1, pageSize: number = 20) {
+export function useVendorSalesReportSummary(
+  dateFrom: string,
+  dateTo: string,
+  vendorId?: string
+) {
+  return useQuery<VendorSalesReportSummary>({
+    queryKey: ['vendor-sales-report-summary', dateFrom, dateTo, vendorId],
+    queryFn: () => getVendorSalesReportSummary({ dateFrom, dateTo, vendorId }),
+    enabled: !!dateFrom && !!dateTo,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useVendorReportOrders(
+  dateFrom: string,
+  dateTo: string,
+  vendorId?: string,
+  pageNum: number = 1,
+  pageSize: number = 25
+) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ['vendor-report-orders', vendorId, pageNum, pageSize],
-    queryFn: () => fetchVendorReportOrdersData(vendorId, pageNum, pageSize),
-    enabled: !!vendorId,
+    queryKey: ['vendor-sales-report-orders', dateFrom, dateTo, vendorId, pageNum, pageSize],
+    queryFn: async () => {
+      if (!dateFrom || !dateTo) {
+        return { orders: [], totalOrdersCount: 0, totalPages: 1 };
+      }
+      const res = await getVendorSalesReportOrders({ dateFrom, dateTo, vendorId, pageNum, pageSize });
+      const orders = res.items.map(mapBackendOrderItemToDetailedOrder);
+      return {
+        orders,
+        totalOrdersCount: res.pagination?.totalItems ?? orders.length,
+        totalPages: res.pagination?.totalPages ?? 1,
+      };
+    },
+    enabled: !!dateFrom && !!dateTo,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   // Prefetch next page using React Query
   useEffect(() => {
-    if (vendorId && query.data && pageNum < query.data.totalPages) {
+    if (dateFrom && dateTo && query.data && pageNum < query.data.totalPages) {
       queryClient.prefetchQuery({
-        queryKey: ['vendor-report-orders', vendorId, pageNum + 1, pageSize],
-        queryFn: () => fetchVendorReportOrdersData(vendorId, pageNum + 1, pageSize),
+        queryKey: ['vendor-sales-report-orders', dateFrom, dateTo, vendorId, pageNum + 1, pageSize],
+        queryFn: async () => {
+          const res = await getVendorSalesReportOrders({
+            dateFrom,
+            dateTo,
+            vendorId,
+            pageNum: pageNum + 1,
+            pageSize,
+          });
+          const orders = res.items.map(mapBackendOrderItemToDetailedOrder);
+          return {
+            orders,
+            totalOrdersCount: res.pagination?.totalItems ?? orders.length,
+            totalPages: res.pagination?.totalPages ?? 1,
+          };
+        },
         staleTime: 5 * 60 * 1000,
       });
     }
-  }, [vendorId, query.data, pageNum, pageSize, queryClient]);
+  }, [dateFrom, dateTo, vendorId, query.data, pageNum, pageSize, queryClient]);
 
   return {
     orders: query.data?.orders ?? [],

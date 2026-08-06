@@ -2,7 +2,7 @@ import { api } from './api';
 
 export interface BackendVendor {
   id: string;
-  email?: string | Record<string, unknown>;
+  email?: string | Record<string, unknown> | null;
   firstName?: string;
   lastName?: string;
   storeName?: string;
@@ -10,7 +10,10 @@ export interface BackendVendor {
   status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   isFeatured?: boolean;
   commissionRate?: number | string | Record<string, unknown> | null;
+  submittedDate?: string;
   createdAt?: string;
+  totalRevenue?: number;
+  totalOrders?: number;
 }
 
 export interface BackendVendorDetail {
@@ -31,62 +34,94 @@ export interface BackendVendorDetail {
   rejectionReason?: string | Record<string, unknown> | null;
   deactivationReason?: string | Record<string, unknown> | null;
   createdAt?: string;
+  submittedDate?: string;
+  totalRevenue?: number;
+  totalOrders?: number;
 }
 
 export interface GetVendorsParams {
+  pageNum?: number;
+  pageSize?: number;
   status?: string;
+  search?: string;
 }
 
-function extractVendorArray(resData: unknown): BackendVendor[] {
-  if (Array.isArray(resData)) {
-    return resData;
+export interface BackendVendorsPagination {
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface BackendVendorsResponse {
+  items: BackendVendor[];
+  pagination: BackendVendorsPagination;
+}
+
+function extractVendorResponse(resData: unknown): BackendVendorsResponse {
+  if (!resData || typeof resData !== 'object') {
+    return {
+      items: [],
+      pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 },
+    };
   }
-  const obj = resData as { data?: unknown; items?: unknown };
-  if (obj?.data && Array.isArray(obj.data)) {
-    return obj.data;
+
+  const obj = resData as {
+    data?: unknown;
+    items?: unknown;
+    pagination?: unknown;
+  };
+
+  let items: BackendVendor[] = [];
+  if (Array.isArray(obj.items)) {
+    items = obj.items;
+  } else if (Array.isArray(obj.data)) {
+    items = obj.data;
+  } else if (Array.isArray(resData)) {
+    items = resData;
+  } else if (obj.data && typeof obj.data === 'object' && Array.isArray((obj.data as any).items)) {
+    items = (obj.data as any).items;
   }
-  if (obj?.items && Array.isArray(obj.items)) {
-    return obj.items;
+
+  let pagination: BackendVendorsPagination;
+  const p =
+    (obj.pagination as any) ||
+    (obj.data && typeof obj.data === 'object' ? (obj.data as any).pagination : null);
+
+  if (p && typeof p === 'object') {
+    pagination = {
+      currentPage: Number(p.currentPage ?? p.page ?? 1),
+      pageSize: Number(p.pageSize ?? p.limit ?? items.length ?? 25),
+      totalItems: Number(p.totalItems ?? p.total ?? items.length),
+      totalPages: Number(p.totalPages ?? p.pages ?? 1),
+    };
+  } else {
+    pagination = {
+      currentPage: 1,
+      pageSize: items.length || 25,
+      totalItems: items.length,
+      totalPages: 1,
+    };
   }
-  return [];
+
+  return { items, pagination };
 }
 
 /**
  * Fetch vendors list from GET /api/v1/admin/vendors
- * Supports single status or comma-separated status strings (e.g. 'ACTIVE,DEACTIVATED')
- * Automatically sorts results by createdAt timestamp descending (latest updated first).
+ * Accepts pageNum, pageSize, status ('PENDING_APPROVAL', 'ACTIVE', 'REJECTED', 'DEACTIVATED'), and search parameters.
+ * Preserves the exact item order returned in the API response.
  */
-export async function getVendors(params?: GetVendorsParams): Promise<BackendVendor[]> {
-  const statusParam = params?.status;
-  let rawVendors: BackendVendor[] = [];
+export async function getVendors(params?: GetVendorsParams): Promise<BackendVendorsResponse> {
+  const queryParams: Record<string, any> = {};
 
-  if (statusParam && statusParam.includes(',')) {
-    const statusList = statusParam.split(',').map((s) => s.trim());
-    const results = await Promise.all(
-      statusList.map(async (status) => {
-        const response = await api.get('/admin/vendors', { params: { status } });
-        return extractVendorArray(response.data);
-      })
-    );
-    rawVendors = results.flat();
-  } else {
-    const response = await api.get('/admin/vendors', {
-      params: statusParam ? { status: statusParam } : undefined,
-    });
-    rawVendors = extractVendorArray(response.data);
-  }
+  if (params?.pageNum !== undefined) queryParams.pageNum = params.pageNum;
+  if (params?.pageSize !== undefined) queryParams.pageSize = params.pageSize;
+  if (params?.search?.trim()) queryParams.search = params.search.trim();
+  if (params?.status?.trim()) queryParams.status = params.status.trim();
 
-  // Sort by creation / update date descending (latest first)
-  rawVendors.sort((a, b) => {
-    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    if (timeA !== timeB) {
-      return timeB - timeA;
-    }
-    return b.id.localeCompare(a.id);
-  });
-
-  return rawVendors;
+  const response = await api.get('/admin/vendors', { params: queryParams });
+  return extractVendorResponse(response.data);
 }
 
 /**
@@ -149,22 +184,30 @@ export interface GetVendorPayoutsParams {
   pageSize?: number;
 }
 
+export interface BackendRecordedByAdmin {
+  firstName?: string | Record<string, unknown> | null;
+  lastName?: string | Record<string, unknown> | null;
+  email?: string | null;
+}
+
 export interface BackendVendorPayoutItem {
   id: string;
+  ref?: number | string;
   vendorId: string;
-  amount: string | number;
+  amount: number | string;
   isAdjustment?: boolean;
-  referenceNote?: string | Record<string, any> | null;
+  status?: string;
+  referenceNote?: string | Record<string, unknown> | null;
   transferDate?: string;
   recordedByAdminId?: string;
-  clarifyingNote?: string | Record<string, any> | null;
+  clarifyingNote?: string | Record<string, unknown> | null;
   createdAt?: string;
-  status?: string;
+  recordedByAdmin?: BackendRecordedByAdmin | null;
 }
 
 export interface VendorPayoutsResponse {
   items: BackendVendorPayoutItem[];
-  pagination?: {
+  pagination: {
     currentPage: number;
     pageSize: number;
     totalItems: number;
@@ -174,11 +217,12 @@ export interface VendorPayoutsResponse {
 
 /**
  * Fetch vendor payouts list GET /api/v1/admin/vendors/{vendorId}/payouts
+ * Accepts pageNum, pageSize parameters.
  */
 export async function getVendorPayouts(
   vendorId: string,
   params?: GetVendorPayoutsParams
-): Promise<any> {
+): Promise<VendorPayoutsResponse | null> {
   try {
     const response = await api.get(`/admin/vendors/${vendorId}/payouts`, {
       params: {

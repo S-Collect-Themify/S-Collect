@@ -39,10 +39,11 @@ export function usePayouts() {
     async function loadData() {
       setIsLoading(true);
       try {
-        const vendors = await getVendors();
+        const res = await getVendors();
+        const vendors = Array.isArray(res) ? res : res?.items || [];
         if (!isMounted) return;
 
-        const mappedItems: PendingPayoutItem[] = (vendors || []).map((v) => {
+        const mappedItems: PendingPayoutItem[] = vendors.map((v) => {
           const vName =
             v.storeName ||
             [v.firstName, v.lastName].filter(Boolean).join(' ') ||

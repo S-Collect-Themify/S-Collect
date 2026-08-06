@@ -187,9 +187,9 @@ export default function VendorMobileList({
                     <p>{t('vendors.mobile.owner', 'Owner')}: <span className="font-semibold text-gray-800">{vendor.owner || '----'}</span></p>
                     <p>{t('vendors.mobile.submitted', 'Submitted')}: <span className="font-semibold text-gray-800">{vendor.submittedDate || '----'}</span></p>
                     <p>{t('vendors.mobile.email', 'Email')}: <span className="font-semibold text-gray-800 truncate block">{vendor.email || '----'}</span></p>
-                    <p>{t('vendors.mobile.orders', 'Orders')}: <span className="font-semibold text-gray-800">{vendor.orders != null && vendor.orders > 0 ? vendor.orders : '----'}</span></p>
+                    <p>{t('vendors.mobile.orders', 'Orders')}: <span className="font-semibold text-gray-800">{vendor.orders != null ? vendor.orders : '----'}</span></p>
                     <p className="col-span-2">
-                      {t('vendors.mobile.revenue', 'Revenue')}: <span className="font-bold text-gray-900">{vendor.revenue != null && vendor.revenue > 0 ? `SAR ${vendor.revenue.toLocaleString()}` : '----'}</span>
+                      {t('vendors.mobile.revenue', 'Revenue')}: <span className="font-bold text-gray-900">{vendor.revenue != null ? `SAR ${vendor.revenue.toLocaleString()}` : '----'}</span>
                     </p>
                   </div>
                 </div>

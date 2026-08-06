@@ -88,7 +88,10 @@ export interface VendorOption {
 export const getVendorsList = async (): Promise<VendorOption[]> => {
   try {
     const { data } = await api.get('/admin/vendors');
-    return data;
+    if (Array.isArray(data)) return data;
+    if (data?.items && Array.isArray(data.items)) return data.items;
+    if (data?.data && Array.isArray(data.data)) return data.data;
+    return [];
   } catch {
     return [];
   }

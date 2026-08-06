@@ -10,6 +10,7 @@ import {
   getVendorPayouts,
   getVendorPayoutSummary,
   getVendorPayoutStats,
+  type GetVendorsParams,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
@@ -37,12 +38,24 @@ export function useVendorCategories() {
   });
 }
 
-export function useVendors(status?: string) {
+export function useVendors(params?: string | GetVendorsParams) {
+  const queryParams: GetVendorsParams =
+    typeof params === 'string' ? { status: params } : params || {};
+
   return useQuery({
-    queryKey: ['vendors', status],
+    queryKey: ['vendors', queryParams],
     queryFn: async () => {
-      const data = await getVendors({ status });
-      return data.map(mapBackendVendorToVendor);
+      const data = await getVendors(queryParams);
+      const items = (data.items || []).map(mapBackendVendorToVendor);
+      return Object.assign(items, {
+        items,
+        pagination: data.pagination || {
+          currentPage: 1,
+          pageSize: items.length || 25,
+          totalItems: items.length,
+          totalPages: 1,
+        },
+      });
     },
     retry: 2,
     staleTime: 5 * 60 * 1000,
