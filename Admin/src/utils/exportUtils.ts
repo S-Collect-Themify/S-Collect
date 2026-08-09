@@ -6,9 +6,9 @@ export interface ExportSummaryStat {
 /**
  * Export data array to CSV / Excel with UTF-8 BOM for Arabic support
  */
-export function exportToCSV<T extends Record<string, unknown>>(
+export function exportToCSV<T extends Record<string, any>>(
   filename: string,
-  headers: { key: keyof T; label: string }[],
+  headers: { key: keyof T | string; label: string }[],
   data: T[],
   summaryStats?: ExportSummaryStat[]
 ) {
@@ -31,7 +31,7 @@ export function exportToCSV<T extends Record<string, unknown>>(
   data.forEach((item) => {
     const row = headers
       .map((h) => {
-        const val = item[h.key] ?? '';
+        const val = item[h.key as keyof T] ?? '';
         return `"${String(val).replace(/"/g, '""')}"`;
       })
       .join(',');
@@ -54,9 +54,9 @@ export function exportToCSV<T extends Record<string, unknown>>(
 /**
  * Export table data as PDF using printable window document
  */
-export function exportToPDF<T extends Record<string, unknown>>(
+export function exportToPDF<T extends Record<string, any>>(
   title: string,
-  headers: { key: keyof T; label: string }[],
+  headers: { key: keyof T | string; label: string }[],
   data: T[],
   summaryStats?: ExportSummaryStat[]
 ) {

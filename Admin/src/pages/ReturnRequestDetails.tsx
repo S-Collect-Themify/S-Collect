@@ -75,7 +75,8 @@ export default function ReturnRequestDetailsPage() {
 
   const customerEmail = refund?.customer?.email || '--';
   const customerPhone = refund?.customer?.phoneNumber || refund?.shipping?.recipientPhone || '--';
-  const paymentMethod = refund?.paymentMethod || (refund as Record<string, unknown>)?.paymentStatus || '--';
+  const rawPayment = (refund as any)?.paymentMethod || (refund as any)?.paymentStatus;
+  const paymentMethod: string = typeof rawPayment === 'string' && rawPayment ? rawPayment : '--';
 
   const formattedDate = refund?.createdAt
     ? new Date(refund.createdAt).toLocaleDateString('en-US', {

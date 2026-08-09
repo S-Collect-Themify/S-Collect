@@ -129,7 +129,7 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
 };
 
 const resolveVendorName = (
-  sub: { vendorId?: string; vendorName?: string; storeName?: string; vendor?: { businessName?: string; name?: string }; [key: string]: unknown },
+  sub: any,
   fallbackRecipientName?: string
 ): string => {
   const fromApi =

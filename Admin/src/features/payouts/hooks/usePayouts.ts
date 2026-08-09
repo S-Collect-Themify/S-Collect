@@ -39,7 +39,8 @@ export async function fetchAllPendingVendorPayouts(): Promise<PendingPayoutItem[
     return 0;
   };
 
-  return items.map((item: Record<string, unknown>) => {
+  return items.map((rawItem: unknown) => {
+    const item = rawItem as Record<string, any>;
     const vId = String(item.vendorId || item.id || item._id || '');
     const vName = (item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--') as string;
 
@@ -134,7 +135,8 @@ export function usePayouts() {
 
   const pendingPayouts: PendingPayoutItem[] = useMemo(() => {
     if (!pendingData?.items) return [];
-    return pendingData.items.map((item: Record<string, unknown>) => {
+    return pendingData.items.map((rawItem: unknown) => {
+      const item = rawItem as Record<string, any>;
       const vId = String(item.vendorId || item.id || item._id || '');
       const vName = (item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--') as string;
 
