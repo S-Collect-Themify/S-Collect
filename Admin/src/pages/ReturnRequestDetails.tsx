@@ -100,8 +100,12 @@ export default function ReturnRequestDetailsPage() {
 
   const handleConfirmApprove = async () => {
     if (!id) return;
-    await approveMutation.mutateAsync(id);
-    setShowApproveModal(false);
+    try {
+      await approveMutation.mutateAsync(id);
+      setShowApproveModal(false);
+    } catch {
+      // Error toast handled by useApproveAdminRefund mutation onError
+    }
   };
 
   const handleConfirmReject = async () => {
@@ -112,19 +116,27 @@ export default function ReturnRequestDetailsPage() {
       return;
     }
     setRejectReasonError(false);
-    await rejectMutation.mutateAsync({
-      id,
-      reason: trimmedReason,
-    });
-    setShowRejectModal(false);
+    try {
+      await rejectMutation.mutateAsync({
+        id,
+        reason: trimmedReason,
+      });
+      setShowRejectModal(false);
+    } catch {
+      // Error toast handled by useRejectAdminRefund mutation onError
+    }
   };
 
   const handleSaveNotes = async () => {
     if (!id) return;
-    await notesMutation.mutateAsync({
-      id,
-      notes: adminNoteInput,
-    });
+    try {
+      await notesMutation.mutateAsync({
+        id,
+        notes: adminNoteInput,
+      });
+    } catch {
+      // Error toast handled by useUpdateAdminRefundNotes mutation onError
+    }
   };
 
   if (isLoading) {

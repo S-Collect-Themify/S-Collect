@@ -130,25 +130,56 @@ export async function getAdminRefundDetail(id: string): Promise<AdminRefund> {
 }
 
 /**
- * Approve refund: PATCH /api/v1/admin/refunds/{id}/approve
+ * Approve refund: POST /api/v1/admin/refunds/{id}/approve (with PATCH fallback)
  */
 export async function approveAdminRefund(id: string): Promise<AdminRefund> {
-  const response = await api.patch(`/admin/refunds/${id}/approve`);
-  const data = response.data;
-  return data?.data || data;
+  try {
+    const response = await api.post(`/admin/refunds/${id}/approve`);
+    const data = response.data;
+    return data?.data || data;
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 404) {
+      const patchRes = await api.patch(`/admin/refunds/${id}/approve`);
+      const patchData = patchRes.data;
+      return patchData?.data || patchData;
+    }
+    throw err;
+  }
 }
 
 /**
- * Reject refund: POST /api/v1/admin/refunds/{id}/reject
+ * Reject refund: POST /api/v1/admin/refunds/{id}/reject (with PATCH fallback)
  */
 export async function rejectAdminRefund(id: string, reason: string): Promise<AdminRefund> {
   const trimmedReason = reason?.trim();
   if (!trimmedReason) {
     throw new Error('Rejection reason is required.');
   }
-  const response = await api.post(`/admin/refunds/${id}/reject`, { reason: trimmedReason });
-  const data = response.data;
-  return data?.data || data;
+
+  try {
+    const response = await api.post(`/admin/refunds/${id}/reject`, { reason: trimmedReason });
+    const data = response.data;
+    return data?.data || data;
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 404) {
+      try {
+        const patchRes = await api.patch(`/admin/refunds/${id}/reject`, { reason: trimmedReason });
+        const patchData = patchRes.data;
+        return patchData?.data || patchData;
+      } catch (patchErr: unknown) {
+        const patchStatus = (patchErr as { response?: { status?: number } })?.response?.status;
+        if (patchStatus === 404) {
+          const altRes = await api.post(`/admin/refund-requests/${id}/reject`, { reason: trimmedReason });
+          const altData = altRes.data;
+          return altData?.data || altData;
+        }
+        throw patchErr;
+      }
+    }
+    throw err;
+  }
 }
 
 /**
