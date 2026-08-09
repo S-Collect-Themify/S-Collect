@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -18,15 +18,16 @@ export function useInventory() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isAr = i18n.language === 'ar';
 
-  // URL search params as the source of truth for UI state (0 useState, 0 useEffect!)
+  // URL search params as the source of truth for UI state (0 useEffect!)
   const search = searchParams.get('search') || '';
   const activeTab = (searchParams.get('status') || 'all') as FilterKey;
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
-  // Keep track of unsaved local stock edits in a ref
+  // Keep track of unsaved local stock edits in a ref and local state for instant re-render
   const pendingChanges = useRef<
     Record<string, { productId: string; variantId: string; stock: number }>
   >({});
+  const [pendingStock, setPendingStock] = useState<Record<string, number>>({});
 
   // Compute minStock/maxStock from activeTab
   let minStock: number | undefined = undefined;
@@ -62,19 +63,14 @@ export function useInventory() {
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
     return items
-      // eslint-disable-next-line react-hooks/refs
       .filter((item) => {
-        const uniqueId = `${item.productId}::${item.variantId}`;
-        const stock =
-          pendingChanges.current[uniqueId] !== undefined
-            ? pendingChanges.current[uniqueId].stock
-            : item.stock || 0;
-        if (activeTab === 'Out of Stock') return stock === 0;
-        if (activeTab === 'Low Stock') return stock >= 1 && stock <= 5;
-        if (activeTab === 'In Stock') return stock > 5;
+        // Filter against original backend stock so rows stay in current tab while editing pending values
+        const originalStock = typeof item.stock === 'number' ? item.stock : 0;
+        if (activeTab === 'Out of Stock') return originalStock === 0;
+        if (activeTab === 'Low Stock') return originalStock >= 1 && originalStock <= 5;
+        if (activeTab === 'In Stock') return originalStock > 5;
         return true;
       })
-      // eslint-disable-next-line react-hooks/refs
       .map((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;
         const name = isAr
@@ -91,11 +87,13 @@ export function useInventory() {
             )
           : '';
 
-        // Use pending change stock if user edited it, otherwise backend stock
+        // Display pending stock edit if user modified it, otherwise original backend stock
         const stock =
-          pendingChanges.current[uniqueId] !== undefined
-            ? pendingChanges.current[uniqueId].stock
-            : item.stock || 0;
+          pendingStock[uniqueId] !== undefined
+            ? pendingStock[uniqueId]
+            : typeof item.stock === 'number'
+              ? item.stock
+              : 0;
 
         return {
           id: uniqueId,
@@ -107,7 +105,7 @@ export function useInventory() {
           status: getStatus(stock),
         };
       });
-  }, [rawInventory, isAr, activeTab]);
+  }, [rawInventory, isAr, activeTab, pendingStock]);
 
   // Derived data
   const totalItems = rawInventory?.pagination?.totalItems || 0;
@@ -178,33 +176,13 @@ export function useInventory() {
     });
   };
 
-  // Stock change modifies both the ref and query cache so the UI updates instantly
+  // Stock change modifies ref and local state for immediate UI feedback without mutating query cache
   const handleStockChange = (id: string, value: string) => {
     const num = Math.max(0, parseInt(value, 10) || 0);
     const [productId, variantId] = id.split('::');
 
     pendingChanges.current[id] = { productId, variantId, stock: num };
-
-    // Update query cache so that the new stock reflects immediately in the UI (0 useState!)
-    queryClient.setQueryData(
-      ['inventory', currentPage, activeTab, search],
-      (old: any) => {
-        if (!old) return old;
-
-        const items = old.items || [];
-        const updatedItems = items.map((item: any) => {
-          if (String(item.variantId) === variantId) {
-            return { ...item, stock: num };
-          }
-          return item;
-        });
-
-        return {
-          ...old,
-          items: updatedItems,
-        };
-      }
-    );
+    setPendingStock((prev) => ({ ...prev, [id]: num }));
   };
 
   // Mutation to save stock modifications in batch
@@ -223,6 +201,7 @@ export function useInventory() {
         t('inventoryPage.saveSuccess', 'Changes saved successfully!')
       );
       pendingChanges.current = {};
+      setPendingStock({});
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
