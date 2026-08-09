@@ -124,7 +124,8 @@ export const useInventoryAlerts = () => {
       return a.stockCount - b.stockCount;
     });
 
-  const lowOrNoStockCount = alertItems.length;
+  const lowOrNoStockCount =
+    inventoryData?.pagination?.totalItems ?? alertItems.length;
 
   return {
     alertItems,

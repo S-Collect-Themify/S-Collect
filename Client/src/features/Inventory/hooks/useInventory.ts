@@ -204,6 +204,11 @@ export function useInventory() {
       setPendingStock({});
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['product-details'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
     },
     onError: (err: unknown) => {
       console.error('Failed to save stock changes:', err);

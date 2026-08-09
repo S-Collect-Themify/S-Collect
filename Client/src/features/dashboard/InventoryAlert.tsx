@@ -9,13 +9,11 @@ import { containerVariants, itemVariants } from '../../utils/animations';
 
 const InventoryAlert = () => {
   const { t } = useTranslation();
-  const { alertItems,  isLoading } = useInventoryAlerts();
+  const { alertItems, lowOrNoStockCount, isLoading } = useInventoryAlerts();
 
   if (isLoading) {
     return <InventoryAlertSkeleton />;
   }
-  console.log(alertItems);
-  
 
   return (
     <motion.div
@@ -37,8 +35,8 @@ const InventoryAlert = () => {
         className="bg-yellow-light text-yellow px-4 py-2.5 rounded-lg text-sm mb-6 hidden lg:block"
       >
         <p>
-          {alertItems.length > 0
-            ? `${alertItems.length} ${t('inventoryItem.alertMessage', 'products are running low on stock.')}`
+          {lowOrNoStockCount > 0
+            ? `${lowOrNoStockCount} ${t('inventoryItem.alertMessage', 'products are running low on stock.')}`
             : t(
                 'inventoryItem.allStockGood',
                 'All inventory stock levels look good.'
