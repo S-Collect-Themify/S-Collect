@@ -46,6 +46,12 @@ export const getVendorInventory = async (
       data && typeof data === 'object' && 'success' in data && 'data' in data
         ? (data as any).data
         : data;
+    if (!unwrapped) {
+      return {
+        items: [],
+        pagination: { totalItems: 0, totalPages: 0, page: 1, limit: query.pageSize || 50 },
+      };
+    }
     return unwrapped;
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch vendor inventory');

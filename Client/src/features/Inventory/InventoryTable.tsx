@@ -36,18 +36,28 @@ export const InventoryTable = ({
   }
 
   return (
-    <div className="overflow-hidden">
-      <table className="w-full text-body-md">
+    <div className="overflow-x-auto">
+      <table className="w-full text-body-md table-fixed min-w-[750px]">
         <thead>
           <tr className="border-b border-gray-200">
-            {columns.map((col) => (
-              <th
-                key={col}
-                className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider"
-              >
-                {t(col)}
-              </th>
-            ))}
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[18%]">
+              {t(columns[0])}
+            </th>
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[26%]">
+              {t(columns[1])}
+            </th>
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[24%]">
+              {t(columns[2])}
+            </th>
+            <th className="text-center py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[12%] whitespace-nowrap">
+              {t(columns[3])}
+            </th>
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[10%] whitespace-nowrap">
+              {t(columns[4])}
+            </th>
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[10%] whitespace-nowrap">
+              {t(columns[5])}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -63,16 +73,16 @@ export const InventoryTable = ({
               }}
               className="border-b border-gray-100 hover:bg-gray-100 transition-colors"
             >
-              <td className="py-3 px-3 text-body-md font-medium text-gray-900">
+              <td className="py-3 px-3 text-body-md font-medium text-gray-900 truncate" title={product.name}>
                 {product.name}
               </td>
-              <td className="py-3 px-3 text-body-sm text-gray-400">
+              <td className="py-3 px-3 text-body-sm text-gray-400 truncate max-w-0" title={product.sku}>
                 {product.sku}
               </td>
-              <td className="py-3 px-3 text-body-md text-gray-500">
+              <td className="py-3 px-3 text-body-md text-gray-500 truncate max-w-0" title={product.variant}>
                 {product.variant}
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3 px-3 text-center">
                 <input
                   type="number"
                   min={0}
@@ -81,9 +91,9 @@ export const InventoryTable = ({
                   className="w-16 text-center border border-gray-300 rounded-lg py-1.5 text-body-md focus:outline-none focus:border-gray-600 bg-gray-50 transition-colors"
                 />
               </td>
-              <td className="py-3 px-3">
+              <td className="py-3 px-3 whitespace-nowrap">
                 <span
-                  className={`px-3 py-1 rounded-full text-body-sm  font-medium ${STATUS_STYLES[product.status]}`}
+                  className={`px-3 py-1 rounded-full text-body-sm font-medium whitespace-nowrap inline-block ${STATUS_STYLES[product.status]}`}
                 >
                   {t(
                     `inventoryPage.${
@@ -96,7 +106,7 @@ export const InventoryTable = ({
                   )}
                 </span>
               </td>
-              <td className="py-3 px-3 text-body-sm text-gray-400">
+              <td className="py-3 px-3 text-body-sm text-gray-400 whitespace-nowrap">
                 {product.updatedAt}
               </td>
             </motion.tr>

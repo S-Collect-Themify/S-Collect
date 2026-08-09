@@ -13,6 +13,7 @@ import StatusFilterDropdown from './StatusFilterDropdown';
 import TransactionRow from './TransactionRow';
 import MobileTransactionCard from './MobileTransactionCard';
 import { getDateKey } from './utils';
+import { getPaginationRange } from '../../utils/pagination';
 
 type StatusFilter = TransactionStatus | 'all';
 
@@ -227,22 +228,28 @@ export default function ReceivablesTable() {
               )}
             </button>
 
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const n = i + 1;
-              return (
+            {getPaginationRange(currentPage, totalPages).map((item, index) =>
+              item === '...' ? (
+                <span
+                  key={`ellipsis-${index}`}
+                  className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
+                >
+                  ...
+                </span>
+              ) : (
                 <button
-                  key={n}
-                  onClick={() => setPage(n)}
+                  key={item}
+                  onClick={() => setPage(item)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
-                    n === currentPage
+                    item === currentPage
                       ? 'bg-gray-900 text-white border-gray-900'
                       : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                   }`}
                 >
-                  {n}
+                  {item}
                 </button>
-              );
-            })}
+              )
+            )}
 
             <button
               type="button"
