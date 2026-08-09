@@ -1,5 +1,6 @@
 import { Star, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { getPaginationRange, DOTS } from "../../../utils/pagination";
 
 export type ReviewFilter =
   | "all"
@@ -168,7 +169,10 @@ function Pagination({
 }) {
   const { t } = useTranslation();
   const safeTotalPages = Math.max(1, totalPages || 1);
-  const pages = Array.from({ length: safeTotalPages }).map((_, i) => i + 1);
+  const paginationRange = getPaginationRange({
+    currentPage: page,
+    totalPages: safeTotalPages,
+  });
 
   return (
     <div className="flex items-center gap-1.5">
@@ -182,19 +186,34 @@ function Pagination({
         <ChevronLeft size={16} />
       </button>
 
-      {pages.map((p) => (
-        <button
-          key={p}
-          type="button"
-          onClick={() => onPageChange?.(p)}
-          className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${p === page
-            ? "bg-gray-900 text-white"
-            : "border border-gray-200 text-gray-600 hover:bg-gray-50"
+      {paginationRange.map((pageItem, idx) => {
+        if (pageItem === DOTS) {
+          return (
+            <span
+              key={`dots-${idx}`}
+              className="flex h-8 w-8 items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+            >
+              &#8230;
+            </span>
+          );
+        }
+
+        const p = Number(pageItem);
+        return (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onPageChange?.(p)}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${
+              p === page
+                ? "bg-gray-900 text-white"
+                : "border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
-        >
-          {p}
-        </button>
-      ))}
+          >
+            {p}
+          </button>
+        );
+      })}
 
       <button
         type="button"

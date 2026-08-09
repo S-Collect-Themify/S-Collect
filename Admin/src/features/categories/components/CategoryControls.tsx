@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 // ─── Pagination ────────────────────────────────────────────────────────────────
 export interface PaginationProps {
@@ -24,7 +25,10 @@ export const Pagination = ({
   if (totalItems <= 0) return null;
   const start = (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, totalItems);
-  const pages = Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1);
+  const paginationRange = getPaginationRange({
+    currentPage,
+    totalPages: Math.max(1, totalPages),
+  });
 
   return (
     <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/40 flex items-center justify-between gap-4 flex-wrap">
@@ -42,20 +46,34 @@ export const Pagination = ({
           {isRtl ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>
 
-        {pages.map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => onPageChange(p)}
-            className={`inline-flex items-center justify-center h-8 w-8 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-              p === currentPage
-                ? 'bg-gray-950 text-white shadow-sm'
-                : 'border border-gray-200 text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
+        {paginationRange.map((pageItem, idx) => {
+          if (pageItem === DOTS) {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="inline-flex items-center justify-center h-8 w-8 text-xs text-gray-400 select-none tracking-widest"
+              >
+                &#8230;
+              </span>
+            );
+          }
+
+          const pageNum = Number(pageItem);
+          return (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => onPageChange(pageNum)}
+              className={`inline-flex items-center justify-center h-8 w-8 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                pageNum === currentPage
+                  ? 'bg-gray-950 text-white shadow-sm'
+                  : 'border border-gray-200 text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
 
         <button
           type="button"

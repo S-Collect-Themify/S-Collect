@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
 import { useVendorPayouts, useVendorPayoutSummary } from '../hooks/useVendors';
 import type { Vendor } from '../types/vendors';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface VendorPayoutsLogProps {
   vendor: Vendor;
@@ -481,19 +482,33 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             </div>
 
             <div className="flex items-center gap-1.5">
-              {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
-                <button
-                  key={pNum}
-                  onClick={() => setPage(pNum)}
-                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                    safePage === pNum
-                      ? 'bg-black text-white'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {pNum}
-                </button>
-              ))}
+              {getPaginationRange({ currentPage: safePage, totalPages }).map((pageItem, idx) => {
+                if (pageItem === DOTS) {
+                  return (
+                    <span
+                      key={`dots-${idx}`}
+                      className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+                    >
+                      &#8230;
+                    </span>
+                  );
+                }
+
+                const pNum = Number(pageItem);
+                return (
+                  <button
+                    key={pNum}
+                    onClick={() => setPage(pNum)}
+                    className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                      safePage === pNum
+                        ? 'bg-black text-white'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {pNum}
+                  </button>
+                );
+              })}
 
               <button
                 disabled={safePage >= totalPages}

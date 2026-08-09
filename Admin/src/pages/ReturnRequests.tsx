@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import { useAdminRefunds } from '../features/Orders/hooks/useAdminRefunds';
+import { getPaginationRange, DOTS } from '../utils/pagination';
 
 const ITEMS_PER_PAGE = 7;
 
@@ -127,9 +128,9 @@ export default function ReturnRequestsPage() {
   const startIndex = (activePage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItemsCount);
 
-  const pageNumbers = useMemo(() => {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }, [totalPages]);
+  const paginationRange = useMemo(() => {
+    return getPaginationRange({ currentPage: activePage, totalPages });
+  }, [activePage, totalPages]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 min-h-screen">
@@ -347,8 +348,20 @@ export default function ReturnRequestsPage() {
             <ChevronLeft size={18} />
           </button>
 
-          {/* Page Number Buttons */}
-          {pageNumbers.map((page) => {
+          {/* Page Number Buttons & Ellipsis */}
+          {paginationRange.map((pageItem, idx) => {
+            if (pageItem === DOTS) {
+              return (
+                <span
+                  key={`dots-${idx}`}
+                  className="w-10 h-10 flex items-center justify-center font-bold text-xs sm:text-sm text-gray-400 select-none tracking-widest"
+                >
+                  &#8230;
+                </span>
+              );
+            }
+
+            const page = Number(pageItem);
             const isActive = page === activePage;
             return (
               <button

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SingleProductVariant } from '../../../services/products';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 export interface ProductVariantsTableProps {
   variants: SingleProductVariant[];
@@ -160,20 +161,34 @@ export const ProductVariantsTable: React.FC<ProductVariantsTableProps> = ({
                   {isAr ? 'السابق' : 'Previous'}
                 </button>
 
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`size-7 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                      currentPage === i + 1
-                        ? 'bg-black text-white shadow-2xs'
-                        : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {getPaginationRange({ currentPage, totalPages }).map((pageItem, idx) => {
+                  if (pageItem === DOTS) {
+                    return (
+                      <span
+                        key={`dots-${idx}`}
+                        className="size-7 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+                      >
+                        &#8230;
+                      </span>
+                    );
+                  }
+
+                  const pageNum = Number(pageItem);
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`size-7 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        currentPage === pageNum
+                          ? 'bg-black text-white shadow-2xs'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
 
                 <button
                   type="button"
