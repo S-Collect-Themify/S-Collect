@@ -77,7 +77,7 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
             trigger={() => (
               <button
                 aria-label={t('managementTable.actions')}
-                className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200 hover:bg-gray-100 transition-colors rounded-full"
+                className="w-7.5 h-7.5 flex items-center justify-center border border-gray-200 hover:bg-gray-100 transition-colors rounded-full"
               >
                 <MoreVertical size={16} />
               </button>

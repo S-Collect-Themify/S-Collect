@@ -37,7 +37,7 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
                   to={`/products/${product.id}`}
                   className="flex items-center gap-3.5 group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0 group-hover:opacity-90 transition-opacity">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity">
                     <img
                       src={product.image}
                       alt={product.name}
