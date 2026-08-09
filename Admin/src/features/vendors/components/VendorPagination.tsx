@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface VendorPaginationProps {
   startItem: number;
@@ -24,6 +25,11 @@ export default function VendorPagination({
 
   if (totalItems === 0 || totalPages <= 1) return null;
 
+  const paginationRange = getPaginationRange({
+    currentPage: page,
+    totalPages,
+  });
+
   return (
     <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
       <span className="text-xs text-gray-400">
@@ -43,19 +49,33 @@ export default function VendorPagination({
           >
             {isRtl ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-            <button
-              key={n}
-              onClick={() => setPage(n)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
-                n === page
-                  ? 'bg-gray-900 text-white border-gray-900'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              {n}
-            </button>
-          ))}
+          {paginationRange.map((pageItem, idx) => {
+            if (pageItem === DOTS) {
+              return (
+                <span
+                  key={`dots-${idx}`}
+                  className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+                >
+                  &#8230;
+                </span>
+              );
+            }
+
+            const n = Number(pageItem);
+            return (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${
+                  n === page
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {n}
+              </button>
+            );
+          })}
           <button
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}

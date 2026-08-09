@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface ReviewPaginationProps {
   currentPage: number;
@@ -26,7 +27,10 @@ export const ReviewPagination = ({
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * limit + 1;
   const endItem = Math.min(currentPage * limit, totalItems);
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const paginationRange = getPaginationRange({
+    currentPage,
+    totalPages,
+  });
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-white text-sm text-gray-500">
@@ -52,21 +56,35 @@ export const ReviewPagination = ({
           {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
 
-        {/* Page numbers */}
-        {pages.map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => onPageChange(p)}
-            className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
-              currentPage === p
-                ? 'bg-black text-white'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
+        {/* Page numbers & Ellipsis */}
+        {paginationRange.map((pageItem, idx) => {
+          if (pageItem === DOTS) {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="min-w-[32px] h-8 flex items-center justify-center text-sm text-gray-400 select-none tracking-widest px-1"
+              >
+                &#8230;
+              </span>
+            );
+          }
+
+          const pageNum = Number(pageItem);
+          return (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => onPageChange(pageNum)}
+              className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
+                currentPage === pageNum
+                  ? 'bg-black text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
 
         {/* Next Button */}
         <button

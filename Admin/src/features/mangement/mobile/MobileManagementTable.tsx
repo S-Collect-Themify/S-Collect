@@ -4,6 +4,7 @@ import ProductCard from './ProductCard';
 import { useManagementStore, useManagementTable } from '../managementStore';
 import CategoryDropdown from '../CategoryDropdown';
 import StatusDropdown from '../StatusDropdown';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 export default function MobileManagementTable() {
   const { t, i18n } = useTranslation();
@@ -29,11 +30,6 @@ export default function MobileManagementTable() {
   const setPage = useManagementStore((state) => state.setPage);
   const toggleProduct = useManagementStore((state) => state.toggleProduct);
   const deleteProduct = useManagementStore((state) => state.deleteProduct);
-
-  const pageNumbers = Array.from(
-    { length: totalPages },
-    (_, index) => index + 1
-  );
 
   return (
     <div className="font-sans text-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
@@ -107,20 +103,34 @@ export default function MobileManagementTable() {
         </span>
 
         {totalPages > 1 && (
-          <div className="flex gap-1">
-            {pageNumbers.map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
-                  n === page
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+          <div className="flex gap-1 items-center">
+            {getPaginationRange({ currentPage: page, totalPages }).map((pageItem, idx) => {
+              if (pageItem === DOTS) {
+                return (
+                  <span
+                    key={`dots-${idx}`}
+                    className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+                  >
+                    &#8230;
+                  </span>
+                );
+              }
+
+              const n = Number(pageItem);
+              return (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${
+                    n === page
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {n}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
