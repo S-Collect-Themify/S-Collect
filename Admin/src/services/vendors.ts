@@ -292,3 +292,19 @@ export async function getVendorPayoutStats(
     return null;
   }
 }
+
+/**
+ * Feature a vendor POST /api/v1/admin/vendors/{id}/feature
+ */
+export async function featureVendor(id: string): Promise<any> {
+  const response = await api.post(`/admin/vendors/${id}/feature`);
+  return response.data;
+}
+
+/**
+ * Unfeature a vendor POST /api/v1/admin/vendors/{id}/unfeature
+ */
+export async function unfeatureVendor(id: string): Promise<any> {
+  const response = await api.post(`/admin/vendors/${id}/unfeature`);
+  return response.data;
+}

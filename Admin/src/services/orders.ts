@@ -27,10 +27,17 @@ export interface AdminOrderItem {
   discountAmount?: number;
   paymentStatus?: string;
   overallStatus?: string;
+  paymentMethod?: string;
+  fatoorahRef?: string;
+  myFatoorahRef?: string;
+  vendorName?: string;
+  vendorId?: string;
   subOrders?: Array<{
     id: string;
     orderId: string;
     vendorId: string;
+    vendorName?: string;
+    vendor?: { businessName?: string };
     status: string;
     shippingRateApplied: number;
     trackingNumber?: unknown;
@@ -142,7 +149,7 @@ export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<Adm
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 25;
 
-  const cleanParams: Record<string, any> = {
+  const cleanParams: Record<string, unknown> = {
     pageNum,
     pageSize,
   };
@@ -232,7 +239,10 @@ export interface GetAdminSubOrdersParams {
 export interface AdminSubOrderItem {
   id: string;
   orderId?: string;
+  orderNumber?: number | string;
   vendorId?: string;
+  storeName?: string;
+  vendorName?: string;
   status?: string;
   shippingRateApplied?: number;
   totalAmount?: number;
@@ -346,10 +356,10 @@ export function mapAdminOrderToTransactionItem(order: AdminOrderItem): Transacti
     date,
     buyerName: customerName,
     amount: order.grandTotalAmount ?? order.subtotalAmount ?? 0,
-    paymentMethod: (order as any).paymentMethod || '---',
+    paymentMethod: order.paymentMethod || '---',
     status: rawStatus,
     rawPaymentStatus: rawStatus,
-    fatoorahRef: (order as any).fatoorahRef || (order as any).myFatoorahRef || '---',
+    fatoorahRef: order.fatoorahRef || order.myFatoorahRef || '---',
   };
 }
 
@@ -372,8 +382,8 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     : '';
 
   const firstSubOrder = order.subOrders?.[0];
-  const vendorName = (firstSubOrder as any)?.vendorName || (firstSubOrder as any)?.vendor?.businessName || (order as any).vendorName || '---';
-  const vendorId = firstSubOrder?.vendorId || (order as any).vendorId;
+  const vendorName = firstSubOrder?.vendorName || firstSubOrder?.vendor?.businessName || order.vendorName || '---';
+  const vendorId = firstSubOrder?.vendorId || order.vendorId;
 
   const custFirstName = order.customer?.firstName?.trim() || '';
   const custLastName = order.customer?.lastName?.trim() || '';
@@ -400,7 +410,7 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
  */
 export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
   const shortId = sub.id ? (sub.id.length > 8 ? sub.id.slice(-6).toUpperCase() : sub.id) : 'N/A';
-  const code = (sub as any).orderNumber ? `#SUB-${(sub as any).orderNumber}` : `#SUB-${shortId}`;
+  const code = sub.orderNumber ? `#SUB-${sub.orderNumber}` : `#SUB-${shortId}`;
 
   const total = sub.totalAmount ?? sub.items?.reduce((acc, i) => acc + (i.lineTotal ?? 0), 0) ?? 0;
   const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
@@ -419,7 +429,7 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
     id: sub.id,
     code,
     customer: customerName,
-    vendor: (sub as any).storeName || (sub as any).vendorName || '---',
+    vendor: sub.storeName || sub.vendorName || '---',
     vendorId: sub.vendorId,
     total,
     totalFormatted,

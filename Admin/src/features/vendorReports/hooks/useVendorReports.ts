@@ -63,7 +63,7 @@ function mapBackendOrderItemToDetailedOrder(item: BackendSalesReportOrderItem): 
   const net = typeof item.net === 'number' ? item.net : parseFloat(item.net) || 0;
 
   const rawStatus = (item.overallStatus || 'PENDING').toLowerCase();
-  let parsedStatus: OrderStatus = 'processing';
+  let parsedStatus: OrderStatus;
   if (['delivered', 'completed', 'accepted'].includes(rawStatus)) {
     parsedStatus = 'delivered';
   } else if (['canceled', 'cancelled', 'rejected'].includes(rawStatus)) {
@@ -186,7 +186,7 @@ export function useExportVendorReportMutation() {
         toast.success('Vendor Sales Report exported to PDF successfully!');
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err?.message || 'Failed to export report');
     },
   });

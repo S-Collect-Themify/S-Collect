@@ -42,7 +42,7 @@ export default function VendorCategoryDropdown({
             toggle();
           }}
         >
-          <span className="truncate max-w-[140px]">{label}</span>
+          <span className="truncate max-w-35">{label}</span>
           <ChevronDown
             color="black"
             size={15}
@@ -52,7 +52,7 @@ export default function VendorCategoryDropdown({
       )}
     >
       {({ close }) => (
-        <div className="flex flex-col min-w-[180px]">
+        <div className="flex flex-col min-w-45">
           {/* Search Box */}
           <div className="p-2 border-b border-gray-100 bg-white sticky top-0 z-10">
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-md">

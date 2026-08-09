@@ -1,6 +1,15 @@
 import type { BackendVendor, BackendVendorDetail } from '../../../services/vendors';
 import type { Vendor, VendorStatus } from '../types/vendors';
 
+function extractIsFeatured(v: any): boolean {
+  if (!v || typeof v !== 'object') return false;
+  const val = v.isFeatured ?? v.is_featured ?? v.featured ?? v.isFeaturedVendor;
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'number') return val === 1;
+  if (typeof val === 'string') return val.toLowerCase() === 'true' || val === '1';
+  return false;
+}
+
 /**
  * Maps a backend vendor object from list API to the UI Vendor data structure.
  * Missing or empty fields fallback to '--' per requirements.
@@ -64,16 +73,19 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
       ? parseFloat(v.commissionRate) || undefined
       : undefined;
 
+  const isFeatured = extractIsFeatured(v);
+
   return {
     id: v.id,
     businessName,
     owner: ownerName,
     email,
     submittedDate,
-    category: v.isFeatured ? 'Featured' : '--',
+    category: isFeatured ? 'Featured' : '--',
     status,
     rawStatus: v.status,
     active,
+    isFeatured,
     taxId: v.commercialRegisterNumber || '--',
     commissionRate: commRate,
     revenue: v.totalRevenue,
@@ -185,6 +197,8 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
       ? parseFloat(target.commissionRate) || undefined
       : undefined;
 
+  const isFeatured = extractIsFeatured(target);
+
   return {
     id: target.id || '',
     businessName,
@@ -193,10 +207,11 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
     phone: phoneDisplay,
     submittedDate,
     joinedDate,
-    category: target.isFeatured ? 'Featured' : '--',
+    category: isFeatured ? 'Featured' : '--',
     status,
     rawStatus: (rawStatus as Vendor['rawStatus']) || 'PENDING_APPROVAL',
     active,
+    isFeatured,
     taxId: target.commercialRegisterNumber || '--',
     description: storeDesc,
     rejectionReason: rejReason,
