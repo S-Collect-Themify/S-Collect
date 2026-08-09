@@ -139,10 +139,14 @@ export async function approveAdminRefund(id: string): Promise<AdminRefund> {
 }
 
 /**
- * Reject refund: PATCH /api/v1/admin/refunds/{id}/reject
+ * Reject refund: POST /api/v1/admin/refunds/{id}/reject
  */
 export async function rejectAdminRefund(id: string, reason: string): Promise<AdminRefund> {
-  const response = await api.patch(`/admin/refunds/${id}/reject`, { reason });
+  const trimmedReason = reason?.trim();
+  if (!trimmedReason) {
+    throw new Error('Rejection reason is required.');
+  }
+  const response = await api.post(`/admin/refunds/${id}/reject`, { reason: trimmedReason });
   const data = response.data;
   return data?.data || data;
 }

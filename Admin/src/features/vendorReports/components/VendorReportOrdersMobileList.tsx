@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Store } from 'lucide-react';
 import type { DetailedOrder } from '../types';
 import VendorReportStatusBadge from './VendorReportStatusBadge';
 
@@ -6,12 +7,14 @@ interface VendorReportOrdersMobileListProps {
   orders: DetailedOrder[];
   itemsPerPage: number;
   isLoading?: boolean;
+  selectedVendorId?: string;
 }
 
 export default function VendorReportOrdersMobileList({
   orders,
   itemsPerPage,
   isLoading = false,
+  selectedVendorId = '',
 }: VendorReportOrdersMobileListProps) {
   const { t } = useTranslation();
 
@@ -35,8 +38,13 @@ export default function VendorReportOrdersMobileList({
           </div>
         ))
       ) : orders.length === 0 ? (
-        <div className="p-8 text-center text-xs text-gray-400">
-          No vendor report orders found.
+        <div className="p-10 text-center flex flex-col items-center justify-center gap-2">
+          <Store size={28} className="text-gray-300 stroke-[1.5]" />
+          <p className="text-xs font-medium text-gray-500">
+            {!selectedVendorId
+              ? t('vendorReports.noVendorSelected', 'Please select a vendor to view report')
+              : t('vendorReports.noOrdersFound', 'No vendor report orders found.')}
+          </p>
         </div>
       ) : (
         orders.map((order, idx) => (

@@ -7,7 +7,7 @@ import {
   type BackendSalesReportOrderItem,
   type VendorSalesReportSummary,
 } from '../../../services/vendorReports';
-import { exportToCSV, exportToPDF } from '../../../utils/exportUtils';
+import { exportToCSV, exportToPDF, type ExportSummaryStat } from '../../../utils/exportUtils';
 import type { DateRangeKey, DetailedOrder, OrderStatus } from '../types';
 
 export function getDateRangeStrings(rangeKey: DateRangeKey): { dateFrom: string; dateTo: string } {
@@ -50,11 +50,10 @@ function mapBackendOrderItemToDetailedOrder(item: BackendSalesReportOrderItem): 
   if (item.date) {
     const parsed = new Date(item.date);
     if (!isNaN(parsed.getTime())) {
-      dateStr = parsed.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
+      const day = String(parsed.getDate()).padStart(2, '0');
+      const month = String(parsed.getMonth() + 1).padStart(2, '0');
+      const year = parsed.getFullYear();
+      dateStr = `${day}/${month}/${year}`;
     }
   }
 
@@ -92,7 +91,7 @@ export function useVendorSalesReportSummary(
   return useQuery<VendorSalesReportSummary>({
     queryKey: ['vendor-sales-report-summary', dateFrom, dateTo, vendorId],
     queryFn: () => getVendorSalesReportSummary({ dateFrom, dateTo, vendorId }),
-    enabled: !!dateFrom && !!dateTo,
+    enabled: !!dateFrom && !!dateTo && !!vendorId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -103,14 +102,14 @@ export function useVendorReportOrders(
   dateTo: string,
   vendorId?: string,
   pageNum: number = 1,
-  pageSize: number = 25
+  pageSize: number = 20
 ) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ['vendor-sales-report-orders', dateFrom, dateTo, vendorId, pageNum, pageSize],
     queryFn: async () => {
-      if (!dateFrom || !dateTo) {
+      if (!dateFrom || !dateTo || !vendorId) {
         return { orders: [], totalOrdersCount: 0, totalPages: 1 };
       }
       const res = await getVendorSalesReportOrders({ dateFrom, dateTo, vendorId, pageNum, pageSize });
@@ -121,14 +120,14 @@ export function useVendorReportOrders(
         totalPages: res.pagination?.totalPages ?? 1,
       };
     },
-    enabled: !!dateFrom && !!dateTo,
+    enabled: !!dateFrom && !!dateTo && !!vendorId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   // Prefetch next page using React Query
   useEffect(() => {
-    if (dateFrom && dateTo && query.data && pageNum < query.data.totalPages) {
+    if (dateFrom && dateTo && vendorId && query.data && pageNum < query.data.totalPages) {
       queryClient.prefetchQuery({
         queryKey: ['vendor-sales-report-orders', dateFrom, dateTo, vendorId, pageNum + 1, pageSize],
         queryFn: async () => {
@@ -162,21 +161,77 @@ export function useVendorReportOrders(
   };
 }
 
+export async function fetchAllVendorSalesReportOrders(params: {
+  dateFrom: string;
+  dateTo: string;
+  vendorId?: string;
+}): Promise<DetailedOrder[]> {
+  const firstRes = await getVendorSalesReportOrders({
+    dateFrom: params.dateFrom,
+    dateTo: params.dateTo,
+    vendorId: params.vendorId,
+    pageNum: 1,
+    pageSize: 100,
+  });
+
+  let items = [...firstRes.items];
+  const totalPages = firstRes.pagination?.totalPages ?? 1;
+
+  if (totalPages > 1) {
+    const remainingPromises = [];
+    for (let page = 2; page <= totalPages; page++) {
+      remainingPromises.push(
+        getVendorSalesReportOrders({
+          dateFrom: params.dateFrom,
+          dateTo: params.dateTo,
+          vendorId: params.vendorId,
+          pageNum: page,
+          pageSize: 100,
+        })
+      );
+    }
+    const remainingResults = await Promise.all(remainingPromises);
+    for (const res of remainingResults) {
+      items = items.concat(res.items);
+    }
+  }
+
+  return items.map(mapBackendOrderItemToDetailedOrder);
+}
+
 export interface ExportReportPayload {
   format: 'excel' | 'pdf';
   fileName: string;
   title: string;
   headers: Array<{ key: keyof DetailedOrder; label: string }>;
-  data: DetailedOrder[];
+  dateFrom?: string;
+  dateTo?: string;
+  vendorId?: string;
+  summaryStats?: ExportSummaryStat[];
+  data?: DetailedOrder[];
 }
 
 export function useExportVendorReportMutation() {
   return useMutation({
     mutationFn: async (payload: ExportReportPayload) => {
+      let exportData: DetailedOrder[] = payload.data ?? [];
+
+      if (payload.dateFrom && payload.dateTo && payload.vendorId) {
+        exportData = await fetchAllVendorSalesReportOrders({
+          dateFrom: payload.dateFrom,
+          dateTo: payload.dateTo,
+          vendorId: payload.vendorId,
+        });
+      }
+
+      if (!exportData.length) {
+        throw new Error('No data available to export');
+      }
+
       if (payload.format === 'excel') {
-        exportToCSV(payload.fileName, payload.headers, payload.data);
+        exportToCSV(payload.fileName, payload.headers, exportData, payload.summaryStats);
       } else {
-        exportToPDF(payload.title, payload.headers, payload.data);
+        exportToPDF(payload.title, payload.headers, exportData, payload.summaryStats);
       }
     },
     onSuccess: (_, variables) => {

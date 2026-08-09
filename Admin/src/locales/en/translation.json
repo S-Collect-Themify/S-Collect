@@ -1554,7 +1554,9 @@
     "statusShipped": "Shipped",
     "statusCanceled": "Canceled",
     "showingCount": "Showing {{start}} - {{end}} of {{total}} requests",
-    "exportSuccess": "Vendor Sales Report exported successfully!"
+    "exportSuccess": "Vendor Sales Report exported successfully!",
+    "noVendorSelected": "Please select a vendor to view report",
+    "noOrdersFound": "No vendor report orders found."
   },
   "commissionRates": {
     "title": "Commission Rates",
@@ -1562,6 +1564,10 @@
     "export": "Export",
     "exportExcel": "Export as Excel (.csv)",
     "exportPdf": "Export as PDF (.pdf)",
+    "exportType": "Type",
+    "exportName": "Name",
+    "exportRate": "Effective Rate (%)",
+    "exportCustomRate": "Custom Rate",
     "platformDefaultTitle": "Platform Default Commission",
     "appliedGlobally": "applied globally",
     "edit": "Edit",

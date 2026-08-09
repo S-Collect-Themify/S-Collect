@@ -12,6 +12,7 @@ interface VendorReportOrdersTableProps {
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   isLoading?: boolean;
+  selectedVendorId?: string;
 }
 
 export default function VendorReportOrdersTable({
@@ -22,6 +23,7 @@ export default function VendorReportOrdersTable({
   itemsPerPage,
   onPageChange,
   isLoading = false,
+  selectedVendorId = '',
 }: VendorReportOrdersTableProps) {
   const { t } = useTranslation();
 
@@ -39,6 +41,7 @@ export default function VendorReportOrdersTable({
           orders={orders}
           itemsPerPage={itemsPerPage}
           isLoading={isLoading}
+          selectedVendorId={selectedVendorId}
         />
 
         {/* Mobile List View */}
@@ -46,6 +49,7 @@ export default function VendorReportOrdersTable({
           orders={orders}
           itemsPerPage={itemsPerPage}
           isLoading={isLoading}
+          selectedVendorId={selectedVendorId}
         />
 
         {/* Pagination Footer */}

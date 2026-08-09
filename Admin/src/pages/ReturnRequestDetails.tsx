@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Check, X, AlertTriangle, Loader2, Save } from 'lucide-react';
@@ -45,16 +45,19 @@ export default function ReturnRequestDetailsPage() {
   const notesMutation = useUpdateAdminRefundNotes(id);
 
   const [rejectReasonInput, setRejectReasonInput] = useState('');
+  const [rejectReasonError, setRejectReasonError] = useState(false);
   const [adminNoteInput, setAdminNoteInput] = useState('');
 
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
-  useEffect(() => {
-    if (refund?.internalNotes && typeof refund.internalNotes === 'string') {
-      setAdminNoteInput(refund.internalNotes);
-    }
-  }, [refund?.internalNotes]);
+  const [prevNotes, setPrevNotes] = useState<string | null>(null);
+  const currentInternalNotes = typeof refund?.internalNotes === 'string' ? refund.internalNotes : '';
+
+  if (currentInternalNotes && prevNotes !== currentInternalNotes) {
+    setPrevNotes(currentInternalNotes);
+    setAdminNoteInput(currentInternalNotes);
+  }
 
   const shortId = id ? (id.length > 8 ? id.slice(-6).toUpperCase() : id) : '--';
   const refundIdCode = `#REF-${shortId}`;
@@ -72,7 +75,7 @@ export default function ReturnRequestDetailsPage() {
 
   const customerEmail = refund?.customer?.email || '--';
   const customerPhone = refund?.customer?.phoneNumber || refund?.shipping?.recipientPhone || '--';
-  const paymentMethod = refund?.paymentMethod || (refund as any)?.paymentStatus || '--';
+  const paymentMethod = refund?.paymentMethod || (refund as Record<string, unknown>)?.paymentStatus || '--';
 
   const formattedDate = refund?.createdAt
     ? new Date(refund.createdAt).toLocaleDateString('en-US', {
@@ -103,9 +106,15 @@ export default function ReturnRequestDetailsPage() {
 
   const handleConfirmReject = async () => {
     if (!id) return;
+    const trimmedReason = rejectReasonInput.trim();
+    if (!trimmedReason) {
+      setRejectReasonError(true);
+      return;
+    }
+    setRejectReasonError(false);
     await rejectMutation.mutateAsync({
       id,
-      reason: rejectReasonInput.trim() || '--',
+      reason: trimmedReason,
     });
     setShowRejectModal(false);
   };
@@ -597,14 +606,31 @@ export default function ReturnRequestDetailsPage() {
               Are you sure you want to reject this refund request for customer <strong className="text-gray-900">{customerName}</strong>?
             </p>
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-gray-700 mb-1 text-start">Rejection Reason</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1 text-start">
+                Rejection Reason <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="text"
+                required
                 value={rejectReasonInput}
-                onChange={(e) => setRejectReasonInput(e.target.value)}
+                onChange={(e) => {
+                  setRejectReasonInput(e.target.value);
+                  if (rejectReasonError && e.target.value.trim()) {
+                    setRejectReasonError(false);
+                  }
+                }}
                 placeholder="e.g. Item shows normal wear, not a defect."
-                className="w-full p-2.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-rose-500"
+                className={`w-full p-2.5 border rounded-lg text-xs focus:outline-none transition-colors ${
+                  rejectReasonError
+                    ? 'border-rose-500 bg-rose-50/40 text-rose-900 focus:border-rose-600'
+                    : 'border-gray-200 text-gray-900 focus:border-rose-500'
+                }`}
               />
+              {rejectReasonError && (
+                <p className="text-rose-500 text-[11px] font-medium mt-1 text-start">
+                  Rejection reason is required before rejecting this refund request.
+                </p>
+              )}
             </div>
             <div className="bg-gray-50 border border-gray-100 rounded-lg p-3.5 space-y-2 mb-6 text-xs">
               <div className="flex justify-between items-center">
@@ -619,7 +645,10 @@ export default function ReturnRequestDetailsPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setShowRejectModal(false)}
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectReasonError(false);
+                }}
                 className="py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Cancel
@@ -627,8 +656,8 @@ export default function ReturnRequestDetailsPage() {
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                disabled={rejectMutation.isPending}
-                className="py-2.5 px-4 rounded-lg bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                disabled={rejectMutation.isPending || !rejectReasonInput.trim()}
+                className="py-2.5 px-4 rounded-lg bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 {rejectMutation.isPending && <Loader2 className="animate-spin" size={14} />}
                 <span>Reject Refund</span>

@@ -17,6 +17,89 @@ interface PendingRegistration {
   date: string;
 }
 
+export async function fetchAllPendingVendorPayouts(): Promise<PendingPayoutItem[]> {
+  const firstRes = await getAdminPendingVendorPayouts({ pageNum: 1, pageSize: 100 });
+  let items = [...firstRes.items];
+  const totalPages = firstRes.pagination?.totalPages ?? 1;
+
+  if (totalPages > 1) {
+    const remainingPromises = [];
+    for (let page = 2; page <= totalPages; page++) {
+      remainingPromises.push(getAdminPendingVendorPayouts({ pageNum: page, pageSize: 100 }));
+    }
+    const remainingResults = await Promise.all(remainingPromises);
+    for (const res of remainingResults) {
+      items = items.concat(res.items);
+    }
+  }
+
+  const parseNum = (val: unknown) => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') return parseFloat(val) || 0;
+    return 0;
+  };
+
+  return items.map((item: Record<string, unknown>) => {
+    const vId = String(item.vendorId || item.id || item._id || '');
+    const vName = (item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--') as string;
+
+    return {
+      id: vId,
+      vendorName: vName,
+      bankAccount: '--',
+      totalGmv: parseNum(item.totalGmv),
+      commission: parseNum(item.commission),
+      totalPayouts: parseNum(item.totalPayouts),
+      pendingPayout: parseNum(item.pendingPayout),
+      status: 'Pending',
+    };
+  });
+}
+
+export interface ExportPayoutsPayload {
+  format: 'excel' | 'pdf';
+  fileName: string;
+  title: string;
+  headers: Array<{ key: keyof PendingPayoutItem; label: string }>;
+  summaryStats: Array<{ label: string; value: string }>;
+}
+
+export function useExportPayoutsMutation() {
+  return useMutation({
+    mutationFn: async (payload: ExportPayoutsPayload) => {
+      const allItems = await fetchAllPendingVendorPayouts();
+
+      if (!allItems.length) {
+        throw new Error('No payout data available to export');
+      }
+
+      const exportData = allItems.map((item) => ({
+        vendorName: item.vendorName,
+        totalGmv: item.totalGmv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        commission: item.commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        totalPayouts: item.totalPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        pendingPayout: item.pendingPayout.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      }));
+
+      if (payload.format === 'excel') {
+        exportToCSV(payload.fileName, payload.headers, exportData, payload.summaryStats);
+      } else {
+        exportToPDF(payload.title, payload.headers, exportData, payload.summaryStats);
+      }
+    },
+    onSuccess: (_, variables) => {
+      if (variables.format === 'excel') {
+        toast.success('Payouts report exported to Excel successfully!');
+      } else {
+        toast.success('Payouts report exported to PDF successfully!');
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err?.message || 'Failed to export payouts report');
+    },
+  });
+}
+
 export function usePayouts() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
@@ -51,11 +134,11 @@ export function usePayouts() {
 
   const pendingPayouts: PendingPayoutItem[] = useMemo(() => {
     if (!pendingData?.items) return [];
-    return pendingData.items.map((item: any) => {
-      const vId = item.vendorId || item.id || item._id || '';
-      const vName = item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--';
+    return pendingData.items.map((item: Record<string, unknown>) => {
+      const vId = String(item.vendorId || item.id || item._id || '');
+      const vName = (item.storeName || item.vendorName || [item.firstName, item.lastName].filter(Boolean).join(' ') || '--') as string;
 
-      const parseNum = (val: any) => {
+      const parseNum = (val: unknown) => {
         if (typeof val === 'number') return val;
         if (typeof val === 'string') return parseFloat(val) || 0;
         return 0;
@@ -144,11 +227,12 @@ export function usePayouts() {
       queryClient.invalidateQueries({ queryKey: ['vendor-payout-summary'] });
       toast.success(t('payouts.registerSuccessToast', 'Payout registered successfully!'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to register payout:', error);
-      const rawMsg = error?.response?.data?.message || error?.response?.data?.error;
+      const errObj = error as { response?: { data?: { message?: string | string[]; error?: string | string[] } }; message?: string };
+      const rawMsg = errObj?.response?.data?.message || errObj?.response?.data?.error;
       const formattedMsg = Array.isArray(rawMsg) ? rawMsg.join(' | ') : rawMsg;
-      toast.error(formattedMsg || error?.message || t('payouts.registerError', 'Failed to register payout.'));
+      toast.error(formattedMsg || errObj?.message || t('payouts.registerError', 'Failed to register payout.'));
     },
   });
 
@@ -194,55 +278,91 @@ export function usePayouts() {
     );
   };
 
+  const exportMutation = useExportPayoutsMutation();
+
   const handleExportExcel = () => {
-    const headers = [
-      { key: 'vendorName' as const, label: 'Vendor Name' },
-      { key: 'totalGmv' as const, label: 'Total GMV (SAR)' },
-      { key: 'commission' as const, label: 'Commission (SAR)' },
-      { key: 'totalPayouts' as const, label: 'Total Payouts (SAR)' },
-      { key: 'pendingPayout' as const, label: 'Pending Payout (SAR)' },
+    const summaryStats = [
+      {
+        label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),
+        value: summaryData?.totalPayoutsRegistered != null
+          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          : '--',
+      },
+      {
+        label: t('payouts.pendingPayoutsTitle', 'Pending Payouts'),
+        value: summaryData?.pendingPayouts != null
+          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          : '--',
+      },
+      {
+        label: t('payouts.vendorsWithPendingTitle', 'Vendors with Pending'),
+        value: summaryData?.vendorsWithPending != null
+          ? `${summaryData.vendorsWithPending.toLocaleString('en-US')} Vendors`
+          : '--',
+      },
     ];
 
-    const exportData = pendingPayouts.map((item) => ({
-      vendorName: item.vendorName,
-      totalGmv: item.totalGmv.toLocaleString(),
-      commission: item.commission.toLocaleString(),
-      totalPayouts: item.totalPayouts.toLocaleString(),
-      pendingPayout: item.pendingPayout.toLocaleString(),
-    }));
+    const headers = [
+      { key: 'vendorName' as const, label: t('payouts.vendorName', 'Vendor Name') },
+      { key: 'totalGmv' as const, label: t('payouts.totalGmv', 'Total GMV (SAR)') },
+      { key: 'commission' as const, label: t('payouts.commission', 'Commission (SAR)') },
+      { key: 'totalPayouts' as const, label: t('payouts.totalPayouts', 'Total Payouts (SAR)') },
+      { key: 'pendingPayout' as const, label: t('payouts.pendingPayout', 'Pending Payout (SAR)') },
+    ];
 
-    exportToCSV('Pending_Vendor_Payouts_Report', headers, exportData);
-    toast.success(t('payouts.exportSuccess', 'Payouts report exported successfully!'));
+    exportMutation.mutate({
+      format: 'excel',
+      fileName: 'Pending_Vendor_Payouts_Report',
+      title: t('payouts.title', 'Payouts Report'),
+      headers,
+      summaryStats,
+    });
   };
 
   const handleExportPDF = () => {
-    const headers = [
-      { key: 'vendorName' as const, label: 'Vendor Name' },
-      { key: 'totalGmv' as const, label: 'Total GMV (SAR)' },
-      { key: 'commission' as const, label: 'Commission (SAR)' },
-      { key: 'totalPayouts' as const, label: 'Total Payouts (SAR)' },
-      { key: 'pendingPayout' as const, label: 'Pending Payout (SAR)' },
+    const summaryStats = [
+      {
+        label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),
+        value: summaryData?.totalPayoutsRegistered != null
+          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          : '--',
+      },
+      {
+        label: t('payouts.pendingPayoutsTitle', 'Pending Payouts'),
+        value: summaryData?.pendingPayouts != null
+          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          : '--',
+      },
+      {
+        label: t('payouts.vendorsWithPendingTitle', 'Vendors with Pending'),
+        value: summaryData?.vendorsWithPending != null
+          ? `${summaryData.vendorsWithPending.toLocaleString('en-US')} Vendors`
+          : '--',
+      },
     ];
 
-    const exportData = pendingPayouts.map((item) => ({
-      vendorName: item.vendorName,
-      totalGmv: item.totalGmv.toLocaleString(),
-      commission: item.commission.toLocaleString(),
-      totalPayouts: item.totalPayouts.toLocaleString(),
-      pendingPayout: item.pendingPayout.toLocaleString(),
-    }));
+    const headers = [
+      { key: 'vendorName' as const, label: t('payouts.vendorName', 'Vendor Name') },
+      { key: 'totalGmv' as const, label: t('payouts.totalGmv', 'Total GMV (SAR)') },
+      { key: 'commission' as const, label: t('payouts.commission', 'Commission (SAR)') },
+      { key: 'totalPayouts' as const, label: t('payouts.totalPayouts', 'Total Payouts (SAR)') },
+      { key: 'pendingPayout' as const, label: t('payouts.pendingPayout', 'Pending Payout (SAR)') },
+    ];
 
-    exportToPDF(
-      t('payouts.title', 'Payouts Report'),
+    exportMutation.mutate({
+      format: 'pdf',
+      fileName: 'Pending_Vendor_Payouts_Report',
+      title: t('payouts.title', 'Payouts Report'),
       headers,
-      exportData
-    );
+      summaryStats,
+    });
   };
 
   return {
     isRtl,
     isLoading,
     isRegistering: createPayoutMutation.isPending,
+    isExporting: exportMutation.isPending,
     stats,
     pendingPayouts,
     paginatedItems: pendingPayouts,

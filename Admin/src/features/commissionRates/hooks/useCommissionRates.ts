@@ -178,9 +178,10 @@ export function useUpdatePlatformCommission() {
       queryClient.invalidateQueries({ queryKey: commissionKeys.platform });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to update platform commission:', error);
-      const message = error?.response?.data?.message || error?.message;
+      const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message;
       toast.error(message || t('commissionRates.saveError', 'Failed to save commission rate.'));
     },
   });
@@ -205,9 +206,10 @@ export function useSetVendorCommission() {
       });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to update vendor commission:', error);
-      const message = error?.response?.data?.message || error?.message;
+      const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message;
       toast.error(message || t('commissionRates.saveError', 'Failed to save commission rate.'));
     },
   });
@@ -233,9 +235,10 @@ export function useResetVendorCommission() {
       queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to reset vendor commission:', error);
-      const message = error?.response?.data?.message || error?.message;
+      const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message;
       toast.error(message || t('commissionRates.resetError', 'Failed to reset commission rate.'));
     },
   });
@@ -260,9 +263,10 @@ export function useSetCategoryCommission() {
       });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to update category commission:', error);
-      const message = error?.response?.data?.message || error?.message;
+      const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message;
       toast.error(message || t('commissionRates.saveError', 'Failed to save commission rate.'));
     },
   });
@@ -288,9 +292,10 @@ export function useResetCategoryCommission() {
       queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
-    onError: (error: any) => {
+    onError: (error: Error | unknown) => {
       console.error('Failed to reset category commission:', error);
-      const message = error?.response?.data?.message || error?.message;
+      const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message;
       toast.error(message || t('commissionRates.resetError', 'Failed to reset commission rate.'));
     },
   });
@@ -461,34 +466,104 @@ export function useCommissionRates() {
   // ── Export ──────────────────────────────────────────────────────────────────
 
   const handleExportExcel = () => {
+    const platRate = platformCommission.rate ?? 0;
+    const summaryStats = [
+      {
+        label: t('commissionRates.platformDefaultTitle', 'Platform Default Commission'),
+        value: `${platRate.toFixed(2)}%`,
+      },
+    ];
+
     const headers = [
-      { key: 'name' as const, label: 'Name / Type' },
-      { key: 'rate' as const, label: 'Commission Rate (%)' },
-      { key: 'status' as const, label: 'Status' },
-      { key: 'lastUpdated' as const, label: 'Last Updated' },
+      { key: 'type' as const, label: t('commissionRates.exportType', 'Type') },
+      { key: 'name' as const, label: t('commissionRates.exportName', 'Name') },
+      { key: 'rate' as const, label: t('commissionRates.exportRate', 'Effective Rate (%)') },
+      { key: 'customRate' as const, label: t('commissionRates.exportCustomRate', 'Custom Rate') },
+      { key: 'status' as const, label: t('commissionRates.status', 'Status') },
+      { key: 'lastUpdated' as const, label: t('commissionRates.lastUpdated', 'Last Updated') },
     ];
+
+    const defaultLabel = t('commissionRates.statusDefault', 'Default');
+
     const exportData = [
-      { name: 'Platform Default', rate: `${platformCommission.rate}%`, status: 'Global', lastUpdated: platformCommission.lastUpdated },
-      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '--', status: v.status, lastUpdated: v.lastUpdated })),
-      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '--', status: c.status, lastUpdated: c.lastUpdated })),
+      ...vendorCommissions.map((v) => {
+        const effectiveRate = typeof v.rate === 'number' && !isNaN(v.rate) ? v.rate : platRate;
+        const customRateStr = typeof v.rate === 'number' && !isNaN(v.rate) ? `${v.rate.toFixed(2)}%` : defaultLabel;
+        return {
+          type: t('commissionRates.vendorLabel', 'Vendor'),
+          name: v.vendorName || '----',
+          rate: `${effectiveRate.toFixed(2)}%`,
+          customRate: customRateStr,
+          status: v.status === 'Custom' ? t('commissionRates.statusCustom', 'Custom') : defaultLabel,
+          lastUpdated: v.lastUpdated || '----',
+        };
+      }),
+      ...categoryCommissions.map((c) => {
+        const effectiveRate = typeof c.rate === 'number' && !isNaN(c.rate) ? c.rate : platRate;
+        const customRateStr = typeof c.rate === 'number' && !isNaN(c.rate) ? `${c.rate.toFixed(2)}%` : defaultLabel;
+        return {
+          type: t('commissionRates.categoryLabel', 'Category'),
+          name: c.categoryName || '----',
+          rate: `${effectiveRate.toFixed(2)}%`,
+          customRate: customRateStr,
+          status: c.status === 'Custom' ? t('commissionRates.statusCustom', 'Custom') : defaultLabel,
+          lastUpdated: c.lastUpdated || '----',
+        };
+      }),
     ];
-    exportToCSV('Commission_Rates_Report', headers, exportData);
+
+    exportToCSV('Commission_Rates_Report', headers, exportData, summaryStats);
     toast.success(t('commissionRates.exportSuccess', 'Commission Rates exported successfully!'));
   };
 
   const handleExportPDF = () => {
+    const platRate = platformCommission.rate ?? 0;
+    const summaryStats = [
+      {
+        label: t('commissionRates.platformDefaultTitle', 'Platform Default Commission'),
+        value: `${platRate.toFixed(2)}%`,
+      },
+    ];
+
     const headers = [
-      { key: 'name' as const, label: 'Name / Type' },
-      { key: 'rate' as const, label: 'Commission Rate (%)' },
-      { key: 'status' as const, label: 'Status' },
-      { key: 'lastUpdated' as const, label: 'Last Updated' },
+      { key: 'type' as const, label: t('commissionRates.exportType', 'Type') },
+      { key: 'name' as const, label: t('commissionRates.exportName', 'Name') },
+      { key: 'rate' as const, label: t('commissionRates.exportRate', 'Effective Rate (%)') },
+      { key: 'customRate' as const, label: t('commissionRates.exportCustomRate', 'Custom Rate') },
+      { key: 'status' as const, label: t('commissionRates.status', 'Status') },
+      { key: 'lastUpdated' as const, label: t('commissionRates.lastUpdated', 'Last Updated') },
     ];
+
+    const defaultLabel = t('commissionRates.statusDefault', 'Default');
+
     const exportData = [
-      { name: 'Platform Default', rate: `${platformCommission.rate}%`, status: 'Global', lastUpdated: platformCommission.lastUpdated },
-      ...vendorCommissions.map((v) => ({ name: v.vendorName, rate: v.rate !== null ? `${v.rate}%` : '--', status: v.status, lastUpdated: v.lastUpdated })),
-      ...categoryCommissions.map((c) => ({ name: c.categoryName, rate: c.rate !== null ? `${c.rate}%` : '--', status: c.status, lastUpdated: c.lastUpdated })),
+      ...vendorCommissions.map((v) => {
+        const effectiveRate = typeof v.rate === 'number' && !isNaN(v.rate) ? v.rate : platRate;
+        const customRateStr = typeof v.rate === 'number' && !isNaN(v.rate) ? `${v.rate.toFixed(2)}%` : defaultLabel;
+        return {
+          type: t('commissionRates.vendorLabel', 'Vendor'),
+          name: v.vendorName || '----',
+          rate: `${effectiveRate.toFixed(2)}%`,
+          customRate: customRateStr,
+          status: v.status === 'Custom' ? t('commissionRates.statusCustom', 'Custom') : defaultLabel,
+          lastUpdated: v.lastUpdated || '----',
+        };
+      }),
+      ...categoryCommissions.map((c) => {
+        const effectiveRate = typeof c.rate === 'number' && !isNaN(c.rate) ? c.rate : platRate;
+        const customRateStr = typeof c.rate === 'number' && !isNaN(c.rate) ? `${c.rate.toFixed(2)}%` : defaultLabel;
+        return {
+          type: t('commissionRates.categoryLabel', 'Category'),
+          name: c.categoryName || '----',
+          rate: `${effectiveRate.toFixed(2)}%`,
+          customRate: customRateStr,
+          status: c.status === 'Custom' ? t('commissionRates.statusCustom', 'Custom') : defaultLabel,
+          lastUpdated: c.lastUpdated || '----',
+        };
+      }),
     ];
-    exportToPDF(t('commissionRates.title', 'Commission Rates'), headers, exportData);
+
+    exportToPDF(t('commissionRates.title', 'Commission Rates'), headers, exportData, summaryStats);
   };
 
   return {

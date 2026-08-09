@@ -128,16 +128,19 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
   );
 };
 
-// ── Helper to display vendor name from sub-order ────────────────────────────
-// Uses real vendorName from API response if available; falls back to vendorId (truncated)
-const resolveVendorName = (sub: { vendorId?: string; [key: string]: any }): string => {
+const resolveVendorName = (
+  sub: { vendorId?: string; vendorName?: string; storeName?: string; vendor?: { businessName?: string; name?: string }; [key: string]: unknown },
+  fallbackRecipientName?: string
+): string => {
   const fromApi =
-    sub?.vendorName ||
-    sub?.vendor?.businessName ||
-    sub?.vendor?.name;
+    (sub?.vendorName as string) ||
+    (sub?.storeName as string) ||
+    (sub?.vendor?.businessName as string) ||
+    (sub?.vendor?.name as string);
   if (fromApi) return fromApi;
+  if (fallbackRecipientName && fallbackRecipientName !== '--') return fallbackRecipientName;
   if (sub?.vendorId && sub.vendorId.length <= 20) return sub.vendorId;
-  return '--';
+  return fallbackRecipientName || '--';
 };
 
 export default function OrderDetailsPage() {
@@ -184,10 +187,11 @@ export default function OrderDetailsPage() {
   const custLastName = orderData?.customer?.lastName?.trim() || '';
   const custFullName = `${custFirstName} ${custLastName}`.trim();
   const customerName = custFullName || orderData?.recipientName || '--';
-  const customerEmail = orderData?.customer?.email || (orderData as any)?.recipientEmail || (orderData as any)?.email || '--';
+  const rawOrder = orderData as Record<string, unknown> | undefined;
+  const customerEmail = (orderData?.customer?.email || rawOrder?.recipientEmail || rawOrder?.email || '--') as string;
   const customerPhone = orderData?.customer?.phoneNumber || orderData?.recipientPhone || '--';
-  const paymentMethod = (orderData as any)?.paymentMethod || '--';
-  const shippingCountry = (orderData as any)?.shippingCountry || '--';
+  const paymentMethod = (rawOrder?.paymentMethod || '--') as string;
+  const shippingCountry = (rawOrder?.shippingCountry || '--') as string;
 
   // All line items across every sub-order
   const allOrderItems = orderData?.subOrders
@@ -364,7 +368,7 @@ export default function OrderDetailsPage() {
                   <SubOrderCard
                     key={sub.id}
                     subOrder={sub}
-                    vendorName={resolveVendorName(sub as any)}
+                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName)}
                     orderId={id}
                     onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
                     isUpdating={
@@ -406,21 +410,31 @@ export default function OrderDetailsPage() {
                           </td>
                         </tr>
                       ) : (
-                        allOrderItems.map((it) => (
-                          <tr key={it.id}>
-                            <td className="py-4 text-start">
-                              <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-lg bg-amber-900/10 border border-gray-100 shrink-0 flex items-center justify-center text-xl">
-                                  {getProductThumbnail(it.productName)}
+                        allOrderItems.map((it) => {
+                          const itemProdId = (it.productId || it.id) as string | undefined;
+                          return (
+                            <tr key={it.id}>
+                              <td className="py-4 text-start">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
+                                    className="w-11 h-11 rounded-lg bg-amber-900/10 border border-gray-100 shrink-0 flex items-center justify-center text-xl cursor-pointer hover:bg-amber-900/20 transition-colors"
+                                  >
+                                    {getProductThumbnail(it.productName)}
+                                  </div>
+                                  <div>
+                                    <p
+                                      onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
+                                      className="font-bold text-gray-900 text-sm cursor-pointer hover:underline hover:text-blue-600 transition-colors"
+                                    >
+                                      {it.productName}
+                                    </p>
+                                    {Boolean(it.variantLabel) && (
+                                      <p className="text-gray-400 text-xs">{String(it.variantLabel)}</p>
+                                    )}
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="font-bold text-gray-900 text-sm">{it.productName}</p>
-                                  {Boolean(it.variantLabel) && (
-                                    <p className="text-gray-400 text-xs">{String(it.variantLabel)}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
+                              </td>
                             <td className="py-4 text-center text-gray-700 font-medium text-xs">{it.quantity}</td>
                             <td className="py-4 text-end text-gray-700 font-medium text-xs">
                               {it.unitPrice.toFixed(2)} SAR
@@ -429,7 +443,8 @@ export default function OrderDetailsPage() {
                               {it.lineTotal.toFixed(2)} SAR
                             </td>
                           </tr>
-                        ))
+                         );
+                        })
                       )}
                     </tbody>
                   </table>
@@ -490,7 +505,7 @@ export default function OrderDetailsPage() {
                   <SubOrderCard
                     key={sub.id}
                     subOrder={sub}
-                    vendorName={resolveVendorName(sub as any)}
+                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName)}
                     orderId={id}
                     onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
                     isUpdating={
