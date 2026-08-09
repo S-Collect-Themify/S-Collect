@@ -57,47 +57,83 @@ export const getVouchersList = async (params?: any) => {
   }
 };
 
+export const getVoucherByIdApi = async (id: string) => {
+  try {
+    const { data } = await api.get(`/admin/vouchers/${id}`);
+    return data?.data || data?.voucher || data?.item || data;
+  } catch (err) {
+    console.warn(`API getVoucherByIdApi (${id}) fallback`, err);
+    return null;
+  }
+};
+
+
+const parseToISOString = (dateInput: any, isEnd = false): string => {
+  if (!dateInput) {
+    const fallback = new Date();
+    if (isEnd) fallback.setFullYear(fallback.getFullYear() + 1);
+    return fallback.toISOString();
+  }
+
+  if (dateInput instanceof Date) {
+    return dateInput.toISOString();
+  }
+
+  const str = String(dateInput).trim();
+  let d = new Date(str);
+
+  if (isNaN(d.getTime())) {
+    const parts = str.split(/[-/T ]/);
+    if (parts.length >= 3) {
+      if (parts[0].length === 4) {
+        // YYYY-MM-DD
+        d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      } else if (parts[2].length === 4) {
+        // MM/DD/YYYY
+        d = new Date(Number(parts[2]), Number(parts[0]) - 1, Number(parts[1]));
+      }
+    }
+  }
+
+  if (isNaN(d.getTime())) {
+    d = new Date();
+    if (isEnd) d.setFullYear(d.getFullYear() + 1);
+  } else if (isEnd) {
+    d.setHours(23, 59, 59, 999);
+  }
+
+  return d.toISOString();
+};
+
 export const createVoucherApi = async (voucherData: VoucherApiData) => {
   try {
-    const scope =
-      voucherData.scope === 'All' || !voucherData.scope
-        ? 'ALL_ORDERS'
-        : voucherData.scope;
+    const isCategory =
+      voucherData.scope === 'SPECIFIC_CATEGORIES' ||
+      voucherData.scope === 'Category';
 
-    // startsAt is creation time as ISO 8601 string
-    const startsAt = voucherData.startsAt
-      ? new Date(voucherData.startsAt).toISOString()
-      : new Date().toISOString();
+    const scope = isCategory ? 'SPECIFIC_CATEGORIES' : (voucherData.scope || 'ALL_ORDERS');
+    const type = mapTypeToBackend(voucherData.type);
 
-    // format endsAt as ISO 8601 string
-    let endsAt: string;
-    if (voucherData.endsAt) {
-      endsAt = new Date(voucherData.endsAt).toISOString();
-    } else if (voucherData.expiryDate) {
-      const d = voucherData.expiryDate.includes('T')
-        ? new Date(voucherData.expiryDate)
-        : new Date(`${voucherData.expiryDate}T23:59:59.000Z`);
-      endsAt = !isNaN(d.getTime()) ? d.toISOString() : new Date().toISOString();
-    } else {
-      endsAt = new Date().toISOString();
-    }
+    const startsAt = parseToISOString(voucherData.startsAt || new Date());
+    const endsAt = parseToISOString(voucherData.endsAt || voucherData.expiryDate, true);
 
     const payload: Record<string, any> = {
       code: voucherData.code,
-      type: mapTypeToBackend(voucherData.type),
+      type,
       value: Number(voucherData.value ?? voucherData.discountValue ?? 0),
       scope,
       startsAt,
       endsAt,
     };
 
-    if (scope === 'Category') {
-      const catIds = Array.isArray(voucherData.category)
-        ? voucherData.category
-        : voucherData.categoryIds || null;
-      if (catIds && catIds.length > 0) {
-        payload.categoryIds = catIds;
-      }
+    const catIds = Array.isArray(voucherData.category)
+      ? voucherData.category
+      : Array.isArray(voucherData.categoryIds)
+      ? voucherData.categoryIds
+      : null;
+
+    if (catIds && catIds.length > 0) {
+      payload.categoryIds = catIds;
     }
 
     const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
@@ -123,6 +159,8 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
       payload.oneUsePerUser = Boolean(oneUse);
     }
 
+    console.log('POST /admin/vouchers payload:', JSON.stringify(payload, null, 2));
+
     const { data } = await api.post('/admin/vouchers', payload);
     return data;
   } catch (err) {
@@ -131,12 +169,14 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
   }
 };
 
+
 export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) => {
   try {
-    const scope =
-      voucherData.scope === 'All' || !voucherData.scope
-        ? 'ALL_ORDERS'
-        : voucherData.scope;
+    const isCategory =
+      voucherData.scope === 'SPECIFIC_CATEGORIES' ||
+      voucherData.scope === 'Category';
+
+    const scope = isCategory ? 'SPECIFIC_CATEGORIES' : (voucherData.scope || 'ALL_ORDERS');
 
     let endsAt: string | undefined;
     if (voucherData.endsAt) {
@@ -159,14 +199,16 @@ export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) 
       payload.endsAt = endsAt;
     }
 
-    if (scope === 'Category') {
-      const catIds = Array.isArray(voucherData.category)
-        ? voucherData.category
-        : voucherData.categoryIds || null;
-      if (catIds && catIds.length > 0) {
-        payload.categoryIds = catIds;
-      }
+    const catIds = Array.isArray(voucherData.category)
+      ? voucherData.category
+      : Array.isArray(voucherData.categoryIds)
+      ? voucherData.categoryIds
+      : null;
+
+    if (catIds && catIds.length > 0) {
+      payload.categoryIds = catIds;
     }
+
 
     const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
     if (minOrder !== undefined && minOrder !== '' && minOrder !== null) {

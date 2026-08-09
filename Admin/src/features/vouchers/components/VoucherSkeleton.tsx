@@ -14,24 +14,33 @@ export const VoucherSkeleton: React.FC<VoucherSkeletonProps> = ({ isMobile = fal
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl border border-gray-100 p-4 shadow-xs animate-pulse space-y-3"
+            className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm animate-pulse space-y-3"
           >
             {/* Top row: Code badge & Status */}
             <div className="flex items-center justify-between">
-              <div className="h-5 bg-gray-200 rounded-lg w-28" />
-              <div className="h-5 bg-gray-200 rounded-full w-16" />
+              <div className="h-6 bg-gray-200 rounded-xl w-28" />
+              <div className="h-5 bg-gray-200 rounded-full w-20" />
             </div>
 
-            {/* Middle row: Type & Discount */}
-            <div className="flex items-center justify-between py-1">
+            {/* Grid rows */}
+            <div className="grid grid-cols-[110px_1fr] gap-y-2 text-xs">
+              <div className="h-4 bg-gray-200 rounded-md w-16" />
+              <div className="h-4 bg-gray-200 rounded-md w-24" />
+
+              <div className="h-4 bg-gray-200 rounded-md w-16" />
+              <div className="h-4 bg-gray-200 rounded-md w-28" />
+
+              <div className="h-4 bg-gray-200 rounded-md w-14" />
               <div className="h-4 bg-gray-200 rounded-md w-20" />
-              <div className="h-5 bg-gray-200 rounded-md w-16" />
+
+              <div className="h-4 bg-gray-200 rounded-md w-16" />
+              <div className="h-4 bg-gray-200 rounded-md w-16" />
             </div>
 
-            {/* Bottom row: Expiry & Delete */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <div className="h-3 bg-gray-200 rounded-md w-28" />
-              <div className="w-7 h-7 rounded-lg bg-gray-200" />
+            {/* Bottom row: Action Buttons */}
+            <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+              <div className="h-8 bg-gray-200 rounded-xl flex-1" />
+              <div className="h-8 bg-gray-200 rounded-xl flex-1" />
             </div>
           </div>
         ))}
@@ -42,52 +51,70 @@ export const VoucherSkeleton: React.FC<VoucherSkeletonProps> = ({ isMobile = fal
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-start border-collapse">
+        <table className="w-full text-left border-collapse rtl:text-right text-xs sm:text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50 text-xs font-semibold text-gray-500">
-              <th className="py-4 px-4 text-start">{t('vouchers.table.code', 'Code')}</th>
-              <th className="py-4 px-4 text-start">{t('vouchers.table.type', 'Type')}</th>
-              <th className="py-4 px-4 text-start">{t('vouchers.table.discount', 'Discount')}</th>
-              <th className="py-4 px-4 text-start">{t('vouchers.table.expiryDate', 'Expiry Date')}</th>
-              <th className="py-4 px-4 text-start">{t('vouchers.table.usage', 'Usage')}</th>
-              <th className="py-4 px-4 text-start">{t('vouchers.table.status', 'Status')}</th>
-              <th className="py-4 px-4 text-end">{t('vouchers.table.actions', 'Actions')}</th>
+            <tr className="border-b border-gray-100 bg-gray-200 font-semibold text-gray-800">
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.code', 'Code')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.category', 'Category')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.scope', 'Scope')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.type', 'Type')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.discount', 'Discount')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.minOrder', 'Min Order')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.maxDiscount', 'Max Discount')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.usage', 'Usage')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.expiryDate', 'Expiry Date')}</th>
+              <th className="py-3.5 px-3.5">{t('vouchersListing.table.status', 'Status')}</th>
+              <th className="py-3.5 px-3.5 text-center">{t('vouchersListing.table.actions', 'Actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
+          <tbody className="divide-y divide-gray-100">
             {Array.from({ length: 6 }).map((_, i) => (
               <tr key={i} className="animate-pulse">
                 {/* Code */}
-                <td className="py-4 px-4">
-                  <div className="h-6 bg-gray-200 rounded-lg w-28" />
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-24" />
+                </td>
+                {/* Category */}
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-28" />
+                </td>
+                {/* Scope */}
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-28" />
                 </td>
                 {/* Type */}
-                <td className="py-4 px-4">
+                <td className="py-3.5 px-3.5">
                   <div className="h-5 bg-gray-200 rounded-md w-20" />
                 </td>
                 {/* Discount */}
-                <td className="py-4 px-4">
-                  <div className="h-4 bg-gray-200 rounded-md w-16" />
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-16" />
+                </td>
+                {/* Min Order */}
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-16" />
+                </td>
+                {/* Max Discount */}
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-16" />
+                </td>
+                {/* Usage */}
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-16" />
                 </td>
                 {/* Expiry Date */}
-                <td className="py-4 px-4">
-                  <div className="h-4 bg-gray-200 rounded-md w-24" />
+                <td className="py-3.5 px-3.5">
+                  <div className="h-5 bg-gray-200 rounded-md w-24" />
                 </td>
-                {/* Usage progress & count */}
-                <td className="py-4 px-4">
-                  <div className="space-y-1.5 w-28">
-                    <div className="h-3 bg-gray-200 rounded-md w-14" />
-                    <div className="h-1.5 bg-gray-200 rounded-full w-full" />
-                  </div>
-                </td>
-                {/* Status Badge */}
-                <td className="py-4 px-4">
+                {/* Status */}
+                <td className="py-3.5 px-3.5">
                   <div className="h-5 bg-gray-200 rounded-full w-16" />
                 </td>
                 {/* Actions */}
-                <td className="py-4 px-4 text-end">
-                  <div className="flex justify-end gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gray-200" />
+                <td className="py-3.5 px-3.5 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-4 bg-gray-200 rounded w-8" />
+                    <div className="h-4 bg-gray-200 rounded w-10" />
                   </div>
                 </td>
               </tr>
