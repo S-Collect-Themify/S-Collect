@@ -2,6 +2,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   getAdminBuyers,
   getAdminBuyerDetail,
+  getAdminBuyerStats,
   type BuyerQueryParams,
   type AdminBuyerDetailResponse,
 } from '../../../services/buyers';
@@ -12,8 +13,8 @@ import {
   formatOrderCount,
 } from '../utils/buyerUtils';
 
-export function mapBackendBuyerToBuyer(item: any): Buyer {
-  if (!item || typeof item !== 'object') {
+export function mapBackendBuyerToBuyer(raw: unknown): Buyer {
+  if (!raw || typeof raw !== 'object') {
     return {
       id: '---',
       name: '---',
@@ -25,65 +26,76 @@ export function mapBackendBuyerToBuyer(item: any): Buyer {
     };
   }
 
-  const name = formatBuyerName(
-    item.firstName || item.name || item.fullName,
-    item.lastName
-  );
-  const email = (typeof item.email === 'string' ? item.email : item.email?.address)?.trim() || '---';
-  const phoneNumber = (typeof item.phoneNumber === 'string' ? item.phoneNumber : item.phone)?.trim() || '---';
-  const date = formatBuyerDate(item.createdAt || item.date || item.created_at);
-  const ordersNum = formatOrderCount(item.totalOrders ?? item.ordersNum ?? item.ordersCount);
-  const status = (item.status || '').trim() || '---';
+  const item = raw as Record<string, unknown>;
+
+  const firstNameStr = typeof item.firstName === 'string' ? item.firstName : undefined;
+  const lastNameStr = typeof item.lastName === 'string' ? item.lastName : undefined;
+  const nameStr = typeof item.name === 'string' ? item.name : undefined;
+  const fullNameStr = typeof item.fullName === 'string' ? item.fullName : undefined;
+
+  const name = formatBuyerName(firstNameStr || nameStr || fullNameStr, lastNameStr);
+
+  const emailObj = typeof item.email === 'object' && item.email !== null ? (item.email as Record<string, unknown>) : null;
+  const email = (typeof item.email === 'string' ? item.email : typeof emailObj?.address === 'string' ? emailObj.address : '')?.trim() || '---';
+
+  const phoneNumber = (typeof item.phoneNumber === 'string' ? item.phoneNumber : typeof item.phone === 'string' ? item.phone : '')?.trim() || '---';
+
+  const createdAtStr = typeof item.createdAt === 'string' ? item.createdAt : typeof item.created_at === 'string' ? item.created_at : typeof item.date === 'string' ? item.date : undefined;
+  const date = formatBuyerDate(createdAtStr);
+
+  const ordersCountVal = typeof item.totalOrders === 'number' ? item.totalOrders : typeof item.ordersNum === 'number' ? item.ordersNum : typeof item.ordersCount === 'number' ? item.ordersCount : undefined;
+  const ordersNum = formatOrderCount(ordersCountVal);
+
+  const status = (typeof item.status === 'string' ? item.status : '').trim() || '---';
   const id = item.id || item._id ? String(item.id || item._id) : '---';
 
   return {
     id,
     name,
-    firstName: item.firstName || undefined,
-    lastName: item.lastName || undefined,
+    firstName: firstNameStr,
+    lastName: lastNameStr,
     email,
     phoneNumber,
     date,
     ordersNum,
     status,
-    createdAt: item.createdAt || undefined,
+    createdAt: createdAtStr,
   };
 }
 
-export function extractBuyersPayload(resData: any): { items: any[]; pagination: any } {
-  if (!resData) {
+export function extractBuyersPayload(resData: unknown): { items: Record<string, unknown>[]; pagination: Record<string, unknown> } {
+  if (!resData || typeof resData !== 'object') {
     return { items: [], pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 } };
   }
 
-  let target = resData;
+  const resObj = resData as Record<string, unknown>;
+  let target: Record<string, unknown> = resObj;
 
-  // Handle standard API wrapper { success: true, data: { items: [...], pagination: {...} } }
-  if (target && typeof target === 'object' && 'data' in target && target.data) {
-    const d = target.data;
-    if (
-      Array.isArray(d) ||
-      (typeof d === 'object' && (d.items || d.buyers || d.pagination || d.data))
-    ) {
+  if (resObj.data && typeof resObj.data === 'object') {
+    const d = resObj.data as Record<string, unknown>;
+    if (Array.isArray(d) || d.items || d.buyers || d.pagination || d.data) {
       target = d;
     }
   }
 
-  let items: any[] = [];
+  let items: Record<string, unknown>[] = [];
   if (Array.isArray(target)) {
-    items = target;
+    items = target as Record<string, unknown>[];
   } else if (Array.isArray(target?.items)) {
-    items = target.items;
+    items = target.items as Record<string, unknown>[];
   } else if (Array.isArray(target?.buyers)) {
-    items = target.buyers;
+    items = target.buyers as Record<string, unknown>[];
   } else if (Array.isArray(target?.data)) {
-    items = target.data;
+    items = target.data as Record<string, unknown>[];
   }
 
-  const pagination = target?.pagination || resData?.pagination || {
+  const paginationObj = (target?.pagination || resObj?.pagination || {}) as Record<string, unknown>;
+  const pagination = {
     currentPage: 1,
     pageSize: 25,
     totalItems: items.length,
     totalPages: Math.ceil(items.length / 25) || (items.length > 0 ? 1 : 0),
+    ...paginationObj,
   };
 
   return { items, pagination };
@@ -153,6 +165,15 @@ export function mapAdminBuyerDetailToBuyer(data?: AdminBuyerDetailResponse | nul
     lastActive: '---',
     location,
   };
+}
+
+export function useAdminBuyerStats(id?: string) {
+  return useQuery({
+    queryKey: ['admin-buyer-stats', id],
+    queryFn: () => getAdminBuyerStats(id!),
+    enabled: Boolean(id),
+    staleTime: 5 * 60 * 1000,
+  });
 }
 
 export function useAdminBuyerDetail(id?: string) {

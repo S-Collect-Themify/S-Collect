@@ -11,6 +11,7 @@ export interface TableItem {
   subOrdersCount?: number;
   reason?: string;
   date: string;
+  rawCreatedAt?: string;
 }
 
 export type OrderMainTab = 'allOrders' | 'refunds';

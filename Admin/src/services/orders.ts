@@ -158,9 +158,25 @@ export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<Adm
   if (params?.vendorId) cleanParams.vendorId = params.vendorId;
   if (params?.status && params.status !== 'All' && params.status !== 'all') cleanParams.status = params.status;
   if (params?.search) cleanParams.search = params.search;
-  if (params?.dateFilter && params.dateFilter !== 'all') cleanParams.dateFilter = params.dateFilter;
-  if (params?.startDate) cleanParams.startDate = params.startDate;
-  if (params?.endDate) cleanParams.endDate = params.endDate;
+  if (params?.dateFilter && params.dateFilter !== 'all') {
+    cleanParams.dateFilter = params.dateFilter;
+    cleanParams.date_filter = params.dateFilter;
+    cleanParams.period = params.dateFilter;
+  }
+  if (params?.startDate) {
+    const ymd = params.startDate.split('T')[0];
+    cleanParams.startDate = params.startDate;
+    cleanParams.dateFrom = ymd;
+    cleanParams.createdFrom = params.startDate;
+    cleanParams.from = ymd;
+  }
+  if (params?.endDate) {
+    const ymd = params.endDate.split('T')[0];
+    cleanParams.endDate = params.endDate;
+    cleanParams.dateTo = ymd;
+    cleanParams.createdTo = params.endDate;
+    cleanParams.to = ymd;
+  }
   if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
   if (params?.dateTo) cleanParams.dateTo = params.dateTo;
   if (params?.orderNumber) cleanParams.orderNumber = params.orderNumber;
@@ -401,6 +417,7 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     status: rawStatus,
     subOrdersCount,
     date: dateStr,
+    rawCreatedAt: order.createdAt,
   };
 }
 
@@ -437,5 +454,6 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
     subOrdersCount: sub.items?.length ?? 0,
     date: dateStr,
     orderId: sub.orderId,
+    rawCreatedAt: sub.createdAt,
   };
 }

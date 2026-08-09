@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from '../../../hooks/useBreakpoint';
 import {
@@ -21,26 +21,27 @@ export const useOrdersLogic = () => {
   // Tab State
   const [activeMainTab, setActiveMainTab] = useState<OrderMainTab>('allOrders');
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 20;
+
   // Filters State
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('all');
 
   // vendorId & buyerAccountId from URL
+  const [prevSearchParams, setPrevSearchParams] = useState(searchParams.toString());
   const [vendorIdFilter, setVendorIdFilter] = useState<string | undefined>(urlVendorId || undefined);
   const [buyerAccountIdFilter, setBuyerAccountIdFilter] = useState<string | undefined>(urlBuyerAccountId || undefined);
 
-  useEffect(() => {
-    const vId = searchParams.get('vendorId');
-    const bId = searchParams.get('buyerAccountId');
-    setVendorIdFilter(vId || undefined);
-    setBuyerAccountIdFilter(bId || undefined);
+  const currentParamsStr = searchParams.toString();
+  if (currentParamsStr !== prevSearchParams) {
+    setPrevSearchParams(currentParamsStr);
+    setVendorIdFilter(urlVendorId || undefined);
+    setBuyerAccountIdFilter(urlBuyerAccountId || undefined);
     setPage(1);
-  }, [searchParams]);
-
-  // Pagination
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 20;
+  }
 
   // Derived server params
   const startDateParam = useMemo(() => {
@@ -116,18 +117,68 @@ export const useOrdersLogic = () => {
       ? isVendorFiltered ? isSubOrdersLoading : isOrdersLoading
       : isRefundsLoading;
 
-  // ─── Map to TableItem (no client-side filtering — server already filtered) ───
+  // ─── Map to TableItem with Date Filter fallback ───
   const displayOrders = useMemo(() => {
-    if (isVendorFiltered) {
-      return subOrders.map(mapAdminSubOrderToTableItem);
-    }
-    return (orders ?? []).map(mapAdminOrderToTableItem);
-  }, [isVendorFiltered, subOrders, orders]);
+    let list: TableItem[] = isVendorFiltered
+      ? subOrders.map(mapAdminSubOrderToTableItem)
+      : (orders ?? []).map(mapAdminOrderToTableItem);
 
-  const displayRefunds = useMemo(
-    () => (refundsData?.items || []).map(mapAdminRefundToTableItem),
-    [refundsData]
-  );
+    if (dateFilter && dateFilter !== 'all') {
+      const now = new Date();
+      let threshold = 0;
+
+      if (dateFilter === 'last7Days' || dateFilter === '7days' || dateFilter === '7d') {
+        threshold = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+      } else if (dateFilter === 'last30Days' || dateFilter === '30days' || dateFilter === '30d') {
+        threshold = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+      } else if (dateFilter === 'thisMonth') {
+        threshold = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      } else if (dateFilter === 'thisYear') {
+        threshold = new Date(now.getFullYear(), 0, 1).getTime();
+      }
+
+      if (threshold > 0) {
+        list = list.filter((item) => {
+          const timeStr = item.rawCreatedAt || item.date;
+          if (!timeStr) return true;
+          const itemTime = new Date(timeStr).getTime();
+          return isNaN(itemTime) || itemTime >= threshold;
+        });
+      }
+    }
+
+    return list;
+  }, [isVendorFiltered, subOrders, orders, dateFilter]);
+
+  const displayRefunds = useMemo(() => {
+    let list = (refundsData?.items || []).map(mapAdminRefundToTableItem);
+
+    if (dateFilter && dateFilter !== 'all') {
+      const now = new Date();
+      let threshold = 0;
+
+      if (dateFilter === 'last7Days' || dateFilter === '7days' || dateFilter === '7d') {
+        threshold = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+      } else if (dateFilter === 'last30Days' || dateFilter === '30days' || dateFilter === '30d') {
+        threshold = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+      } else if (dateFilter === 'thisMonth') {
+        threshold = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      } else if (dateFilter === 'thisYear') {
+        threshold = new Date(now.getFullYear(), 0, 1).getTime();
+      }
+
+      if (threshold > 0) {
+        list = list.filter((item) => {
+          const timeStr = item.rawCreatedAt || item.date;
+          if (!timeStr) return true;
+          const itemTime = new Date(timeStr).getTime();
+          return isNaN(itemTime) || itemTime >= threshold;
+        });
+      }
+    }
+
+    return list;
+  }, [refundsData, dateFilter]);
 
   // ─── Pagination numbers (always from server) ─────────────────────────────────
   const activePagination = isVendorFiltered ? subOrdersPagination : ordersPagination;

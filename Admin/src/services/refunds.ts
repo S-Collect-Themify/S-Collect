@@ -207,5 +207,6 @@ export function mapAdminRefundToTableItem(refund: AdminRefund): TableItem {
     subOrdersCount: refund.items?.length || 1,
     reason: reasonStr,
     date: dateStr,
+    rawCreatedAt: refund.createdAt,
   };
 }
