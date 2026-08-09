@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useCategories } from '../../../hooks/useCategories';
 import type { VoucherItem } from '../types';
 
 interface VoucherTableProps {
@@ -7,7 +8,7 @@ interface VoucherTableProps {
   onDeleteClick: (voucher: VoucherItem) => void;
 }
 
-const renderCategoryBadges = (catData: any) => {
+const renderCategoryBadges = (catData: any, categoriesList: any[], language: string) => {
   const catArray: string[] = Array.isArray(catData)
     ? catData.map((c) => String(c).trim()).filter(Boolean)
     : typeof catData === 'string' && catData.trim()
@@ -18,9 +19,23 @@ const renderCategoryBadges = (catData: any) => {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const firstCat = catArray[0];
-  const extraCount = catArray.length - 1;
-  const fullTooltip = catArray.join(', ');
+  const getCatName = (idOrCat: string): string => {
+    const found = categoriesList.find(
+      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
+    );
+    if (found) {
+      if (language === 'ar') {
+        return found.nameAr || found.name_ar || found.name?.ar || found.nameEn || found.name || idOrCat;
+      }
+      return found.nameEn || found.name_en || found.name?.en || found.nameAr || found.name || idOrCat;
+    }
+    return idOrCat;
+  };
+
+  const resolvedNames = catArray.map(getCatName);
+  const firstCat = resolvedNames[0];
+  const extraCount = resolvedNames.length - 1;
+  const fullTooltip = resolvedNames.join(', ');
 
   return (
     <div className="flex items-center gap-1 flex-wrap" title={fullTooltip}>
@@ -40,8 +55,31 @@ const renderCategoryBadges = (catData: any) => {
 };
 
 export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { categories } = useCategories();
+
+  const formatScope = (scope?: string) => {
+    if (!scope) return '—';
+    if (scope === 'SPECIFIC_CATEGORIES' || scope === 'Category') {
+      return t('vouchersListing.scopes.specificCategories', { defaultValue: 'Specific Categories' });
+    }
+    if (scope === 'ALL_ORDERS' || scope === 'All') {
+      return t('vouchersListing.scopes.allOrders', { defaultValue: 'All Orders' });
+    }
+    return scope;
+  };
+
+  const formatType = (type?: string) => {
+    if (!type) return '—';
+    if (type === 'FIXED_AMOUNT' || type === 'Amount') {
+      return t('vouchersListing.types.amount', { defaultValue: 'Amount' });
+    }
+    if (type === 'PERCENTAGE' || type === 'Percentage') {
+      return t('vouchersListing.types.percentage', { defaultValue: 'Percentage' });
+    }
+    return type;
+  };
 
   return (
     <div className="w-full overflow-x-auto">
@@ -74,18 +112,19 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
 
               {/* Category Badges */}
               <td className="py-3.5 px-3.5">
-                {renderCategoryBadges(voucher.category)}
+                {renderCategoryBadges(voucher.category, categories, i18n.language)}
               </td>
 
               {/* Scope */}
               <td className="py-3.5 px-3.5 text-gray-700 font-medium whitespace-nowrap">
-                {voucher.scope || '—'}
+                {formatScope(voucher.scope)}
               </td>
 
               {/* Voucher Type */}
               <td className="py-3.5 px-3.5 text-gray-700 whitespace-nowrap">
-                {voucher.type}
+                {formatType(voucher.type)}
               </td>
+
 
               {/* Discount */}
               <td className="py-3.5 px-3.5 font-semibold text-gray-900 whitespace-nowrap">

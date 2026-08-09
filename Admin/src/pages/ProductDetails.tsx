@@ -13,6 +13,7 @@ import ReviewsList, {
   type Review,
   type ReviewFilter,
 } from "../features/AddProducts/productDetails/ReviewsList";
+import DeleteReviewModal from "../features/AddProducts/productDetails/DeleteReviewModal";
 
 import { useProductDetails } from "../features/products/hooks/useProductDetails";
 import {
@@ -48,10 +49,13 @@ const ProductDetails = () => {
     enabled: Boolean(productId),
   });
 
+  const [reviewToDeleteId, setReviewToDeleteId] = useState<string | null>(null);
+
   const deleteMutation = useMutation({
     mutationFn: (reviewId: string) => deleteReviewApi(reviewId),
     onSuccess: () => {
       toast.success(isAr ? "تم حذف التقييم بنجاح" : "Review deleted successfully");
+      setReviewToDeleteId(null);
       queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] });
       queryClient.invalidateQueries({ queryKey: ["product-rating-summary", productId] });
     },
@@ -61,15 +65,7 @@ const ProductDetails = () => {
   });
 
   const handleDeleteReview = (reviewId: string) => {
-    if (
-      window.confirm(
-        isAr
-          ? "هل أنت متاكد من حذف هذا التقييم؟"
-          : "Are you sure you want to delete this review?"
-      )
-    ) {
-      deleteMutation.mutate(reviewId);
-    }
+    setReviewToDeleteId(reviewId);
   };
 
   const rawReviewsList = useMemo(() => {
@@ -279,8 +275,21 @@ const ProductDetails = () => {
           </>
         )}
       </div>
+
+      {/* Delete Review Modal */}
+      <DeleteReviewModal
+        isOpen={Boolean(reviewToDeleteId)}
+        onClose={() => setReviewToDeleteId(null)}
+        onConfirm={() => {
+          if (reviewToDeleteId) {
+            deleteMutation.mutate(reviewToDeleteId);
+          }
+        }}
+        isDeleting={deleteMutation.isPending}
+      />
     </>
   );
 };
+
 
 export default ProductDetails;

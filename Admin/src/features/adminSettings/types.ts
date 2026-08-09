@@ -27,12 +27,14 @@ export interface BannerItem {
 export interface AdminAccount {
   id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   role: string;
   phoneNumber?: string;
   avatarUrl?: string;
   avatarFileName?: string;
-  status: 'Active' | 'Inactive';
+  status?: 'Active' | 'Inactive' | '';
   dateAdded: string;
 }
 
@@ -43,6 +45,7 @@ export interface ShippingZoneItem {
   nameEn?: string;
   nameAr?: string;
   vendorsCount: number;
+  vendorCount?: number;
   isActive: boolean;
 }
 

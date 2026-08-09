@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronDown } from 'lucide-react';
 import PortalDropdown from '../components/ui/PortalDropdown';
@@ -8,17 +8,15 @@ import {
   VendorReportOrdersTable,
   VendorReportVendorDropdown,
   DATE_RANGES,
+  getDateRangeStrings,
+  useVendorSalesReportSummary,
   useVendorReportOrders,
   useExportVendorReportMutation,
   type DateRangeKey,
 } from '../features/vendorReports';
-import {
-  useVendors,
-  useVendorPayoutStats,
-  useVendorPayoutSummary,
-} from '../features/vendors/hooks/useVendors';
+import { useVendors } from '../features/vendors/hooks/useVendors';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 25;
 
 export default function VendorReports() {
   const { t, i18n } = useTranslation();
@@ -28,67 +26,49 @@ export default function VendorReports() {
   const { data: vendors = [], isLoading: isVendorsLoading } = useVendors();
   const [selectedVendorId, setSelectedVendorId] = useState<string>('');
 
-  // Auto-select first vendor when list loads if no vendor selected yet
-  useEffect(() => {
-    if (vendors.length > 0 && !selectedVendorId) {
-      setSelectedVendorId(vendors[0].id);
-    }
-  }, [vendors, selectedVendorId]);
-
   const [selectedRangeKey, setSelectedRangeKey] = useState<DateRangeKey>('last30Days');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ── React Query for vendor-specific orders & stats ────────────────────────
+  // Calculate ISO date strings dateFrom & dateTo
+  const { dateFrom, dateTo } = useMemo(
+    () => getDateRangeStrings(selectedRangeKey),
+    [selectedRangeKey]
+  );
+
+  // ── React Query for vendor-sales-report/summary ───────────────────────────
+  const { data: summaryData } = useVendorSalesReportSummary(
+    dateFrom,
+    dateTo,
+    selectedVendorId || undefined
+  );
+
+  // ── React Query for vendor-sales-report/orders ────────────────────────────
   const { orders, totalOrdersCount, totalPages, isLoading: isOrdersLoading } = useVendorReportOrders(
-    selectedVendorId,
+    dateFrom,
+    dateTo,
+    selectedVendorId || undefined,
     currentPage,
     ITEMS_PER_PAGE
   );
-
-  const { data: payoutStats } = useVendorPayoutStats(selectedVendorId);
-  const { data: payoutSummary } = useVendorPayoutSummary(selectedVendorId);
 
   // React Mutation for report export actions
   const exportMutation = useExportVendorReportMutation();
 
   const currentOption = DATE_RANGES.find((r) => r.key === selectedRangeKey) || DATE_RANGES[1];
 
-  // Dynamic stat cards based on selected vendor data
+  // Dynamic stat cards based on GET /api/v1/admin/vendor-sales-report/summary
   const dynamicStatCards = useMemo(() => {
-    const totalGmv = orders.reduce((acc, o) => acc + (o.amount || 0), 0);
-    const totalCommission = orders.reduce((acc, o) => acc + (o.commission || 0), 0);
-    const totalNet = orders.reduce((acc, o) => acc + (o.net || 0), 0);
-
-    const gmvVal = payoutStats?.totalSales
-      ? Number(payoutStats.totalSales).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : totalGmv > 0
-      ? totalGmv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : '--';
-
-    const commVal = totalCommission > 0
-      ? totalCommission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : '--';
-
-    const payoutsVal = payoutSummary?.totalPayout
-      ? Number(payoutSummary.totalPayout).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : '--';
-
-    const netVal = totalNet > 0
-      ? totalNet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : '--';
-
-    const pendingVal = payoutSummary?.pendingAmount
-      ? Number(payoutSummary.pendingAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : payoutStats?.pendingPayouts
-      ? Number(payoutStats.pendingPayouts).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : '--';
+    const formatVal = (val: number | undefined | null) =>
+      val != null
+        ? val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : '--';
 
     return [
       {
         id: 'gmv',
         titleKey: 'vendorGmv',
         defaultTitle: 'Vendor GMV',
-        value: gmvVal,
+        value: formatVal(summaryData?.vendorGmv),
         currency: 'SAR',
         iconName: 'gmv' as const,
       },
@@ -96,7 +76,7 @@ export default function VendorReports() {
         id: 'commission',
         titleKey: 'platformCommission',
         defaultTitle: 'Platform Commission',
-        value: commVal,
+        value: formatVal(summaryData?.platformCommission),
         currency: 'SAR',
         iconName: 'commission' as const,
       },
@@ -104,7 +84,7 @@ export default function VendorReports() {
         id: 'payouts',
         titleKey: 'totalPayouts',
         defaultTitle: 'Total Payouts',
-        value: payoutsVal,
+        value: formatVal(summaryData?.totalPayouts),
         currency: 'SAR',
         iconName: 'payouts' as const,
       },
@@ -112,7 +92,7 @@ export default function VendorReports() {
         id: 'net',
         titleKey: 'netVendorPayable',
         defaultTitle: 'Net Vendor Payable',
-        value: netVal,
+        value: formatVal(summaryData?.netVendorPayable),
         currency: 'SAR',
         iconName: 'net' as const,
       },
@@ -120,12 +100,12 @@ export default function VendorReports() {
         id: 'pending',
         titleKey: 'pendingPayout',
         defaultTitle: 'Pending Payout',
-        value: pendingVal,
+        value: formatVal(summaryData?.pendingPayout),
         currency: 'SAR',
         iconName: 'pending' as const,
       },
     ];
-  }, [orders, payoutStats, payoutSummary]);
+  }, [summaryData]);
 
   const exportHeaders = [
     { key: 'id' as const, label: t('vendorReports.tableOrderNo', 'Order #') },

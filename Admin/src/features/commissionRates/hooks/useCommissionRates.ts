@@ -36,7 +36,7 @@ export const commissionKeys = {
 const VENDOR_CUSTOM_RATES_KEY = 'admin_vendor_custom_commissions';
 const CATEGORY_CUSTOM_RATES_KEY = 'admin_category_custom_commissions';
 
-function getCustomRatesMap(storageKey: string): Record<string, { rate: number; date: string }> {
+function getCustomRatesMap(storageKey: string): Record<string, { rate: number | null; date: string }> {
   try {
     const raw = localStorage.getItem(storageKey);
     return raw ? JSON.parse(raw) : {};
@@ -45,26 +45,16 @@ function getCustomRatesMap(storageKey: string): Record<string, { rate: number; d
   }
 }
 
-function setCustomRate(storageKey: string, id: string, rate: number) {
+function setCustomRate(storageKey: string, id: string, rate: number | null, dateOverride?: string) {
   try {
     const map = getCustomRatesMap(storageKey);
-    const todayStr = new Date().toLocaleDateString('en-US', {
+    const todayStr = dateOverride || new Date().toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric',
     });
     map[id] = { rate, date: todayStr };
     localStorage.setItem(storageKey, JSON.stringify(map));
   } catch (e) {
     console.error('Failed to save custom rate to localStorage:', e);
-  }
-}
-
-function removeCustomRate(storageKey: string, id: string) {
-  try {
-    const map = getCustomRatesMap(storageKey);
-    delete map[id];
-    localStorage.setItem(storageKey, JSON.stringify(map));
-  } catch (e) {
-    console.error('Failed to remove custom rate from localStorage:', e);
   }
 }
 
@@ -78,27 +68,33 @@ async function fetchPlatformCommission(): Promise<PlatformCommissionData> {
       ? new Date(data.updatedAt).toLocaleDateString('en-US', {
           month: 'short', day: 'numeric', year: 'numeric',
         })
-      : '----',
+      : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
   };
 }
 
 async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
-  const backendVendors = await getVendors();
+  const res = await getVendors();
+  const backendVendors = Array.isArray(res) ? res : res.items || [];
   const customMap = getCustomRatesMap(VENDOR_CUSTOM_RATES_KEY);
 
   return backendVendors.map((v) => {
     const mapped = mapBackendVendorToVendor(v);
 
     let customRate: number | null = null;
-    let lastUpdated = mapped.createdAt
-      ? new Date(mapped.createdAt).toLocaleDateString('en-US', {
+    const vDate = mapped.createdAt || v.createdAt || v.submittedDate;
+    let lastUpdated = vDate
+      ? new Date(vDate).toLocaleDateString('en-US', {
           month: 'short', day: 'numeric', year: 'numeric',
         })
-      : '----';
+      : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
     if (customMap[v.id]) {
-      customRate = customMap[v.id].rate;
-      lastUpdated = customMap[v.id].date;
+      if (typeof customMap[v.id].rate === 'number') {
+        customRate = customMap[v.id].rate;
+      }
+      if (customMap[v.id].date) {
+        lastUpdated = customMap[v.id].date;
+      }
     } else if (typeof mapped.commissionRate === 'number' && !isNaN(mapped.commissionRate)) {
       customRate = normalizeRateFromApi(mapped.commissionRate);
     }
@@ -121,7 +117,12 @@ async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
   return Promise.all(
     categories.map(async (cat) => {
       let customRate: number | null = null;
-      let lastUpdated = '----';
+      const catDate = cat.createdAt
+        ? new Date(cat.createdAt).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+          })
+        : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      let lastUpdated = catDate;
 
       // 1. Fetch live custom commission from API GET /admin/categories/{id}/commission
       const apiCommission = await getCategoryCommission(cat.id);
@@ -133,9 +134,13 @@ async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
           });
         }
       } else if (customMap[cat.id]) {
-        // 2. Fallback to locally saved custom rate
-        customRate = customMap[cat.id].rate;
-        lastUpdated = customMap[cat.id].date;
+        // 2. Fallback to locally saved custom rate / reset date
+        if (typeof customMap[cat.id].rate === 'number') {
+          customRate = customMap[cat.id].rate;
+        }
+        if (customMap[cat.id].date) {
+          lastUpdated = customMap[cat.id].date;
+        }
       }
 
       const hasCustomRate = customRate !== null;
@@ -215,13 +220,17 @@ export function useResetVendorCommission() {
   return useMutation({
     mutationFn: (id: string) => deleteVendorCommission(id),
     onSuccess: (_, id) => {
-      removeCustomRate(VENDOR_CUSTOM_RATES_KEY, id);
+      const todayStr = new Date().toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+      });
+      setCustomRate(VENDOR_CUSTOM_RATES_KEY, id, null, todayStr);
       queryClient.setQueryData<VendorCommissionItem[]>(commissionKeys.vendors, (old) => {
         if (!old) return [];
         return old.map((item) =>
-          item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: '----' } : item
+          item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: todayStr } : item
         );
       });
+      queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
     onError: (error: any) => {
@@ -266,13 +275,17 @@ export function useResetCategoryCommission() {
   return useMutation({
     mutationFn: (id: string) => deleteCategoryCommission(id),
     onSuccess: (_, id) => {
-      removeCustomRate(CATEGORY_CUSTOM_RATES_KEY, id);
+      const todayStr = new Date().toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+      });
+      setCustomRate(CATEGORY_CUSTOM_RATES_KEY, id, null, todayStr);
       queryClient.setQueryData<CategoryCommissionItem[]>(commissionKeys.categories, (old) => {
         if (!old) return [];
         return old.map((item) =>
-          item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: '----' } : item
+          item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: todayStr } : item
         );
       });
+      queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
       toast.success(t('commissionRates.resetSuccess', 'Reset to platform default rate successfully.'));
     },
     onError: (error: any) => {

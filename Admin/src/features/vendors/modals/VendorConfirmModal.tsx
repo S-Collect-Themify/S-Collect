@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { AlertTriangle, CheckCircle, PowerOff } from 'lucide-react';
+import { AlertTriangle, CheckCircle, PowerOff, Star } from 'lucide-react';
 
 interface VendorConfirmModalProps {
   isOpen: boolean;
-  type: 'approve' | 'reject' | 'deactivate' | 'reactivate';
+  type: 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature';
   count: number;
   vendorName?: string;
   onConfirm: (reason?: string) => void;
@@ -81,6 +81,30 @@ export default function VendorConfirmModal({
       btnLabel: isSingle
         ? t('vendors.table.confirmDeactivateBtn', 'Deactivate')
         : t('vendors.table.deactivateSelected', 'Deactivate Selected'),
+    },
+    feature: {
+      title: t('vendors.table.confirmFeatureTitle', 'Feature Vendor'),
+      message: isSingle
+        ? t('vendors.table.confirmFeatureMessage', { name: vendorName, defaultValue: `Are you sure you want to mark ${vendorName} as featured?` })
+        : t('vendors.table.confirmFeatureBulkMessage', { count, defaultValue: `Are you sure you want to mark ${count} vendors as featured?` }),
+      icon: <Star size={28} className="text-amber-500 fill-amber-500" strokeWidth={2} />,
+      iconBg: 'bg-amber-50',
+      btnClass: 'bg-amber-500 hover:bg-amber-600',
+      btnLabel: isSingle
+        ? t('vendors.table.confirmFeatureBtn', 'Mark as Featured')
+        : t('vendors.table.featureSelected', 'Feature Selected'),
+    },
+    unfeature: {
+      title: t('vendors.table.confirmUnfeatureTitle', 'Unfeature Vendor'),
+      message: isSingle
+        ? t('vendors.table.confirmUnfeatureMessage', { name: vendorName, defaultValue: `Are you sure you want to unmark ${vendorName} as featured?` })
+        : t('vendors.table.confirmUnfeatureBulkMessage', { count, defaultValue: `Are you sure you want to unmark ${count} vendors as featured?` }),
+      icon: <Star size={28} className="text-amber-500" strokeWidth={2} />,
+      iconBg: 'bg-amber-50',
+      btnClass: 'bg-amber-600 hover:bg-amber-700',
+      btnLabel: isSingle
+        ? t('vendors.table.confirmUnfeatureBtn', 'Unmark as Featured')
+        : t('vendors.table.unfeatureSelected', 'Unfeature Selected'),
     },
   };
 

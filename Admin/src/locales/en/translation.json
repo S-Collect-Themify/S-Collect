@@ -1254,8 +1254,9 @@
       "freeShipping": "Free Shipping"
     },
     "scopes": {
-      "allOrders": "ALL_ORDERS",
-      "category": "Category"
+      "allOrders": "All Orders",
+      "specificCategories": "Specific Categories",
+      "category": "Specific Categories"
     },
     "statuses": {
       "active": "Active",
@@ -1352,11 +1353,19 @@
       "imageHint": "Supported formats: JPG, PNG, WEBP. Maximum file size: 2MB.",
       "fullName": "Full Name",
       "fullNamePlaceholder": "e.g. John Doe",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "e.g. John",
+      "firstNameRequired": "First name is required",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "e.g. Doe",
+      "lastNameRequired": "Last name is required",
       "emailAddress": "Email Address",
       "emailPlaceholder": "e.g. john@platform.com",
       "role": "Role",
-      "phoneNumber": "Phone Number (Optional)",
+      "phoneNumber": "Saudi Phone Number",
       "phoneNumberPlaceholder": "+966 50 000 0000",
+      "phoneNumberRequired": "Saudi phone number is required",
+      "phoneInvalidSaudi": "Please enter a valid Saudi phone number (e.g. +966500000000 or 0500000000)",
       "addAdminBtn": "Add Admin",
       "saveChangesBtn": "Save Changes",
       "fileTooLarge": "Image file size must be 2MB or less",
@@ -1364,6 +1373,7 @@
         "name": "Name",
         "email": "Email",
         "role": "Role",
+        "status": "Status",
         "dateAdded": "Date Added",
         "actions": "Actions"
       }

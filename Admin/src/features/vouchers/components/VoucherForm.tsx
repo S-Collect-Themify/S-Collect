@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Calendar, ChevronDown, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,60 +37,61 @@ export const VoucherForm = ({
   const navigate = useNavigate();
   const { categories, isLoading: isCategoriesLoading } = useCategories();
 
+  const formValues = useMemo<VoucherFormData>(() => {
+    if (!initialVoucher) {
+      return {
+        code: '',
+        category: [],
+        scope: 'ALL_ORDERS',
+        type: 'PERCENTAGE',
+        discountValue: '',
+        minOrder: '',
+        maxDiscount: '',
+        expiryDate: '',
+        maxUsage: '',
+        limitOnePerCustomer: true,
+      };
+    }
+    return {
+      code: initialVoucher.code || '',
+      category: parseCategories(initialVoucher.category),
+      scope:
+        initialVoucher.scope === 'SPECIFIC_CATEGORIES' || initialVoucher.scope === 'Category'
+          ? 'SPECIFIC_CATEGORIES'
+          : 'ALL_ORDERS',
+      type:
+        initialVoucher.type === 'Amount' || initialVoucher.type === 'FIXED_AMOUNT'
+          ? 'FIXED_AMOUNT'
+          : 'PERCENTAGE',
+      discountValue: initialVoucher.discountValue ? String(initialVoucher.discountValue) : '',
+      minOrder: initialVoucher.minOrder?.replace('SAR ', '') || '',
+      maxDiscount: initialVoucher.maxDiscount?.replace('SAR ', '') || '',
+      expiryDate: initialVoucher.expiryDate || '',
+      maxUsage: initialVoucher.maxUsage ? String(initialVoucher.maxUsage) : '',
+      limitOnePerCustomer: initialVoucher.limitOnePerCustomer ?? true,
+    };
+  }, [initialVoucher]);
+
   const {
     register,
     handleSubmit,
-    reset,
     watch,
     control,
     formState: { errors },
   } = useForm<VoucherFormData>({
-    defaultValues: {
-      code: initialVoucher?.code || '',
-      category: parseCategories(initialVoucher?.category),
-      scope: initialVoucher?.scope === 'All' ? 'ALL_ORDERS' : (initialVoucher?.scope || 'ALL_ORDERS'),
-      type: initialVoucher?.type || 'Percentage',
-      discountValue: initialVoucher?.discountValue
-        ? String(initialVoucher.discountValue)
-        : '',
-      minOrder: initialVoucher?.minOrder?.replace('SAR ', '') || '',
-      maxDiscount: initialVoucher?.maxDiscount?.replace('SAR ', '') || '',
-      expiryDate: initialVoucher?.expiryDate || '',
-      maxUsage: initialVoucher?.maxUsage ? String(initialVoucher.maxUsage) : '',
-      limitOnePerCustomer: initialVoucher?.limitOnePerCustomer ?? true,
-    },
+    values: formValues,
   });
 
-  useEffect(() => {
-    if (initialVoucher) {
-      reset({
-        code: initialVoucher.code || '',
-        category: parseCategories(initialVoucher.category),
-        scope: initialVoucher.scope === 'All' ? 'ALL_ORDERS' : (initialVoucher.scope || 'ALL_ORDERS'),
-        type: initialVoucher.type || 'Percentage',
-        discountValue: initialVoucher.discountValue
-          ? String(initialVoucher.discountValue)
-          : '',
-        minOrder: initialVoucher.minOrder?.replace('SAR ', '') || '',
-        maxDiscount: initialVoucher.maxDiscount?.replace('SAR ', '') || '',
-        expiryDate: initialVoucher.expiryDate || '',
-        maxUsage: initialVoucher.maxUsage
-          ? String(initialVoucher.maxUsage)
-          : '',
-        limitOnePerCustomer: initialVoucher.limitOnePerCustomer ?? true,
-      });
-    }
-  }, [initialVoucher, reset]);
 
   const selectedScope = watch('scope');
 
   const onFormSubmit = (data: VoucherFormData) => {
-    const isCategoryScope = data.scope === 'Category';
+    const isCategoryScope = data.scope === 'SPECIFIC_CATEGORIES' || data.scope === 'Category';
     onSubmit({
       ...data,
       code: data.code.trim(),
       category: isCategoryScope && Array.isArray(data.category) ? data.category : [],
-      scope: data.scope?.trim() || 'ALL_ORDERS',
+      scope: isCategoryScope ? 'SPECIFIC_CATEGORIES' : 'ALL_ORDERS',
       discountValue: data.discountValue.trim(),
       minOrder: data.minOrder.trim(),
       maxDiscount: data.maxDiscount.trim(),
@@ -138,10 +139,10 @@ export const VoucherForm = ({
               className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-9 rtl:pr-4"
             >
               <option value="ALL_ORDERS">
-                {t('vouchersListing.scopes.allOrders', { defaultValue: 'ALL_ORDERS' })}
+                {t('vouchersListing.scopes.allOrders', { defaultValue: 'All Orders' })}
               </option>
-              <option value="Category">
-                {t('vouchersListing.scopes.category', { defaultValue: 'Category' })}
+              <option value="SPECIFIC_CATEGORIES">
+                {t('vouchersListing.scopes.specificCategories', { defaultValue: 'Specific Categories' })}
               </option>
             </select>
             <ChevronDown
@@ -151,8 +152,8 @@ export const VoucherForm = ({
           </div>
         </div>
 
-        {/* Category Multi-Select (Only visible if scope is Category) */}
-        {selectedScope === 'Category' && (
+        {/* Category Multi-Select (Only visible if scope is SPECIFIC_CATEGORIES) */}
+        {(selectedScope === 'SPECIFIC_CATEGORIES' || selectedScope === 'Category') && (
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               {t('vouchersListing.form.category')}
@@ -162,12 +163,13 @@ export const VoucherForm = ({
               control={control}
               rules={{
                 validate: (val: string[] | string) => {
-                  if (selectedScope !== 'Category') return true;
+                  if (selectedScope !== 'SPECIFIC_CATEGORIES' && selectedScope !== 'Category') return true;
                   if (Array.isArray(val) && val.length > 0) return true;
                   if (typeof val === 'string' && val.trim().length > 0) return true;
                   return t('vouchersListing.form.errors.categoryRequired');
                 },
               }}
+
               render={({ field: { value, onChange } }) => (
                 <CategoryMultiSelect
                   value={Array.isArray(value) ? value : []}
@@ -202,11 +204,14 @@ export const VoucherForm = ({
                 {...register('type', { required: true })}
                 className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 pr-9 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-9 rtl:pr-4"
               >
-                <option value="Percentage">
-                  {t('vouchersListing.types.percentage')}
+                <option value="PERCENTAGE">
+                  {t('vouchersListing.types.percentage', { defaultValue: 'Percentage' })}
                 </option>
-                <option value="Amount">{t('vouchersListing.types.amount')}</option>
+                <option value="FIXED_AMOUNT">
+                  {t('vouchersListing.types.amount', { defaultValue: 'Amount' })}
+                </option>
               </select>
+
               <ChevronDown
                 size={16}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3.5"

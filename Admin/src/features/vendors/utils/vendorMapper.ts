@@ -1,6 +1,15 @@
 import type { BackendVendor, BackendVendorDetail } from '../../../services/vendors';
 import type { Vendor, VendorStatus } from '../types/vendors';
 
+function extractIsFeatured(v: any): boolean {
+  if (!v || typeof v !== 'object') return false;
+  const val = v.isFeatured ?? v.is_featured ?? v.featured ?? v.isFeaturedVendor;
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'number') return val === 1;
+  if (typeof val === 'string') return val.toLowerCase() === 'true' || val === '1';
+  return false;
+}
+
 /**
  * Maps a backend vendor object from list API to the UI Vendor data structure.
  * Missing or empty fields fallback to '--' per requirements.
@@ -36,15 +45,25 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
       break;
   }
 
-  const submittedDate = v.createdAt
-    ? new Date(v.createdAt).toLocaleDateString('en-US', {
+  const rawSubmittedDate = v.submittedDate || v.createdAt;
+  const submittedDate = rawSubmittedDate
+    ? new Date(rawSubmittedDate).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       })
     : '--';
 
-  const rawEmail = typeof v.email === 'string' && v.email.trim() ? v.email.trim() : undefined;
+  let rawEmail: string | undefined = undefined;
+  if (typeof v.email === 'string' && v.email.trim()) {
+    rawEmail = v.email.trim();
+  } else if (v.email && typeof v.email === 'object') {
+    const emailObj = v.email as Record<string, unknown>;
+    const val = emailObj.email || emailObj.value || emailObj.en || emailObj.ar;
+    if (typeof val === 'string' && val.trim()) {
+      rawEmail = val.trim();
+    }
+  }
   const email = rawEmail || (v.commercialRegisterNumber ? `CR: ${v.commercialRegisterNumber}` : '--');
 
   const commRate =
@@ -54,21 +73,24 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
       ? parseFloat(v.commissionRate) || undefined
       : undefined;
 
+  const isFeatured = extractIsFeatured(v);
+
   return {
     id: v.id,
     businessName,
     owner: ownerName,
     email,
     submittedDate,
-    category: v.isFeatured ? 'Featured' : '--',
+    category: isFeatured ? 'Featured' : '--',
     status,
     rawStatus: v.status,
     active,
+    isFeatured,
     taxId: v.commercialRegisterNumber || '--',
     commissionRate: commRate,
-    revenue: undefined,
-    orders: undefined,
-    createdAt: v.createdAt,
+    revenue: v.totalRevenue,
+    orders: v.totalOrders,
+    createdAt: v.createdAt || v.submittedDate,
   };
 }
 
@@ -175,6 +197,8 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
       ? parseFloat(target.commissionRate) || undefined
       : undefined;
 
+  const isFeatured = extractIsFeatured(target);
+
   return {
     id: target.id || '',
     businessName,
@@ -183,10 +207,11 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
     phone: phoneDisplay,
     submittedDate,
     joinedDate,
-    category: target.isFeatured ? 'Featured' : '--',
+    category: isFeatured ? 'Featured' : '--',
     status,
     rawStatus: (rawStatus as Vendor['rawStatus']) || 'PENDING_APPROVAL',
     active,
+    isFeatured,
     taxId: target.commercialRegisterNumber || '--',
     description: storeDesc,
     rejectionReason: rejReason,

@@ -8,6 +8,8 @@ import {
   useRejectVendor,
   useDeactivateVendor,
   useReactivateVendor,
+  useFeatureVendor,
+  useUnfeatureVendor,
 } from '../hooks/useVendors';
 import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
@@ -37,14 +39,27 @@ export default function VendorTable() {
   const setSelectedRows = useVendorStore((s) => s.setSelectedRows);
   const clearSelection = useVendorStore((s) => s.clearSelection);
 
-  // Status query parameter: PENDING_APPROVAL for pending tab, ACTIVE,DEACTIVATED for all vendors tab
-  const statusParam = activeTab === 'pending' ? 'PENDING_APPROVAL' : 'ACTIVE,DEACTIVATED';
-  const { data: fetchedVendors = [], isLoading, isFetching, refetch } = useVendors(statusParam);
+  // Status query parameter: PENDING_APPROVAL for pending tab, filter value for all tab
+  const statusParam =
+    activeTab === 'pending'
+      ? 'PENDING_APPROVAL'
+      : activeFilter === 'active'
+      ? 'ACTIVE'
+      : activeFilter === 'inactive'
+      ? 'DEACTIVATED'
+      : undefined;
+
+  const { data: fetchedVendors = [], isLoading, isFetching, refetch } = useVendors({
+    status: statusParam,
+    search: search.trim() || undefined,
+  });
 
   const approveMutation = useApproveVendor();
   const rejectMutation = useRejectVendor();
   const deactivateMutation = useDeactivateVendor();
   const reactivateMutation = useReactivateVendor();
+  const featureMutation = useFeatureVendor();
+  const unfeatureMutation = useUnfeatureVendor();
 
   const handleToggleVendorActive = (id: string) => {
     const vendor = fetchedVendors.find((v) => v.id === id);
@@ -52,6 +67,16 @@ export default function VendorTable() {
       deactivateMutation.mutate(id);
     } else {
       reactivateMutation.mutate(id);
+    }
+  };
+
+  const handleToggleFeatureVendor = (id: string, isCurrentlyFeatured: boolean) => {
+    const vendor = fetchedVendors.find((v) => v.id === id);
+    const vName = vendor?.businessName || '';
+    if (isCurrentlyFeatured) {
+      openConfirm('unfeature', [id], vName);
+    } else {
+      openConfirm('feature', [id], vName);
     }
   };
 
@@ -68,7 +93,7 @@ export default function VendorTable() {
     paginatedIds,
   } = useVendorTable(fetchedVendors);
 
-  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
+  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature';
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: ModalType;
@@ -118,6 +143,7 @@ export default function VendorTable() {
     t('vendors.table.email'),
     t('vendors.table.orders'),
     t('vendors.table.status'),
+    t('vendors.table.assign', 'Assign'),
   ];
 
   const tableHeaders = isAllTab ? allVendorHeaders : pendingSuspendedHeaders;
@@ -211,6 +237,16 @@ export default function VendorTable() {
     } else if (type === 'deactivate') {
       ids.forEach((id) => {
         deactivateMutation.mutate({ id, reason });
+      });
+      clearSelection();
+    } else if (type === 'feature') {
+      ids.forEach((id) => {
+        featureMutation.mutate(id);
+      });
+      clearSelection();
+    } else if (type === 'unfeature') {
+      ids.forEach((id) => {
+        unfeatureMutation.mutate(id);
       });
       clearSelection();
     }
@@ -385,6 +421,7 @@ export default function VendorTable() {
           isAllTab={isAllTab}
           openConfirm={openConfirm}
           toggleVendorActive={handleToggleVendorActive}
+          toggleFeatureVendor={handleToggleFeatureVendor}
           isLoading={isLoading}
         />
         <VendorMobileList
@@ -397,6 +434,7 @@ export default function VendorTable() {
           activeTab={activeTab}
           openConfirm={openConfirm}
           toggleVendorActive={handleToggleVendorActive}
+          toggleFeatureVendor={handleToggleFeatureVendor}
           isLoading={isLoading}
         />
       </Activity>

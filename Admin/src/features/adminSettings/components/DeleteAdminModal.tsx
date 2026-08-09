@@ -2,13 +2,22 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ShieldAlert } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
+import { useAdminsData } from '../hooks/useAdminsData';
 
 export const DeleteAdminModal: React.FC = () => {
   const { t } = useTranslation();
-  const { deleteAdminModal, closeDeleteAdminModal, confirmDeleteAdmin } = useAdminSettingsStore();
-  const { open, isSuperAdminAlert } = deleteAdminModal;
+  const { deleteAdminModal, closeDeleteAdminModal } = useAdminSettingsStore();
+  const { deleteAdminMutation } = useAdminsData();
+  const { open, admin, isSuperAdminAlert } = deleteAdminModal;
 
   if (!open) return null;
+
+  const handleConfirmDelete = () => {
+    if (admin) {
+      deleteAdminMutation.mutate(admin.id);
+      closeDeleteAdminModal();
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
@@ -67,8 +76,9 @@ export const DeleteAdminModal: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={confirmDeleteAdmin}
-                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
+                onClick={handleConfirmDelete}
+                disabled={deleteAdminMutation.isPending}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
               >
                 {t('adminSettings.deleteAdminBtn', { defaultValue: 'Delete Admin' })}
               </button>

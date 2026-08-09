@@ -10,6 +10,9 @@ import {
   getVendorPayouts,
   getVendorPayoutSummary,
   getVendorPayoutStats,
+  featureVendor,
+  unfeatureVendor,
+  type GetVendorsParams,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
@@ -37,12 +40,24 @@ export function useVendorCategories() {
   });
 }
 
-export function useVendors(status?: string) {
+export function useVendors(params?: string | GetVendorsParams) {
+  const queryParams: GetVendorsParams =
+    typeof params === 'string' ? { status: params } : params || {};
+
   return useQuery({
-    queryKey: ['vendors', status],
+    queryKey: ['vendors', queryParams],
     queryFn: async () => {
-      const data = await getVendors({ status });
-      return data.map(mapBackendVendorToVendor);
+      const data = await getVendors(queryParams);
+      const items = (data.items || []).map(mapBackendVendorToVendor);
+      return Object.assign(items, {
+        items,
+        pagination: data.pagination || {
+          currentPage: 1,
+          pageSize: items.length || 25,
+          totalItems: items.length,
+          totalPages: 1,
+        },
+      });
     },
     retry: 2,
     staleTime: 5 * 60 * 1000,
@@ -195,6 +210,42 @@ export function useReactivateVendor() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to reactivate vendor');
+    },
+  });
+}
+
+export function useFeatureVendor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => featureVendor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      toast.success('Vendor marked as featured');
+    },
+    onError: (error: any) => {
+      console.error('Failed to feature vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || 'Failed to feature vendor');
+    },
+  });
+}
+
+export function useUnfeatureVendor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => unfeatureVendor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      toast.success('Vendor unmarked as featured');
+    },
+    onError: (error: any) => {
+      console.error('Failed to unfeature vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || 'Failed to unfeature vendor');
     },
   });
 }

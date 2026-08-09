@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   VoucherHeader,
   VoucherForm,
-  useVoucherStore,
   useVouchersData,
+  useSingleVoucherQuery,
   type VoucherFormData,
 } from '../features/vouchers';
 import type { VoucherApiData } from '../services/vouchers';
@@ -13,31 +12,39 @@ const CreateVoucher = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
 
-  const vouchers = useVoucherStore((s) => s.vouchers);
   const { createMutation, updateMutation } = useVouchersData();
+  const voucherQuery = useSingleVoucherQuery(id);
 
   const isEditing = Boolean(id);
+  const existingVoucher = voucherQuery.data;
 
-  const existingVoucher = useMemo(() => {
-    if (!id) return null;
-    return vouchers.find((v) => v.id === id || v.code === id) || null;
-  }, [id, vouchers]);
 
   const handleSubmit = (formData: VoucherFormData) => {
+    const isCategory =
+      formData.scope === 'SPECIFIC_CATEGORIES' || formData.scope === 'Category';
+    const isFixed =
+      formData.type === 'FIXED_AMOUNT' || formData.type === 'Amount';
+
     const payload: VoucherApiData = {
-      code: formData.code,
+      code: formData.code.trim(),
       category: formData.category,
-      scope: formData.scope,
-      type: formData.type,
+      categoryIds: formData.category,
+      scope: isCategory ? 'SPECIFIC_CATEGORIES' : 'ALL_ORDERS',
+      type: isFixed ? 'FIXED_AMOUNT' : 'PERCENTAGE',
       value: Number(formData.discountValue || 0),
       discountValue: formData.discountValue,
+      minOrderAmount: formData.minOrder ? Number(formData.minOrder) : undefined,
       minOrder: formData.minOrder,
+      maxDiscountAmount: formData.maxDiscount ? Number(formData.maxDiscount) : undefined,
       maxDiscount: formData.maxDiscount,
       expiryDate: formData.expiryDate,
+      maxTotalUses: formData.maxUsage ? Number(formData.maxUsage) : undefined,
       maxUsage: formData.maxUsage,
       limitOnePerCustomer: formData.limitOnePerCustomer,
+      oneUsePerUser: formData.limitOnePerCustomer,
       startsAt: new Date().toISOString(),
     };
+
 
     if (isEditing && id) {
       updateMutation.mutate(

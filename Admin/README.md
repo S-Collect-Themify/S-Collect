@@ -71,4 +71,5 @@ export default defineConfig([
   },
 ])
 ```
-# S-Collect-S
+
+## S-Collect-S

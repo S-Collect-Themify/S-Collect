@@ -105,7 +105,23 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
           (typeof item.referenceNote === 'string' ? item.referenceNote : item.referenceNote?.ref || item.referenceNote?.note) ||
           '--';
 
-      const adminVal = item.adminName || item.processedBy || item.admin || '--';
+      let adminVal = '--';
+      if (item.recordedByAdmin) {
+        const fName = typeof item.recordedByAdmin.firstName === 'string'
+          ? item.recordedByAdmin.firstName
+          : typeof item.recordedByAdmin.firstName === 'object'
+          ? item.recordedByAdmin.firstName?.en || item.recordedByAdmin.firstName?.ar || item.recordedByAdmin.firstName?.name || ''
+          : '';
+        const lName = typeof item.recordedByAdmin.lastName === 'string'
+          ? item.recordedByAdmin.lastName
+          : typeof item.recordedByAdmin.lastName === 'object'
+          ? item.recordedByAdmin.lastName?.en || item.recordedByAdmin.lastName?.ar || item.recordedByAdmin.lastName?.name || ''
+          : '';
+        const full = [fName, lName].filter(Boolean).join(' ').trim();
+        adminVal = full || item.recordedByAdmin.email || item.recordedByAdminId || '--';
+      } else {
+        adminVal = item.adminName || item.processedBy || item.recordedByAdminId || item.admin || '--';
+      }
 
       const statusVal = item.status ? String(item.status).toLowerCase() : '--';
 

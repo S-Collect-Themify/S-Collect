@@ -17,6 +17,7 @@ export interface Vendor {
   revenue?: number;
   orders?: number;
   active?: boolean;
+  isFeatured?: boolean;
   // Extended detail fields
   phone?: string;
   location?: string;
