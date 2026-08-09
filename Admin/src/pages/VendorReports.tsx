@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PortalDropdown from '../components/ui/PortalDropdown';
 import {
   VendorReportHeader,
@@ -16,7 +17,7 @@ import {
 } from '../features/vendorReports';
 import { useVendors } from '../features/vendors/hooks/useVendors';
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 20;
 
 export default function VendorReports() {
   const { t, i18n } = useTranslation();
@@ -59,7 +60,7 @@ export default function VendorReports() {
   // Dynamic stat cards based on GET /api/v1/admin/vendor-sales-report/summary
   const dynamicStatCards = useMemo(() => {
     const formatVal = (val: number | undefined | null) =>
-      val != null
+      selectedVendorId && val != null
         ? val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
         : '--';
 
@@ -105,7 +106,7 @@ export default function VendorReports() {
         iconName: 'pending' as const,
       },
     ];
-  }, [summaryData]);
+  }, [summaryData, selectedVendorId]);
 
   const exportHeaders = [
     { key: 'id' as const, label: t('vendorReports.tableOrderNo', 'Order #') },
@@ -116,23 +117,44 @@ export default function VendorReports() {
     { key: 'status' as const, label: t('vendorReports.tableStatus', 'Status') },
   ];
 
+  const summaryStatsForExport = useMemo(() => {
+    return dynamicStatCards.map((card) => ({
+      label: t(`vendorReports.${card.titleKey}`, card.defaultTitle),
+      value: `${card.value} ${t('vendorReports.currency', card.currency)}`,
+    }));
+  }, [dynamicStatCards, t]);
+
   const handleExportExcel = () => {
+    if (!selectedVendorId) {
+      toast.error(t('vendorReports.noVendorSelected', 'Please select a vendor to view report'));
+      return;
+    }
     exportMutation.mutate({
       format: 'excel',
-      fileName: `vendor_sales_report_${selectedVendorId || 'all'}_${selectedRangeKey}`,
+      fileName: `vendor_sales_report_${selectedVendorId}_${selectedRangeKey}`,
       title: t('vendorReports.title', 'Vendor Sales Report'),
       headers: exportHeaders,
-      data: orders,
+      dateFrom,
+      dateTo,
+      vendorId: selectedVendorId,
+      summaryStats: summaryStatsForExport,
     });
   };
 
   const handleExportPDF = () => {
+    if (!selectedVendorId) {
+      toast.error(t('vendorReports.noVendorSelected', 'Please select a vendor to view report'));
+      return;
+    }
     exportMutation.mutate({
       format: 'pdf',
-      fileName: `vendor_sales_report_${selectedVendorId || 'all'}_${selectedRangeKey}`,
+      fileName: `vendor_sales_report_${selectedVendorId}_${selectedRangeKey}`,
       title: t('vendorReports.title', 'Vendor Sales Report'),
       headers: exportHeaders,
-      data: orders,
+      dateFrom,
+      dateTo,
+      vendorId: selectedVendorId,
+      summaryStats: summaryStatsForExport,
     });
   };
 
@@ -145,6 +167,7 @@ export default function VendorReports() {
       <VendorReportHeader
         onExportExcel={handleExportExcel}
         onExportPDF={handleExportPDF}
+        isExporting={exportMutation.isPending}
       />
 
       {/* Main Content Area */}
@@ -225,6 +248,7 @@ export default function VendorReports() {
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={(page) => setCurrentPage(page)}
           isLoading={isOrdersLoading}
+          selectedVendorId={selectedVendorId}
         />
       </main>
     </div>

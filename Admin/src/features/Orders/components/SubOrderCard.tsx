@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown, Edit2, ExternalLink, Check, X, Loader2, MessageSquare } from 'lucide-react';
 import type { AdminSubOrder } from '../../../services/orders';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
@@ -22,6 +23,7 @@ export const SubOrderCard = ({
   StatusBadge,
   getProductThumbnail,
 }: SubOrderCardProps) => {
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
@@ -78,6 +80,15 @@ export const SubOrderCard = ({
 
   const currentItems = subOrder.items || [];
   const subtotal = currentItems.reduce((acc, i) => acc + (i.lineTotal || 0), 0);
+
+  const firstProductId = (currentItems[0]?.productId || currentItems[0]?.id) as string | undefined;
+
+  const handleViewProduct = (prodId?: string) => {
+    const targetId = prodId || firstProductId;
+    if (targetId) {
+      navigate(`/products/${targetId}`);
+    }
+  };
 
   return (
     <div className="p-4 rounded-2xl border border-gray-200/70 bg-white space-y-4 relative">
@@ -217,7 +228,9 @@ export const SubOrderCard = ({
       <div className="flex justify-end">
         <button
           type="button"
-          className="text-[11px] text-blue-600 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+          onClick={() => handleViewProduct()}
+          disabled={!firstProductId}
+          className="text-[11px] text-blue-600 font-semibold hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed"
         >
           <span>{t('ordersPage.viewProduct', 'View Product')}</span>
           <ExternalLink size={11} />
@@ -226,22 +239,33 @@ export const SubOrderCard = ({
 
       {/* Sub-order Items List */}
       <div className="space-y-3 pt-2 border-t border-gray-100">
-        {currentItems.map((it) => (
-          <div key={it.id} className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center text-base">
-                {getProductThumbnail(it.productName)}
+        {currentItems.map((it) => {
+          const itemProdId = (it.productId || it.id) as string | undefined;
+          return (
+            <div key={it.id} className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
+                <div
+                  onClick={() => itemProdId && handleViewProduct(itemProdId)}
+                  className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center text-base cursor-pointer hover:bg-gray-200 transition-colors"
+                >
+                  {getProductThumbnail(it.productName)}
+                </div>
+                <div>
+                  <p
+                    onClick={() => itemProdId && handleViewProduct(itemProdId)}
+                    className="font-bold text-gray-900 cursor-pointer hover:underline hover:text-blue-600 transition-colors"
+                  >
+                    {it.productName}
+                  </p>
+                  <p className="text-gray-400 text-[11px]">
+                    {t('ordersPage.qtyColon', 'Qty:')} {it.quantity}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-gray-900">{it.productName}</p>
-                <p className="text-gray-400 text-[11px]">
-                  {t('ordersPage.qtyColon', 'Qty:')} {it.quantity}
-                </p>
-              </div>
+              <span className="font-bold text-gray-900 text-xs">{(it.lineTotal || 0).toFixed(2)} SAR</span>
             </div>
-            <span className="font-bold text-gray-900 text-xs">{(it.lineTotal || 0).toFixed(2)} SAR</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="pt-2 border-t border-gray-100 text-end text-xs space-y-0.5 text-gray-500">

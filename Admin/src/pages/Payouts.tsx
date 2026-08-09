@@ -16,6 +16,7 @@ export default function Payouts() {
     isRtl,
     isLoading,
     isRegistering,
+    isExporting,
     stats,
     paginatedItems,
     currentPage,
@@ -45,6 +46,7 @@ export default function Payouts() {
       <PayoutsHeader
         onExportExcel={handleExportExcel}
         onExportPDF={handleExportPDF}
+        isExporting={isExporting}
       />
 
       {/* Main Content */}

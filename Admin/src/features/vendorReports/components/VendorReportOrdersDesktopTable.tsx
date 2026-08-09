@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Store } from 'lucide-react';
 import type { DetailedOrder } from '../types';
 import VendorReportStatusBadge from './VendorReportStatusBadge';
 
@@ -6,12 +7,14 @@ interface VendorReportOrdersDesktopTableProps {
   orders: DetailedOrder[];
   itemsPerPage: number;
   isLoading?: boolean;
+  selectedVendorId?: string;
 }
 
 export default function VendorReportOrdersDesktopTable({
   orders,
   itemsPerPage,
   isLoading = false,
+  selectedVendorId = '',
 }: VendorReportOrdersDesktopTableProps) {
   const { t } = useTranslation();
 
@@ -66,8 +69,15 @@ export default function VendorReportOrdersDesktopTable({
             ))
           ) : orders.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
-                No vendor report orders found.
+              <td colSpan={6} className="px-5 py-14 text-center">
+                <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
+                  <Store size={32} className="text-gray-300 stroke-[1.5]" />
+                  <p className="text-sm font-medium text-gray-500">
+                    {!selectedVendorId
+                      ? t('vendorReports.noVendorSelected', 'Please select a vendor to view report')
+                      : t('vendorReports.noOrdersFound', 'No vendor report orders found.')}
+                  </p>
+                </div>
               </td>
             </tr>
           ) : (

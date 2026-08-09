@@ -77,8 +77,9 @@ export const useApproveAdminRefund = (refundId?: string) => {
       queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message || err?.message || 'Failed to approve refund';
+    onError: (err: unknown) => {
+      const errObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message || 'Failed to approve refund';
       toast.error(message);
     },
   });
@@ -94,7 +95,7 @@ export const useRejectAdminRefund = (refundId?: string) => {
     mutationFn: ({ id, reason }: { id: string; reason: string }) => rejectAdminRefund(id, reason),
     onSuccess: (updatedRefund, variables) => {
       const activeId = refundId || variables.id;
-      toast.error('Refund request rejected');
+      toast.success('Refund request rejected successfully');
 
       if (activeId) {
         queryClient.setQueryData(['admin-refund-detail', activeId], updatedRefund);
@@ -103,8 +104,9 @@ export const useRejectAdminRefund = (refundId?: string) => {
       queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message || err?.message || 'Failed to reject refund';
+    onError: (err: unknown) => {
+      const errObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message || 'Failed to reject refund';
       toast.error(message);
     },
   });
@@ -128,8 +130,9 @@ export const useUpdateAdminRefundNotes = (refundId?: string) => {
       }
       queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
     },
-    onError: (err: any) => {
-      const message = err?.response?.data?.message || err?.message || 'Failed to update notes';
+    onError: (err: unknown) => {
+      const errObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const message = errObj?.response?.data?.message || errObj?.message || 'Failed to update notes';
       toast.error(message);
     },
   });

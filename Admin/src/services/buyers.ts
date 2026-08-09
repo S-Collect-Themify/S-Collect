@@ -60,8 +60,8 @@ export interface AdminBuyerDetailResponse {
   savedAddresses?: AdminSavedAddress[];
 }
 
-export async function getAdminBuyers(params: BuyerQueryParams): Promise<any> {
-  const cleanParams: Record<string, any> = {};
+export async function getAdminBuyers(params: BuyerQueryParams): Promise<unknown> {
+  const cleanParams: Record<string, unknown> = {};
 
   if (params.pageNum !== undefined) {
     cleanParams.pageNum = params.pageNum;
@@ -85,6 +85,19 @@ export async function getAdminBuyers(params: BuyerQueryParams): Promise<any> {
 
 export async function getAdminBuyerDetail(id: string): Promise<AdminBuyerDetailResponse> {
   const response = await api.get(`/admin/buyers/${id}`);
+  const data = response.data;
+  return data?.data || data;
+}
+
+export interface AdminBuyerStats {
+  totalOrders: number;
+  totalSpent: number;
+  averageOrderValue: number;
+  lastActive?: unknown;
+}
+
+export async function getAdminBuyerStats(id: string): Promise<AdminBuyerStats> {
+  const response = await api.get(`/admin/buyers/${id}/stats`);
   const data = response.data;
   return data?.data || data;
 }

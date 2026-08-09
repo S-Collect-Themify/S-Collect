@@ -1550,7 +1550,9 @@
     "statusShipped": "تم الشحن",
     "statusCanceled": "ملغى",
     "showingCount": "عرض {{start}} - {{end}} من {{total}} طلب",
-    "exportSuccess": "تم تصدير تقرير مبيعات البائعين بنجاح!"
+    "exportSuccess": "تم تصدير تقرير مبيعات البائعين بنجاح!",
+    "noVendorSelected": "يرجى اختيار مورد لعرض التقرير",
+    "noOrdersFound": "لم يتم العثور على طلبات لهذا المورد."
   },
   "commissionRates": {
     "title": "نسب العمولة",
@@ -1558,6 +1560,10 @@
     "export": "تصدير",
     "exportExcel": "تصدير كملف إكسيل (.csv)",
     "exportPdf": "تصدير كملف PDF (.pdf)",
+    "exportType": "النوع",
+    "exportName": "الاسم",
+    "exportRate": "النسبة الفعالة (%)",
+    "exportCustomRate": "النسبة المخصصة",
     "platformDefaultTitle": "عمولة المنصة الافتراضية",
     "appliedGlobally": "مطبقة عالمياً",
     "edit": "تعديل",

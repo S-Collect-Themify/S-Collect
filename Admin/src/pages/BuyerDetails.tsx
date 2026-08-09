@@ -6,6 +6,7 @@ import type { Variants } from 'motion/react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   useAdminBuyerDetail,
+  useAdminBuyerStats,
   useBuyerStore,
   BuyerProfileCard,
   BuyerStatsGrid,
@@ -18,6 +19,30 @@ import {
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const formatLastActive = (val?: unknown): string => {
+  if (val === undefined || val === null || val === '' || val === '---') return '---';
+  if (typeof val === 'string') {
+    const d = new Date(val);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    return val;
+  }
+  if (typeof val === 'object' && val !== null) {
+    const dateStr =
+      (val as Record<string, unknown>).date ||
+      (val as Record<string, unknown>).createdAt ||
+      (val as Record<string, unknown>).lastActiveAt;
+    if (typeof dateStr === 'string') {
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+  }
+  return '---';
 };
 
 // ── Main Page Component ──────────────────────────────────────────────────────
@@ -33,6 +58,9 @@ export default function BuyerDetails() {
 
   // Fetch live buyer detail from GET /api/v1/admin/buyers/{id}
   const { data: apiBuyer, isLoading: isBuyerLoading } = useAdminBuyerDetail(buyerId);
+
+  // Fetch live buyer stats from GET /api/v1/admin/buyers/{id}/stats
+  const { data: apiStats } = useAdminBuyerStats(buyerId);
 
   // Fallback to store buyer if available while loading or if detail endpoint fails
   const storeBuyer = useBuyerStore((s) => s.buyers.find((b) => b.id === buyerId));
@@ -78,6 +106,11 @@ export default function BuyerDetails() {
 
   const buyerData: Buyer = buyer || fallbackBuyer;
 
+  const finalTotalOrders = apiStats?.totalOrders ?? buyerData.ordersNum ?? '---';
+  const finalTotalSpent = apiStats?.totalSpent ?? buyerData.totalSpent ?? '---';
+  const finalAvgOrderValue = apiStats?.averageOrderValue ?? buyerData.avgOrderValue ?? '---';
+  const finalLastActive = formatLastActive(apiStats?.lastActive) || buyerData.lastActive || '---';
+
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* ── Page Header Area ── */}
@@ -122,10 +155,10 @@ export default function BuyerDetails() {
 
           {/* 2. Stats Grid Component */}
           <BuyerStatsGrid
-            ordersNum={buyerData.ordersNum ?? '---'}
-            totalSpent={buyerData.totalSpent ?? '---'}
-            avgOrderValue={buyerData.avgOrderValue ?? '---'}
-            lastActive={buyerData.lastActive ?? '---'}
+            ordersNum={finalTotalOrders}
+            totalSpent={finalTotalSpent}
+            avgOrderValue={finalAvgOrderValue}
+            lastActive={finalLastActive}
             isMobile={isMobile}
           />
 

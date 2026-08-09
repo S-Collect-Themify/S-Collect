@@ -1,13 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 
 interface PayoutsHeaderProps {
   onExportExcel: () => void;
   onExportPDF: () => void;
+  isExporting?: boolean;
 }
 
-export default function PayoutsHeader({ onExportExcel, onExportPDF }: PayoutsHeaderProps) {
+export default function PayoutsHeader({
+  onExportExcel,
+  onExportPDF,
+  isExporting = false,
+}: PayoutsHeaderProps) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
@@ -30,10 +35,15 @@ export default function PayoutsHeader({ onExportExcel, onExportPDF }: PayoutsHea
               <button
                 type="button"
                 onClick={toggle}
-                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gray-950 text-white text-xs sm:text-label-md font-semibold rounded-lg hover:bg-gray-800 transition-all active:scale-95 cursor-pointer shadow-sm shrink-0"
+                disabled={isExporting}
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-gray-950 text-white text-xs sm:text-label-md font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 cursor-pointer shadow-sm shrink-0"
               >
-                <Download size={16} />
-                <span>{t('payouts.export', 'Export')}</span>
+                {isExporting ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Download size={16} />
+                )}
+                <span>{isExporting ? t('common.exporting', 'Exporting...') : t('payouts.export', 'Export')}</span>
               </button>
             )}
           >
