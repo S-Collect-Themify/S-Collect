@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface PaginationProps {
   currentPage: number;
@@ -38,6 +39,11 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   const PrevIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;
+
+  const paginationRange = getPaginationRange({
+    currentPage,
+    totalPages,
+  });
 
   if (isMobile) {
     return (
@@ -89,8 +95,19 @@ export const Pagination: React.FC<PaginationProps> = ({
         >
           <PrevIcon size={16} />
         </button>
-        {Array.from({ length: totalPages }).map((_, idx) => {
-          const pageNum = idx + 1;
+        {paginationRange.map((pageItem, idx) => {
+          if (pageItem === DOTS) {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+              >
+                &#8230;
+              </span>
+            );
+          }
+
+          const pageNum = Number(pageItem);
           return (
             <button
               key={pageNum}

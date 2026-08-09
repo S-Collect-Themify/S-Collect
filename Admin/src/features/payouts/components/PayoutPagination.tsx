@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface PayoutPaginationProps {
   currentPage: number;
@@ -24,6 +25,11 @@ export default function PayoutPagination({
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
+  const paginationRange = getPaginationRange({
+    currentPage,
+    totalPages,
+  });
+
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-4 bg-white border-t border-gray-100 text-xs">
       <div className="text-gray-400 font-medium text-center sm:text-start">
@@ -45,9 +51,20 @@ export default function PayoutPagination({
           {isRtl ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
 
-        {/* Page Number Buttons */}
-        {Array.from({ length: totalPages }).map((_, idx) => {
-          const pageNum = idx + 1;
+        {/* Page Number Buttons & Ellipsis */}
+        {paginationRange.map((pageItem, idx) => {
+          if (pageItem === DOTS) {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+              >
+                &#8230;
+              </span>
+            );
+          }
+
+          const pageNum = Number(pageItem);
           const isActive = pageNum === currentPage;
           return (
             <button

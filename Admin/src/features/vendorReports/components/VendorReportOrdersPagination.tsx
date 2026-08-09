@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getPaginationRange, DOTS } from '../../../utils/pagination';
 
 interface VendorReportOrdersPaginationProps {
   currentPage: number;
@@ -26,6 +27,11 @@ export default function VendorReportOrdersPagination({
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalOrdersCount);
 
+  const paginationRange = getPaginationRange({
+    currentPage,
+    totalPages,
+  });
+
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 md:px-5 py-3.5 border-t border-gray-100 bg-white">
       <p className="text-xs font-medium text-gray-400 text-center sm:text-start">
@@ -47,21 +53,35 @@ export default function VendorReportOrdersPagination({
           {isRtl ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>
 
-        {/* Page Buttons */}
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-          <button
-            key={pageNum}
-            onClick={() => onPageChange(pageNum)}
-            disabled={isLoading}
-            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-              currentPage === pageNum
-                ? 'bg-black text-white shadow-2xs'
-                : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
-            }`}
-          >
-            {pageNum}
-          </button>
-        ))}
+        {/* Page Buttons & Ellipsis */}
+        {paginationRange.map((pageItem, idx) => {
+          if (pageItem === DOTS) {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 select-none tracking-widest"
+              >
+                &#8230;
+              </span>
+            );
+          }
+
+          const pageNum = Number(pageItem);
+          return (
+            <button
+              key={pageNum}
+              onClick={() => onPageChange(pageNum)}
+              disabled={isLoading}
+              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                currentPage === pageNum
+                  ? 'bg-black text-white shadow-2xs'
+                  : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
+              }`}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
 
         {/* Next Page Button */}
         <button
