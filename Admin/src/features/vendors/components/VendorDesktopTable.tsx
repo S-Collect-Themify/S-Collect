@@ -42,7 +42,7 @@ export default function VendorDesktopTable({
 
   return (
     <div className="w-full overflow-x-auto hidden md:block">
-      <table className="w-full border-collapse text-sm bg-gray-100">
+      <table className="w-full border-collapse text-sm bg-white">
         <thead>
           <tr>
             <th className="w-9 px-3 py-3 border-b border-gray-200 text-start bg-gray-50">
@@ -50,6 +50,7 @@ export default function VendorDesktopTable({
                 type="checkbox"
                 checked={allChecked}
                 onChange={toggleAll}
+                aria-label={t('vendors.table.selectAll', 'Select all vendors')}
                 className="accent-black w-4 h-4 cursor-pointer"
               />
             </th>
@@ -90,10 +91,10 @@ export default function VendorDesktopTable({
                     <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-[#F5F5F6] flex items-center justify-center mb-5 text-gray-900 shadow-2xs">
                       <Inbox size={32} strokeWidth={1.5} className="text-gray-900" />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-xl sm:text-2xl mb-2.5 tracking-tight">
+                    <h2 className="font-bold text-gray-900 text-xl sm:text-2xl mb-2.5 tracking-tight">
                       {t('vendors.table.noPendingRequests', 'No Pending Requests')}
-                    </h3>
-                    <p className="text-sm sm:text-base text-gray-500 max-w-sm mx-auto font-normal leading-relaxed">
+                    </h2>
+                    <p className="text-sm sm:text-base text-gray-700 max-w-sm mx-auto font-normal leading-relaxed">
                       {t('vendors.table.noPendingSubtext', 'All vendor applications have been reviewed. New requests will appear here.')}
                     </p>
                   </div>
@@ -126,6 +127,7 @@ export default function VendorDesktopTable({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleRow(vendor.id)}
+                      aria-label={vendor.businessName || 'Vendor'}
                       className="accent-black w-4 h-4 cursor-pointer"
                     />
                   </td>
@@ -202,6 +204,7 @@ export default function VendorDesktopTable({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleRow(vendor.id)}
+                      aria-label={vendor.businessName || 'Vendor'}
                       className="accent-black w-4 h-4 cursor-pointer"
                     />
                   </td>

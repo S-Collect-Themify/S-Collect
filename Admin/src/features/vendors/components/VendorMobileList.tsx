@@ -82,10 +82,10 @@ export default function VendorMobileList({
                 <div className="w-16 h-16 rounded-full bg-[#F5F5F6] flex items-center justify-center mb-4 text-gray-900 shadow-2xs">
                   <Inbox size={30} strokeWidth={1.5} className="text-gray-900" />
                 </div>
-                <h3 className="font-bold text-gray-900 text-lg mb-2 tracking-tight">
+                <h2 className="font-bold text-gray-900 text-lg mb-2 tracking-tight">
                   {t('vendors.table.noPendingRequests', 'No Pending Requests')}
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-500 max-w-xs mx-auto font-normal leading-relaxed">
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-700 max-w-xs mx-auto font-normal leading-relaxed">
                   {t('vendors.table.noPendingSubtext', 'All vendor applications have been reviewed. New requests will appear here.')}
                 </p>
               </div>
@@ -111,6 +111,7 @@ export default function VendorMobileList({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleRow(vendor.id)}
+                        aria-label={vendor.businessName || 'Vendor'}
                         className="accent-black w-4 h-4 cursor-pointer rounded mt-0.5"
                       />
                       <button
@@ -171,6 +172,7 @@ export default function VendorMobileList({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleRow(vendor.id)}
+                        aria-label={vendor.businessName || 'Vendor'}
                         className="accent-black w-4 h-4 cursor-pointer rounded"
                       />
                       <span className="text-base font-bold text-gray-900">{vendor.businessName || '----'}</span>

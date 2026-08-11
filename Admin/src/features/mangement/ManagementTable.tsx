@@ -124,7 +124,7 @@ export default function ProductTable() {
       </div>
 
       <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse text-sm bg-gray-100">
+        <table className="w-full border-collapse text-sm bg-white">
           <thead>
             <tr>
               {/* Replaced text-left with text-start for RTL support */}
@@ -133,6 +133,7 @@ export default function ProductTable() {
                   type="checkbox"
                   checked={allChecked}
                   onChange={toggleAll}
+                  aria-label={t('management.selectAll', 'Select all administrators')}
                   className="accent-black w-4 h-4 cursor-pointer"
                 />
               </th>
@@ -140,7 +141,7 @@ export default function ProductTable() {
                 <th
                   key={h}
                   /* Replaced text-left with text-start for RTL support */
-                  className="px-3 py-2.5 border-b border-gray-100 text-start text-xs font-medium text-gray-500 whitespace-nowrap"
+                  className="px-3 py-2.5 border-b border-gray-100 text-start text-xs font-medium text-gray-700 whitespace-nowrap"
                 >
                   {h}
                 </th>
@@ -151,7 +152,7 @@ export default function ProductTable() {
           <tbody>
             {paginatedProducts.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-gray-400">
+                <td colSpan={8} className="text-center py-10 text-gray-700">
                   <i
                     className="ti ti-package-off text-2xl block mb-2"
                     aria-hidden="true"
@@ -182,7 +183,7 @@ export default function ProductTable() {
       </div>
 
       <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-        <span className="text-body-sm text-gray-400">
+        <span className="text-body-sm text-gray-700">
           {totalItems === 0
             ? t('managementTable.showing', {
                 start: 0,

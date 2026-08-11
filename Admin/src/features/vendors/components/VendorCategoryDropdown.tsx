@@ -91,6 +91,7 @@ export default function VendorCategoryDropdown({
                 type="radio"
                 readOnly
                 checked={selected === ''}
+                aria-label={t('vendors.table.allCategories')}
                 className="accent-black w-3.5 h-3.5 cursor-pointer shrink-0"
               />
               <span className="truncate">{t('vendors.table.allCategories')}</span>
@@ -115,6 +116,7 @@ export default function VendorCategoryDropdown({
                     type="radio"
                     readOnly
                     checked={selected === cat}
+                    aria-label={cat}
                     className="accent-black w-3.5 h-3.5 cursor-pointer shrink-0"
                   />
                   <span className="truncate">{cat}</span>

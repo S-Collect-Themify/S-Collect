@@ -247,6 +247,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
+                    aria-label={t('vendors.ordersLog.selectAll', 'Select all orders')}
                     className="accent-black w-4 h-4 cursor-pointer rounded"
                   />
                 </th>
@@ -315,6 +316,7 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelect(order.id)}
+                          aria-label={order.id}
                           className="accent-black w-4 h-4 cursor-pointer rounded"
                         />
                       </td>
