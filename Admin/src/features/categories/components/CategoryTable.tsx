@@ -35,6 +35,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
           type="checkbox"
           checked={selectedIds.has(cat.id)}
           onChange={() => onSelectOne(cat.id)}
+          aria-label={i18n.language === 'ar' ? cat.nameAr : cat.nameEn || cat.name}
           className="h-4 w-4 rounded border-gray-300 accent-gray-900 cursor-pointer"
         />
       </td>
@@ -145,6 +146,7 @@ const CategoryTable: React.FC<DesktopTableProps> = ({
                   if (el) el.indeterminate = someSelected && !allSelected;
                 }}
                 onChange={onSelectAll}
+                aria-label={t('categories.selectAll', 'Select all categories')}
                 className="h-4 w-4 rounded border-gray-300 accent-gray-900 cursor-pointer"
               />
             </th>

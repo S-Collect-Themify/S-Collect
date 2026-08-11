@@ -19,19 +19,20 @@ const InputSearch = () => {
     <>
       {/* Desktop Search */}
       <div className="hidden md:block relative w-full">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-(--gray-400) pointer-events-none" />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
 
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          aria-label={t('search.placeholder', 'Search...')}
           placeholder={t('search.placeholder', 'Search...')}
-          className="w-full bg-(--gray-50) pl-9 pr-3 py-2 rounded-lg text-sm text-(--gray-700) placeholder-(--gray-400) outline-none focus:ring-2 focus:ring-gray-600"
+          className="w-full bg-(--gray-50) pl-9 pr-3 py-2 rounded-lg text-sm text-(--gray-700) placeholder-gray-500 outline-none focus:ring-2 focus:ring-gray-600"
         />
       </div>
 
       {/* Mobile Button */}
-      <><button onClick={() => setOpen(true)} className="md:hidden flex items-center justify-center cursor-pointer">
+      <><button onClick={() => setOpen(true)} aria-label={t('search.placeholder', 'Search...')} className="md:hidden flex items-center justify-center cursor-pointer">
         <Search className="w-6 h-6 text-(--gray-50)"/>
       </button></>
 
@@ -55,10 +56,11 @@ const InputSearch = () => {
               <input
                 autoFocus
                 type="text"
+                aria-label={t('search.placeholder', 'Search...')}
                 placeholder={t('search.placeholder')}
-                className="flex-1 bg-transparent outline-none text-gray-700"
+                className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-500"
               />
-              <button onClick={() => setOpen(false)}>
+              <button onClick={() => setOpen(false)} aria-label="Close search">
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>

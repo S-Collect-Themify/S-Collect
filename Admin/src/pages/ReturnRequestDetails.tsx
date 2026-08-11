@@ -320,8 +320,9 @@ export default function ReturnRequestDetailsPage() {
                   <textarea
                     value={adminNoteInput}
                     onChange={(e) => setAdminNoteInput(e.target.value)}
+                    aria-label="Internal admin notes"
                     placeholder="Add a private note for internal teams..."
-                    className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none"
+                    className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-500 resize-none"
                   />
                 </div>
 
@@ -509,8 +510,9 @@ export default function ReturnRequestDetailsPage() {
                       <textarea
                         value={adminNoteInput}
                         onChange={(e) => setAdminNoteInput(e.target.value)}
+                        aria-label="Internal admin notes"
                         placeholder="Add a private note for internal teams..."
-                        className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-400 resize-none"
+                        className="w-full border border-gray-200 rounded-lg p-3 text-xs bg-white h-24 focus:outline-none focus:border-gray-900 placeholder-gray-500 resize-none"
                       />
                     </div>
 
@@ -561,9 +563,9 @@ export default function ReturnRequestDetailsPage() {
                 <Check size={24} className="stroke-3" />
               </div>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+            <h2 className="text-lg font-bold text-gray-900 text-center mb-2">
               Approve Refund Request
-            </h3>
+            </h2>
             <p className="text-xs text-gray-500 text-center leading-relaxed mb-5">
               Are you sure you want to approve this refund request? Once approved, the refund status will change to Approved and the refund amount of <strong className="text-gray-900">{(refund.totalRefundAmount || 0).toFixed(2)} SAR</strong> will be processed.
             </p>
@@ -612,17 +614,18 @@ export default function ReturnRequestDetailsPage() {
                 <AlertTriangle size={24} />
               </div>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
+            <h2 className="text-lg font-bold text-gray-900 text-center mb-2">
               Reject Refund Request
-            </h3>
+            </h2>
             <p className="text-xs text-gray-500 text-center leading-relaxed mb-4">
               Are you sure you want to reject this refund request for customer <strong className="text-gray-900">{customerName}</strong>?
             </p>
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-gray-700 mb-1 text-start">
+              <label htmlFor="reject-reason-input" className="block text-xs font-semibold text-gray-700 mb-1 text-start">
                 Rejection Reason <span className="text-rose-500">*</span>
               </label>
               <input
+                id="reject-reason-input"
                 type="text"
                 required
                 value={rejectReasonInput}
@@ -633,7 +636,7 @@ export default function ReturnRequestDetailsPage() {
                   }
                 }}
                 placeholder="e.g. Item shows normal wear, not a defect."
-                className={`w-full p-2.5 border rounded-lg text-xs focus:outline-none transition-colors ${
+                className={`w-full p-2.5 border rounded-lg text-xs focus:outline-none transition-colors placeholder-gray-500 ${
                   rejectReasonError
                     ? 'border-rose-500 bg-rose-50/40 text-rose-900 focus:border-rose-600'
                     : 'border-gray-200 text-gray-900 focus:border-rose-500'

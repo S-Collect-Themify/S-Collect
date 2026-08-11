@@ -8,7 +8,21 @@ interface VoucherTableProps {
   onDeleteClick: (voucher: VoucherItem) => void;
 }
 
-const renderCategoryBadges = (catData: any, categoriesList: any[], language: string) => {
+interface CategoryRef {
+  id?: string;
+  _id?: string;
+  name?: string | { en?: string; ar?: string };
+  nameEn?: string;
+  nameAr?: string;
+  name_en?: string;
+  name_ar?: string;
+}
+
+const renderCategoryBadges = (
+  catData: unknown,
+  categoriesList: CategoryRef[],
+  language: string
+) => {
   const catArray: string[] = Array.isArray(catData)
     ? catData.map((c) => String(c).trim()).filter(Boolean)
     : typeof catData === 'string' && catData.trim()
@@ -24,10 +38,12 @@ const renderCategoryBadges = (catData: any, categoriesList: any[], language: str
       (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
     );
     if (found) {
+      const nameObj = typeof found.name === 'object' && found.name !== null ? found.name : null;
+      const strName = typeof found.name === 'string' ? found.name : '';
       if (language === 'ar') {
-        return found.nameAr || found.name_ar || found.name?.ar || found.nameEn || found.name || idOrCat;
+        return found.nameAr || found.name_ar || nameObj?.ar || found.nameEn || strName || idOrCat;
       }
-      return found.nameEn || found.name_en || found.name?.en || found.nameAr || found.name || idOrCat;
+      return found.nameEn || found.name_en || nameObj?.en || found.nameAr || strName || idOrCat;
     }
     return idOrCat;
   };
@@ -147,7 +163,7 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
               </td>
 
               {/* Expiry Date */}
-              <td className="py-3.5 px-3.5 text-gray-500 whitespace-nowrap">
+              <td className="py-3.5 px-3.5 text-gray-700 whitespace-nowrap">
                 {voucher.expiryDate || '—'}
               </td>
 

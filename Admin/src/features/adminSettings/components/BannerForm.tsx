@@ -360,11 +360,12 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
           {/* Banner Image */}
           <div>
-            <label className="text-sm font-semibold text-gray-900 mb-2 block">
+            <label htmlFor="banner-file-input" className="text-sm font-semibold text-gray-900 mb-2 block">
               {t('banners.form.bannerImage', { defaultValue: 'Banner Image' })}{' '}
               {mode === 'add' && <span className="text-red-500">*</span>}
             </label>
             <input
+              id="banner-file-input"
               type="file"
               ref={fileInputRef}
               onChange={handleImageChange}
@@ -553,11 +554,12 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
           {linkType === 'EXTERNAL_URL' && (
             <div>
-              <label className="text-sm font-semibold text-gray-900 mb-2 block">
+              <label htmlFor="banner-external-url" className="text-sm font-semibold text-gray-900 mb-2 block">
                 {t('banners.form.externalUrl', { defaultValue: 'External Link URL' })}{' '}
                 <span className="text-red-500">*</span>
               </label>
               <input
+                id="banner-external-url"
                 type="url"
                 {...register('externalUrl', {
                   required:
@@ -570,7 +572,7 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                   },
                 })}
                 placeholder="https://example.com"
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black transition-all ${
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black transition-all placeholder-gray-500 ${
                   errors.externalUrl ? 'border-red-400 bg-red-50/20' : 'border-gray-200 bg-white'
                 }`}
               />
@@ -580,10 +582,11 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
           {/* Expiration Date */}
           <div>
-            <label className="text-sm font-semibold text-gray-900 mb-2 block">
+            <label htmlFor="banner-ends-at" className="text-sm font-semibold text-gray-900 mb-2 block">
               {t('banners.form.endsAt', { defaultValue: 'Expiration Date (Ends At)' })}
             </label>
             <input
+              id="banner-ends-at"
               type="datetime-local"
               {...register('endsAt')}
               className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"

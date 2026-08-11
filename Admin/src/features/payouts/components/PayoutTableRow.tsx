@@ -17,10 +17,10 @@ export default function PayoutTableRow({ item, onRegisterPayout }: PayoutTableRo
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
         {item.totalGmv != null ? item.totalGmv.toLocaleString() : '--'}
       </td>
-      <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
+      <td className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
         {item.commission != null ? item.commission.toLocaleString() : '--'}
       </td>
-      <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
+      <td className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
         {item.totalPayouts != null ? item.totalPayouts.toLocaleString() : '--'}
       </td>
       <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">

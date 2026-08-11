@@ -61,7 +61,7 @@ export const OrderFilters = ({
           className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
             activeMainTab === 'allOrders'
               ? 'bg-black text-white shadow-2xs'
-              : 'bg-transparent text-gray-500 hover:text-gray-900'
+              : 'bg-transparent text-gray-700 hover:text-gray-900'
           }`}
         >
           {t('ordersPage.allOrders', 'All Orders')}
@@ -72,7 +72,7 @@ export const OrderFilters = ({
           className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
             activeMainTab === 'refunds'
               ? 'bg-black text-white shadow-2xs'
-              : 'bg-transparent text-gray-500 hover:text-gray-900'
+              : 'bg-transparent text-gray-700 hover:text-gray-900'
           }`}
         >
           {t('ordersPage.refunds', 'Refunds')}
@@ -85,7 +85,7 @@ export const OrderFilters = ({
         <div className="relative flex-1 max-w-sm">
           <Search
             size={16}
-            className={`absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${
+            className={`absolute top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none ${
               isRtl ? 'right-3.5' : 'left-3.5'
             }`}
           />
@@ -93,12 +93,17 @@ export const OrderFilters = ({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            aria-label={
+              activeMainTab === 'allOrders'
+                ? t('ordersPage.searchOrders', 'Search orders...')
+                : t('ordersPage.searchRefunds', 'Search refunds...')
+            }
             placeholder={
               activeMainTab === 'allOrders'
                 ? t('ordersPage.searchOrders', 'Search orders...')
                 : t('ordersPage.searchRefunds', 'Search refunds...')
             }
-            className={`w-full py-2 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
+            className={`w-full py-2 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
               isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
             }`}
           />

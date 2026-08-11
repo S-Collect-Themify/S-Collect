@@ -65,9 +65,12 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
+    const startTimer = setTimeout(() => setIsLoading(true), 0);
+    const endTimer = setTimeout(() => setIsLoading(false), 300);
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(endTimer);
+    };
   }, [page, appliedFrom, appliedTo, statusFilter, search]);
 
   const filtered = useMemo(() => {
@@ -338,10 +341,10 @@ export default function VendorOrdersLog({ vendor }: VendorOrdersLogProps) {
                           {style.label}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-gray-500 font-medium">
+                      <td className="px-5 py-4 text-gray-700 font-medium">
                         {order.subOrders}
                       </td>
-                      <td className="px-5 py-4 text-gray-400">
+                      <td className="px-5 py-4 text-gray-700">
                         {order.date}
                       </td>
                       <td className="px-5 py-4">

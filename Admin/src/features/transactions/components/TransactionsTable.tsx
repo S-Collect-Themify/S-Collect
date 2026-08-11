@@ -66,7 +66,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
                 <td className="py-3.5 px-4 font-bold text-gray-900 font-mono">
                   {item.orderNo || '--'}
                 </td>
-                <td className="py-3.5 px-4 text-gray-500 font-medium">
+                <td className="py-3.5 px-4 text-gray-700 font-medium">
                   {item.date || '--'}
                 </td>
                 <td className="py-3.5 px-4 font-bold text-gray-900">
@@ -75,13 +75,13 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
                 <td className="py-3.5 px-4 font-bold text-gray-900">
                   {item.amount ? `${item.amount.toLocaleString()} SAR` : '--'}
                 </td>
-                <td className="py-3.5 px-4 text-gray-600 font-medium">
+                <td className="py-3.5 px-4 text-gray-700 font-medium">
                   {item.paymentMethod || '--'}
                 </td>
                 <td className="py-3.5 px-4">
                   <TransactionStatusBadge status={item.status} />
                 </td>
-                <td className="py-3.5 px-4 text-gray-500 font-mono text-[11px]">
+                <td className="py-3.5 px-4 text-gray-700 font-mono text-[11px]">
                   {item.fatoorahRef || '--'}
                 </td>
               </tr>

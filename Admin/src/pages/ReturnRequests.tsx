@@ -71,7 +71,7 @@ export default function ReturnRequestsPage() {
     status: statusParam,
   });
 
-  const apiItems = refundsResponse?.items || [];
+  const apiItems = useMemo(() => refundsResponse?.items || [], [refundsResponse?.items]);
   const totalItemsCount = refundsResponse?.pagination?.totalItems ?? apiItems.length;
   const totalPages = refundsResponse?.pagination?.totalPages ?? Math.max(1, Math.ceil(totalItemsCount / ITEMS_PER_PAGE));
   const activePage = Math.min(currentPage, totalPages);
@@ -97,7 +97,7 @@ export default function ReturnRequestsPage() {
         orderId: `#ORD-${orderShortId}`,
         customerName,
         productTitle: firstProduct?.productNameSnapshot || '--',
-        productQty: (firstProduct as any)?.quantity || 1,
+        productQty: (firstProduct as { quantity?: number })?.quantity || 1,
         productPrice: `SAR ${(ref.totalRefundAmount || 0).toFixed(2)}`,
         productImage: typeof firstProduct?.thumbnailUrl === 'string' && firstProduct.thumbnailUrl
           ? firstProduct.thumbnailUrl
@@ -152,13 +152,14 @@ export default function ReturnRequestsPage() {
       >
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label={t('returnsPage.searchPlaceholder', { defaultValue: 'Search by ID or Customer...' })}
             placeholder={t('returnsPage.searchPlaceholder', { defaultValue: 'Search by ID or Customer...' })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-900 transition-colors bg-gray-50/50"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-gray-900 transition-colors bg-gray-50/50 placeholder-gray-500"
           />
         </div>
 
@@ -168,6 +169,7 @@ export default function ReturnRequestsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('returnsPage.filterStatus', { defaultValue: 'Filter by Status' })}
               className="w-full appearance-none bg-white border border-gray-200 rounded-lg py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
             >
               <option value="ALL">{t('returnsPage.allStatuses', { defaultValue: 'Status: All Statuses' })}</option>
@@ -177,16 +179,19 @@ export default function ReturnRequestsPage() {
               <option value="AWAITING_ITEM">Awaiting Item</option>
               <option value="COMPLETED">Completed</option>
             </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
           </div>
 
           <div className="relative flex-1 sm:flex-initial">
-            <select className="w-full appearance-none bg-white border border-gray-200 rounded-lg py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer">
+            <select
+              aria-label={t('returnsPage.filterDate', { defaultValue: 'Filter by Date' })}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-lg py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
+            >
               <option>{t('returnsPage.last30Days', { defaultValue: 'Date: Last 30 Days' })}</option>
               <option>Last 7 Days</option>
               <option>Last 90 Days</option>
             </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
           </div>
         </div>
       </motion.div>
@@ -195,7 +200,7 @@ export default function ReturnRequestsPage() {
       <div className="hidden md:block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/70 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <tr className="border-b border-gray-100 bg-gray-50/70 text-xs font-bold text-gray-700 uppercase tracking-wider">
               <th className="py-4 px-4">{t('returnsPage.returnId', { defaultValue: 'Return ID' })}</th>
               <th className="py-4 px-4">{t('returnsPage.customer', { defaultValue: 'Customer' })}</th>
               <th className="py-4 px-4">{t('returnsPage.product', { defaultValue: 'Product' })}</th>
@@ -239,7 +244,7 @@ export default function ReturnRequestsPage() {
                         </div>
                       </td>
                       <td className="py-4 px-4 text-gray-600">{item.reason}</td>
-                      <td className="py-4 px-4 text-gray-500 text-xs sm:text-sm">{item.requestedDate}</td>
+                      <td className="py-4 px-4 text-gray-700 text-xs sm:text-sm">{item.requestedDate}</td>
                       <td className="py-4 px-4">
                         <StatusBadge status={item.status} />
                       </td>

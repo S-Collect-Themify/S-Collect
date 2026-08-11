@@ -89,13 +89,13 @@ export default function VendorReportOrdersDesktopTable({
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
                   {order.id || '--'}
                 </td>
-                <td className="px-5 py-4 text-gray-400 font-medium whitespace-nowrap">
+                <td className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
                   {order.date || '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
                   {order.amount != null && order.amount > 0 ? order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
-                <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
+                <td className="px-5 py-4 text-gray-700 font-medium whitespace-nowrap">
                   {order.commission != null && order.commission > 0 ? order.commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}
                 </td>
                 <td className="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">
