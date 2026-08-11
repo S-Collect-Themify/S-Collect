@@ -327,6 +327,7 @@ export const CategoryFormModal = ({
               <button
                 type="button"
                 onClick={onClose}
+                aria-label={t('common.close', 'Close')}
                 className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
               >
                 <X size={18} />
@@ -337,10 +338,11 @@ export const CategoryFormModal = ({
             <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
               {/* Category Image */}
               <div>
-                <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="cat-file-input" className="block text-body-sm font-medium text-gray-700 mb-1.5">
                   {t('categories.modal.image')}
                 </label>
                 <input
+                  id="cat-file-input"
                   type="file"
                   ref={fileInputRef}
                   onChange={handleImageChange}
@@ -405,16 +407,17 @@ export const CategoryFormModal = ({
 
               {/* Category Name EN */}
               <div>
-                <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="cat-name-en" className="block text-body-sm font-medium text-gray-700 mb-1.5">
                   {t('categories.modal.nameEn')} <span className="text-red">*</span>
                 </label>
                 <input
+                  id="cat-name-en"
                   type="text"
                   value={nameEn}
                   onChange={(e) => handleNameEnChange(e.target.value)}
                   onBlur={() => setTouchedEn(true)}
                   placeholder={t('categories.modal.nameEnPlaceholder')}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 transition-all ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 transition-all ${
                     touchedEn && !isNameEnValid
                       ? 'border-red focus:border-red focus:ring-red'
                       : 'border-gray-200 focus:border-gray-900 focus:ring-gray-900'
@@ -434,16 +437,17 @@ export const CategoryFormModal = ({
 
               {/* Category Name AR */}
               <div>
-                <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="cat-name-ar" className="block text-body-sm font-medium text-gray-700 mb-1.5">
                   {t('categories.modal.nameAr')} <span className="text-red">*</span>
                 </label>
                 <input
+                  id="cat-name-ar"
                   type="text"
                   value={nameAr}
                   onChange={(e) => handleNameArChange(e.target.value)}
                   onBlur={() => setTouchedAr(true)}
                   placeholder={t('categories.modal.nameArPlaceholder')}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 transition-all ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 transition-all ${
                     touchedAr && !isNameArValid
                       ? 'border-red focus:border-red focus:ring-red'
                       : 'border-gray-200 focus:border-gray-900 focus:ring-gray-900'
@@ -463,15 +467,16 @@ export const CategoryFormModal = ({
 
               {/* Slug */}
               <div>
-                <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="cat-slug" className="block text-body-sm font-medium text-gray-700 mb-1.5">
                   {t('categories.modal.slug')}
                 </label>
                 <input
+                  id="cat-slug"
                   type="text"
                   value={slug}
                   onChange={(e) => handleSlugChange(e.target.value)}
                   placeholder={t('categories.modal.slugPlaceholder')}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-gray-50/60"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-gray-50/60"
                 />
               </div>
 

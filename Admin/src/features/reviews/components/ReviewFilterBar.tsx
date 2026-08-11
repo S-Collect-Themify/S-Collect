@@ -28,17 +28,18 @@ export const ReviewFilterBar = ({
   return (
     <div className="flex flex-wrap items-center gap-3 mb-6">
       {/* Search Input */}
-      <div className="relative flex-1 min-w-[240px] max-w-md">
+      <div className="relative flex-1 min-w-60 max-w-md">
         <Search
           size={18}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:left-auto rtl:right-3.5"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:left-auto rtl:right-3.5"
         />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label={t('reviewsListing.searchPlaceholder')}
           placeholder={t('reviewsListing.searchPlaceholder')}
-          className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-all rtl:pl-4 rtl:pr-10"
+          className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-all rtl:pl-4 rtl:pr-10"
         />
       </div>
 
@@ -49,6 +50,7 @@ export const ReviewFilterBar = ({
           <select
             value={vendorFilter}
             onChange={(e) => setVendorFilter(e.target.value)}
+            aria-label={t('reviewsListing.allVendors')}
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
           >
             <option value="all" className="hidden sm:inline">
@@ -74,6 +76,7 @@ export const ReviewFilterBar = ({
           <select
             value={ratingFilter}
             onChange={(e) => setRatingFilter(e.target.value)}
+            aria-label={t('reviewsListing.allRatings')}
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
           >
             <option value="all" className="hidden sm:inline">
@@ -99,6 +102,7 @@ export const ReviewFilterBar = ({
           <select
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
+            aria-label={t('reviewsListing.allProducts')}
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
           >
             <option value="all" className="hidden sm:inline">
@@ -124,6 +128,7 @@ export const ReviewFilterBar = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as ReviewSortOption)}
+            aria-label={t('reviewsListing.sort.dateDesc')}
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 pl-8 sm:pl-9 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pr-8 sm:rtl:pr-9 rtl:pl-7 sm:rtl:pl-9 truncate"
           >
             <option value="date-desc">{t('reviewsListing.sort.dateDesc')}</option>

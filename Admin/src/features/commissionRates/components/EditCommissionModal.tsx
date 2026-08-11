@@ -72,9 +72,9 @@ export default function EditCommissionModal({
       <div className="bg-white rounded-3xl p-6 md:p-7 w-full max-w-105 shadow-2xl border border-gray-100 space-y-5">
         {/* Header Title & Close Button */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
             {getModalTitle()}
-          </h3>
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -91,7 +91,7 @@ export default function EditCommissionModal({
             {/* Vendor / Category Name Row */}
             {!isPlatform && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-400 font-medium">
+                <span className="text-gray-600 font-medium">
                   {isVendor
                     ? t('commissionRates.vendorLabel', 'Vendor')
                     : t('commissionRates.categoryLabel', 'Category')}
@@ -102,7 +102,7 @@ export default function EditCommissionModal({
 
             {/* Current Rate Row */}
             <div className="flex items-center justify-between">
-              <span className="text-gray-400 font-medium">
+              <span className="text-gray-600 font-medium">
                 {isPlatform
                   ? t('commissionRates.currentGlobalRate', 'Current Global Rate')
                   : t('commissionRates.currentRateLabel', 'Current Rate')}
@@ -116,17 +116,18 @@ export default function EditCommissionModal({
 
           {/* New Rate Input */}
           <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">
+            <label htmlFor="custom-rate-input" className="block text-sm font-bold text-gray-900 mb-2">
               {isVendor || isCategory
                 ? t('commissionRates.customCommissionRate', 'Custom Commission Rate (%)')
                 : t('commissionRates.newCommissionRate', 'New Commission Rate (%)')}
             </label>
             <input
+              id="custom-rate-input"
               type="text"
               required
               value={rateInput}
               onChange={(e) => setRateInput(e.target.value)}
-              className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors ${
+              className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors placeholder-gray-500 ${
                 isHasError
                   ? 'border-rose-600 bg-rose-50/50 text-rose-900 focus:outline-none focus:border-rose-600'
                   : 'border-gray-200 text-gray-900 focus:outline-none focus:border-black'

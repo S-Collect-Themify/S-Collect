@@ -32,7 +32,7 @@ export default function VendorPagination({
 
   return (
     <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-      <span className="text-xs text-gray-400">
+      <span className="text-xs text-gray-700">
         {t('vendors.table.showing', {
           start: startItem,
           end: endItem,
@@ -69,7 +69,7 @@ export default function VendorPagination({
                 className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors cursor-pointer ${
                   n === page
                     ? 'bg-gray-900 text-white border-gray-900'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                    : 'border-gray-200 text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {n}

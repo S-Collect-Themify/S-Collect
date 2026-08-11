@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { BannerItem, BannerLinkType } from '../../types';
 
-export const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: React.ReactNode; color: string }> = {
+const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: React.ReactNode; color: string }> = {
   CATEGORY: {
     label: 'Category',
     icon: <Tag size={11} />,
@@ -82,7 +82,7 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
       className="hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-b-0"
     >
       {/* Order */}
-      <td className="py-4 px-4 text-gray-500 font-medium text-sm">
+      <td className="py-4 px-4 text-gray-700 font-medium text-sm">
         <div className="flex items-center gap-2">
           <button
             type="button"

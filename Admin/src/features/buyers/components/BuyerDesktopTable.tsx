@@ -157,12 +157,12 @@ export default function BuyerDesktopTable({
                   </td>
 
                   {/* Email */}
-                  <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                  <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
                     {displayEmail}
                   </td>
 
                   {/* Date */}
-                  <td className="px-4 py-3.5 text-sm text-gray-500 whitespace-nowrap">
+                  <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
                     {displayDate}
                   </td>
 

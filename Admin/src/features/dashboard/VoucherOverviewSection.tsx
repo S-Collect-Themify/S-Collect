@@ -101,12 +101,12 @@ export default function VoucherOverviewSection() {
                     <td className="px-5 py-3.5 font-bold text-gray-900 font-mono">
                       {v.code || '--'}
                     </td>
-                    <td className="px-5 py-3.5 text-gray-500 font-medium">
+                    <td className="px-5 py-3.5 text-gray-700 font-medium">
                       {t(`dashboardOverview.tableHeaders.${v.typeKey}`, v.defaultType || '--')}
                     </td>
                     <td className="px-5 py-3.5 font-bold text-gray-900">{v.discount || '--'}</td>
-                    <td className="px-5 py-3.5 text-gray-500 font-medium">{v.usage || '--'}</td>
-                    <td className="px-5 py-3.5 text-gray-500 font-medium">{v.expiry || '--'}</td>
+                    <td className="px-5 py-3.5 text-gray-700 font-medium">{v.usage || '--'}</td>
+                    <td className="px-5 py-3.5 text-gray-700 font-medium">{v.expiry || '--'}</td>
                     <td className="px-5 py-3.5">
                       <span
                         className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${

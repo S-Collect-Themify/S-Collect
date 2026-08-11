@@ -33,7 +33,7 @@ export const TransactionsPagination: React.FC<TransactionsPaginationProps> = ({
 
   return (
     <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/40 flex items-center justify-between gap-4 flex-wrap">
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-700">
         {t('dashboardOverview.transactionsLog.showingCount', {
           start: startItem,
           end: endItem,

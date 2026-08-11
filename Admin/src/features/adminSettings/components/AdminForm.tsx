@@ -98,11 +98,12 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* First Name */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label htmlFor="admin-first-name" className="block text-xs font-semibold text-gray-700 mb-1">
                 {t('adminSettings.adminAccounts.firstName', { defaultValue: 'First Name' })}{' '}
                 <span className="text-red-500">*</span>
               </label>
               <input
+                id="admin-first-name"
                 type="text"
                 placeholder={t('adminSettings.adminAccounts.firstNamePlaceholder', {
                   defaultValue: 'e.g. John',
@@ -120,7 +121,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
                 })}
                 className={`w-full bg-white border ${
                   errors.firstName ? 'border-red-500' : 'border-gray-200'
-                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors placeholder-gray-500`}
               />
               {errors.firstName && (
                 <p className="text-xs text-red-500 mt-1">{errors.firstName.message}</p>
@@ -129,11 +130,12 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
 
             {/* Last Name */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
+              <label htmlFor="admin-last-name" className="block text-xs font-semibold text-gray-700 mb-1">
                 {t('adminSettings.adminAccounts.lastName', { defaultValue: 'Last Name' })}{' '}
                 <span className="text-red-500">*</span>
               </label>
               <input
+                id="admin-last-name"
                 type="text"
                 placeholder={t('adminSettings.adminAccounts.lastNamePlaceholder', {
                   defaultValue: 'e.g. Doe',
@@ -151,7 +153,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
                 })}
                 className={`w-full bg-white border ${
                   errors.lastName ? 'border-red-500' : 'border-gray-200'
-                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+                } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors placeholder-gray-500`}
               />
               {errors.lastName && (
                 <p className="text-xs text-red-500 mt-1">{errors.lastName.message}</p>
@@ -161,11 +163,12 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
 
           {/* Email Address */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+            <label htmlFor="admin-email" className="block text-xs font-semibold text-gray-700 mb-1">
               {t('adminSettings.adminAccounts.emailAddress', { defaultValue: 'Email Address' })}{' '}
               <span className="text-red-500">*</span>
             </label>
             <input
+              id="admin-email"
               type="email"
               placeholder={t('adminSettings.adminAccounts.emailPlaceholder', {
                 defaultValue: 'e.g. john@platform.com',
@@ -183,7 +186,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
               })}
               className={`w-full bg-white border ${
                 errors.email ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors placeholder-gray-500`}
             />
             {errors.email && (
               <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
@@ -192,13 +195,14 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
 
           {/* Saudi Phone Number */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
+            <label htmlFor="admin-phone" className="block text-xs font-semibold text-gray-700 mb-1">
               {t('adminSettings.adminAccounts.phoneNumber', {
                 defaultValue: 'Saudi Phone Number',
               })}{' '}
               <span className="text-red-500">*</span>
             </label>
             <input
+              id="admin-phone"
               type="tel"
               placeholder={t('adminSettings.adminAccounts.phoneNumberPlaceholder', {
                 defaultValue: '+966 50 000 0000',
@@ -216,7 +220,7 @@ export const AdminForm: React.FC<AdminFormProps> = ({ mode }) => {
               })}
               className={`w-full bg-white border ${
                 errors.phoneNumber ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors`}
+              } rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-black transition-colors placeholder-gray-500`}
             />
             {errors.phoneNumber && (
               <p className="text-xs text-red-500 mt-1">{errors.phoneNumber.message}</p>

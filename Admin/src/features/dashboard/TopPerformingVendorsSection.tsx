@@ -78,7 +78,7 @@ export default function TopPerformingVendorsSection() {
                     <td className="px-5 py-3.5 font-bold text-gray-900">
                       SAR {v.revenue ? v.revenue.toLocaleString() : '--'}
                     </td>
-                    <td className="px-5 py-3.5 text-gray-500 font-medium">
+                    <td className="px-5 py-3.5 text-gray-700 font-medium">
                       {v.orders ? v.orders.toLocaleString() : '--'}
                     </td>
                     <td className="px-5 py-3.5">

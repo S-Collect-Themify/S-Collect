@@ -36,6 +36,7 @@ const LanguageDropdown = () => {
       trigger={({ isOpen, toggle }) => (
         <button
           onClick={toggle}
+          aria-label="Select language"
           className="flex items-center gap-2 bg-gray-50 text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <Globe size={16} />
@@ -134,9 +135,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
           <div>
-            <h1 className="text-2xl font-bold">
+            <p className="text-2xl font-bold">
               Hello, {userName} 👋
-            </h1>
+            </p>
             <p className="text-sm text-gray-400">{today}</p>
           </div>
         </div>

@@ -58,7 +58,7 @@ export const TransactionsFilterBar: React.FC = () => {
       <div className="relative flex-1 max-w-sm">
         <Search
           size={15}
-          className={`absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${
+          className={`absolute top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none ${
             isRtl ? 'right-3.5' : 'left-3.5'
           }`}
         />
@@ -66,11 +66,15 @@ export const TransactionsFilterBar: React.FC = () => {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label={t(
+            'dashboardOverview.transactionsLog.searchPlaceholder',
+            'Search order or buyer...'
+          )}
           placeholder={t(
             'dashboardOverview.transactionsLog.searchPlaceholder',
             'Search order or buyer...'
           )}
-          className={`w-full py-2.5 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
+          className={`w-full py-2.5 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
             isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
           }`}
         />
@@ -170,10 +174,11 @@ export const TransactionsFilterBar: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-gray-500 mb-1">
+                  <label htmlFor="trans-min-amount" className="block text-[11px] font-semibold text-gray-700 mb-1">
                     {t('dashboardOverview.transactionsLog.minAmount', 'Min Amount')}
                   </label>
                   <input
+                    id="trans-min-amount"
                     type="number"
                     value={tempMin}
                     onChange={(e) => setTempMin(e.target.value)}
@@ -184,14 +189,15 @@ export const TransactionsFilterBar: React.FC = () => {
                       }
                     }}
                     placeholder="0"
-                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400"
+                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400 placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-gray-500 mb-1">
+                  <label htmlFor="trans-max-amount" className="block text-[11px] font-semibold text-gray-700 mb-1">
                     {t('dashboardOverview.transactionsLog.maxAmount', 'Max Amount')}
                   </label>
                   <input
+                    id="trans-max-amount"
                     type="number"
                     value={tempMax}
                     onChange={(e) => setTempMax(e.target.value)}
@@ -202,7 +208,7 @@ export const TransactionsFilterBar: React.FC = () => {
                       }
                     }}
                     placeholder="100000"
-                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400"
+                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400 placeholder-gray-500"
                   />
                 </div>
               </div>

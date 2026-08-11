@@ -103,7 +103,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     {item.customer}
                   </td>
                   {activeMainTab === 'refunds' && (
-                    <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
+                    <td className="py-4 px-4 text-gray-700 whitespace-nowrap">
                       {item.orderId}
                     </td>
                   )}
@@ -113,10 +113,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <td className="py-4 px-4 whitespace-nowrap">
                     <StatusBadge status={item.status} />
                   </td>
-                  <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
+                  <td className="py-4 px-4 text-gray-700 whitespace-nowrap">
                     {activeMainTab === 'allOrders' ? item.subOrdersCount : item.reason}
                   </td>
-                  <td className="py-4 px-4 text-gray-500 whitespace-nowrap">
+                  <td className="py-4 px-4 text-gray-700 whitespace-nowrap">
                     {item.date}
                   </td>
                   {!isVendorFiltered && (
