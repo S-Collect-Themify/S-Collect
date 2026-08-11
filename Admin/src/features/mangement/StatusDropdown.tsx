@@ -51,6 +51,7 @@ function StatusDropdown({ selected, onChange }: StatusDropdownProps) {
                 type="radio"
                 readOnly
                 checked={selected === s}
+                aria-label={s === 'All' ? t('managementTable.allStatuses') : t(`managementTable.statuses.${s}`)}
                 className="accent-black w-3.5 h-3.5 cursor-pointer"
               />
               <span>

@@ -104,7 +104,7 @@ export default function ProductRow({
         </div>
       </td>
 
-      <td className="px-3 py-3 border-b border-gray-100 font-semibold text-gray-500">
+      <td className="px-3 py-3 border-b border-gray-100 font-semibold text-gray-700">
         {t(`managementTable.categories.${product.category}`)}
       </td>
 

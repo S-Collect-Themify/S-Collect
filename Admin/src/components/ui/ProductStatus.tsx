@@ -133,6 +133,7 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
             <input
               type="checkbox"
               className="w-4 h-4 accent-black"
+              aria-label={t('addProduct.homepage')}
               defaultChecked
             />
             {t('addProduct.homepage')}
@@ -142,6 +143,7 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
             <input
               type="checkbox"
               className="w-4 h-4 accent-black"
+              aria-label={t('addProduct.promotions')}
               defaultChecked
             />
             {t('addProduct.promotions')}
@@ -151,6 +153,7 @@ const ProductStatus = ({ enabled, setEnabled }: ProductStatusProps) => {
             <input
               type="checkbox"
               className="w-4 h-4 accent-black"
+              aria-label={t('addProduct.searchResults')}
               defaultChecked
             />
             {t('addProduct.searchResults')}

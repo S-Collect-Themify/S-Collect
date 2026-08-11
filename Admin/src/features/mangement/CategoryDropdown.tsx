@@ -60,6 +60,7 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
               type="checkbox"
               readOnly
               checked={allSelected}
+              aria-label={t('managementTable.allCategories')}
               className="accent-black w-3.5 h-3.5 cursor-pointer"
             />
             <span>{t('managementTable.allCategories')}</span>
@@ -71,6 +72,7 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
                 type="checkbox"
                 readOnly
                 checked={selected.includes(cat)}
+                aria-label={t(`managementTable.categories.${cat}`, { defaultValue: cat })}
                 className="accent-black w-3.5 h-3.5 cursor-pointer"
               />
               <span>{t(`managementTable.categories.${cat}`, { defaultValue: cat })}</span>

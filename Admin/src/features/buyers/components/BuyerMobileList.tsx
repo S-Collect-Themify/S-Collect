@@ -122,6 +122,7 @@ export default function BuyerMobileList({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleRow(buyer.id)}
+                  aria-label={displayName}
                   className="accent-black w-4 h-4 cursor-pointer rounded mt-3 shrink-0"
                 />
                 <div className="w-10 h-10 rounded-full bg-[#E9E9E9] text-gray-800 text-xs font-bold flex items-center justify-center shrink-0">

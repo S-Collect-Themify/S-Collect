@@ -62,6 +62,7 @@ export default function BuyerDesktopTable({
                 type="checkbox"
                 checked={allChecked}
                 onChange={toggleAll}
+                aria-label={t('buyers.table.selectAll', 'Select all buyers')}
                 className="accent-black w-4 h-4 cursor-pointer rounded"
               />
             </th>
@@ -140,6 +141,7 @@ export default function BuyerDesktopTable({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleRow(buyer.id)}
+                      aria-label={displayName}
                       className="accent-black w-4 h-4 cursor-pointer rounded"
                     />
                   </td>
