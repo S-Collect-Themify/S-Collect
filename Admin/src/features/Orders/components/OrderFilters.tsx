@@ -54,7 +54,7 @@ export const OrderFilters = ({
   return (
     <div>
       {/* Main Tab Toggle Pills Container (Matching Design Image) */}
-      <div className="inline-flex items-center p-1 bg-[#EBEBEB] rounded-2xl mb-5">
+      <div className="inline-flex items-center p-1 bg-[#EBEBEB] rounded-lg mb-5">
         <button
           type="button"
           onClick={() => onMainTabChange('allOrders')}

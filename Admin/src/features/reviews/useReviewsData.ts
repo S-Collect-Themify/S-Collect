@@ -22,27 +22,55 @@ export const mapBackendReviewToFrontend = (
   productsList: any[] = [],
   vendorsList: any[] = [],
   language: string = 'en'
-): ReviewItem => {
+): ReviewItem | null => {
   const rawDate = r.createdAt || r.updatedAt;
   const formattedDate = rawDate ? String(rawDate).split('T')[0] : '—';
 
   const revId = `REV-${String(r.id).slice(0, 6)}`;
 
-  // ── Lookup Product by productId in productsList ──
-  let productName = '—';
+  // ── Lookup Product by productId in productsList or embedded in review ──
+  const targetProdId =
+    r.productId ||
+    (r as any).product_id ||
+    (typeof (r as any).product === 'string' ? (r as any).product : (r as any).product?.id);
+
+  let productName = '';
   let productVendorId: string | null = null;
 
-  const matchedProd = productsList.find(
-    (p: any) => String(p.id || p._id).toLowerCase() === String(r.productId).toLowerCase()
-  );
+  const matchedProd = productsList.find((p: any) => {
+    const pId = p.id || p._id || p.productId;
+    return (
+      pId &&
+      targetProdId &&
+      String(pId).trim().toLowerCase() === String(targetProdId).trim().toLowerCase()
+    );
+  });
+
+  const rawProduct = (r as any).product;
+
   if (matchedProd) {
     productName =
       language === 'ar'
-        ? matchedProd.nameAr || matchedProd.name
-        : matchedProd.name || matchedProd.nameAr;
+        ? matchedProd.nameAr || matchedProd.name || matchedProd.titleAr || matchedProd.title
+        : matchedProd.name || matchedProd.nameAr || matchedProd.title || matchedProd.titleAr;
     productVendorId = matchedProd.vendorId || matchedProd.vendor?.id || null;
-  } else if (r.productId) {
-    productName = `Product (${String(r.productId).slice(0, 8)}...)`;
+  } else if (
+    rawProduct &&
+    typeof rawProduct === 'object' &&
+    (rawProduct.name || rawProduct.nameAr || rawProduct.title || rawProduct.titleAr)
+  ) {
+    productName =
+      language === 'ar'
+        ? rawProduct.nameAr || rawProduct.name || rawProduct.titleAr || rawProduct.title
+        : rawProduct.name || rawProduct.nameAr || rawProduct.title || rawProduct.titleAr;
+    productVendorId = rawProduct.vendorId || rawProduct.vendor?.id || null;
+  } else if ((r as any).productName) {
+    productName = (r as any).productName;
+  }
+
+  // If the product was deleted / does not exist anywhere, exclude this review row from the table
+  if (!productName || !productName.trim() || productName === '—') {
+    return null;
   }
 
   // ── Lookup Vendor by vendorId in vendorsList ──
@@ -54,7 +82,9 @@ export const mapBackendReviewToFrontend = (
     );
     vendorName = matchedVendor
       ? getVendorDisplayName(matchedVendor)
-      : `Vendor (${String(productVendorId).slice(0, 8)}...)`;
+      : '—';
+  } else if ((r as any).vendor) {
+    vendorName = getVendorDisplayName((r as any).vendor);
   }
 
   const buyer = `${r.buyer?.firstName || ''} ${r.buyer?.lastName || ''}`.trim() || '—';
@@ -63,7 +93,7 @@ export const mapBackendReviewToFrontend = (
     id: r.id,
     reviewId: revId,
     product: productName,
-    productId: r.productId,
+    productId: targetProdId || r.productId,
     buyerName: buyer,
     buyerAccountId: r.buyer?.id,
     vendor: vendorName,
@@ -146,9 +176,11 @@ export const useReviewsData = () => {
         const productsList = extractProductsArray(productsResponse);
         const vendorsList = extractVendorsArray(vendorsResponse);
 
-        const mapped: ReviewItem[] = itemsArray.map((r) =>
-          mapBackendReviewToFrontend(r, productsList, vendorsList, i18n.language)
-        );
+        const mapped: ReviewItem[] = itemsArray
+          .map((r) =>
+            mapBackendReviewToFrontend(r, productsList, vendorsList, i18n.language)
+          )
+          .filter((r): r is ReviewItem => r !== null);
 
         setReviews(mapped);
         return mapped;
