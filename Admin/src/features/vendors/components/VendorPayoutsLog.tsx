@@ -107,21 +107,48 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
           '--';
 
       let adminVal = '--';
+      const parseAdminNamePart = (field: any): string => {
+        if (!field) return '';
+        if (typeof field === 'string') return field.trim();
+        if (typeof field === 'object') {
+          const currentLang = i18n.language || 'en';
+          const otherLang = currentLang === 'ar' ? 'en' : 'ar';
+          return (
+            field[currentLang] ||
+            field[otherLang] ||
+            field.en ||
+            field.ar ||
+            field.name ||
+            field.value ||
+            field.text ||
+            (typeof Object.values(field)[0] === 'string' ? (Object.values(field)[0] as string) : '')
+          );
+        }
+        return '';
+      };
+
       if (item.recordedByAdmin) {
-        const fName = typeof item.recordedByAdmin.firstName === 'string'
-          ? item.recordedByAdmin.firstName
-          : typeof item.recordedByAdmin.firstName === 'object'
-          ? item.recordedByAdmin.firstName?.en || item.recordedByAdmin.firstName?.ar || item.recordedByAdmin.firstName?.name || ''
-          : '';
-        const lName = typeof item.recordedByAdmin.lastName === 'string'
-          ? item.recordedByAdmin.lastName
-          : typeof item.recordedByAdmin.lastName === 'object'
-          ? item.recordedByAdmin.lastName?.en || item.recordedByAdmin.lastName?.ar || item.recordedByAdmin.lastName?.name || ''
-          : '';
-        const full = [fName, lName].filter(Boolean).join(' ').trim();
-        adminVal = full || item.recordedByAdmin.email || item.recordedByAdminId || '--';
+        if (typeof item.recordedByAdmin === 'string' && item.recordedByAdmin.trim()) {
+          adminVal = item.recordedByAdmin.trim();
+        } else if (typeof item.recordedByAdmin === 'object') {
+          const fName = parseAdminNamePart(item.recordedByAdmin.firstName);
+          const lName = parseAdminNamePart(item.recordedByAdmin.lastName);
+          const fullName = [fName, lName].filter(Boolean).join(' ').trim();
+          const email = typeof item.recordedByAdmin.email === 'string' ? item.recordedByAdmin.email.trim() : '';
+
+          adminVal = fullName || email || item.recordedByAdminId || '--';
+        }
       } else {
-        adminVal = item.adminName || item.processedBy || item.recordedByAdminId || item.admin || '--';
+        const fName = parseAdminNamePart(item.firstName);
+        const lName = parseAdminNamePart(item.lastName);
+        const fullName = [fName, lName].filter(Boolean).join(' ').trim();
+        const email = typeof item.recordedByAdminEmail === 'string'
+          ? item.recordedByAdminEmail.trim()
+          : typeof item.adminEmail === 'string'
+          ? item.adminEmail.trim()
+          : '';
+
+        adminVal = fullName || email || item.adminName || item.processedBy || item.recordedByAdminId || item.admin || '--';
       }
 
       const statusVal = item.status ? String(item.status).toLowerCase() : '--';
@@ -135,7 +162,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
         status: statusVal as any,
       };
     });
-  }, [apiPayoutsData]);
+  }, [apiPayoutsData, i18n.language]);
 
   // Date Filter logic
   const filteredItems = useMemo(() => {
