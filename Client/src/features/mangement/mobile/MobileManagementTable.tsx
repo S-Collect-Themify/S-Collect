@@ -36,11 +36,6 @@ export default function MobileManagementTable() {
 
   const { deleteSingle, toggleSingle } = useManagementActions();
 
-  const pageNumbers = Array.from(
-    { length: totalPages },
-    (_, index) => index + 1
-  );
-
   return (
     <div className="font-sans text-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="flex flex-col gap-2.5 mb-5">

@@ -64,8 +64,6 @@ const MobileIncomingOrders = () => {
     );
   }
 
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 px-4 pt-5 pb-6">
       <h1 className="text-xl font-bold text-gray-900 mb-4">
