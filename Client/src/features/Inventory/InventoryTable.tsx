@@ -40,22 +40,22 @@ export const InventoryTable = ({
       <table className="w-full text-body-md table-fixed min-w-[750px]">
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[18%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[18%]">
               {t(columns[0])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[26%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[26%]">
               {t(columns[1])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[24%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[24%]">
               {t(columns[2])}
             </th>
-            <th className="text-center py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[12%] whitespace-nowrap">
+            <th className="text-center py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[12%] whitespace-nowrap">
               {t(columns[3])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[10%] whitespace-nowrap">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
               {t(columns[4])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 uppercase tracking-wider w-[10%] whitespace-nowrap">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
               {t(columns[5])}
             </th>
           </tr>
