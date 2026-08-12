@@ -152,6 +152,10 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
     onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
       if (productId) {
         queryClient.invalidateQueries({ queryKey: ['product', productId] });
         queryClient.invalidateQueries({

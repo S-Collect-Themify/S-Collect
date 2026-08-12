@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { Star, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import type { Swiper as SwiperClass } from 'swiper';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Thumbs, FreeMode } from 'swiper/modules';
+
+import 'swiper/css';
+import 'swiper/css/thumbs';
+import 'swiper/css/free-mode';
+
 import type { ProductOption, ProductVariant } from '../types';
 
 export interface ProductImageInfo {
@@ -87,69 +95,101 @@ export default function ProductInfo({
     typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const mainImage = imageUrls[activeIndex];
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
 
   return (
-    <div className="w-full  rounded-2xl border border-gray-200 bg-white p-4 lg:p-6">
-      <div className="flex gap-6 flex-col lg:flex-row ">
-        {/* Image gallery: main image + thumbnails */}
-        <div className="flex gap-3 flex-col-reverse md:flex-row">
-          {/* Thumbnails column */}
-          {imageUrls.length > 1 && (
-            <div className="flex flex-row md:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
-              {imageUrls.map((url, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveIndex(i)}
-                  className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 transition ${
-                    i === activeIndex
-                      ? 'border-gray-900'
-                      : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}
+    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-6">
+      <div className="flex gap-6 flex-col lg:flex-row">
+        {/* Swiper Image Gallery */}
+        <div className="w-full lg:w-[480px] shrink-0">
+          {imageUrls.length > 0 ? (
+            <div className="flex gap-3 flex-row">
+              {/* Vertical Thumbnails Swiper */}
+              {imageUrls.length > 1 && (
+                <div className="h-80 lg:h-96 w-16 md:w-20 shrink-0">
+                  <Swiper
+                    onSwiper={setThumbsSwiper}
+                    direction="vertical"
+                    modules={[FreeMode, Thumbs]}
+                    slidesPerView={4}
+                    spaceBetween={10}
+                    freeMode
+                    watchSlidesProgress
+                    className="h-full w-full"
+                  >
+                    {imageUrls.map((url, i) => (
+                      <SwiperSlide key={i} className="!h-16 md:!h-20 w-full">
+                        <button
+                          type="button"
+                          onClick={() => setActiveIndex(i)}
+                          className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+                            i === activeIndex
+                              ? 'border-gray-900 ring-2 ring-gray-900/30 opacity-100 shadow-sm scale-[0.98]'
+                              : 'border-transparent opacity-50 hover:opacity-85'
+                          }`}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              )}
+
+              {/* Main Swiper (No arrows, No dots) */}
+              <div className="flex-1 min-w-0">
+                <Swiper
+                  modules={[Thumbs, FreeMode]}
+                  navigation={false}
+                  pagination={false}
+                  onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                  thumbs={{
+                    swiper:
+                      thumbsSwiper && !thumbsSwiper.destroyed
+                        ? thumbsSwiper
+                        : null,
+                  }}
+                  className="rounded-xl overflow-hidden bg-gray-100 h-80 lg:h-96 w-full"
                 >
-                  <img
-                    src={url}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              ))}
+                  {imageUrls.map((url, i) => (
+                    <SwiperSlide key={i} className="flex items-center justify-center">
+                      <img
+                        src={url}
+                        alt={name || ''}
+                        className="h-full w-full object-cover"
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            </div>
+          ) : (
+            <div className="h-80 lg:h-96 w-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
+              <svg
+                className="h-12 w-12"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
             </div>
           )}
-
-          {/* Main image */}
-          <div className="lg:h-100 lg:w-100 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-            {mainImage ? (
-              <img
-                src={mainImage}
-                alt={name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-gray-300">
-                <svg
-                  className="h-10 w-10"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Details */}
         <div className="flex flex-1 flex-col">
           <div className="flex items-start justify-between pb-2">
-            <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl ">
+            <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">
               {name}
             </h2>
             <button
@@ -164,19 +204,19 @@ export default function ProductInfo({
 
           <div className="mt-1 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">
             <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">
+              <span className="text-gray-400">
                 {t('productDetails.productInfo.category')}
               </span>
-              <span className="font-bold text-gray-700 ">{category}</span>
+              <span className="font-bold text-gray-700">{category}</span>
             </div>
             <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">
+              <span className="text-gray-400">
                 {t('productDetails.productInfo.brand')}
               </span>
-              <span className="font-bold text-gray-700 ">{brand}</span>
+              <span className="font-bold text-gray-700">{brand}</span>
             </div>
             <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400 ">
+              <span className="text-gray-400">
                 {t('productDetails.productInfo.sku')}
               </span>
               <span className="font-bold text-gray-700">{sku}</span>
@@ -198,8 +238,8 @@ export default function ProductInfo({
             </div>
           )}
 
-          <div className="my-3 lg:my-6 flex flex-col  gap-2 sm:flex-row sm:gap-2 items-start">
-            <div className="flex items-center gap-2 ">
+          <div className="my-3 lg:my-6 flex flex-col gap-2 sm:flex-row sm:gap-2 items-start">
+            <div className="flex items-center gap-2">
               <span className="text-[28px] font-bold text-gray-900">
                 {price} {currency}
               </span>
@@ -241,7 +281,7 @@ export default function ProductInfo({
               </p>
             </div>
 
-            <div className="flex items-center gap-4 ">
+            <div className="flex items-center gap-4">
               <div>
                 <p className="text-xs text-gray-400">
                   {t('productDetails.productInfo.averageRating')}

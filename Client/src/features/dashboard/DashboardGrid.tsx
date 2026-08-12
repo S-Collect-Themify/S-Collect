@@ -39,7 +39,7 @@ const DashboardGrid = () => {
     {
       title: t('dashboardMetrics.totalOrders', { defaultValue: 'Total Sub-Orders' }),
       value: (stats?.totalOrders ?? stats?.orderCount ?? 0).toLocaleString(),
-      unit: t('orders', { defaultValue: 'Orders' }),
+      unit: t('dashboardMetrics.unit.orders', { defaultValue: 'Orders' }),
       icon: ShoppingBag,
       colorTheme: {
         primary: 'var(--blue, #2563eb)',

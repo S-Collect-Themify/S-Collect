@@ -19,6 +19,8 @@ export const useUpdateProductStatus = (productId?: string) => {
     },
     onSuccess: (_, enable) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
       if (productId) {
         queryClient.invalidateQueries({ queryKey: ['product', productId] });
         queryClient.invalidateQueries({ queryKey: ['product-details', productId] });

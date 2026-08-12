@@ -268,6 +268,17 @@ export function useManagementActions() {
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ['products-manage'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['product-details'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
+
+      variables.productIds.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-details', id] });
+      });
     },
     onError: (err) => {
       toast.error(getErrorMessage(err, 'Action failed'));

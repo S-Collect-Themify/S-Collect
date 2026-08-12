@@ -87,7 +87,7 @@ export function ConfirmDeleteModal({
             type="button"
             disabled={isSubmitting}
             onClick={handleConfirmClick}
-            className={`flex-1 cursor-pointer rounded-lg py-3 text-sm font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${confirmClassName}`}
+            className={`flex-1 cursor-pointer rounded-xl py-3 text-sm font-semibold text-white shadow-sm hover:shadow-md hover:brightness-105 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${confirmClassName}`}
           >
             {t(confirmKey)}
           </button>
@@ -96,7 +96,7 @@ export function ConfirmDeleteModal({
             type="button"
             disabled={isSubmitting}
             onClick={handleClose}
-            className="flex-1 cursor-pointer rounded-lg border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 cursor-pointer rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 hover:shadow active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('managementTable.cancel')}
           </button>

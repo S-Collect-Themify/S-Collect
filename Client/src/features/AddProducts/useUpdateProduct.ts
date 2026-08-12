@@ -111,6 +111,10 @@ export const useUpdateProduct = () => {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
       queryClient.invalidateQueries({
         queryKey: ['product', variables.productId],
       });

@@ -10,7 +10,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="sidebar-page-container-header flex items-center justify-between mb-5 md:mb-10 bg-gray-50">
+      <div className="sidebar-page-container-header flex items-center justify-between mb-5 bg-gray-50">
         <h1 className="heading-page-title">{t('dashboard')}</h1>
       </div>
 

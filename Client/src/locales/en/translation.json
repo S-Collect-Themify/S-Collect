@@ -38,14 +38,18 @@
     }
   },
   "dashboardMetrics": {
-    "totalSales": "Total Sales",
+    "totalSales": "Total Sales (GMV)",
+    "totalOrders": "Total Sub-Orders",
     "numberOfOrders": "Number of Orders",
     "newOrders": "New Orders",
+    "pendingPayouts": "Pending Payout / Dues",
     "activeProducts": "Active Products",
     "unit": {
       "sar": "SAR",
       "order": "Order",
-      "product": "Product"
+      "orders": "Orders",
+      "product": "Items",
+      "items": "Items"
     }
   },
   "topSelling": {
@@ -674,7 +678,7 @@
   "returnsPage": {
     "title": "Return Requests",
     "breadcrumb": "Return Request Details",
-    "searchPlaceholder": "Search by ID or Customer...",
+    "searchPlaceholder": "Search by Product Name or Customer Name...",
     "allStatuses": "All Statuses",
     "last30Days": "Last 30 Days",
     "returnId": "Return ID",

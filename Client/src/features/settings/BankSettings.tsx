@@ -60,11 +60,10 @@ function InputField({
         maxLength={maxLength}
         disabled={disabled}
         {...registration}
-        className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${
-          error
+        className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${error
             ? 'border-red-400 text-red-600 focus:border-red-400'
             : 'border-gray-200 focus:border-gray-400'
-        } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
+          } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
       />
 
       <p
@@ -165,18 +164,16 @@ export default function BankAccountForm({
             },
             setValueAs: (value: string) => value?.toUpperCase() || '',
           })}
-          className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${
-            errors.iban
+          className={`mt-2 w-full rounded-xl border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none ${errors.iban
               ? 'border-red-400 text-red-600 focus:border-red-400'
               : 'border-gray-200 focus:border-gray-400'
-          } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
+            } disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed`}
         />
 
         <div className="mt-1.5 flex items-center justify-between">
           <p
-            className={`text-xs ${
-              errors.iban ? 'text-red-500' : 'text-gray-400'
-            }`}
+            className={`text-xs ${errors.iban ? 'text-red-500' : 'text-gray-400'
+              }`}
           >
             {errors.iban?.message || ' '}
           </p>
@@ -211,11 +208,10 @@ export default function BankAccountForm({
         <button
           type="submit"
           disabled={!isDirty || !isValid || isPending}
-          className={`rounded-xl px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold transition-colors cursor-pointer ${
-            isDirty && isValid && !isPending
+          className={`rounded-xl px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-semibold transition-colors cursor-pointer ${isDirty && isValid && !isPending
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'cursor-not-allowed bg-gray-100 text-gray-400'
-          }`}
+            }`}
         >
           {isPending ? t('settings.saving') : t('settings.bank.save')}
         </button>

@@ -292,6 +292,7 @@ export const searchVendorProducts = async (query: {
   search?: string;
   categoryId?: string;
   isActive?: boolean;
+  inStockOrAbove?: number;
 }) => {
   try {
     const { data } = await api.post('/vendor/products/search', query);

@@ -1,5 +1,6 @@
 import { Star, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getPaginationRange } from '../../../utils/pagination';
 
 export type ReviewFilter =
   | 'all'
@@ -159,9 +160,9 @@ function Pagination({
   totalPages: number;
   onPageChange?: (page: number) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const safeTotalPages = Math.max(1, totalPages || 1);
-  const pages = Array.from({ length: safeTotalPages }).map((_, i) => i + 1);
 
   return (
     <div className="flex items-center gap-1.5">
@@ -172,23 +173,32 @@ function Pagination({
         aria-label={t('productDetails.reviews.previousPage')}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
       >
-        <ChevronLeft size={16} />
+        {isArabic ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
-      {pages.map((p) => (
-        <button
-          key={p}
-          type="button"
-          onClick={() => onPageChange?.(p)}
-          className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${
-            p === page
-              ? 'bg-gray-900 text-white'
-              : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
+      {getPaginationRange(page, safeTotalPages).map((item, index) =>
+        item === '...' ? (
+          <span
+            key={`ellipsis-${index}`}
+            className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
+          >
+            ...
+          </span>
+        ) : (
+          <button
+            key={item}
+            type="button"
+            onClick={() => onPageChange?.(item)}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${
+              item === page
+                ? 'bg-gray-900 text-white'
+                : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            {item}
+          </button>
+        )
+      )}
 
       <button
         type="button"
@@ -197,7 +207,7 @@ function Pagination({
         aria-label={t('productDetails.reviews.nextPage')}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40"
       >
-        <ChevronRight size={16} />
+        {isArabic ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
       </button>
     </div>
   );

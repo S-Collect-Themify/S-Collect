@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Package } from 'lucide-react';
+import { Loader2, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSubOrders } from '../useSubOrders';
+import { getPaginationRange } from '../../../utils/pagination';
 import type { SubOrder, SubOrderStatus } from '../types/subOrder';
 import { STATUS_STYLES } from '../types/subOrder';
 import MobileSubOrderDetails from './MobileSubOrderDetails';
@@ -29,7 +30,8 @@ const FILTER_TABS = [
 ];
 
 const MobileIncomingOrders = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const [activeTab, setActiveTab] = useState('allOrders');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<SubOrder | null>(null);
@@ -207,20 +209,49 @@ const MobileIncomingOrders = () => {
                 {t('ordersPage.of', 'of')} {totalItems}
               </span>
               {totalPages > 1 && (
-                <div className="flex gap-1.5">
-                  {pageNumbers.map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setCurrentPage(n)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
-                        n === currentPage
-                          ? 'bg-gray-900 text-white border-gray-900'
-                          : 'border-gray-200 text-gray-500 bg-white hover:bg-gray-50'
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                    aria-label="Previous Page"
+                  >
+                    {isArabic ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                  </button>
+
+                  {getPaginationRange(currentPage, totalPages).map((item, index) =>
+                    item === '...' ? (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
+                      >
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        onClick={() => setCurrentPage(item)}
+                        className={`w-8 h-8 rounded-lg text-sm font-medium border transition-colors ${
+                          item === currentPage
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'border-gray-200 text-gray-500 bg-white hover:bg-gray-50'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+                    aria-label="Next Page"
+                  >
+                    {isArabic ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                  </button>
                 </div>
               )}
             </motion.div>
