@@ -48,11 +48,6 @@ export default function ProductTable() {
     isPending,
   } = useManagementActions();
 
-  const pageNumbers = Array.from(
-    { length: totalPages },
-    (_, index) => index + 1
-  );
-
   const handleDeleteSelected = () => {
     showDeleteConfirmation(
       'managementTable.deleteSelectedConfirmMessage',
