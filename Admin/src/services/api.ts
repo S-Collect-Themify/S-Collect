@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getErrorMessage, type ApiErrorResponseBody } from '../types/api';
-import { logoutAndRedirect, scheduleRefreshTokenExpiration } from './auth';
+import { logoutAndRedirect, saveAuthSession } from './auth';
 
 export class ServiceError extends Error {
   public readonly statusCode?: number;
@@ -175,13 +175,11 @@ api.interceptors.response.use(
         const data = response.data;
         const newAccessToken = data?.accessToken || data?.data?.accessToken || data?.token;
         const newRefreshToken = data?.refreshToken || data?.data?.refreshToken;
+        const expiresInSeconds =
+          data?.expiresInSeconds || data?.data?.expiresInSeconds;
 
         if (newAccessToken) {
-          localStorage.setItem('token', newAccessToken);
-          if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken);
-          }
-          scheduleRefreshTokenExpiration();
+          saveAuthSession(newAccessToken, newRefreshToken, expiresInSeconds);
 
           processQueue(null, newAccessToken);
           isRefreshing = false;
