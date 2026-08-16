@@ -44,6 +44,8 @@ export const clearTokens = (): void => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('tokenExpiresAt');
+  localStorage.removeItem('admin_user');
+  localStorage.removeItem('user');
 };
 
 export interface JwtPayload {

@@ -51,7 +51,7 @@ const mapStatus = (statusStr?: string | null): 'Active' | 'Inactive' => {
   return 'Inactive';
 };
 
-export const useAdminsData = () => {
+export const useAdminsData = (options?: { enabled?: boolean }) => {
   const queryClient = useQueryClient();
   const setViewMode = useAdminSettingsStore((s) => s.setViewMode);
   const setEditingAdmin = useAdminSettingsStore((s) => s.setEditingAdmin);
@@ -59,36 +59,45 @@ export const useAdminsData = () => {
   const adminsQuery = useQuery({
     queryKey: ADMINS_QUERY_KEY,
     queryFn: async (): Promise<AdminAccount[]> => {
-      const raw = await getAdminAccounts();
-      return raw.map((a: ApiAdminItem) => {
-        const fullName =
-          [a.firstName, a.lastName].filter(Boolean).join(' ').trim() ||
-          a.email?.split('@')[0] ||
-          'Admin';
+      try {
+        const raw = await getAdminAccounts();
+        return raw.map((a: ApiAdminItem) => {
+          const fullName =
+            [a.firstName, a.lastName].filter(Boolean).join(' ').trim() ||
+            a.email?.split('@')[0] ||
+            'Admin';
 
-        const rawDate = a.dateAdded || a.createdAt;
-        const formattedDate = rawDate
-          ? new Date(rawDate).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })
-          : '';
+          const rawDate = a.dateAdded || a.createdAt;
+          const formattedDate = rawDate
+            ? new Date(rawDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })
+            : '';
 
-        return {
-          id: a.id,
-          name: fullName,
-          firstName: a.firstName || '',
-          lastName: a.lastName || '',
-          email: a.email || '',
-          phoneNumber: a.phoneNumber || '',
-          role: mapRole(a.role),
-          status: mapStatus(a.status),
-          dateAdded: formattedDate,
-        };
-      });
+          return {
+            id: a.id,
+            name: fullName,
+            firstName: a.firstName || '',
+            lastName: a.lastName || '',
+            email: a.email || '',
+            phoneNumber: a.phoneNumber || '',
+            role: mapRole(a.role),
+            status: mapStatus(a.status),
+            dateAdded: formattedDate,
+          };
+        });
+      } catch (err: any) {
+        if (err?.response?.status === 403 || err?.status === 403) {
+          return [];
+        }
+        throw err;
+      }
     },
+    enabled: options?.enabled ?? true,
     staleTime: 2 * 60 * 1000,
+    retry: false,
   });
 
   const createAdminMutation = useMutation({
