@@ -1,0 +1,27 @@
+services:
+
+  client:
+    image: ghcr.io/moessam634/client:latest
+    container_name: client
+    restart: unless-stopped
+
+    ports:
+      - "3000:8080"
+
+    networks:
+      - frontend
+
+  admin:
+    image: ghcr.io/moessam634/admin:latest
+    container_name: admin
+    restart: unless-stopped
+
+    ports:
+      - "3001:8080"
+
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge
