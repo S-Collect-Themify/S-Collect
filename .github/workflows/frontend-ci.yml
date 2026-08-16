@@ -144,8 +144,8 @@ jobs:
           build-args: |
             VITE_API_URL=https://api.collect-s.com/api/v1
           tags: |
-            ghcr.io/${{ github.repository_owner }}/client:latest
-            ghcr.io/${{ github.repository_owner }}/client:${{ github.sha }}
+            ghcr.io/s-collect-themify/client:latest
+            ghcr.io/s-collect-themify/client:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -182,8 +182,8 @@ jobs:
           build-args: |
             VITE_API_URL=https://api.collect-s.com/api/v1
           tags: |
-            ghcr.io/${{ github.repository_owner }}/admin:latest
-            ghcr.io/${{ github.repository_owner }}/admin:${{ github.sha }}
+            ghcr.io/s-collect-themify/admin:latest
+            ghcr.io/s-collect-themify/admin:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
