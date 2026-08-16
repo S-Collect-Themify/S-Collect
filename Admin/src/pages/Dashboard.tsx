@@ -14,7 +14,7 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   const { fullName } = useAdminProfile();
-  const adminName = fullName || 'Admin';
+  const adminName = fullName;
 
   const dateRanges = [
     { key: 'last7Days', defaultLabel: 'Last 7 Days' },

@@ -138,7 +138,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
           <div>
             <p className="text-2xl font-bold">
-              {t('header.greeting', { name: userName || 'Admin', defaultValue: `Hello, ${userName || 'Admin'} 👋` })}
+              {t('header.greeting', { name: userName, defaultValue: `Hello, ${userName} 👋` })}
             </p>
             <p className="text-sm text-gray-400">{today}</p>
           </div>
