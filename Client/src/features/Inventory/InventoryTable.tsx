@@ -58,7 +58,7 @@ export const InventoryTable = ({
             <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
               {t(columns[5])}
             </th>
-          </tr>
+          </tr>  
         </thead>
         <tbody>
           {data.map((product, index) => (
