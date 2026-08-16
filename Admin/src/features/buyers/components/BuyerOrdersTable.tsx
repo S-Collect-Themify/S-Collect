@@ -40,7 +40,7 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
   const { t } = useTranslation();
 
   // Fetch ONLY 4 orders for the Buyer Details page
-  const { data, isLoading, isFetching } = useBuyerOrders(buyerAccountId, 1, 4);
+  const { data, isLoading } = useBuyerOrders(buyerAccountId, 1, 4);
 
   const orders = data?.items || [];
 
@@ -54,7 +54,7 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
         {isMobile ? t('buyers.details.recentOrders', 'Recent Orders') : t('buyers.details.allOrders', 'All Orders')}
       </h2>
 
-      {isLoading || isFetching ? (
+      {isLoading ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-8 space-y-3 shadow-2xs">
           <div className="h-4 w-40 bg-gray-200 animate-pulse rounded" />
           <div className="h-4 w-full bg-gray-100 animate-pulse rounded" />

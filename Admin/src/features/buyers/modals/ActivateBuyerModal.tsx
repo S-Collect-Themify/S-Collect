@@ -1,11 +1,12 @@
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle, X } from 'lucide-react';
+import { CheckCircle, X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface ActivateBuyerModalProps {
   isOpen: boolean;
   buyerName: string;
+  isPending?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -13,6 +14,7 @@ interface ActivateBuyerModalProps {
 export default function ActivateBuyerModal({
   isOpen,
   buyerName,
+  isPending,
   onConfirm,
   onCancel,
 }: ActivateBuyerModalProps) {
@@ -31,7 +33,7 @@ export default function ActivateBuyerModal({
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-            onClick={onCancel}
+            onClick={isPending ? undefined : onCancel}
           />
 
           {/* Modal */}
@@ -45,7 +47,8 @@ export default function ActivateBuyerModal({
             {/* Close X button */}
             <button
               onClick={onCancel}
-              className="absolute top-4 end-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              disabled={isPending}
+              className="absolute top-4 end-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer disabled:opacity-50"
             >
               <X size={18} />
             </button>
@@ -77,13 +80,16 @@ export default function ActivateBuyerModal({
             <div className="flex flex-col gap-2.5 w-full">
               <button
                 onClick={onConfirm}
-                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-lg bg-gray-950 hover:bg-gray-800 transition-colors cursor-pointer"
+                disabled={isPending}
+                className="w-full py-3 px-4 text-sm font-semibold text-white rounded-lg bg-gray-950 hover:bg-gray-800 transition-colors cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
+                {isPending && <Loader2 size={16} className="animate-spin" />}
                 {t('buyers.modals.activateBtn', 'Activate Buyer')}
               </button>
               <button
                 onClick={onCancel}
-                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                disabled={isPending}
+                className="w-full py-3 px-4 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {t('buyers.modals.cancel', 'Cancel')}
               </button>
