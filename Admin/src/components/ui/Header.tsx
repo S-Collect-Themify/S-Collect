@@ -6,6 +6,7 @@ import { Globe, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
+import { useAdminProfile } from '../../hooks/useAdminProfile';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -100,7 +101,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     }
   );
 
-  const userName = 'Ahmed';
+  const { fullName } = useAdminProfile();
+  const userName = fullName || 'Admin';
 
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
