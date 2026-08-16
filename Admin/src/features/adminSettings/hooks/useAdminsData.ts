@@ -44,12 +44,11 @@ const mapRole = (roleStr: string): string => {
   return roleStr;
 };
 
-const mapStatus = (statusStr?: string | null): 'Active' | 'Inactive' | '' => {
-  if (!statusStr) return '';
+const mapStatus = (statusStr?: string | null): 'Active' | 'Inactive' => {
+  if (!statusStr) return 'Inactive';
   const upper = statusStr.toUpperCase();
   if (upper === 'ACTIVE' || upper === 'ENABLED') return 'Active';
-  if (upper === 'INACTIVE' || upper === 'DISABLED') return 'Inactive';
-  return '';
+  return 'Inactive';
 };
 
 export const useAdminsData = () => {
@@ -147,9 +146,12 @@ export const useAdminsData = () => {
         err?.response?.data?.message || err?.message || 'Failed to toggle admin status'
       );
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const isActivating = data?.nextStatus === 'ACTIVE';
       toast.success(
-        i18n.language === 'ar' ? 'تم تحديث حالة المسؤول بنجاح' : 'Admin status updated successfully'
+        isActivating
+          ? (i18n.language === 'ar' ? 'تم تفعيل المسؤول بنجاح' : 'Admin reactivated successfully')
+          : (i18n.language === 'ar' ? 'تم إلغاء تفعيل المسؤول بنجاح' : 'Admin deactivated successfully')
       );
     },
     onSettled: () => {
