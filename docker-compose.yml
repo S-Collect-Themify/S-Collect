@@ -2,7 +2,7 @@ services:
 
   client:
     image: ghcr.io/s-collect-themify/client:latest
-    #container_name: client
+    container_name: client
     restart: unless-stopped
 
     ports:
@@ -13,7 +13,7 @@ services:
 
   admin:
     image: ghcr.io/s-collect-themify/admin:latest
-    #container_name: admin
+    container_name: admin
     restart: unless-stopped
 
     ports:
