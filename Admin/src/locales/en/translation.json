@@ -1217,9 +1217,9 @@
     "stats": {
       "activeVouchers": "Active Vouchers",
       "currentlyRunning": "{{count}} currently running",
-      "totalCosts": "Total Costs",
+      "totalCosts": "Total Cost Saved This Month",
       "withinBudget": "Within quarterly budget",
-      "redemptionsThisMonth": "Redemptions This Month",
+      "redemptionsThisMonth": "Total Usages This Month",
       "increaseFromLastWeek": "-% increase from last week"
     },
     "tabs": {
@@ -1264,7 +1264,8 @@
     },
     "actions": {
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "deactivate": "Deactivate"
     },
     "form": {
       "voucherCode": "Voucher Code *",

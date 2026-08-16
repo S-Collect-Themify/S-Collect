@@ -6,6 +6,7 @@ import type { VoucherItem } from '../types';
 interface VoucherTableProps {
   vouchers: VoucherItem[];
   onDeleteClick: (voucher: VoucherItem) => void;
+  onDeactivateClick?: (voucher: VoucherItem) => void;
 }
 
 interface CategoryRef {
@@ -70,7 +71,11 @@ const renderCategoryBadges = (
   );
 };
 
-export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => {
+export const VoucherTable = ({
+  vouchers,
+  onDeleteClick,
+  onDeactivateClick,
+}: VoucherTableProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { categories } = useCategories();
@@ -182,7 +187,7 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
                 </span>
               </td>
 
-              {/* Actions: Edit & Delete */}
+              {/* Actions: Edit, Deactivate & Delete */}
               <td className="py-3.5 px-3.5 text-center whitespace-nowrap">
                 <div className="flex items-center justify-center gap-2.5 text-xs font-semibold">
                   <button
@@ -192,6 +197,15 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
                   >
                     {t('vouchersListing.actions.edit')}
                   </button>
+                  {voucher.status === 'Active' && onDeactivateClick && (
+                    <button
+                      type="button"
+                      onClick={() => onDeactivateClick(voucher)}
+                      className="text-amber-600 hover:text-amber-700 transition-colors cursor-pointer"
+                    >
+                      {t('vouchersListing.actions.deactivate')}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => onDeleteClick(voucher)}

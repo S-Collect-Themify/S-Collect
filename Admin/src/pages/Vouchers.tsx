@@ -18,7 +18,7 @@ const Vouchers = () => {
   const { isMobile } = useBreakpoint();
 
   // ── Query & Mutation Hook ──
-  const { vouchersQuery, deleteMutation } = useVouchersData();
+  const { vouchersQuery, statsQuery, deleteMutation, deactivateMutation } = useVouchersData();
 
   // ── Store State ──
   const vouchers = useVoucherStore((s) => s.vouchers);
@@ -38,6 +38,17 @@ const Vouchers = () => {
   const activeCount = useMemo(() => {
     return vouchers.filter((v) => v.status === 'Active').length;
   }, [vouchers]);
+
+  const totalCostSavedThisMonth = useMemo(() => {
+    const val = statsQuery.data?.totalCostSavedThisMonth;
+    if (val === undefined || val === null) return 'SAR 0';
+    return `SAR ${Number(val).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  }, [statsQuery.data]);
+
+  const totalUsagesThisMonth = useMemo(() => {
+    const val = statsQuery.data?.totalUsagesThisMonth;
+    return val !== undefined && val !== null ? val : 0;
+  }, [statsQuery.data]);
 
   // ── Unique Voucher Types ──
   const availableTypes = useMemo(() => {
@@ -77,6 +88,14 @@ const Vouchers = () => {
     return filteredVouchers.slice(start, start + VOUCHERS_PER_PAGE);
   }, [filteredVouchers, currentPage]);
 
+  // ── Deactivate Voucher Handler ──
+  const handleDeactivate = (voucher: { id?: string; code?: string }) => {
+    const targetId = voucher.id || voucher.code;
+    if (targetId) {
+      deactivateMutation.mutate(targetId);
+    }
+  };
+
   // ── Confirm Delete Handler ──
   const handleConfirmDelete = () => {
     if (deleteModal.voucher) {
@@ -96,6 +115,8 @@ const Vouchers = () => {
         <VoucherStatCards
           activeCount={activeCount}
           runningCount={vouchers.length}
+          totalCostSavedThisMonth={totalCostSavedThisMonth}
+          totalUsagesThisMonth={totalUsagesThisMonth}
         />
 
         {/* Search & Filter Controls */}
@@ -112,6 +133,7 @@ const Vouchers = () => {
             <VoucherMobileList
               vouchers={paginatedVouchers}
               onDeleteClick={openDeleteModal}
+              onDeactivateClick={handleDeactivate}
             />
 
             {filteredVouchers.length > 0 && (
@@ -131,6 +153,7 @@ const Vouchers = () => {
             <VoucherTable
               vouchers={paginatedVouchers}
               onDeleteClick={openDeleteModal}
+              onDeactivateClick={handleDeactivate}
             />
 
             {filteredVouchers.length > 0 && (

@@ -1213,9 +1213,9 @@
     "stats": {
       "activeVouchers": "القسائم النشطة",
       "currentlyRunning": "{{count}} تعمل حالياً",
-      "totalCosts": "إجمالي التكاليف",
+      "totalCosts": "إجمالي التكاليف الموفرة هذا الشهر",
       "withinBudget": "ضمن ميزانية الربع",
-      "redemptionsThisMonth": "الاستخدامات هذا الشهر",
+      "redemptionsThisMonth": "إجمالي الاستخدامات هذا الشهر",
       "increaseFromLastWeek": "-% زيادة عن الأسبوع الماضي"
     },
     "tabs": {
@@ -1260,7 +1260,8 @@
     },
     "actions": {
       "edit": "تعديل",
-      "delete": "حذف"
+      "delete": "حذف",
+      "deactivate": "إلغاء التفعيل"
     },
     "form": {
       "voucherCode": "كود القسيمة *",

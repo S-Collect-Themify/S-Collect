@@ -1,13 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import i18n from '../../i18n';
 import {
   getVouchersList,
   getVoucherByIdApi,
+  getVoucherStatsApi,
   createVoucherApi,
   updateVoucherApi,
   deleteVoucherApi,
+  deactivateVoucherApi,
   type VoucherApiData,
   type BackendVoucherItem,
+  type VoucherStatsResponse,
 } from '../../services/vouchers';
 import { useVoucherStore } from './voucherStore';
 import { getVoucherStatus } from './utils';
@@ -98,6 +102,22 @@ export const useSingleVoucherQuery = (id?: string) => {
   });
 };
 
+
+export const useVoucherStatsQuery = () => {
+  return useQuery({
+    queryKey: ['admin-vouchers-stats'],
+    queryFn: async (): Promise<VoucherStatsResponse | null> => {
+      try {
+        return await getVoucherStatsApi();
+      } catch (err) {
+        console.warn('Vouchers stats API fetch exception:', err);
+        return null;
+      }
+    },
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+};
 
 const extractVouchersArray = (response: any): BackendVoucherItem[] => {
   if (!response) return [];
@@ -207,6 +227,9 @@ export const useVouchersData = () => {
     retry: 1,
   });
 
+  // ── Voucher Stats Query ──
+  const statsQuery = useVoucherStatsQuery();
+
   // ── Create Voucher Mutation ──
   const createMutation = useMutation({
     mutationFn: async (payload: VoucherApiData) => {
@@ -239,8 +262,11 @@ export const useVouchersData = () => {
       };
 
       addVoucherToStore(newVoucher);
-      toast.success('Voucher created successfully');
+      toast.success(
+        i18n.language === 'ar' ? 'تم إنشاء القسيمة بنجاح' : 'Voucher created successfully'
+      );
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vouchers-stats'] });
     },
     onError: (err: any) => {
       console.error('Create voucher error:', err?.response?.data || err);
@@ -266,8 +292,11 @@ export const useVouchersData = () => {
         status: getVoucherStatus(expiryDate),
         limitOnePerCustomer: variables.payload.limitOnePerCustomer ?? variables.payload.oneUsePerUser,
       });
-      toast.success('Voucher updated successfully');
+      toast.success(
+        i18n.language === 'ar' ? 'تم تحديث القسيمة بنجاح' : 'Voucher updated successfully'
+      );
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vouchers-stats'] });
     },
     onError: (err: any) => {
       console.error('Update voucher error:', err?.response?.data || err);
@@ -277,6 +306,26 @@ export const useVouchersData = () => {
     },
   });
 
+  // ── Deactivate Voucher Mutation ──
+  const deactivateMutation = useMutation({
+    mutationFn: async (voucherId: string) => {
+      return await deactivateVoucherApi(voucherId);
+    },
+    onSuccess: (_, voucherId) => {
+      updateVoucherInStore(voucherId, { status: 'Expired' });
+      toast.success(
+        i18n.language === 'ar' ? 'تم إلغاء تفعيل القسيمة بنجاح' : 'Voucher deactivated successfully'
+      );
+      queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vouchers-stats'] });
+    },
+    onError: (err: any) => {
+      console.error('Deactivate voucher error:', err?.response?.data || err);
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || err?.message;
+      const errorText = typeof serverMsg === 'string' ? serverMsg : 'Failed to deactivate voucher';
+      toast.error(errorText);
+    },
+  });
 
   // ── Delete Voucher Mutation ──
   const deleteMutation = useMutation({
@@ -288,18 +337,26 @@ export const useVouchersData = () => {
       closeDeleteModal();
     },
     onSuccess: () => {
-      toast.success('Voucher deleted successfully');
+      toast.success(
+        i18n.language === 'ar' ? 'تم حذف القسيمة بنجاح' : 'Voucher deleted successfully'
+      );
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-vouchers-stats'] });
     },
-    onError: () => {
-      toast.error('Failed to delete voucher');
+    onError: (err: any) => {
+      console.error('Delete voucher error:', err?.response?.data || err);
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || err?.message;
+      const errorText = typeof serverMsg === 'string' ? serverMsg : 'Failed to delete voucher';
+      toast.error(errorText);
     },
   });
 
   return {
     vouchersQuery,
+    statsQuery,
     createMutation,
     updateMutation,
+    deactivateMutation,
     deleteMutation,
   };
 };

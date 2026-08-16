@@ -170,6 +170,22 @@ export const createVoucherApi = async (voucherData: VoucherApiData) => {
 };
 
 
+export interface VoucherStatsResponse {
+  totalActiveVouchers: number;
+  totalUsagesThisMonth: number;
+  totalCostSavedThisMonth: number;
+}
+
+export const getVoucherStatsApi = async (): Promise<VoucherStatsResponse | null> => {
+  try {
+    const { data } = await api.get('/admin/vouchers/stats');
+    return data?.data || data;
+  } catch (err) {
+    console.warn('API getVoucherStatsApi fallback', err);
+    return null;
+  }
+};
+
 export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) => {
   try {
     const isCategory =
@@ -209,7 +225,6 @@ export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) 
       payload.categoryIds = catIds;
     }
 
-
     const minOrder = voucherData.minOrderAmount ?? voucherData.minOrder;
     if (minOrder !== undefined && minOrder !== '' && minOrder !== null) {
       const val = Number(minOrder);
@@ -233,7 +248,7 @@ export const updateVoucherApi = async (id: string, voucherData: VoucherApiData) 
       payload.oneUsePerUser = Boolean(oneUse);
     }
 
-    const { data } = await api.put(`/admin/vouchers/${id}`, payload);
+    const { data } = await api.patch(`/admin/vouchers/${id}`, payload);
     return data;
   } catch (err) {
     console.error(`Failed to update voucher ${id} via API:`, err);
@@ -247,6 +262,16 @@ export const deleteVoucherApi = async (id: string) => {
     return data;
   } catch (err) {
     console.error(`Failed to delete voucher ${id} via API:`, err);
+    throw err;
+  }
+};
+
+export const deactivateVoucherApi = async (id: string) => {
+  try {
+    const { data } = await api.patch(`/admin/vouchers/${id}/deactivate`);
+    return data;
+  } catch (err) {
+    console.error(`Failed to deactivate voucher ${id} via API:`, err);
     throw err;
   }
 };
