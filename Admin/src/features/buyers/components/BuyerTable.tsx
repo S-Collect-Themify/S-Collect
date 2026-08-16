@@ -39,7 +39,7 @@ export default function BuyerTable() {
   const clearSelection = useBuyerStore((s) => s.clearSelection);
 
   // ── React Query hook fetching from /api/v1/admin/buyers ─────────────────
-  const { data, isLoading, isFetching } = useAdminBuyers({
+  const { data, isLoading } = useAdminBuyers({
     pageNum: page,
     pageSize,
     status: statusFilter === 'all' ? undefined : statusFilter,

@@ -40,7 +40,7 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
   const { t } = useTranslation();
 
   // Fetch ONLY 4 orders for the Buyer Details page
-  const { data, isLoading, isFetching } = useBuyerOrders(buyerAccountId, 1, 4);
+  const { data, isLoading } = useBuyerOrders(buyerAccountId, 1, 4);
 
   const orders = data?.items || [];
 
