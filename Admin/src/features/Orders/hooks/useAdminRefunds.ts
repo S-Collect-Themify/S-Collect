@@ -76,6 +76,9 @@ export const useApproveAdminRefund = (refundId?: string) => {
       }
       queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-sales'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-orders-summary'] });
     },
     onError: (err: unknown) => {
       const errObj = err as { response?: { data?: { message?: string } }; message?: string };
@@ -103,6 +106,9 @@ export const useRejectAdminRefund = (refundId?: string) => {
       }
       queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-sales'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['revenue-overview-orders-summary'] });
     },
     onError: (err: unknown) => {
       const errObj = err as { response?: { data?: { message?: string } }; message?: string };

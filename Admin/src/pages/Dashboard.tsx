@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, ChevronDown } from 'lucide-react';
 import RevenueStatCards from '../features/dashboard/RevenueStatCards';
@@ -6,8 +6,8 @@ import RevenueSalesChart from '../features/dashboard/RevenueSalesChart';
 import OrdersStatusDonut from '../features/dashboard/OrdersStatusDonut';
 import VoucherOverviewSection from '../features/dashboard/VoucherOverviewSection';
 import TopPerformingVendorsSection from '../features/dashboard/TopPerformingVendorsSection';
-import DashboardSkeleton from '../features/dashboard/DashboardSkeleton';
 import PortalDropdown from '../components/ui/PortalDropdown';
+import { getDateFromToParams } from '../features/dashboard/hooks/useRevenueOverview';
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
@@ -21,14 +21,11 @@ export default function Dashboard() {
   ];
 
   const [dateRangeKey, setDateRangeKey] = useState('last30Days');
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Trigger brief skeleton loading state on mount or date range selection
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, [dateRangeKey]);
+  const { dateFrom, dateTo } = useMemo(
+    () => getDateFromToParams(dateRangeKey),
+    [dateRangeKey]
+  );
 
   return (
     <div className="flex-1 flex flex-col font-sans bg-gray-50/50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -54,7 +51,7 @@ export default function Dashboard() {
           <PortalDropdown
             minWidth={140}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden"
+            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
             trigger={({ isOpen, toggle }) => (
               <button
                 onClick={toggle}
@@ -97,30 +94,24 @@ export default function Dashboard() {
 
       {/* ── Main Content ── */}
       <main className="sidebar-page-container pb-10 space-y-6">
-        {isLoading ? (
-          <DashboardSkeleton />
-        ) : (
-          <>
-            {/* Top 4 Revenue Stat Cards */}
-            <RevenueStatCards />
+        {/* Top 4 Revenue Stat Cards */}
+        <RevenueStatCards dateFrom={dateFrom} dateTo={dateTo} />
 
-            {/* Sales Chart & Orders Donut Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
-              <div className="lg:col-span-2">
-                <RevenueSalesChart />
-              </div>
-              <div className="lg:col-span-1">
-                <OrdersStatusDonut />
-              </div>
-            </div>
+        {/* Sales Chart & Orders Donut Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+          <div className="lg:col-span-2">
+            <RevenueSalesChart dateFrom={dateFrom} dateTo={dateTo} />
+          </div>
+          <div className="lg:col-span-1">
+            <OrdersStatusDonut dateFrom={dateFrom} dateTo={dateTo} />
+          </div>
+        </div>
 
-            {/* Voucher Overview Section */}
-            <VoucherOverviewSection />
+        {/* Voucher Overview Section */}
+        <VoucherOverviewSection />
 
-            {/* Top Performing Vendors Section */}
-            <TopPerformingVendorsSection />
-          </>
-        )}
+        {/* Top Performing Vendors Section */}
+        <TopPerformingVendorsSection />
       </main>
     </div>
   );
