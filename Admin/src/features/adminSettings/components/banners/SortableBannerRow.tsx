@@ -30,6 +30,7 @@ const LINK_TYPE_CONFIG: Record<BannerLinkType, { label: string; icon: React.Reac
 export interface SortableBannerRowProps {
   banner: BannerItem;
   order: number;
+  isSuperAdmin?: boolean;
   onEdit: (banner: BannerItem) => void;
   onDelete: (banner: BannerItem) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -38,6 +39,7 @@ export interface SortableBannerRowProps {
 export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
   banner,
   order,
+  isSuperAdmin = true,
   onEdit,
   onDelete,
   t,
@@ -145,26 +147,28 @@ export const SortableBannerRow: React.FC<SortableBannerRowProps> = ({
       </td>
 
       {/* Actions */}
-      <td className="py-4 px-6 text-right rtl:text-left">
-        <div className="flex items-center justify-end rtl:justify-start gap-2">
-          <button
-            type="button"
-            onClick={() => onEdit(banner)}
-            className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
-            title={t('banners.edit', { defaultValue: 'Edit Banner' })}
-          >
-            <SquarePen size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(banner)}
-            className="p-1.5 rounded-lg border border-red-100 bg-red-50/40 text-red-500 hover:bg-red-100 transition-colors cursor-pointer"
-            title={t('banners.delete', { defaultValue: 'Delete Banner' })}
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </td>
+      {isSuperAdmin && (
+        <td className="py-4 px-6 text-right rtl:text-left">
+          <div className="flex items-center justify-end rtl:justify-start gap-2">
+            <button
+              type="button"
+              onClick={() => onEdit(banner)}
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
+              title={t('banners.edit', { defaultValue: 'Edit Banner' })}
+            >
+              <SquarePen size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(banner)}
+              className="p-1.5 rounded-lg border border-red-100 bg-red-50/40 text-red-500 hover:bg-red-100 transition-colors cursor-pointer"
+              title={t('banners.delete', { defaultValue: 'Delete Banner' })}
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </td>
+      )}
     </tr>
   );
 };

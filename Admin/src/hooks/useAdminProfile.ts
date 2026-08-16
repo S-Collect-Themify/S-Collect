@@ -45,12 +45,12 @@ export const useAdminProfile = () => {
       if (typeof decoded.name === 'string' && decoded.name) return decoded.name;
       if (typeof decoded.email === 'string' && decoded.email) return decoded.email.split('@')[0];
     }
-    return 'Admin';
+    return '';
   }, [currentAdmin, decoded]);
 
   return {
     admin: currentAdmin,
-    fullName: fullName || 'Admin',
+    fullName: fullName,
     isLoading,
     isError,
     error,

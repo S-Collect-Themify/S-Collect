@@ -89,7 +89,7 @@ const LanguageDropdown = () => {
 };
 
 const Header = ({ onMenuClick }: HeaderProps) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const today = new Date().toLocaleDateString(
     i18n.language === 'ar' ? 'ar-EG' : 'en-US',
@@ -102,7 +102,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   );
 
   const { fullName } = useAdminProfile();
-  const userName = fullName || 'Admin';
+  const userName = fullName;
 
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
@@ -138,7 +138,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
           <div>
             <p className="text-2xl font-bold">
-              Hello, {userName} 👋
+              {t('header.greeting', { name: userName || 'Admin', defaultValue: `Hello, ${userName || 'Admin'} 👋` })}
             </p>
             <p className="text-sm text-gray-400">{today}</p>
           </div>

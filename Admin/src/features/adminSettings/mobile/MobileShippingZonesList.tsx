@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { useShippingZonesData } from '../hooks/useShippingZonesData';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { getToken, getDecodedToken } from '../../../services/auth';
 import { ShippingZonesSkeleton } from '../components/skeletons/ShippingZonesSkeleton';
 import i18n from '../../../i18n';
 import Toggle from '../../../components/ui/Toggle';
@@ -11,10 +13,17 @@ export const MobileShippingZonesList: React.FC = () => {
   const { t } = useTranslation();
   const { setViewMode } = useAdminSettingsStore();
   const { shippingZones, isLoading, toggleZoneMutation } = useShippingZonesData();
+  const { admin: currentLoggedInAdmin } = useAdminProfile();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
+  const token = getToken();
+  const decoded = useMemo(() => getDecodedToken(token), [token]);
+  const roleStr = (currentLoggedInAdmin?.role || decoded?.role || '').toUpperCase();
+  const isSuperAdmin = roleStr === 'SUPER_ADMIN' || roleStr === 'SUPERADMIN' || roleStr === 'SUPER ADMIN';
+
   const handleToggleZone = (zone: any) => {
+    if (!isSuperAdmin) return;
     const targetCode = zone.code || zone.id;
     toggleZoneMutation.mutate({ code: targetCode, isEnabled: !zone.isActive });
   };
@@ -69,10 +78,24 @@ export const MobileShippingZonesList: React.FC = () => {
                 </div>
 
                 <div className="shrink-0">
-                  <Toggle
-                    checked={zone.isActive}
-                    onChange={() => handleToggleZone(zone)}
-                  />
+                  {isSuperAdmin ? (
+                    <Toggle
+                      checked={zone.isActive}
+                      onChange={() => handleToggleZone(zone)}
+                    />
+                  ) : (
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        zone.isActive
+                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50'
+                          : 'bg-red-50 text-red-500 border border-red-100/50'
+                      }`}
+                    >
+                      {zone.isActive
+                        ? t('common.active', { defaultValue: 'Active' })
+                        : t('common.inactive', { defaultValue: 'Inactive' })}
+                    </span>
+                  )}
                 </div>
               </div>
             ))

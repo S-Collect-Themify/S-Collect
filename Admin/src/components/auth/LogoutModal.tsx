@@ -30,10 +30,8 @@ const LogoutModal = ({
           {t('sidebar.items.logout')}
         </h2>
 
-        <p className="mt-3 text-center text-sm text-gray-500">
-          Are you sure you want to sign out of your account?
-          <br />
-          You will need to sign in again to access your dashboard.
+        <p className="mt-3 text-center text-sm text-gray-500 whitespace-pre-line leading-relaxed">
+          {t('sidebar.items.logoutDescription')}
         </p>
 
         <div className="mt-8 flex gap-3">

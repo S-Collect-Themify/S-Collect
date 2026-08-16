@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   PointerSensor,
   KeyboardSensor,
@@ -10,12 +10,19 @@ import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { getToken, getDecodedToken } from '../../../services/auth';
 import { BannersHeader } from './banners/BannersHeader';
 import { BannersTable } from './banners/BannersTable';
 import { SaveOrderBanner } from './banners/SaveOrderBanner';
 
 export const BannersList: React.FC = () => {
   const { setViewMode, setEditingBanner, openDeleteModal } = useAdminSettingsStore();
+  const { admin: currentLoggedInAdmin } = useAdminProfile();
+  const token = getToken();
+  const decoded = useMemo(() => getDecodedToken(token), [token]);
+  const roleStr = (currentLoggedInAdmin?.role || decoded?.role || '').toUpperCase();
+  const isSuperAdmin = roleStr === 'SUPER_ADMIN' || roleStr === 'SUPERADMIN' || roleStr === 'SUPER ADMIN';
 
   // Remote state management via React Query hooks
   const {
@@ -54,6 +61,7 @@ export const BannersList: React.FC = () => {
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!isSuperAdmin) return;
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = localBanners.findIndex((b) => b.id === active.id);
@@ -83,6 +91,7 @@ export const BannersList: React.FC = () => {
       {/* Header */}
       <BannersHeader
         bannersLoading={bannersLoading}
+        isSuperAdmin={isSuperAdmin}
         onRefresh={() => {
           setHasReordered(false);
           refetch();
@@ -102,6 +111,7 @@ export const BannersList: React.FC = () => {
       <BannersTable
         banners={localBanners}
         bannersLoading={bannersLoading}
+        isSuperAdmin={isSuperAdmin}
         sensors={sensors}
         onDragEnd={handleDragEnd}
         onEdit={handleEdit}
@@ -109,7 +119,7 @@ export const BannersList: React.FC = () => {
       />
 
       {/* Save Order Banner */}
-      {hasReordered && (
+      {hasReordered && isSuperAdmin && (
         <SaveOrderBanner
           isSavingOrder={saveOrderMutation.isPending}
           onSaveOrder={handleSaveOrder}

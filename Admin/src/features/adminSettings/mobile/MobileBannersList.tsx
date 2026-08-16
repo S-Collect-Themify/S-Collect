@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SquarePen, Trash2, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import i18n from '../../../i18n';
 import { useAdminSettingsStore } from '../store';
 import type { BannerItem, BannerLinkType } from '../types';
 import { useBannersData } from '../hooks/useBannersData';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { getToken, getDecodedToken } from '../../../services/auth';
 import { BannersSkeleton } from '../components/skeletons/BannersSkeleton';
 
 const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
@@ -17,8 +19,14 @@ const LINK_TYPE_COLOR: Record<BannerLinkType, string> = {
 export const MobileBannersList: React.FC = () => {
   const { t } = useTranslation();
   const { setViewMode, setEditingBanner, openDeleteModal } = useAdminSettingsStore();
+  const { admin: currentLoggedInAdmin } = useAdminProfile();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
+
+  const token = getToken();
+  const decoded = useMemo(() => getDecodedToken(token), [token]);
+  const roleStr = (currentLoggedInAdmin?.role || decoded?.role || '').toUpperCase();
+  const isSuperAdmin = roleStr === 'SUPER_ADMIN' || roleStr === 'SUPERADMIN' || roleStr === 'SUPER ADMIN';
 
   const { banners, isLoading: bannersLoading } = useBannersData();
 
@@ -65,17 +73,19 @@ export const MobileBannersList: React.FC = () => {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setEditingBanner(null);
-            setViewMode('banners-add');
-          }}
-          className="bg-black hover:bg-gray-800 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
-        >
-          <Plus size={14} />
-          <span>{t('banners.addNewBanner', { defaultValue: 'Add New' })}</span>
-        </button>
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingBanner(null);
+              setViewMode('banners-add');
+            }}
+            className="bg-black hover:bg-gray-800 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Plus size={14} />
+            <span>{t('banners.addNewBanner', { defaultValue: 'Add New' })}</span>
+          </button>
+        )}
       </div>
 
       {/* Cards List */}
@@ -139,24 +149,26 @@ export const MobileBannersList: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(banner)}
-                    className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
-                    title={t('banners.edit.title', { defaultValue: 'Edit Banner' })}
-                  >
-                    <SquarePen size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openDeleteModal(banner)}
-                    className="p-1.5 rounded-lg border border-red-100 bg-red-50/40 text-red-500 hover:bg-red-100 transition-colors cursor-pointer"
-                    title={t('banners.delete', { defaultValue: 'Delete Banner' })}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
+                {isSuperAdmin && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(banner)}
+                      className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-black transition-colors cursor-pointer"
+                      title={t('banners.edit.title', { defaultValue: 'Edit Banner' })}
+                    >
+                      <SquarePen size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openDeleteModal(banner)}
+                      className="p-1.5 rounded-lg border border-red-100 bg-red-50/40 text-red-500 hover:bg-red-100 transition-colors cursor-pointer"
+                      title={t('banners.delete', { defaultValue: 'Delete Banner' })}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}

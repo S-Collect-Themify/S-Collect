@@ -5,6 +5,9 @@
     "placeholder": "Search products, categories...",
     "trySearching": "Try searching: shoes, jackets, electronics..."
   },
+  "header": {
+    "greeting": "Hello, {{name}} 👋"
+  },
   "dashboard": "Dashboard",
   "dashboardOverview": {
     "hello": "Hello, Ahmed 👋",
@@ -130,6 +133,7 @@
       "buyers": "Buyers",
       "adminSettings": "Settings",
       "logout": "Logout",
+      "logoutDescription": "Are you sure you want to sign out of your account?\nYou will need to sign in again to access your dashboard.",
       "cancel": "Cancel",
       "signOut": "Sign Out",
       "signingOut": "Signing out..."
@@ -1350,6 +1354,8 @@
       "description": "Manage platform admin accounts and permissions",
       "button": "Manage Admins",
       "addBtn": "Add New Admin",
+      "restrictedAccessTitle": "Super Admin Access Required",
+      "restrictedAccessMessage": "Only Super Administrators have permission to view, create, and manage the full list of admin accounts.",
       "addTitle": "Add New Admin",
       "editTitle": "Edit Admin",
       "profileImage": "Admin Profile Image (Optional, Max 2MB)",
