@@ -47,14 +47,14 @@ export const AdminsSkeleton: React.FC<AdminsSkeletonProps> = ({ isMobile = false
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs border-collapse">
+      <table className="w-full text-left rtl:text-right text-xs border-collapse">
         <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
           <tr>
-            <th className="py-4 px-6">Name</th>
-            <th className="py-4 px-6">Email</th>
-            <th className="py-4 px-6">Role</th>
-            <th className="py-4 px-6">Status</th>
-            <th className="py-4 px-6">Date Added</th>
+            <th className="py-4 px-6 text-left rtl:text-right">Name</th>
+            <th className="py-4 px-6 text-left rtl:text-right">Email</th>
+            <th className="py-4 px-6 text-left rtl:text-right">Role</th>
+            <th className="py-4 px-6 text-left rtl:text-right">Status</th>
+            <th className="py-4 px-6 text-left rtl:text-right">Date Added</th>
             <th className="py-4 px-6 text-right rtl:text-left">Actions</th>
           </tr>
         </thead>

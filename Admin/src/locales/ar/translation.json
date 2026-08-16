@@ -5,6 +5,9 @@
     "placeholder": "ابحث عن المنتجات، الفئات...",
     "trySearching": "جرب البحث: أحذية، جاكيتات، إلكترونيات..."
   },
+  "header": {
+    "greeting": "مرحباً، {{name}} 👋"
+  },
   "dashboard": "لوحة التحكم",
   "dashboardOverview": {
     "hello": "مرحباً، أحمد 👋",
@@ -129,6 +132,7 @@
       "buyers": "المشترون",
       "adminSettings": "الإعدادات",
       "logout": "تسجيل الخروج",
+      "logoutDescription": "هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟\nستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى لوحة التحكم.",
       "cancel": "إلغاء",
       "signOut": "تسجيل الخروج",
       "signingOut": "جارٍ تسجيل الخروج..."
@@ -1346,6 +1350,8 @@
       "description": "إدارة حسابات وصلاحيات مسؤولي المنصة",
       "button": "إدارة المسؤولين",
       "addBtn": "إضافة مسؤول جديد",
+      "restrictedAccessTitle": "يتطلب صلاحية المشرف العام (Super Admin)",
+      "restrictedAccessMessage": "فقط المشرف العام (Super Admin) يمتلك صلاحية عرض وإضافة وإدارة قائمة المسؤولين.",
       "addTitle": "إضافة مسؤول جديد",
       "editTitle": "تعديل المسؤول",
       "profileImage": "صورة ملف المسؤول (اختياري، حد أقصى 2 ميجابايت)",
@@ -1381,6 +1387,9 @@
     "confirmDeleteAdminTitle": "تأكيد حذف المسؤول",
     "confirmDeleteAdminDesc": "هل أنت تأكد من إزالة هذا المسؤول؟ سيفقد كل صلاحيات الوصول إلى المنصة.",
     "deleteAdminBtn": "حذف المسؤول",
+    "confirmReactivateAdminTitle": "تأكيد إعادة تفعيل المسؤول",
+    "confirmReactivateAdminDesc": "هل أنت متأكد من إعادة تفعيل هذا المسؤول؟ سيستعيد حق الوصول إلى المنصة.",
+    "reactivateAdminBtn": "إعادة تفعيل المسؤول",
     "cannotDeleteSuperAdminTitle": "لا يمكن حذف المسؤول الفائق (Super Admin)",
     "cannotDeleteSuperAdminDesc": "لا يمكن حذف حسابات المسؤول الفائق. يرجى نقل صلاحيات المسؤول الفائق إلى مسؤول آخر أولاً.",
     "emailExistsTitle": "البريد الإلكتروني موجود بالفعل",

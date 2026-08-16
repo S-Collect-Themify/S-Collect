@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Trash2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Plus, Trash2, ChevronRight, ChevronLeft, ShieldAlert } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { useAdminsData } from '../hooks/useAdminsData';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { getToken, getDecodedToken } from '../../../services/auth';
 import { AdminsSkeleton } from './skeletons/AdminsSkeleton';
 import Toggle from '../../../components/ui/Toggle';
 import type { AdminAccount } from '../types';
@@ -10,13 +12,23 @@ import i18n from '../../../i18n';
 
 export const AdminsList: React.FC = () => {
   const { t } = useTranslation();
-  const { setViewMode, setEditingAdmin, openDeleteAdminModal } = useAdminSettingsStore();
+  const { setViewMode, setEditingAdmin, openDeleteAdminModal, openReactivateAdminModal } = useAdminSettingsStore();
   const { admins, isLoading, toggleStatusMutation } = useAdminsData();
+  const { admin: currentLoggedInAdmin } = useAdminProfile();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
 
+  const token = getToken();
+  const decoded = useMemo(() => getDecodedToken(token), [token]);
+  const roleStr = (currentLoggedInAdmin?.role || decoded?.role || '').toUpperCase();
+  const isSuperAdmin = roleStr === 'SUPER_ADMIN' || roleStr === 'SUPERADMIN' || roleStr === 'SUPER ADMIN';
+
   const handleToggleStatus = (admin: AdminAccount) => {
-    toggleStatusMutation.mutate({ id: admin.id, currentStatus: admin.status });
+    if (admin.status !== 'Active') {
+      openReactivateAdminModal(admin);
+    } else {
+      toggleStatusMutation.mutate({ id: admin.id, currentStatus: admin.status });
+    }
   };
 
   const handleDelete = (admin: AdminAccount) => {
@@ -56,120 +68,142 @@ export const AdminsList: React.FC = () => {
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setEditingAdmin(null);
-            setViewMode('admins-add');
-          }}
-          className="bg-black hover:bg-gray-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
-        >
-          <Plus size={14} />
-          {t('adminSettings.adminAccounts.addBtn', { defaultValue: 'Add New Admin' })}
-        </button>
-      </div>
 
-      {/* Admins Table Container */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-        {isLoading ? (
-          <AdminsSkeleton />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
-                <tr>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.name', { defaultValue: 'Name' })}</th>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.email', { defaultValue: 'Email' })}</th>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.role', { defaultValue: 'Role' })}</th>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.dateAdded', { defaultValue: 'Date Added' })}</th>
-                  <th className="py-4 px-6">{t('adminSettings.adminAccounts.table.status', { defaultValue: 'Status' })}</th>
-                  <th className="py-4 px-6 text-right rtl:text-left">{t('adminSettings.adminAccounts.table.actions', { defaultValue: 'Actions' })}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {admins.map((admin) => {
-                  const isSuperAdmin =
-                    admin.role === 'Super Admin' || admin.role?.toUpperCase() === 'SUPER_ADMIN';
-
-                  return (
-                    <tr key={admin.id} className="hover:bg-gray-50/50 transition-colors">
-                      {/* Name (No Avatar Image) */}
-                      <td className="py-4 px-6 font-semibold text-gray-900">
-                        {admin.name}
-                      </td>
-
-                      {/* Email */}
-                      <td className="py-4 px-6 text-gray-500">{admin.email}</td>
-
-                      {/* Role Badge */}
-                      <td className="py-4 px-6">
-                        <span
-                          className={`px-3 py-1 rounded-full font-medium text-xs inline-block ${getRoleBadgeColor(
-                            admin.role
-                          )}`}
-                        >
-                          {admin.role}
-                        </span>
-                      </td>
-
-                      {/* Date Added */}
-                      <td className="py-4 px-6 text-gray-500">{admin.dateAdded}</td>
-
-                      {/* Status Toggle & Badge */}
-                      <td className="py-4 px-6">
-                        {admin.status ? (
-                          <div className="flex items-center gap-2.5">
-                            {!isSuperAdmin && (
-                              <Toggle
-                                checked={admin.status === 'Active'}
-                                onChange={() => handleToggleStatus(admin)}
-                              />
-                            )}
-                            <span
-                              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                                admin.status === 'Active'
-                                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50'
-                                  : 'bg-red-50 text-red-500 border border-red-100/50'
-                              }`}
-                            >
-                              {admin.status === 'Active'
-                                ? t('common.active', { defaultValue: 'Active' })
-                                : t('common.inactive', { defaultValue: 'Inactive' })}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-300 font-medium">-</span>
-                        )}
-                      </td>
-
-                    {/* Actions (Delete only) */}
-                    <td className="py-4 px-6 text-right rtl:text-left">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(admin)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Admin"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  );
-                })}
-                {admins.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400">
-                      No admin accounts found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingAdmin(null);
+              setViewMode('admins-add');
+            }}
+            className="bg-black hover:bg-gray-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
+          >
+            <Plus size={14} />
+            {t('adminSettings.adminAccounts.addBtn', { defaultValue: 'Add New Admin' })}
+          </button>
         )}
       </div>
+
+      {/* Main Content: Centered message if not superadmin, or table if superadmin */}
+      {!isSuperAdmin ? (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs p-12 min-h-[360px] flex flex-col items-center justify-center text-center">
+          <div className="size-16 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center mb-4 text-amber-600">
+            <ShieldAlert size={30} />
+          </div>
+          <h3 className="text-base font-bold text-gray-900 mb-2">
+            {t('adminSettings.adminAccounts.restrictedAccessTitle', {
+              defaultValue: 'Super Admin Access Required',
+            })}
+          </h3>
+          <p className="text-xs text-gray-500 max-w-md leading-relaxed">
+            {t('adminSettings.adminAccounts.restrictedAccessMessage', {
+              defaultValue:
+                'Only Super Administrators have permission to view, create, and manage the full list of admin accounts.',
+            })}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
+          {isLoading ? (
+            <AdminsSkeleton />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left rtl:text-right text-xs border-collapse">
+                <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
+                  <tr>
+                    <th className="py-4 px-6 text-left rtl:text-right">{t('adminSettings.adminAccounts.table.name', { defaultValue: 'Name' })}</th>
+                    <th className="py-4 px-6 text-left rtl:text-right">{t('adminSettings.adminAccounts.table.email', { defaultValue: 'Email' })}</th>
+                    <th className="py-4 px-6 text-left rtl:text-right">{t('adminSettings.adminAccounts.table.role', { defaultValue: 'Role' })}</th>
+                    <th className="py-4 px-6 text-left rtl:text-right">{t('adminSettings.adminAccounts.table.dateAdded', { defaultValue: 'Date Added' })}</th>
+                    <th className="py-4 px-6 text-left rtl:text-right">{t('adminSettings.adminAccounts.table.status', { defaultValue: 'Status' })}</th>
+                    <th className="py-4 px-6 text-right rtl:text-left">{t('adminSettings.adminAccounts.table.actions', { defaultValue: 'Actions' })}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {admins.map((admin) => {
+                    const isSuperAdminRow =
+                      admin.role === 'Super Admin' || admin.role?.toUpperCase() === 'SUPER_ADMIN';
+
+                    return (
+                      <tr key={admin.id} className="hover:bg-gray-50/50 transition-colors">
+                        {/* Name (No Avatar Image) */}
+                        <td className="py-4 px-6 font-semibold text-gray-900 text-left rtl:text-right">
+                          {admin.name}
+                        </td>
+
+                        {/* Email */}
+                        <td className="py-4 px-6 text-gray-500 text-left rtl:text-right">{admin.email}</td>
+
+                        {/* Role Badge */}
+                        <td className="py-4 px-6 text-left rtl:text-right">
+                          <span
+                            className={`px-3 py-1 rounded-full font-medium text-xs inline-block ${getRoleBadgeColor(
+                              admin.role
+                            )}`}
+                          >
+                            {admin.role}
+                          </span>
+                        </td>
+
+                        {/* Date Added */}
+                        <td className="py-4 px-6 text-gray-500 text-left rtl:text-right">{admin.dateAdded}</td>
+
+                        {/* Status Toggle & Badge */}
+                        <td className="py-4 px-6 text-left rtl:text-right">
+                          {admin.status ? (
+                            <div className="flex items-center gap-2.5 rtl:justify-start">
+                              {!isSuperAdminRow && (
+                                <Toggle
+                                  checked={admin.status === 'Active'}
+                                  onChange={() => handleToggleStatus(admin)}
+                                />
+                              )}
+                              <span
+                                className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                                  admin.status === 'Active'
+                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50'
+                                    : 'bg-red-50 text-red-500 border border-red-100/50'
+                                }`}
+                              >
+                                {admin.status === 'Active'
+                                  ? t('common.active', { defaultValue: 'Active' })
+                                  : t('common.inactive', { defaultValue: 'Inactive' })}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-gray-300 font-medium">-</span>
+                          )}
+                        </td>
+
+                      {/* Actions (Delete only) */}
+                      <td className="py-4 px-6 text-right rtl:text-left">
+                        <div className="flex items-center justify-end rtl:justify-start gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(admin)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="Delete Admin"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    );
+                  })}
+                  {admins.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-gray-400">
+                        No admin accounts found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

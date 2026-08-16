@@ -9,6 +9,7 @@ import { DeleteBannerModal as DeleteBannerModalComponent } from '../features/adm
 import { AdminsList } from '../features/adminSettings/components/AdminsList';
 import { AdminForm } from '../features/adminSettings/components/AdminForm';
 import { DeleteAdminModal } from '../features/adminSettings/components/DeleteAdminModal';
+import { ReactivateAdminModal } from '../features/adminSettings/components/ReactivateAdminModal';
 import { EmailExistsModal } from '../features/adminSettings/components/EmailExistsModal';
 import { ShippingZonesList } from '../features/adminSettings/components/ShippingZonesList';
 import { DisableZoneModal } from '../features/adminSettings/components/DisableZoneModal';
@@ -148,6 +149,7 @@ const AdminSettings: React.FC = () => {
       {/* Modals */}
       <DeleteBannerModalComponent />
       <DeleteAdminModal />
+      <ReactivateAdminModal />
       <EmailExistsModal />
       <DisableZoneModal />
     </div>

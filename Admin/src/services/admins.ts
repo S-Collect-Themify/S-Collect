@@ -49,15 +49,48 @@ export const deleteAdminAccount = async (id: string): Promise<void> => {
   await api.delete(`/admin/admins/${id}`);
 };
 
+export const activateAdminApi = async (id: string): Promise<ApiAdminItem> => {
+  try {
+    const { data } = await api.patch(`/admin/admins/${id}/activate`);
+    return data?.data || data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const { data } = await api.post(`/admin/admins/${id}/activate`);
+        return data?.data || data;
+      } catch {
+        const { data } = await api.patch(`/admin/admins/${id}`, { status: 'ACTIVE' });
+        return data?.data || data;
+      }
+    }
+    throw err;
+  }
+};
+
+export const deactivateAdminApi = async (id: string): Promise<ApiAdminItem> => {
+  try {
+    const { data } = await api.patch(`/admin/admins/${id}/deactivate`);
+    return data?.data || data;
+  } catch (err: any) {
+    if (err?.response?.status === 404 || err?.response?.status === 405) {
+      try {
+        const { data } = await api.post(`/admin/admins/${id}/deactivate`);
+        return data?.data || data;
+      } catch {
+        const { data } = await api.patch(`/admin/admins/${id}`, { status: 'INACTIVE' });
+        return data?.data || data;
+      }
+    }
+    throw err;
+  }
+};
+
 export const toggleAdminStatusApi = async (
   id: string,
   newStatus: 'ACTIVE' | 'INACTIVE'
 ): Promise<ApiAdminItem> => {
-  try {
-    const { data } = await api.patch(`/admin/admins/${id}/status`, { status: newStatus });
-    return data?.data || data;
-  } catch {
-    const { data } = await api.patch(`/admin/admins/${id}`, { status: newStatus });
-    return data?.data || data;
+  if (newStatus === 'ACTIVE') {
+    return activateAdminApi(id);
   }
+  return deactivateAdminApi(id);
 };
