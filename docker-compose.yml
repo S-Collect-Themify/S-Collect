@@ -1,7 +1,7 @@
 services:
 
   client:
-    image: ghcr.io/moessam634/client:latest
+    image: ghcr.io/s-collect-themify/client:latest
     container_name: client
     restart: unless-stopped
 
@@ -12,7 +12,7 @@ services:
       - frontend
 
   admin:
-    image: ghcr.io/moessam634/admin:latest
+    image: ghcr.io/s-collect-themify/admin:latest
     container_name: admin
     restart: unless-stopped
 
