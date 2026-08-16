@@ -43,7 +43,7 @@ RUN addgroup -g 1001 -S appgroup \
 
 USER appuser
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["nginx", "-g", "daemon off;"]
 
