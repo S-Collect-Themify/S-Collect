@@ -110,11 +110,15 @@ function App() {
       <Toaster
         position="top-right"
         reverseOrder={false}
+        containerStyle={{
+          zIndex: 99999,
+        }}
         toastOptions={{
           duration: 3000,
           style: {
             background: '#1f2937',
             color: '#fff',
+            zIndex: 99999,
           },
           success: {
             iconTheme: {

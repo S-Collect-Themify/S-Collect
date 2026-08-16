@@ -2,7 +2,10 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Search } from 'lucide-react';
 import { useBuyerStore } from '../store/buyerStore';
-import { useAdminBuyers } from '../hooks/useBuyers';
+import { useAdminBuyers, useUpdateBuyerStatus } from '../hooks/useBuyers';
+import { updateBuyerStatus } from '../../../services/buyers';
+import { useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import BuyerDesktopTable from './BuyerDesktopTable';
 import BuyerMobileList from './BuyerMobileList';
 import BuyerPagination from './BuyerPagination';
@@ -36,7 +39,7 @@ export default function BuyerTable() {
   const clearSelection = useBuyerStore((s) => s.clearSelection);
 
   // ── React Query hook fetching from /api/v1/admin/buyers ─────────────────
-  const { data, isLoading, isFetching } = useAdminBuyers({
+  const { data, isLoading } = useAdminBuyers({
     pageNum: page,
     pageSize,
     status: statusFilter === 'all' ? undefined : statusFilter,
@@ -83,6 +86,9 @@ export default function BuyerTable() {
     ids: string[];
   }>({ isOpen: false, type: 'activate', ids: [] });
 
+  const queryClient = useQueryClient();
+  const updateStatusMutation = useUpdateBuyerStatus();
+
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
 
@@ -95,28 +101,56 @@ export default function BuyerTable() {
     }
   };
 
-  const handleActivateConfirm = () => {
+  const handleActivateConfirm = async () => {
     if (activateModal.buyer) {
-      activateBuyer(activateModal.buyer.id);
+      const buyerId = activateModal.buyer.id;
+      try {
+        await updateStatusMutation.mutateAsync({ id: buyerId, status: 'ACTIVE' });
+        activateBuyer(buyerId);
+        setActivateModal({ isOpen: false, buyer: null });
+      } catch {
+        // Error toast handled by mutation hook
+      }
     }
-    setActivateModal({ isOpen: false, buyer: null });
   };
 
-  const handleSuspendConfirm = (reason: string) => {
+  const handleSuspendConfirm = async () => {
     if (suspendModal.buyer) {
-      suspendBuyer(suspendModal.buyer.id, reason);
+      const buyerId = suspendModal.buyer.id;
+      try {
+        await updateStatusMutation.mutateAsync({ id: buyerId, status: 'DEACTIVATED' });
+        suspendBuyer(buyerId);
+        setSuspendModal({ isOpen: false, buyer: null });
+      } catch {
+        // Error toast handled by mutation hook
+      }
     }
-    setSuspendModal({ isOpen: false, buyer: null });
   };
 
-  const handleBulkActivateConfirm = () => {
-    bulkActivate(bulkConfirmModal.ids);
+  const handleBulkActivateConfirm = async () => {
+    const ids = bulkConfirmModal.ids;
     setBulkConfirmModal({ isOpen: false, type: 'activate', ids: [] });
+    try {
+      await Promise.all(ids.map((id) => updateBuyerStatus(id, 'ACTIVE')));
+      bulkActivate(ids);
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      toast.success('Selected buyers activated successfully');
+    } catch {
+      toast.error('Failed to activate selected buyers');
+    }
   };
 
-  const handleBulkSuspendConfirm = () => {
-    bulkSuspend(bulkConfirmModal.ids, undefined);
+  const handleBulkSuspendConfirm = async () => {
+    const ids = bulkConfirmModal.ids;
     setBulkConfirmModal({ isOpen: false, type: 'suspend', ids: [] });
+    try {
+      await Promise.all(ids.map((id) => updateBuyerStatus(id, 'DEACTIVATED')));
+      bulkSuspend(ids, undefined);
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      toast.success('Selected buyers deactivated successfully');
+    } catch {
+      toast.error('Failed to deactivate selected buyers');
+    }
   };
 
   const startItem = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -206,7 +240,7 @@ export default function BuyerTable() {
       {/* Desktop Table */}
       <BuyerDesktopTable
         paginated={paginated}
-        isLoading={isLoading || isFetching}
+        isLoading={isLoading}
         allChecked={allChecked}
         toggleAll={toggleAll}
         selectedRows={selectedRows}
@@ -217,7 +251,7 @@ export default function BuyerTable() {
       {/* Mobile List */}
       <BuyerMobileList
         paginated={paginated}
-        isLoading={isLoading || isFetching}
+        isLoading={isLoading}
         allChecked={allChecked}
         toggleAll={toggleAll}
         selectedCount={selectedCount}
@@ -254,6 +288,7 @@ export default function BuyerTable() {
       <ActivateBuyerModal
         isOpen={activateModal.isOpen}
         buyerName={activateModal.buyer?.name ?? ''}
+        isPending={updateStatusMutation.isPending}
         onConfirm={handleActivateConfirm}
         onCancel={() => setActivateModal({ isOpen: false, buyer: null })}
       />
@@ -262,6 +297,7 @@ export default function BuyerTable() {
       <SuspendBuyerModal
         isOpen={suspendModal.isOpen}
         buyerName={suspendModal.buyer?.name ?? ''}
+        isPending={updateStatusMutation.isPending}
         onConfirm={handleSuspendConfirm}
         onCancel={() => setSuspendModal({ isOpen: false, buyer: null })}
       />
