@@ -12,8 +12,15 @@ export const checkVoucherExpired = (expiryDate?: string): boolean => {
 
 export const getVoucherStatus = (
   expiryDate?: string,
-  isActive?: boolean | string
+  isActive?: boolean | string,
+  usedCount?: number,
+  maxUsage?: number | string
 ): VoucherStatus => {
+  const max = Number(maxUsage);
+  const used = Number(usedCount);
+  if (!isNaN(max) && !isNaN(used) && max > 0 && used >= max) {
+    return 'Limit Reached';
+  }
   if (isActive === false) {
     return 'Expired';
   }

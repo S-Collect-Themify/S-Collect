@@ -1258,7 +1258,8 @@
     },
     "statuses": {
       "active": "نشطة",
-      "expired": "منتهية"
+      "expired": "منتهية",
+      "reachedLimit": "وصل للحد الأقصى"
     },
     "actions": {
       "edit": "تعديل",

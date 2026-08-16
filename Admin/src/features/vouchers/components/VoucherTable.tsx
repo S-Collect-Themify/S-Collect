@@ -178,11 +178,15 @@ export const VoucherTable = ({
                   className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
                     voucher.status === 'Active'
                       ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                      : voucher.status === 'Limit Reached'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
                       : 'bg-red-50 text-red-600 border-red-100'
                   }`}
                 >
                   {voucher.status === 'Active'
                     ? t('vouchersListing.statuses.active')
+                    : voucher.status === 'Limit Reached'
+                    ? t('vouchersListing.statuses.reachedLimit', { defaultValue: 'Limit Reached' })
                     : t('vouchersListing.statuses.expired')}
                 </span>
               </td>

@@ -61,7 +61,7 @@ const Vouchers = () => {
     return vouchers.filter((item) => {
       // Mobile Active/Expired/All Tab Filter
       if (activeTab === 'active' && item.status !== 'Active') return false;
-      if (activeTab === 'expired' && item.status !== 'Expired') return false;
+      if (activeTab === 'expired' && item.status !== 'Expired' && item.status !== 'Limit Reached') return false;
 
       // Search Query Filter
       if (search.trim()) {

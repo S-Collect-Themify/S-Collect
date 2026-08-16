@@ -99,16 +99,24 @@ export const VoucherMobileList = ({
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border ${
                 voucher.status === 'Active'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : voucher.status === 'Limit Reached'
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
                   : 'bg-rose-50 text-rose-700 border-rose-200'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  voucher.status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500'
+                  voucher.status === 'Active'
+                    ? 'bg-emerald-500'
+                    : voucher.status === 'Limit Reached'
+                    ? 'bg-amber-500'
+                    : 'bg-rose-500'
                 }`}
               />
               {voucher.status === 'Active'
                 ? t('vouchersListing.statuses.active')
+                : voucher.status === 'Limit Reached'
+                ? t('vouchersListing.statuses.reachedLimit', { defaultValue: 'Reached Limit' })
                 : t('vouchersListing.statuses.expired')}
             </span>
           </div>

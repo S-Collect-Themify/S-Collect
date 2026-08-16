@@ -76,7 +76,7 @@ export const mapBackendVoucherToItem = (v: any): VoucherItem => {
     usedCount,
     maxUsage,
     expiryDate,
-    status: getVoucherStatus(endsAtStr || expiryDate, v.isActive),
+    status: getVoucherStatus(endsAtStr || expiryDate, v.isActive, usedCount, maxUsage),
     limitOnePerCustomer: limitOne,
   };
 };
@@ -210,7 +210,7 @@ export const useVouchersData = () => {
               usedCount,
               maxUsage,
               expiryDate,
-              status: getVoucherStatus(endsAtStr || expiryDate, v.isActive),
+              status: getVoucherStatus(endsAtStr || expiryDate, v.isActive, usedCount, maxUsage),
               limitOnePerCustomer: limitOne,
             };
           });
@@ -257,7 +257,7 @@ export const useVouchersData = () => {
         usedCount: 0,
         maxUsage: variables.maxUsage || variables.maxTotalUses || 100,
         expiryDate,
-        status: getVoucherStatus(expiryDate),
+        status: getVoucherStatus(expiryDate, true, 0, variables.maxUsage || variables.maxTotalUses || 100),
         limitOnePerCustomer: variables.limitOnePerCustomer ?? variables.oneUsePerUser ?? false,
       };
 
@@ -283,13 +283,14 @@ export const useVouchersData = () => {
     },
     onSuccess: (_, variables) => {
       const expiryDate = variables.payload.expiryDate || (variables.payload.endsAt ? String(variables.payload.endsAt).split('T')[0] : '—');
+      const maxUsageVal = variables.payload.maxUsage || variables.payload.maxTotalUses;
       updateVoucherInStore(variables.id, {
         code: variables.payload.code,
         category: variables.payload.category,
         scope: variables.payload.scope,
         type: (variables.payload.type === 'PERCENTAGE' ? 'Percentage' : variables.payload.type === 'FIXED_AMOUNT' ? 'Amount' : variables.payload.type) as VoucherType,
         expiryDate,
-        status: getVoucherStatus(expiryDate),
+        status: getVoucherStatus(expiryDate, true, 0, maxUsageVal),
         limitOnePerCustomer: variables.payload.limitOnePerCustomer ?? variables.payload.oneUsePerUser,
       });
       toast.success(

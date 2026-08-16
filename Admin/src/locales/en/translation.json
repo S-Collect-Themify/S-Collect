@@ -1262,7 +1262,8 @@
     },
     "statuses": {
       "active": "Active",
-      "expired": "Expired"
+      "expired": "Expired",
+      "reachedLimit": "Limit Reached"
     },
     "actions": {
       "edit": "Edit",
