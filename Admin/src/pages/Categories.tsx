@@ -15,7 +15,6 @@ import {
   CannotDeleteModal,
   CategoryTable,
   CategorySkeleton,
-  CategoryErrorState,
   MobileCard,
   Pagination,
   BulkNavbar,
@@ -31,11 +30,6 @@ const Categories = () => {
   const {
     categories,
     isLoading,
-    isError,
-    error,
-    rawError,
-    isFetching,
-    refetch,
     createCategoryMutation,
     updateCategoryMutation,
     deactivateCategoryMutation,
@@ -197,13 +191,6 @@ const Categories = () => {
         {/* Content */}
         {isLoading ? (
           <CategorySkeleton isMobile={isMobile} />
-        ) : isError && categories.length === 0 ? (
-          <CategoryErrorState
-            error={error}
-            rawError={rawError}
-            refetch={refetch}
-            isFetching={isFetching}
-          />
         ) : isMobile ? (
           <div className="space-y-3">
             <AnimatePresence>
