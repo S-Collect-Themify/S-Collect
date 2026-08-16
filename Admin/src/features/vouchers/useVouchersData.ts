@@ -59,8 +59,10 @@ export const mapBackendVoucherToItem = (v: any): VoucherItem => {
   return {
     id: v.id || v._id || '',
     code: v.code || '',
-    category: Array.isArray(v.categoryIds)
+    category: Array.isArray(v.categoryIds) && v.categoryIds.length > 0
       ? v.categoryIds
+      : Array.isArray(v.categories) && v.categories.length > 0
+      ? v.categories
       : Array.isArray(v.category)
       ? v.category
       : v.category
@@ -193,8 +195,10 @@ export const useVouchersData = () => {
             return {
               id: v.id || v._id || String(idx + 1),
               code: v.code || `VOUCHER-${idx + 1}`,
-              category: Array.isArray(v.categoryIds)
+              category: Array.isArray(v.categoryIds) && v.categoryIds.length > 0
                 ? v.categoryIds
+                : Array.isArray(v.categories) && v.categories.length > 0
+                ? v.categories
                 : Array.isArray(v.category)
                 ? v.category
                 : v.category

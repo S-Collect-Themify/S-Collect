@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../../../hooks/useCategories';
+import { resolveCategoryName, parseCategories } from '../utils';
 import type { VoucherItem } from '../types';
 
 interface VoucherTableProps {
@@ -9,47 +10,25 @@ interface VoucherTableProps {
   onDeactivateClick?: (voucher: VoucherItem) => void;
 }
 
-interface CategoryRef {
-  id?: string;
-  _id?: string;
-  name?: string | { en?: string; ar?: string };
-  nameEn?: string;
-  nameAr?: string;
-  name_en?: string;
-  name_ar?: string;
-}
-
 const renderCategoryBadges = (
   catData: unknown,
-  categoriesList: CategoryRef[],
+  categoriesList: any[],
   language: string
 ) => {
-  const catArray: string[] = Array.isArray(catData)
-    ? catData.map((c) => String(c).trim()).filter(Boolean)
-    : typeof catData === 'string' && catData.trim()
-    ? catData.split(',').map((c) => c.trim()).filter(Boolean)
-    : [];
+  const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const getCatName = (idOrCat: string): string => {
-    const found = categoriesList.find(
-      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
-    );
-    if (found) {
-      const nameObj = typeof found.name === 'object' && found.name !== null ? found.name : null;
-      const strName = typeof found.name === 'string' ? found.name : '';
-      if (language === 'ar') {
-        return found.nameAr || found.name_ar || nameObj?.ar || found.nameEn || strName || idOrCat;
-      }
-      return found.nameEn || found.name_en || nameObj?.en || found.nameAr || strName || idOrCat;
-    }
-    return idOrCat;
-  };
+  const resolvedNames = catArray
+    .map((item) => resolveCategoryName(item, categoriesList, language))
+    .filter(Boolean);
 
-  const resolvedNames = catArray.map(getCatName);
+  if (resolvedNames.length === 0) {
+    return <span className="text-gray-400 font-normal">—</span>;
+  }
+
   const firstCat = resolvedNames[0];
   const extraCount = resolvedNames.length - 1;
   const fullTooltip = resolvedNames.join(', ');

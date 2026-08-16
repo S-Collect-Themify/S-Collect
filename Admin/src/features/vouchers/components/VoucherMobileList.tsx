@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../../../hooks/useCategories';
+import { resolveCategoryName, parseCategories } from '../utils';
 import type { VoucherItem } from '../types';
 
 interface VoucherMobileListProps {
@@ -10,30 +11,20 @@ interface VoucherMobileListProps {
 }
 
 const renderCategoryBadges = (catData: any, categoriesList: any[], language: string) => {
-  const catArray: string[] = Array.isArray(catData)
-    ? catData.map((c) => String(c).trim()).filter(Boolean)
-    : typeof catData === 'string' && catData.trim()
-    ? catData.split(',').map((c) => c.trim()).filter(Boolean)
-    : [];
+  const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const getCatName = (idOrCat: string): string => {
-    const found = categoriesList.find(
-      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
-    );
-    if (found) {
-      if (language === 'ar') {
-        return found.nameAr || found.name_ar || found.name?.ar || found.nameEn || found.name || idOrCat;
-      }
-      return found.nameEn || found.name_en || found.name?.en || found.nameAr || found.name || idOrCat;
-    }
-    return idOrCat;
-  };
+  const resolvedNames = catArray
+    .map((item) => resolveCategoryName(item, categoriesList, language))
+    .filter(Boolean);
 
-  const resolvedNames = catArray.map(getCatName);
+  if (resolvedNames.length === 0) {
+    return <span className="text-gray-400 font-normal">—</span>;
+  }
+
   const firstCat = resolvedNames[0];
   const extraCount = resolvedNames.length - 1;
   const fullTooltip = resolvedNames.join(', ');
