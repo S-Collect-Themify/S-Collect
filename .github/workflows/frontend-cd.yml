@@ -32,7 +32,7 @@ jobs:
         run: docker compose pull
 
       - name: Deploy
-        run: docker compose up -d --remove-orphans
+        run: docker compose up -d -p new --remove-orphans
 
       - name: Remove old images
         run: docker image prune -af
