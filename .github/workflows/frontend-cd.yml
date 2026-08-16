@@ -32,7 +32,7 @@ jobs:
         run: docker compose pull
 
       - name: Deploy
-        run: docker compose -p new up -d 
+        run: docker compose new up -d 
         
 
       - name: Remove old images
