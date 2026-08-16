@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, Loader2 } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { useAdminsData } from '../hooks/useAdminsData';
 
@@ -12,10 +12,14 @@ export const DeleteAdminModal: React.FC = () => {
 
   if (!open) return null;
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (admin) {
-      deleteAdminMutation.mutate(admin.id);
-      closeDeleteAdminModal();
+      try {
+        await deleteAdminMutation.mutateAsync(admin.id);
+        closeDeleteAdminModal();
+      } catch {
+        // Error is handled in mutation onError
+      }
     }
   };
 
@@ -70,7 +74,8 @@ export const DeleteAdminModal: React.FC = () => {
               <button
                 type="button"
                 onClick={closeDeleteAdminModal}
-                className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer"
+                disabled={deleteAdminMutation.isPending}
+                className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
               >
                 {t('common.cancel', { defaultValue: 'Cancel' })}
               </button>
@@ -78,8 +83,9 @@ export const DeleteAdminModal: React.FC = () => {
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={deleteAdminMutation.isPending}
-                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs"
+                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
               >
+                {deleteAdminMutation.isPending && <Loader2 size={14} className="animate-spin" />}
                 {t('adminSettings.deleteAdminBtn', { defaultValue: 'Delete Admin' })}
               </button>
             </div>

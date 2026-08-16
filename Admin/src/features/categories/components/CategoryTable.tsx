@@ -179,15 +179,17 @@ const CategoryTable: React.FC<DesktopTableProps> = ({
               onToggleActive={onToggleActive}
             />
           ))}
+
+          {categories.length === 0 && (
+            <tr>
+              <td colSpan={7} className="py-16 text-center">
+                <Tag size={40} className="mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
-
-      {categories.length === 0 && (
-        <div className="py-16 text-center">
-          <Tag size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
-        </div>
-      )}
     </div>
   );
 };

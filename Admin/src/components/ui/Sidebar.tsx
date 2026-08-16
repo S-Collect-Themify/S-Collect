@@ -25,7 +25,7 @@ import { Globe, Check } from 'lucide-react';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 import toast from 'react-hot-toast';
-import { logout } from '../../services/auth';
+import { logout, clearTokens } from '../../services/auth';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NavItemProps {
@@ -173,8 +173,7 @@ const LogoutNavItem = () => {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+      clearTokens();
       toast.success('Logged out successfully');
       navigate('/login', { replace: true });
       setOpen(false);

@@ -1,54 +1,34 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../../../hooks/useCategories';
+import { resolveCategoryName, parseCategories } from '../utils';
 import type { VoucherItem } from '../types';
 
 interface VoucherTableProps {
   vouchers: VoucherItem[];
   onDeleteClick: (voucher: VoucherItem) => void;
-}
-
-interface CategoryRef {
-  id?: string;
-  _id?: string;
-  name?: string | { en?: string; ar?: string };
-  nameEn?: string;
-  nameAr?: string;
-  name_en?: string;
-  name_ar?: string;
+  onDeactivateClick?: (voucher: VoucherItem) => void;
 }
 
 const renderCategoryBadges = (
   catData: unknown,
-  categoriesList: CategoryRef[],
+  categoriesList: any[],
   language: string
 ) => {
-  const catArray: string[] = Array.isArray(catData)
-    ? catData.map((c) => String(c).trim()).filter(Boolean)
-    : typeof catData === 'string' && catData.trim()
-    ? catData.split(',').map((c) => c.trim()).filter(Boolean)
-    : [];
+  const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const getCatName = (idOrCat: string): string => {
-    const found = categoriesList.find(
-      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
-    );
-    if (found) {
-      const nameObj = typeof found.name === 'object' && found.name !== null ? found.name : null;
-      const strName = typeof found.name === 'string' ? found.name : '';
-      if (language === 'ar') {
-        return found.nameAr || found.name_ar || nameObj?.ar || found.nameEn || strName || idOrCat;
-      }
-      return found.nameEn || found.name_en || nameObj?.en || found.nameAr || strName || idOrCat;
-    }
-    return idOrCat;
-  };
+  const resolvedNames = catArray
+    .map((item) => resolveCategoryName(item, categoriesList, language))
+    .filter(Boolean);
 
-  const resolvedNames = catArray.map(getCatName);
+  if (resolvedNames.length === 0) {
+    return <span className="text-gray-400 font-normal">—</span>;
+  }
+
   const firstCat = resolvedNames[0];
   const extraCount = resolvedNames.length - 1;
   const fullTooltip = resolvedNames.join(', ');
@@ -70,7 +50,11 @@ const renderCategoryBadges = (
   );
 };
 
-export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => {
+export const VoucherTable = ({
+  vouchers,
+  onDeleteClick,
+  onDeactivateClick,
+}: VoucherTableProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { categories } = useCategories();
@@ -173,16 +157,20 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
                   className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
                     voucher.status === 'Active'
                       ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                      : voucher.status === 'Limit Reached'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
                       : 'bg-red-50 text-red-600 border-red-100'
                   }`}
                 >
                   {voucher.status === 'Active'
                     ? t('vouchersListing.statuses.active')
+                    : voucher.status === 'Limit Reached'
+                    ? t('vouchersListing.statuses.reachedLimit', { defaultValue: 'Limit Reached' })
                     : t('vouchersListing.statuses.expired')}
                 </span>
               </td>
 
-              {/* Actions: Edit & Delete */}
+              {/* Actions: Edit, Deactivate & Delete */}
               <td className="py-3.5 px-3.5 text-center whitespace-nowrap">
                 <div className="flex items-center justify-center gap-2.5 text-xs font-semibold">
                   <button
@@ -192,6 +180,15 @@ export const VoucherTable = ({ vouchers, onDeleteClick }: VoucherTableProps) => 
                   >
                     {t('vouchersListing.actions.edit')}
                   </button>
+                  {voucher.status === 'Active' && onDeactivateClick && (
+                    <button
+                      type="button"
+                      onClick={() => onDeactivateClick(voucher)}
+                      className="text-amber-600 hover:text-amber-700 transition-colors cursor-pointer"
+                    >
+                      {t('vouchersListing.actions.deactivate')}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => onDeleteClick(voucher)}

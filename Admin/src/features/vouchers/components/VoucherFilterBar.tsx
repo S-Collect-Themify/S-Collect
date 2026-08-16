@@ -124,6 +124,7 @@ export const VoucherFilterBar = ({
                 {t('vouchersListing.filters.statusMobile')}
               </option>
               <option value="Active">{t('vouchersListing.statuses.active')}</option>
+              <option value="Limit Reached">{t('vouchersListing.statuses.reachedLimit', { defaultValue: 'Limit Reached' })}</option>
               <option value="Expired">{t('vouchersListing.statuses.expired')}</option>
             </select>
             <ChevronDown

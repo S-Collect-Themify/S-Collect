@@ -968,8 +968,10 @@
       "editCategory": "Edit Category",
       "image": "Category Image",
       "uploadImage": "Upload Image",
+      "replaceImage": "Replace Image",
       "removeImage": "Remove Image",
       "imageHint": "PNG, JPG, WEBP — Max 3MB",
+      "imageReplaceNotice": "Once an image is uploaded, it can only be replaced with another one. Deleting the image is not permitted.",
       "imageSizeError": "Image size must not exceed 3MB — Formats: PNG, JPG, WEBP.",
       "nameAr": "Category Name (Arabic)",
       "nameArPlaceholder": "Enter category name in Arabic",
@@ -1217,9 +1219,9 @@
     "stats": {
       "activeVouchers": "Active Vouchers",
       "currentlyRunning": "{{count}} currently running",
-      "totalCosts": "Total Costs",
+      "totalCosts": "Total Cost Saved This Month",
       "withinBudget": "Within quarterly budget",
-      "redemptionsThisMonth": "Redemptions This Month",
+      "redemptionsThisMonth": "Total Usages This Month",
       "increaseFromLastWeek": "-% increase from last week"
     },
     "tabs": {
@@ -1260,11 +1262,13 @@
     },
     "statuses": {
       "active": "Active",
-      "expired": "Expired"
+      "expired": "Expired",
+      "reachedLimit": "Limit Reached"
     },
     "actions": {
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "deactivate": "Deactivate"
     },
     "form": {
       "voucherCode": "Voucher Code *",

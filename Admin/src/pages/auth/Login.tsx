@@ -92,8 +92,15 @@ const Login = () => {
       const token = getToken();
       const refreshToken = getRefreshToken();
       if (token || refreshToken) {
-        const exp = token ? getTokenExpiration(token) : null;
-        if (!exp || exp > Date.now()) {
+        const storedExpiresAt = localStorage.getItem('tokenExpiresAt');
+        let expTime: number | null = storedExpiresAt ? Number(storedExpiresAt) : null;
+        if (!expTime && token) {
+          expTime = getTokenExpiration(token);
+        }
+        if (!expTime && refreshToken) {
+          expTime = getTokenExpiration(refreshToken);
+        }
+        if (expTime && expTime > Date.now()) {
           navigate('/', { replace: true });
         }
       }

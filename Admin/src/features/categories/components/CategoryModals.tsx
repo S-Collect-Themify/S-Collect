@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, AlertTriangle, Trash2, PackageX, Loader2, Upload, Trash } from 'lucide-react';
+import { X, AlertTriangle, Trash2, PackageX, Loader2, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
@@ -279,18 +279,9 @@ export const CategoryFormModal = ({
     reader.readAsDataURL(file);
   };
 
-  const handleRemoveImage = () => {
-    setImage('');
-    setImageFile(null);
-    setImageError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
   const handleSave = () => {
     if (!isValid) return;
-    const finalImage = imageFile ? imageFile : (image.trim() ? image.trim() : null);
+    const finalImage = mode === 'edit' ? (imageFile ? imageFile : (image.trim() ? image.trim() : null)) : undefined;
     onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, image: finalImage, isActive });
   };
 
@@ -336,74 +327,100 @@ export const CategoryFormModal = ({
 
             {/* Body */}
             <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
-              {/* Category Image */}
-              <div>
-                <label htmlFor="cat-file-input" className="block text-body-sm font-medium text-gray-700 mb-1.5">
-                  {t('categories.modal.image')}
-                </label>
-                <input
-                  id="cat-file-input"
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
-                  className="hidden"
-                />
+              {/* Category Image - Edit Mode Only */}
+              {mode === 'edit' && (
+                <div>
+                  <label htmlFor="cat-file-input" className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                    {t('categories.modal.image')}
+                  </label>
+                  <input
+                    id="cat-file-input"
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    className="hidden"
+                  />
 
-                {image ? (
-                  <div className="relative group bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center">
-                        <img
-                          src={image}
-                          alt="Category preview"
-                          className="w-full h-full object-cover"
-                        />
+                  {image ? (
+                    <div className="space-y-2">
+                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center">
+                            <img
+                              src={image}
+                              alt="Category preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-gray-800 truncate">
+                              {t('categories.modal.image')}
+                            </p>
+                            <p className="text-[11px] text-gray-400">
+                              {t('categories.modal.imageHint')}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer shrink-0 shadow-2xs"
+                        >
+                          {t('categories.modal.replaceImage', { defaultValue: 'Replace Image' })}
+                        </button>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-gray-800 truncate">
-                          {t('categories.modal.image')}
-                        </p>
-                        <p className="text-[11px] text-gray-400">
-                          {t('categories.modal.imageHint')}
+
+                      {/* Informative notice: only replace allowed, cannot delete once set */}
+                      <div className="flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5">
+                        <AlertTriangle size={14} className="text-amber-600 mt-0.5 shrink-0" />
+                        <p className="text-[11px] text-amber-800 leading-relaxed">
+                          {t('categories.modal.imageReplaceNotice', {
+                            defaultValue:
+                              'Once an image is uploaded, it can only be replaced with another one. Deleting the image is not permitted.',
+                          })}
                         </p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="p-2 rounded-lg text-gray-400 hover:text-red hover:bg-red-light transition-all cursor-pointer shrink-0"
-                      title={t('categories.modal.removeImage')}
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
-                      imageError
-                        ? 'border-red-400 bg-red-50/30'
-                        : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="p-2 rounded-full bg-gray-100 text-gray-500">
-                        <Upload size={18} />
+                  ) : (
+                    <div className="space-y-2">
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                          imageError
+                            ? 'border-red-400 bg-red-50/30'
+                            : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="p-2 rounded-full bg-gray-100 text-gray-500">
+                            <Upload size={18} />
+                          </div>
+                          <span className="text-body-sm font-medium text-gray-700">
+                            {t('categories.modal.uploadImage')}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {t('categories.modal.imageHint')}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-body-sm font-medium text-gray-700">
-                        {t('categories.modal.uploadImage')}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {t('categories.modal.imageHint')}
-                      </span>
+
+                      <div className="flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5">
+                        <AlertTriangle size={14} className="text-amber-600 mt-0.5 shrink-0" />
+                        <p className="text-[11px] text-amber-800 leading-relaxed">
+                          {t('categories.modal.imageReplaceNotice', {
+                            defaultValue:
+                              'Once an image is uploaded, it can only be replaced with another one. Deleting the image is not permitted.',
+                          })}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {imageError && (
-                  <p className="text-xs text-red mt-1.5">{imageError}</p>
-                )}
-              </div>
+                  )}
+                  {imageError && (
+                    <p className="text-xs text-red mt-1.5">{imageError}</p>
+                  )}
+                </div>
+              )}
 
               {/* Category Name EN */}
               <div>

@@ -1,5 +1,5 @@
 export type VoucherType = 'Percentage' | 'Amount' | 'PERCENTAGE' | 'FIXED_AMOUNT';
-export type VoucherStatus = 'Active' | 'Expired';
+export type VoucherStatus = 'Active' | 'Expired' | 'Limit Reached';
 export type VoucherTab = 'active' | 'expired' | 'all';
 
 export interface VoucherItem {
