@@ -81,6 +81,9 @@ function App() {
       <Toaster
         position={i18n.language === 'ar' ? 'top-left' : 'top-right'}
         gutter={10}
+        containerStyle={{
+          zIndex: 99999,
+        }}
         toastOptions={{
           duration: 3500,
           className: 'unified-toast-item',

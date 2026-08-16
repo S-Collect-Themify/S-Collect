@@ -1,8 +1,10 @@
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import {
   getAdminBuyers,
   getAdminBuyerDetail,
   getAdminBuyerStats,
+  updateBuyerStatus,
   type BuyerQueryParams,
   type AdminBuyerDetailResponse,
 } from '../../../services/buyers';
@@ -185,3 +187,23 @@ export function useAdminBuyerDetail(id?: string) {
     select: mapAdminBuyerDetailToBuyer,
   });
 }
+
+export function useUpdateBuyerStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateBuyerStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-stats'] });
+      toast.success('Buyer status updated successfully');
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to update buyer status';
+      toast.error(message);
+    },
+  });
+}
+

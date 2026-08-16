@@ -64,6 +64,11 @@ export const useUpdateAdminSubOrderStatus = (orderId?: string) => {
         queryClient.invalidateQueries({ queryKey: ['admin-order-detail', orderId] });
       }
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-sub-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-refunds'] });
+      queryClient.invalidateQueries({ queryKey: ['buyer-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-stats'] });
     },
     onError: (err: any) => {
       const message = err?.response?.data?.message || err?.message || 'Failed to update sub-order';

@@ -38,7 +38,7 @@ export const useBuyerStore = create<BuyerStore>((set) => ({
   suspendBuyer: (id, reason) =>
     set((state) => ({
       buyers: state.buyers.map((b) =>
-        b.id === id ? { ...b, status: 'LOCKED' as BuyerStatus, suspendReason: reason } : b
+        b.id === id ? { ...b, status: 'DEACTIVATED' as BuyerStatus, suspendReason: reason } : b
       ),
     })),
   activateBuyer: (id) =>
@@ -57,7 +57,7 @@ export const useBuyerStore = create<BuyerStore>((set) => ({
   bulkSuspend: (ids, reason) =>
     set((state) => ({
       buyers: state.buyers.map((b) =>
-        ids.includes(b.id) ? { ...b, status: 'LOCKED' as BuyerStatus, suspendReason: reason } : b
+        ids.includes(b.id) ? { ...b, status: 'DEACTIVATED' as BuyerStatus, suspendReason: reason } : b
       ),
       selectedRows: [],
     })),

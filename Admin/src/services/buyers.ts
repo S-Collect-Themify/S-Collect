@@ -101,3 +101,16 @@ export async function getAdminBuyerStats(id: string): Promise<AdminBuyerStats> {
   const data = response.data;
   return data?.data || data;
 }
+
+export interface UpdateBuyerStatusPayload {
+  status: string;
+}
+
+/**
+ * Update a buyer's status via PATCH /api/v1/admin/buyers/{id}/status
+ */
+export async function updateBuyerStatus(id: string, status: string): Promise<unknown> {
+  const response = await api.patch(`/admin/buyers/${id}/status`, { status });
+  return response.data;
+}
+
