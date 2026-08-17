@@ -13,6 +13,9 @@ interface RegisterPayoutModalProps {
   onRequestConfirm: (id: string, amount: number, notes: string, date: string) => void;
 }
 
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { Lock } from 'lucide-react';
+
 export default function RegisterPayoutModal({
   isOpen,
   item,
@@ -20,6 +23,7 @@ export default function RegisterPayoutModal({
   onRequestConfirm,
 }: RegisterPayoutModalProps) {
   const { t } = useTranslation();
+  const { isSuperAdmin } = useAdminProfile();
 
   const [amountInput, setAmountInput] = useState('');
   const [notesInput, setNotesInput] = useState('');
@@ -50,6 +54,11 @@ export default function RegisterPayoutModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isSuperAdmin) {
+      toast.error(t('payouts.superAdminOnly', 'Restricted: Only Super Admin can register payouts.'));
+      return;
+    }
 
     if (isZeroOrNegative) {
       toast.error(t('payouts.amountZeroNotice', 'Enter a payout amount greater than 0 to proceed.'));
@@ -93,6 +102,13 @@ export default function RegisterPayoutModal({
           </button>
         </div>
 
+        {!isSuperAdmin && (
+          <div className="bg-rose-50 border border-rose-200/80 rounded-xl p-3 flex items-center gap-2.5 text-xs text-rose-700 font-semibold">
+            <Lock size={16} className="shrink-0 text-rose-600" />
+            <span>{t('payouts.superAdminOnly', 'Restricted: Only Super Admin can register payouts.')}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Vendor Information Summary Block */}
           <PayoutVendorSummaryBlock item={item} />
@@ -115,8 +131,9 @@ export default function RegisterPayoutModal({
             <input
               type="text"
               value={notesInput}
+              disabled={!isSuperAdmin}
               onChange={(e) => setNotesInput(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors"
+              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors disabled:bg-gray-50 disabled:text-gray-500"
               placeholder={t('payouts.notesPlaceholder', 'e.g. Transfer #12345')}
             />
           </div>
@@ -129,14 +146,15 @@ export default function RegisterPayoutModal({
             <input
               type="date"
               required
+              disabled={!isSuperAdmin}
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
-              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors bg-white"
+              className="w-full h-12 px-4 border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 focus:outline-none focus:border-black transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-500"
             />
           </div>
 
           {/* Amber Manual Record Warning Notice Box (Shown when NO validation error) */}
-          {!hasValidationError && (
+          {!hasValidationError && isSuperAdmin && (
             <div className="bg-amber-50/80 border border-amber-100/50 rounded-lg p-3.5 text-xs text-amber-700 font-medium leading-relaxed">
               {t(
                 'payouts.manualRecordNotice',
@@ -156,9 +174,9 @@ export default function RegisterPayoutModal({
             </button>
             <button
               type="submit"
-              disabled={hasValidationError}
+              disabled={hasValidationError || !isSuperAdmin}
               className={`w-full sm:w-1/2 h-11 rounded-lg text-sm font-bold transition-all flex items-center justify-center order-1 sm:order-2 ${
-                hasValidationError
+                hasValidationError || !isSuperAdmin
                   ? 'bg-gray-200 text-gray-400 border border-transparent shadow-none cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-2xs active:scale-95'
               }`}

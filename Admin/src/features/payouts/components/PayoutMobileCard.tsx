@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
 import type { PendingPayoutItem } from '../types';
 
 interface PayoutMobileCardProps {
@@ -8,6 +10,15 @@ interface PayoutMobileCardProps {
 
 export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobileCardProps) {
   const { t } = useTranslation();
+  const { isSuperAdmin } = useAdminProfile();
+
+  const handleClick = () => {
+    if (!isSuperAdmin) {
+      toast.error(t('payouts.superAdminOnly', 'Restricted: Only Super Admin can register payouts.'));
+      return;
+    }
+    onRegisterPayout(item);
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3">
@@ -58,8 +69,13 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
       {/* Solid Black Register Payout Action Button */}
       <button
         type="button"
-        onClick={() => onRegisterPayout(item)}
-        className="w-full h-11 bg-black text-white hover:bg-gray-800 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-2xs flex items-center justify-center cursor-pointer"
+        onClick={handleClick}
+        disabled={!isSuperAdmin}
+        className={`w-full h-11 rounded-lg text-xs font-bold transition-all shadow-2xs flex items-center justify-center ${
+          !isSuperAdmin
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-black text-white hover:bg-gray-800 cursor-pointer active:scale-95'
+        }`}
       >
         {t('payouts.registerPayoutAction', 'Register Payout')}
       </button>

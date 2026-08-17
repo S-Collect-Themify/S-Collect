@@ -189,17 +189,19 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
   const totalPayout = useMemo(() => {
     if (!summaryData) return null;
     const raw = summaryData.totalPayout ?? summaryData.totalPayouts;
+    if (raw === undefined || raw === null) return null;
     if (typeof raw === 'number') return raw;
-    if (typeof raw === 'string') return parseFloat(raw) || 0;
-    return 0;
+    if (typeof raw === 'string' && raw.trim() !== '') return parseFloat(raw) ?? 0;
+    return null;
   }, [summaryData]);
 
   const pendingAmount = useMemo(() => {
     if (!summaryData) return null;
-    const raw = summaryData.pendingAmount;
+    const raw = summaryData.pendingAmount ?? (summaryData as any).pendingPayout ?? (summaryData as any).pendingPayouts;
+    if (raw === undefined || raw === null) return null;
     if (typeof raw === 'number') return raw;
-    if (typeof raw === 'string') return parseFloat(raw) || 0;
-    return 0;
+    if (typeof raw === 'string' && raw.trim() !== '') return parseFloat(raw) ?? 0;
+    return null;
   }, [summaryData]);
 
   const lastPayoutDate = useMemo(() => {
@@ -267,7 +269,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             ) : (
               <>
                 <span className="text-2xl font-extrabold text-emerald-600">
-                  {totalPayout !== null && totalPayout > 0 ? (
+                  {totalPayout !== null ? (
                     totalPayout.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -276,7 +278,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                     '--'
                   )}
                 </span>
-                {totalPayout !== null && totalPayout > 0 && (
+                {totalPayout !== null && (
                   <span className="text-xs font-bold text-emerald-600">SAR</span>
                 )}
               </>
@@ -295,7 +297,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
             ) : (
               <>
                 <span className="text-2xl font-extrabold text-amber-500">
-                  {pendingAmount !== null && pendingAmount > 0 ? (
+                  {pendingAmount !== null ? (
                     pendingAmount.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -304,7 +306,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                     '--'
                   )}
                 </span>
-                {pendingAmount !== null && pendingAmount > 0 && (
+                {pendingAmount !== null && (
                   <span className="text-xs font-bold text-amber-500">SAR</span>
                 )}
               </>
@@ -425,7 +427,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                         {payout.date || '--'}
                       </td>
                       <td className="px-6 py-4 font-bold text-gray-900 text-xs">
-                        {payout.amount > 0
+                        {payout.amount >= 0
                           ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                           : '--'}
                       </td>
@@ -487,7 +489,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   </div>
                   <p className="text-xs text-gray-400">{payout.date || '--'}</p>
                   <p className="text-base font-bold text-gray-900">
-                    {payout.amount > 0
+                    {payout.amount >= 0
                       ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                       : '--'}
                   </p>

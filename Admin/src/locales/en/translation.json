@@ -298,6 +298,7 @@
     }
   },
   "ordersPage": {
+    "superAdminOnly": "Restricted: Only Super Admin can change order status.",
     "title": "Orders",
     "refunds": "Refunds",
     "allOrders": "All Orders",
@@ -1572,6 +1573,7 @@
     "noOrdersFound": "No vendor report orders found."
   },
   "commissionRates": {
+    "superAdminOnly": "Restricted: Only Super Admin can change platform commission.",
     "title": "Commission Rates",
     "description": "Manage global platform default, vendor-specific, and category commission rates.",
     "export": "Export",
@@ -1623,7 +1625,8 @@
     "exportSuccess": "Commission Rates exported successfully!"
   },
   "payouts": {
-    "title": "Payouts",
+    "superAdminOnly": "Restricted: Only Super Admin can register payouts.",
+    "title": "Vendor Payouts",
     "description": "Manage pending vendor payouts and register manual bank transfers.",
     "export": "Export",
     "exportExcel": "Export as Excel (.csv)",

@@ -16,6 +16,9 @@ interface EditCommissionModalProps {
   onReset?: (id: string, type: 'vendor' | 'category') => void;
 }
 
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { Lock } from 'lucide-react';
+
 export default function EditCommissionModal({
   isOpen,
   target,
@@ -24,6 +27,7 @@ export default function EditCommissionModal({
   onReset,
 }: EditCommissionModalProps) {
   const { t } = useTranslation();
+  const { isSuperAdmin } = useAdminProfile();
 
   const [rateInput, setRateInput] = useState('');
 
@@ -43,6 +47,11 @@ export default function EditCommissionModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
 
     if (isHasError) {
       toast.error(
@@ -85,6 +94,13 @@ export default function EditCommissionModal({
           </button>
         </div>
 
+        {!isSuperAdmin && (
+          <div className="bg-rose-50 border border-rose-200/80 rounded-xl p-3 flex items-center gap-2.5 text-xs text-rose-700 font-semibold">
+            <Lock size={16} className="shrink-0 text-rose-600" />
+            <span>{t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.')}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Details Rows */}
           <div className="space-y-2 text-sm py-1">
@@ -125,9 +141,10 @@ export default function EditCommissionModal({
               id="custom-rate-input"
               type="text"
               required
+              disabled={!isSuperAdmin}
               value={rateInput}
               onChange={(e) => setRateInput(e.target.value)}
-              className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors placeholder-gray-500 ${
+              className={`w-full h-12 px-4 border rounded-lg text-sm font-semibold transition-colors placeholder-gray-500 disabled:bg-gray-50 disabled:text-gray-500 ${
                 isHasError
                   ? 'border-rose-600 bg-rose-50/50 text-rose-900 focus:outline-none focus:border-rose-600'
                   : 'border-gray-200 text-gray-900 focus:outline-none focus:border-black'
@@ -136,7 +153,7 @@ export default function EditCommissionModal({
             />
 
             {/* Direct Sub-input Validation Error Message */}
-            {isHasError && (
+            {isHasError && isSuperAdmin && (
               <div className="flex items-center gap-1.5 mt-1.5 text-xs font-semibold text-rose-600 animate-fade-in-up">
                 <AlertCircle size={14} className="shrink-0 text-rose-600" />
                 <span>
@@ -150,7 +167,7 @@ export default function EditCommissionModal({
           </div>
 
           {/* Override / Info Callout Boxes (Shown when NO error) */}
-          {!isHasError && (
+          {!isHasError && isSuperAdmin && (
             <>
               {isVendor && (
                 <div className="bg-rose-50/70 border border-rose-100 rounded-lg p-3.5 text-xs text-rose-500 font-medium leading-relaxed">
@@ -195,11 +212,16 @@ export default function EditCommissionModal({
               {target.hasCustomRate && onReset && (
                 <button
                   type="button"
+                  disabled={!isSuperAdmin}
                   onClick={() => {
+                    if (!isSuperAdmin) {
+                      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+                      return;
+                    }
                     onReset(target.id, target.type as 'vendor' | 'category');
                     onClose();
                   }}
-                  className="w-full sm:w-auto px-3 h-11 border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center shrink-0"
+                  className="w-full sm:w-auto px-3 h-11 border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('commissionRates.resetToDefault', 'Reset to Default')}
                 </button>
@@ -208,9 +230,9 @@ export default function EditCommissionModal({
 
             <button
               type="submit"
-              disabled={isHasError}
+              disabled={isHasError || !isSuperAdmin}
               className={`w-full sm:w-auto px-5 h-11 rounded-lg text-sm font-bold transition-all flex items-center justify-center ${
-                isHasError
+                isHasError || !isSuperAdmin
                   ? 'bg-gray-200 text-gray-400 border border-transparent shadow-none cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800 cursor-pointer shadow-2xs active:scale-95'
               }`}
