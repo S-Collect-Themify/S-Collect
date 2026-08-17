@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 
-export type PeriodKey = 'monthly' | 'weekly' | 'yearly';
+export type PeriodKey = 'monthly' | 'weekly' | 'daily';
 
 export interface PeriodOption {
   key: PeriodKey;

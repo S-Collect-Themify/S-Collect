@@ -293,6 +293,29 @@ export async function getVendorPayoutStats(
   }
 }
 
+export interface VendorBankInfoResponse {
+  bankName?: string;
+  iban?: string;
+  accountHolderName?: string;
+}
+
+/**
+ * Fetch vendor bank info GET /api/v1/admin/vendors/{id}/bank-info
+ */
+export async function getVendorBankInfo(vendorId: string): Promise<VendorBankInfoResponse | null> {
+  try {
+    const response = await api.get(`/admin/vendors/${vendorId}/bank-info`);
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+      return resData.data as VendorBankInfoResponse;
+    }
+    return resData as VendorBankInfoResponse;
+  } catch (err) {
+    console.warn(`API getVendorBankInfo (${vendorId}) error:`, err);
+    return null;
+  }
+}
+
 /**
  * Feature a vendor POST /api/v1/admin/vendors/{id}/feature
  */
@@ -307,4 +330,77 @@ export async function featureVendor(id: string): Promise<any> {
 export async function unfeatureVendor(id: string): Promise<any> {
   const response = await api.post(`/admin/vendors/${id}/unfeature`);
   return response.data;
+}
+
+export interface TopPerformingVendorItem {
+  id: string;
+  email?: string | Record<string, unknown> | null;
+  firstName?: string;
+  lastName?: string;
+  storeName?: string;
+  status: string;
+  isFeatured?: boolean;
+  submittedDate?: string;
+  totalRevenue?: number;
+  deliveredOrders?: number;
+}
+
+export interface GetTopPerformingVendorsParams {
+  pageNum?: number;
+  pageSize?: number;
+}
+
+export interface GetTopPerformingVendorsResponse {
+  items: TopPerformingVendorItem[];
+  pagination: BackendVendorsPagination;
+}
+
+/**
+ * Fetch top performing vendors GET /api/v1/admin/vendors/top-performing
+ */
+export async function getTopPerformingVendors(
+  params?: GetTopPerformingVendorsParams
+): Promise<GetTopPerformingVendorsResponse> {
+  const cleanParams: Record<string, unknown> = {};
+  if (params?.pageNum !== undefined) cleanParams.pageNum = params.pageNum;
+  if (params?.pageSize !== undefined) cleanParams.pageSize = params.pageSize;
+
+  const response = await api.get('/admin/vendors/top-performing', { params: cleanParams });
+  const resData = response.data;
+
+  let items: TopPerformingVendorItem[] = [];
+  let pagination: BackendVendorsPagination = {
+    currentPage: params?.pageNum ?? 1,
+    pageSize: params?.pageSize ?? 25,
+    totalItems: 0,
+    totalPages: 0,
+  };
+
+  if (resData) {
+    const d = resData.data || resData;
+    if (Array.isArray(d.items)) {
+      items = d.items;
+    } else if (Array.isArray(d)) {
+      items = d;
+    }
+
+    const p = d.pagination || resData.pagination;
+    if (p && typeof p === 'object') {
+      pagination = {
+        currentPage: Number(p.currentPage ?? params?.pageNum ?? 1),
+        pageSize: Number(p.pageSize ?? params?.pageSize ?? 25),
+        totalItems: Number(p.totalItems ?? items.length),
+        totalPages: Number(p.totalPages ?? (items.length > 0 ? 1 : 0)),
+      };
+    } else {
+      pagination = {
+        currentPage: params?.pageNum ?? 1,
+        pageSize: params?.pageSize ?? 25,
+        totalItems: items.length,
+        totalPages: items.length > 0 ? 1 : 0,
+      };
+    }
+  }
+
+  return { items, pagination };
 }
