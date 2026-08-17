@@ -152,80 +152,79 @@ export const useVouchersData = () => {
         const response = await getVouchersList();
         const itemsArray = extractVouchersArray(response);
 
-        if (itemsArray.length > 0) {
-          const mapped: VoucherItem[] = itemsArray.map((v: any, idx: number) => {
-            const rawType = v.type || 'PERCENTAGE';
-            const type: VoucherType =
-              rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
-                ? 'Amount'
-                : 'Percentage';
+        const mapped: VoucherItem[] = itemsArray.map((v: any, idx: number) => {
+          const rawType = v.type || 'PERCENTAGE';
+          const type: VoucherType =
+            rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
+              ? 'Amount'
+              : 'Percentage';
 
-            const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
-            const discountText =
-              type === 'Percentage'
-                ? `${val ?? 0}%`
-                : `SAR ${val ?? 0}`;
+          const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
+          const discountText =
+            type === 'Percentage'
+              ? `${val ?? 0}%`
+              : `SAR ${val ?? 0}`;
 
-            const endsAtStr = v.endsAt || v.expiryDate;
-            const expiryDate = endsAtStr ? String(endsAtStr).split('T')[0] : '—';
+          const endsAtStr = v.endsAt || v.expiryDate;
+          const expiryDate = endsAtStr ? String(endsAtStr).split('T')[0] : '—';
 
-            const usedCount = v.usesCount ?? v.usedCount ?? 0;
-            const maxUsage = v.maxTotalUses ?? v.maxUsage ?? 100;
-            const minOrderNum = v.minOrderAmount ?? v.minOrder;
-            const minOrderStr =
-              minOrderNum !== undefined && minOrderNum !== null
-                ? String(minOrderNum).startsWith('SAR')
-                  ? String(minOrderNum)
-                  : `SAR ${minOrderNum}`
-                : 'SAR 0';
+          const usedCount = v.usesCount ?? v.usedCount ?? 0;
+          const maxUsage = v.maxTotalUses ?? v.maxUsage ?? 100;
+          const minOrderNum = v.minOrderAmount ?? v.minOrder;
+          const minOrderStr =
+            minOrderNum !== undefined && minOrderNum !== null
+              ? String(minOrderNum).startsWith('SAR')
+                ? String(minOrderNum)
+                : `SAR ${minOrderNum}`
+              : 'SAR 0';
 
-            const maxDiscNum = v.maxDiscountAmount ?? v.maxDiscount;
-            const maxDiscStr =
-              maxDiscNum !== undefined && maxDiscNum !== null && maxDiscNum !== ''
-                ? String(maxDiscNum).startsWith('SAR')
-                  ? String(maxDiscNum)
-                  : `SAR ${maxDiscNum}`
-                : '—';
+          const maxDiscNum = v.maxDiscountAmount ?? v.maxDiscount;
+          const maxDiscStr =
+            maxDiscNum !== undefined && maxDiscNum !== null && maxDiscNum !== ''
+              ? String(maxDiscNum).startsWith('SAR')
+                ? String(maxDiscNum)
+                : `SAR ${maxDiscNum}`
+              : '—';
 
-            const limitOne =
-              v.oneUsePerUser !== undefined
-                ? Boolean(v.oneUsePerUser)
-                : Boolean(v.limitOnePerCustomer);
+          const limitOne =
+            v.oneUsePerUser !== undefined
+              ? Boolean(v.oneUsePerUser)
+              : Boolean(v.limitOnePerCustomer);
 
-            return {
-              id: v.id || v._id || String(idx + 1),
-              code: v.code || `VOUCHER-${idx + 1}`,
-              category: Array.isArray(v.categoryIds) && v.categoryIds.length > 0
-                ? v.categoryIds
-                : Array.isArray(v.categories) && v.categories.length > 0
-                ? v.categories
-                : Array.isArray(v.category)
-                ? v.category
-                : v.category
-                ? [v.category]
-                : [],
-              scope: v.scope || 'ALL_ORDERS',
-              type,
-              discount: discountText,
-              discountValue: val,
-              minOrder: minOrderStr,
-              maxDiscount: maxDiscStr,
-              usage: `${usedCount}/${maxUsage}`,
-              usedCount,
-              maxUsage,
-              expiryDate,
-              status: getVoucherStatus(endsAtStr || expiryDate, v.isActive, usedCount, maxUsage),
-              limitOnePerCustomer: limitOne,
-            };
-          });
+          return {
+            id: v.id || v._id || String(idx + 1),
+            code: v.code || `VOUCHER-${idx + 1}`,
+            category: Array.isArray(v.categoryIds) && v.categoryIds.length > 0
+              ? v.categoryIds
+              : Array.isArray(v.categories) && v.categories.length > 0
+              ? v.categories
+              : Array.isArray(v.category)
+              ? v.category
+              : v.category
+              ? [v.category]
+              : [],
+            scope: v.scope || 'ALL_ORDERS',
+            type,
+            discount: discountText,
+            discountValue: val,
+            minOrder: minOrderStr,
+            maxDiscount: maxDiscStr,
+            usage: `${usedCount}/${maxUsage}`,
+            usedCount,
+            maxUsage,
+            expiryDate,
+            status: getVoucherStatus(endsAtStr || expiryDate, v.isActive, usedCount, maxUsage),
+            limitOnePerCustomer: limitOne,
+          };
+        });
 
-          setVouchers(mapped);
-          return mapped;
-        }
+        setVouchers(mapped);
+        return mapped;
       } catch (e) {
         console.warn('Vouchers API fetch exception:', e);
+        setVouchers([]);
+        return [];
       }
-      return null;
     },
     refetchOnWindowFocus: false,
     retry: 1,

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
+import { usePlatformSettingsData } from '../hooks/usePlatformSettingsData';
 import type { PlatformSettings } from '../types';
 import i18n from '../../../i18n';
 
@@ -14,7 +15,13 @@ const LANGUAGES = [
 export const MobilePlatformSettings: React.FC = () => {
   const { t } = useTranslation();
   const isArabic = i18n.language === 'ar';
-  const { platformSettings, updatePlatformSettings, setViewMode } = useAdminSettingsStore();
+  const { setViewMode } = useAdminSettingsStore();
+  const {
+    languageQuery,
+    updateLanguageMutation,
+    isSuperAdmin,
+    defaultLanguage,
+  } = usePlatformSettingsData();
 
   const {
     register,
@@ -22,16 +29,17 @@ export const MobilePlatformSettings: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<PlatformSettings>({
-    defaultValues: platformSettings,
+    defaultValues: { defaultLanguage },
     mode: 'onChange',
   });
 
   React.useEffect(() => {
-    reset(platformSettings);
-  }, [platformSettings, reset]);
+    reset({ defaultLanguage });
+  }, [defaultLanguage, reset]);
 
   const onSubmit = (data: PlatformSettings) => {
-    updatePlatformSettings(data);
+    if (!isSuperAdmin) return;
+    updateLanguageMutation.mutate(data.defaultLanguage);
   };
 
   return (
@@ -48,28 +56,41 @@ export const MobilePlatformSettings: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Default Language */}
           <div>
-            <label
-              htmlFor="mob-defaultLanguage"
-              className="text-sm font-semibold text-gray-900 mb-2 block"
-            >
-              {t('adminSettings.defaultLanguage', {
-                defaultValue: 'Default Language',
-              })}{' '}
-              <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label
+                htmlFor="mob-defaultLanguage"
+                className="text-sm font-semibold text-gray-900 block"
+              >
+                {t('adminSettings.defaultLanguage', {
+                  defaultValue: 'Default Language',
+                })}{' '}
+                {isSuperAdmin && <span className="text-red-500">*</span>}
+              </label>
+              {!isSuperAdmin && (
+                <span className="inline-flex items-center text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
+                  {t('adminSettings.viewOnly', { defaultValue: 'View Only' })}
+                </span>
+              )}
+            </div>
+
             <div className="relative">
               <select
                 id="mob-defaultLanguage"
+                disabled={!isSuperAdmin || updateLanguageMutation.isPending || languageQuery.isLoading}
                 {...register('defaultLanguage', {
                   required: isArabic
                     ? 'اللغة مطلوبة'
                     : 'Default language is required',
                 })}
-                className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent pr-10 cursor-pointer"
+                className={`w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 pr-10 transition-colors ${
+                  !isSuperAdmin
+                    ? 'bg-gray-100/80 text-gray-600 cursor-not-allowed border-gray-200'
+                    : 'bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent cursor-pointer'
+                }`}
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang.value} value={lang.value}>
-                    {lang.value}
+                    {t(lang.labelKey, { defaultValue: lang.value })}
                   </option>
                 ))}
               </select>
@@ -77,6 +98,16 @@ export const MobilePlatformSettings: React.FC = () => {
                 <ChevronDown size={16} />
               </div>
             </div>
+
+            {!isSuperAdmin && (
+              <p className="text-xs text-gray-400 mt-2">
+                {t('adminSettings.adminCannotChangeLanguage', {
+                  defaultValue:
+                    'Only Super Administrators can change the default platform language.',
+                })}
+              </p>
+            )}
+
             {errors.defaultLanguage && (
               <p className="text-xs text-red-500 mt-1.5">
                 {errors.defaultLanguage.message}
@@ -84,15 +115,21 @@ export const MobilePlatformSettings: React.FC = () => {
             )}
           </div>
 
-          {/* Save Settings Button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="w-full bg-black hover:bg-gray-800 text-white font-semibold text-sm py-3 rounded-xl transition-colors cursor-pointer shadow-2xs"
-            >
-              {t('adminSettings.saveSettings', { defaultValue: 'Save Settings' })}
-            </button>
-          </div>
+          {/* Save Settings Button - Only rendered for Super Admin */}
+          {isSuperAdmin && (
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={updateLanguageMutation.isPending}
+                className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white font-semibold text-sm py-3 rounded-xl transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs inline-flex items-center justify-center gap-2"
+              >
+                {updateLanguageMutation.isPending && (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                {t('adminSettings.saveSettings', { defaultValue: 'Save Settings' })}
+              </button>
+            </div>
+          )}
         </form>
       </div>
 
