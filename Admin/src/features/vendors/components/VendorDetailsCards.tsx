@@ -56,12 +56,17 @@ export function StatCard({
   unit?: string;
   highlight?: boolean;
 }) {
-  const displayVal =
-    typeof value === 'number'
-      ? value > 0
-        ? value.toLocaleString()
-        : '--'
-      : value || '--';
+  let displayVal = '--';
+
+  if (typeof value === 'number') {
+    displayVal = !isNaN(value) ? value.toLocaleString() : '--';
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed !== '' && trimmed !== '--') {
+      const parsed = Number(trimmed);
+      displayVal = !isNaN(parsed) ? parsed.toLocaleString() : trimmed;
+    }
+  }
 
   return (
     <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-100 shadow-sm p-4">

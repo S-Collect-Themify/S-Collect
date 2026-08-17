@@ -64,7 +64,7 @@ export default function VendorPayoutsLogTable({
                     <td className="px-6 py-4 text-amber-500 font-bold text-xs">{payout.id || '--'}</td>
                     <td className="px-6 py-4 text-gray-400 text-xs">{payout.date || '--'}</td>
                     <td className="px-6 py-4 text-gray-900 text-xs font-bold">
-                      {payout.amount ? `SAR ${payout.amount.toLocaleString()}` : '--'}
+                      {payout.amount != null ? `SAR ${payout.amount.toLocaleString()}` : '--'}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -116,7 +116,7 @@ export default function VendorPayoutsLogTable({
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-gray-900">
-                      {payout.amount ? `SAR ${payout.amount.toLocaleString()}` : '--'}
+                      {payout.amount != null ? `SAR ${payout.amount.toLocaleString()}` : '--'}
                     </span>
                     <span
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${style.className}`}

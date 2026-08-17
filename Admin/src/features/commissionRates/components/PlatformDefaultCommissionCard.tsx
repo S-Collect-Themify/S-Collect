@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { DollarSign, SquarePen } from 'lucide-react';
+import { DollarSign, SquarePen, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
 import type { PlatformCommissionData } from '../types';
 
 interface PlatformDefaultCommissionCardProps {
@@ -14,6 +16,15 @@ export default function PlatformDefaultCommissionCard({
   isLoading = false,
 }: PlatformDefaultCommissionCardProps) {
   const { t } = useTranslation();
+  const { isSuperAdmin } = useAdminProfile();
+
+  const handleEditClick = () => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
+    onEdit();
+  };
 
   if (isLoading) {
     return (
@@ -52,10 +63,15 @@ export default function PlatformDefaultCommissionCard({
       {/* Edit Action Button */}
       <button
         type="button"
-        onClick={onEdit}
-        className="w-fit md:w-auto justify-center inline-flex items-center gap-2 px-4 py-2 md:py-2 bg-black md:bg-white text-white md:text-gray-800 border border-transparent md:border-gray-200 rounded-md text-xs md:text-sm font-semibold hover:bg-gray-800 md:hover:bg-gray-50 transition-all active:scale-95 cursor-pointer shadow-2xs shrink-0"
+        onClick={handleEditClick}
+        title={!isSuperAdmin ? t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.') : undefined}
+        className={`w-fit md:w-auto justify-center inline-flex items-center gap-2 px-4 py-2 md:py-2 border rounded-md text-xs md:text-sm font-semibold transition-all shadow-2xs shrink-0 ${
+          !isSuperAdmin
+            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+            : 'bg-black md:bg-white text-white md:text-gray-800 border-transparent md:border-gray-200 hover:bg-gray-800 md:hover:bg-gray-50 cursor-pointer active:scale-95'
+        }`}
       >
-        <SquarePen size={15} className="shrink-0" />
+        {!isSuperAdmin ? <Lock size={15} className="shrink-0" /> : <SquarePen size={15} className="shrink-0" />}
         <span>{t('commissionRates.edit', 'Edit')}</span>
       </button>
     </div>
