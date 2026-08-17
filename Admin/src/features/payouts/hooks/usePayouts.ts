@@ -8,7 +8,16 @@ import {
   getAdminPendingVendorPayouts,
   createVendorPayout,
 } from '../../../services/payouts';
+import { getVendorBankInfo } from '../../../services/vendors';
 import type { PayoutStatCardData, PendingPayoutItem } from '../types';
+
+export function useVendorBankInfo(vendorId?: string) {
+  return useQuery({
+    queryKey: ['vendor-bank-info', vendorId],
+    queryFn: () => getVendorBankInfo(vendorId!),
+    enabled: Boolean(vendorId),
+  });
+}
 
 interface PendingRegistration {
   id: string;

@@ -15,6 +15,7 @@ export interface BackendVoucherItem {
   usesCount?: number;
   oneUsePerUser?: boolean;
   isActive?: boolean;
+  status?: string;
   createdAt?: string;
 }
 

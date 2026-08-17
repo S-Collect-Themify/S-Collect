@@ -293,6 +293,29 @@ export async function getVendorPayoutStats(
   }
 }
 
+export interface VendorBankInfoResponse {
+  bankName?: string;
+  iban?: string;
+  accountHolderName?: string;
+}
+
+/**
+ * Fetch vendor bank info GET /api/v1/admin/vendors/{id}/bank-info
+ */
+export async function getVendorBankInfo(vendorId: string): Promise<VendorBankInfoResponse | null> {
+  try {
+    const response = await api.get(`/admin/vendors/${vendorId}/bank-info`);
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+      return resData.data as VendorBankInfoResponse;
+    }
+    return resData as VendorBankInfoResponse;
+  } catch (err) {
+    console.warn(`API getVendorBankInfo (${vendorId}) error:`, err);
+    return null;
+  }
+}
+
 /**
  * Feature a vendor POST /api/v1/admin/vendors/{id}/feature
  */

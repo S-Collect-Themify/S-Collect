@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Package, TrendingUp, ArrowRight, ArrowDownLeft, Loader2 } from 'lucide-react';
+import { Package, TrendingUp, ArrowRight, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   getVouchersList,
