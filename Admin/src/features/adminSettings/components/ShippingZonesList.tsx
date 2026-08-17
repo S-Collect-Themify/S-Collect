@@ -90,7 +90,7 @@ export const ShippingZonesList: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left rtl:text-right text-xs border-collapse">
-              <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
+              <thead className="bg-gray-200 text-black font-semibold border-b border-gray-100">
                 <tr>
                   <th className="py-4 px-6 text-left rtl:text-right">
                     {t('shippingZones.table.zoneName', { defaultValue: 'Zone Name' })}
