@@ -47,7 +47,7 @@ interface AdminSettingsStore {
   setViewMode: (mode: AdminSettingsViewMode) => void;
   setEditingBanner: (banner: BannerItem | null) => void;
   setEditingAdmin: (admin: AdminAccount | null) => void;
-  updatePlatformSettings: (settings: Partial<PlatformSettings>) => void;
+  updatePlatformSettings: (settings: Partial<PlatformSettings>, silent?: boolean) => void;
   
   // Banner API Actions
   fetchBanners: () => Promise<void>;
@@ -275,32 +275,18 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
     }
   },
 
-  updatePlatformSettings: (newSettings) => {
+  updatePlatformSettings: (newSettings, silent = false) => {
     set((state) => ({
       platformSettings: { ...state.platformSettings, ...newSettings },
     }));
 
-    if (newSettings.defaultLanguage) {
-      const langCode =
-        newSettings.defaultLanguage.toLowerCase() === 'arabic' ||
-        newSettings.defaultLanguage === 'ar' ||
-        newSettings.defaultLanguage === 'العربية'
-          ? 'ar'
-          : 'en';
-
-      localStorage.setItem('lang', langCode);
-      if (i18n.language !== langCode) {
-        i18n.changeLanguage(langCode);
-        document.documentElement.dir = langCode === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.lang = langCode;
-      }
+    if (!silent) {
+      toast.success(
+        i18n.language === 'ar'
+          ? 'تم حفظ إعدادات المنصة بنجاح'
+          : 'Platform settings saved successfully'
+      );
     }
-
-    toast.success(
-      i18n.language === 'ar'
-        ? 'تم حفظ إعدادات المنصة بنجاح'
-        : 'Platform settings saved successfully'
-    );
   },
 
   addBanner: (bannerData) => {

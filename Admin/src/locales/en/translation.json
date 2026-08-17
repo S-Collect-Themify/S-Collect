@@ -1334,6 +1334,8 @@
     "logoErrorSize": "File size exceeds 2MB limit",
     "currency": "Currency",
     "defaultLanguage": "Default Language",
+    "viewOnly": "View Only",
+    "adminCannotChangeLanguage": "Only Super Administrators can change the default platform language.",
     "saveSettings": "Save Settings",
     "backToSettings": "Back to Settings",
     "currencies": {

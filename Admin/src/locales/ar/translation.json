@@ -1330,6 +1330,8 @@
     "logoErrorSize": "حجم الملف يتجاوز الحد الأقصى 2 ميجابايت",
     "currency": "العملة",
     "defaultLanguage": "اللغة الافتراضية",
+    "viewOnly": "للعرض فقط",
+    "adminCannotChangeLanguage": "فقط المشرف العام (Super Admin) يمكنه تغيير لغة المنصة الافتراضية.",
     "saveSettings": "حفظ الإعدادات",
     "backToSettings": "العودة للإعدادات",
     "currencies": {
