@@ -9,23 +9,31 @@ interface VendorStatsGridProps {
   vendorId?: string;
 }
 
+function parseStatValue(val?: number | string | null, fallbackVal?: number | string | null): number | string {
+  const target = val !== undefined && val !== null ? val : fallbackVal;
+  if (target === undefined || target === null || target === '' || target === '--') {
+    return '--';
+  }
+  if (typeof target === 'number') {
+    return !isNaN(target) ? target : '--';
+  }
+  const parsed = Number(target);
+  return !isNaN(parsed) ? parsed : String(target);
+}
+
 export default function VendorStatsGrid({ vendor, vendorId }: VendorStatsGridProps) {
   const { t } = useTranslation();
   const targetId = vendorId || vendor.id;
 
   const { data: stats, isLoading } = useVendorPayoutStats(targetId);
 
-  const totalSales = stats?.totalSales ?? vendor.revenue ?? 0;
-  const productCount = stats?.productCount ?? vendor.products ?? 0;
-  const orderCount = stats?.orderCount ?? vendor.orders ?? 0;
-  const totalDues = stats?.totalDues ?? vendor.totalDue ?? 0;
-  const rawExpenses = (stats as any)?.expenses ?? (stats as any)?.invoices ?? vendor.invoices;
-  const expenses = typeof rawExpenses === 'number' && rawExpenses > 0
-    ? rawExpenses
-    : typeof rawExpenses === 'string' && parseFloat(rawExpenses) > 0
-    ? parseFloat(rawExpenses)
-    : '--';
-  const pendingPayouts = stats?.pendingPayouts ?? (stats as any)?.pendingPayout ?? vendor.pendingPayout ?? 0;
+  const totalSales = parseStatValue(stats?.totalSales, vendor.revenue);
+  const productCount = parseStatValue(stats?.productCount, vendor.products);
+  const orderCount = parseStatValue(stats?.orderCount, vendor.orders);
+  const totalDues = parseStatValue(stats?.totalDues ?? (stats as any)?.totalDue, vendor.totalDue);
+  const rawExpenses = (stats as any)?.expenses ?? (stats as any)?.invoices;
+  const expenses = parseStatValue(rawExpenses, vendor.invoices);
+  const pendingPayouts = parseStatValue(stats?.pendingPayouts ?? (stats as any)?.pendingPayout, vendor.pendingPayout);
 
   if (isLoading) {
     return (
