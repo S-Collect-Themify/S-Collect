@@ -1219,7 +1219,7 @@
       "edit": "Edit Voucher"
     },
     "createButton": "Create Voucher",
-    "searchPlaceholder": "Search by code or campaign...",
+    "searchPlaceholder": "Search by code",
     "stats": {
       "activeVouchers": "Active Vouchers",
       "currentlyRunning": "{{count}} currently running",
@@ -1276,7 +1276,7 @@
     },
     "form": {
       "voucherCode": "Voucher Code *",
-      "voucherCodePlaceholder": "Enter voucher code or leave empty to auto-generate",
+      "voucherCodePlaceholder": "Enter voucher code",
       "category": "Category *",
       "categoryPlaceholder": "Select Category",
       "scope": "Scope *",
@@ -1337,6 +1337,12 @@
     "viewOnly": "View Only",
     "adminCannotChangeLanguage": "Only Super Administrators can change the default platform language.",
     "saveSettings": "Save Settings",
+    "confirmLanguageModal": {
+      "title": "Change Platform Default Language?",
+      "message": "Are you sure you want to change the platform default language to {{language}}? This setting will become the default language for the platform.",
+      "confirm": "Yes, Change Language",
+      "cancel": "Cancel"
+    },
     "backToSettings": "Back to Settings",
     "currencies": {
       "sar": "SAR - Saudi Riyal",
