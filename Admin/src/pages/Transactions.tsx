@@ -1,108 +1,92 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTransactionStore } from '../store/transactionStore';
-import { mapAdminOrderToTransactionItem } from '../services/orders';
-import { TransactionsHeader } from '../features/transactions/components/TransactionsHeader';
-import { TransactionsFilterBar } from '../features/transactions/components/TransactionsFilterBar';
-import { TransactionsTable } from '../features/transactions/components/TransactionsTable';
-import { TransactionsMobileList } from '../features/transactions/components/TransactionsMobileList';
-import { TransactionsPagination } from '../features/transactions/components/TransactionsPagination';
+import {
+  useAdminTransactions,
+  TransactionsHeader,
+  TransactionsFilterBar,
+  TransactionsTable,
+  TransactionsMobileList,
+  TransactionsPagination,
+} from '../features/transactions';
+
+function getDateParamsFromRangeKey(rangeKey: string): { dateFrom?: string; dateTo?: string } {
+  if (!rangeKey || rangeKey === 'all') return {};
+
+  const now = new Date();
+  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+
+  if (rangeKey === 'last7Days') {
+    const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    return { dateFrom: formatDate(from), dateTo: formatDate(now) };
+  }
+  if (rangeKey === 'last30Days') {
+    const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return { dateFrom: formatDate(from), dateTo: formatDate(now) };
+  }
+  if (rangeKey === 'thisMonth') {
+    const from = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { dateFrom: formatDate(from), dateTo: formatDate(now) };
+  }
+  if (rangeKey === 'thisYear') {
+    const from = new Date(now.getFullYear(), 0, 1);
+    return { dateFrom: formatDate(from), dateTo: formatDate(now) };
+  }
+  return {};
+}
 
 export default function Transactions() {
-  const {
-    rawOrders,
-    search,
-    statusFilter,
-    minAmount,
-    maxAmount,
-    dateRangeKey,
+  const search = useTransactionStore((s) => s.search);
+  const statusFilter = useTransactionStore((s) => s.statusFilter);
+  const minAmount = useTransactionStore((s) => s.minAmount);
+  const maxAmount = useTransactionStore((s) => s.maxAmount);
+  const dateRangeKey = useTransactionStore((s) => s.dateRangeKey);
+  const page = useTransactionStore((s) => s.page);
+  const pageSize = useTransactionStore((s) => s.pageSize);
+
+  const { dateFrom, dateTo } = useMemo(
+    () => getDateParamsFromRangeKey(dateRangeKey),
+    [dateRangeKey]
+  );
+
+  const parsedMin = minAmount !== '' ? parseFloat(minAmount) : undefined;
+  const parsedMax = maxAmount !== '' ? parseFloat(maxAmount) : undefined;
+  const amountMin = parsedMin !== undefined && !isNaN(parsedMin) ? parsedMin : undefined;
+  const amountMax = parsedMax !== undefined && !isNaN(parsedMax) ? parsedMax : undefined;
+
+  const queryParams = useMemo(
+    () => ({
+      status: statusFilter === 'ALL' ? undefined : statusFilter,
+      search: search.trim() || undefined,
+      dateFrom,
+      dateTo,
+      amountMin,
+      amountMax,
+    }),
+    [statusFilter, search, dateFrom, dateTo, amountMin, amountMax]
+  );
+
+  // React Query hook fetching from GET /api/v1/admin/transactions
+  const { data, isLoading } = useAdminTransactions({
+    pageNum: page,
     pageSize,
-    totalItems,
-    isLoading,
-    fetchOrders,
-  } = useTransactionStore();
+    ...queryParams,
+  });
 
-  // Fetch orders from /api/v1/admin/orders on component mount
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
-
-  // Convert raw API orders to UI TransactionItem objects
-  const transactions = useMemo(() => {
-    return rawOrders.map((order) => mapAdminOrderToTransactionItem(order));
-  }, [rawOrders]);
-
-  // Helper for date range filtering
-  const isWithinDateRange = (dateStr: string, rangeKey: string): boolean => {
-    if (!dateStr || rangeKey === 'all' || !rangeKey) return true;
-    const itemDate = new Date(dateStr);
-    if (isNaN(itemDate.getTime())) return true;
-
-    const now = new Date();
-    const diffTime = now.getTime() - itemDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (rangeKey === 'last7Days') return diffDays >= 0 && diffDays <= 7;
-    if (rangeKey === 'last30Days') return diffDays >= 0 && diffDays <= 30;
-    if (rangeKey === 'thisMonth') {
-      return (
-        itemDate.getMonth() === now.getMonth() &&
-        itemDate.getFullYear() === now.getFullYear()
-      );
-    }
-    if (rangeKey === 'thisYear') {
-      return itemDate.getFullYear() === now.getFullYear();
-    }
-    return true;
+  const transactions = data?.items || [];
+  const pagination = data?.pagination || {
+    currentPage: page,
+    pageSize,
+    totalItems: 0,
+    totalPages: 0,
   };
-
-  // Filtered transactions
-  const filtered = useMemo(() => {
-    return transactions.filter((item) => {
-      const searchLower = search.toLowerCase();
-      const matchesSearch =
-        item.orderNo.toLowerCase().includes(searchLower) ||
-        item.buyerName.toLowerCase().includes(searchLower) ||
-        item.fatoorahRef.toLowerCase().includes(searchLower);
-
-      const itemStatusUpper = (item.status || item.rawPaymentStatus || '').toUpperCase();
-      const filterUpper = statusFilter.toUpperCase();
-
-      let matchesStatus = true;
-      if (filterUpper !== 'ALL') {
-        if (filterUpper === 'PAID') {
-          matchesStatus = ['PAID', 'CAPTURED', 'COMPLETED'].includes(itemStatusUpper);
-        } else if (filterUpper === 'PENDING') {
-          matchesStatus = ['PENDING', 'UNPAID', 'PROCESSING'].includes(itemStatusUpper);
-        } else if (filterUpper === 'FAILED') {
-          matchesStatus = ['FAILED', 'EXPIRED'].includes(itemStatusUpper);
-        } else if (filterUpper === 'CANCELLED') {
-          matchesStatus = ['CANCELLED', 'REFUNDED'].includes(itemStatusUpper);
-        } else {
-          matchesStatus = itemStatusUpper === filterUpper;
-        }
-      }
-
-      let matchesAmount = true;
-      const min = minAmount !== '' ? parseFloat(minAmount) : null;
-      const max = maxAmount !== '' ? parseFloat(maxAmount) : null;
-
-      if (min !== null && !isNaN(min)) {
-        matchesAmount = matchesAmount && item.amount >= min;
-      }
-      if (max !== null && !isNaN(max)) {
-        matchesAmount = matchesAmount && item.amount <= max;
-      }
-
-      const matchesDate = isWithinDateRange(item.date, dateRangeKey);
-
-      return matchesSearch && matchesStatus && matchesAmount && matchesDate;
-    });
-  }, [transactions, search, statusFilter, minAmount, maxAmount, dateRangeKey]);
 
   return (
     <>
       {/* Header Container */}
-      <TransactionsHeader filteredTransactions={filtered} />
+      <TransactionsHeader
+        filteredTransactions={transactions}
+        filterParams={queryParams}
+      />
 
       {/* Main Body Container */}
       <div className="flex-1 overflow-y-auto py-6 sidebar-page-container">
@@ -122,14 +106,14 @@ export default function Transactions() {
           ) : (
             <>
               {/* Desktop Table View */}
-              <TransactionsTable data={filtered} />
+              <TransactionsTable data={transactions} />
 
               {/* Mobile Card List View */}
-              <TransactionsMobileList data={filtered} />
+              <TransactionsMobileList data={transactions} />
 
               {/* Pagination Controls */}
               <TransactionsPagination
-                totalItems={totalItems || filtered.length}
+                totalItems={pagination.totalItems}
                 itemsPerPage={pageSize}
               />
             </>

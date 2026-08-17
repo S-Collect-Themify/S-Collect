@@ -1,53 +1,22 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import RevenueSalesChartHeader, {
   type PeriodKey,
   type PeriodOption,
 } from './components/RevenueSalesChartHeader';
 import RevenueSalesChartArea from './components/RevenueSalesChartArea';
 import type { ChartConfig } from '../../components/ui/chart';
+import { useRevenueOverviewSales } from './hooks/useRevenueOverview';
 
 const periods: PeriodOption[] = [
   { key: 'monthly', defaultLabel: 'Monthly' },
   { key: 'weekly', defaultLabel: 'Weekly' },
-  { key: 'yearly', defaultLabel: 'Yearly' },
+  { key: 'daily', defaultLabel: 'Daily' },
 ];
 
-const dataByPeriod: Record<
-  PeriodKey,
-  { labelKey: string; defaultLabel: string; sales: number }[]
-> = {
-  monthly: [
-    { labelKey: 'Jan', defaultLabel: 'Jan', sales: 0 },
-    { labelKey: 'Feb', defaultLabel: 'Feb', sales: 0 },
-    { labelKey: 'Mar', defaultLabel: 'Mar', sales: 0 },
-    { labelKey: 'Apr', defaultLabel: 'Apr', sales: 0 },
-    { labelKey: 'May', defaultLabel: 'May', sales: 0 },
-    { labelKey: 'Jun', defaultLabel: 'Jun', sales: 0 },
-    { labelKey: 'Jul', defaultLabel: 'Jul', sales: 0 },
-  ],
-  weekly: [
-    { labelKey: 'Mon', defaultLabel: 'Mon', sales: 0 },
-    { labelKey: 'Tue', defaultLabel: 'Tue', sales: 0 },
-    { labelKey: 'Wed', defaultLabel: 'Wed', sales: 0 },
-    { labelKey: 'Thu', defaultLabel: 'Thu', sales: 0 },
-    { labelKey: 'Fri', defaultLabel: 'Fri', sales: 0 },
-    { labelKey: 'Sat', defaultLabel: 'Sat', sales: 0 },
-    { labelKey: 'Sun', defaultLabel: 'Sun', sales: 0 },
-  ],
-  yearly: [
-    { labelKey: '2021', defaultLabel: '2021', sales: 0 },
-    { labelKey: '2022', defaultLabel: '2022', sales: 0 },
-    { labelKey: '2023', defaultLabel: '2023', sales: 0 },
-    { labelKey: '2024', defaultLabel: '2024', sales: 0 },
-    { labelKey: '2025', defaultLabel: '2025', sales: 0 },
-  ],
-};
-
-const totalsByPeriod: Record<PeriodKey, string> = {
-  monthly: '--',
-  weekly: '--',
-  yearly: '--',
+const periodToGroupBy: Record<PeriodKey, 'day' | 'week' | 'month'> = {
+  monthly: 'month',
+  weekly: 'week',
+  daily: 'day',
 };
 
 const chartConfig = {
@@ -57,16 +26,34 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function RevenueSalesChart() {
-  const { t } = useTranslation();
+interface RevenueSalesChartProps {
+  dateFrom: string;
+  dateTo: string;
+}
+
+export default function RevenueSalesChart({ dateFrom, dateTo }: RevenueSalesChartProps) {
   const [periodKey, setPeriodKey] = useState<PeriodKey>('monthly');
 
-  const chartData = dataByPeriod[periodKey].map((item) => ({
-    label: t(`dashboardOverview.${item.labelKey.toLowerCase()}`, item.defaultLabel),
-    sales: item.sales,
+  const groupBy = periodToGroupBy[periodKey] || 'month';
+
+  const { data: salesData, isLoading } = useRevenueOverviewSales({
+    dateFrom,
+    dateTo,
+    groupBy,
+  });
+
+  const chartData = (salesData?.points || []).map((pt) => ({
+    label: pt.label || pt.periodStart || '',
+    sales: typeof pt.value === 'number' ? pt.value : 0,
   }));
 
-  const totalDisplay = totalsByPeriod[periodKey];
+  const totalVal = salesData?.total ?? 0;
+  const totalDisplay =
+    salesData !== undefined
+      ? totalVal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+      : isLoading
+      ? '...'
+      : '0';
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-2xs flex flex-col justify-between h-full">
