@@ -1,38 +1,30 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../../../hooks/useCategories';
+import { resolveCategoryName, parseCategories } from '../utils';
 import type { VoucherItem } from '../types';
 
 interface VoucherMobileListProps {
   vouchers: VoucherItem[];
   onDeleteClick: (voucher: VoucherItem) => void;
+  onDeactivateClick?: (voucher: VoucherItem) => void;
 }
 
 const renderCategoryBadges = (catData: any, categoriesList: any[], language: string) => {
-  const catArray: string[] = Array.isArray(catData)
-    ? catData.map((c) => String(c).trim()).filter(Boolean)
-    : typeof catData === 'string' && catData.trim()
-    ? catData.split(',').map((c) => c.trim()).filter(Boolean)
-    : [];
+  const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
     return <span className="text-gray-400 font-normal">—</span>;
   }
 
-  const getCatName = (idOrCat: string): string => {
-    const found = categoriesList.find(
-      (c) => String(c.id || c._id) === String(idOrCat) || String(c.name) === String(idOrCat)
-    );
-    if (found) {
-      if (language === 'ar') {
-        return found.nameAr || found.name_ar || found.name?.ar || found.nameEn || found.name || idOrCat;
-      }
-      return found.nameEn || found.name_en || found.name?.en || found.nameAr || found.name || idOrCat;
-    }
-    return idOrCat;
-  };
+  const resolvedNames = catArray
+    .map((item) => resolveCategoryName(item, categoriesList, language))
+    .filter(Boolean);
 
-  const resolvedNames = catArray.map(getCatName);
+  if (resolvedNames.length === 0) {
+    return <span className="text-gray-400 font-normal">—</span>;
+  }
+
   const firstCat = resolvedNames[0];
   const extraCount = resolvedNames.length - 1;
   const fullTooltip = resolvedNames.join(', ');
@@ -54,6 +46,7 @@ const renderCategoryBadges = (catData: any, categoriesList: any[], language: str
 export const VoucherMobileList = ({
   vouchers,
   onDeleteClick,
+  onDeactivateClick,
 }: VoucherMobileListProps) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -97,16 +90,24 @@ export const VoucherMobileList = ({
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full border ${
                 voucher.status === 'Active'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : voucher.status === 'Limit Reached'
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
                   : 'bg-rose-50 text-rose-700 border-rose-200'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  voucher.status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500'
+                  voucher.status === 'Active'
+                    ? 'bg-emerald-500'
+                    : voucher.status === 'Limit Reached'
+                    ? 'bg-amber-500'
+                    : 'bg-rose-500'
                 }`}
               />
               {voucher.status === 'Active'
                 ? t('vouchersListing.statuses.active')
+                : voucher.status === 'Limit Reached'
+                ? t('vouchersListing.statuses.reachedLimit', { defaultValue: 'Reached Limit' })
                 : t('vouchersListing.statuses.expired')}
             </span>
           </div>
@@ -142,7 +143,7 @@ export const VoucherMobileList = ({
           </div>
 
           {/* Bottom Action Buttons */}
-          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
             <button
               type="button"
               onClick={() => navigate(`/vouchers/edit/${voucher.id}`)}
@@ -150,6 +151,15 @@ export const VoucherMobileList = ({
             >
               {t('vouchersListing.actions.edit')}
             </button>
+            {voucher.status === 'Active' && onDeactivateClick && (
+              <button
+                type="button"
+                onClick={() => onDeactivateClick(voucher)}
+                className="flex-1 py-2 text-xs font-semibold text-amber-600 border border-amber-200 rounded-xl hover:bg-amber-50 transition-colors text-center cursor-pointer"
+              >
+                {t('vouchersListing.actions.deactivate')}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => onDeleteClick(voucher)}

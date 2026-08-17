@@ -30,13 +30,15 @@ export const useUpdateProduct = () => {
       formData,
       productFormData,
     }: UpdateProductArgs) => {
-      const productForm = new FormData();
-      formData.forEach((value, key) => {
-        if (key !== 'options' && key !== 'variants') {
-          productForm.append(key, value);
-        }
-      });
-      const rawResponse = await updateProductFull(productId, productForm);
+      const updatePayload = {
+        name: productFormData.nameEn || productFormData.nameAr || '',
+        nameAr: productFormData.nameAr || productFormData.nameEn || '',
+        categoryId: productFormData.categoryId || '',
+        description: productFormData.description || '',
+        descriptionAr:
+          productFormData.descriptionAr || productFormData.description || '',
+      };
+      const rawResponse = await updateProductFull(productId, updatePayload);
 
       const unwrapped =
         rawResponse &&

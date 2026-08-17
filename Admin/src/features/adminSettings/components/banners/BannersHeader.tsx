@@ -5,6 +5,7 @@ import i18n from '../../../../i18n';
 
 export interface BannersHeaderProps {
   bannersLoading: boolean;
+  isSuperAdmin?: boolean;
   onRefresh: () => void;
   onAddNew: () => void;
   onNavigateSettings: () => void;
@@ -12,6 +13,7 @@ export interface BannersHeaderProps {
 
 export const BannersHeader: React.FC<BannersHeaderProps> = ({
   bannersLoading,
+  isSuperAdmin = true,
   onRefresh,
   onAddNew,
   onNavigateSettings,
@@ -51,14 +53,17 @@ export const BannersHeader: React.FC<BannersHeaderProps> = ({
         >
           <RefreshCw size={15} className={bannersLoading ? 'animate-spin' : ''} />
         </button>
-        <button
-          type="button"
-          onClick={onAddNew}
-          className="bg-black hover:bg-gray-800 text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
-        >
-          <Plus size={16} />
-          {t('banners.addNewBanner', { defaultValue: 'Add New Banner' })}
-        </button>
+
+        {isSuperAdmin && (
+          <button
+            type="button"
+            onClick={onAddNew}
+            className="bg-black hover:bg-gray-800 text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors flex items-center gap-2 cursor-pointer shadow-xs"
+          >
+            <Plus size={16} />
+            {t('banners.addNewBanner', { defaultValue: 'Add New Banner' })}
+          </button>
+        )}
       </div>
     </div>
   );

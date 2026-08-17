@@ -1,0 +1,27 @@
+services:
+
+  client:
+    image: ghcr.io/s-collect-themify/client:latest
+    container_name: client
+    restart: unless-stopped
+
+    ports:
+      - "4000:8080"
+
+    networks:
+      - frontend
+
+  admin:
+    image: ghcr.io/s-collect-themify/admin:latest
+    container_name: admin
+    restart: unless-stopped
+
+    ports:
+      - "4001:8080"
+
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge

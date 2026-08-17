@@ -5,6 +5,7 @@ import {
   getRefreshToken,
   clearTokens,
   getTokenExpiration,
+  scheduleRefreshTokenExpiration,
 } from '../../services/auth';
 
 interface ProtectedRouteProps {
@@ -15,30 +16,30 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const token = getToken();
   const refreshToken = getRefreshToken();
 
+  // Run real-time timer check
+  scheduleRefreshTokenExpiration();
+
   if (!token && !refreshToken) {
     clearTokens();
     return <Navigate to="/login" replace />;
   }
 
-  if (token) {
-    const expTime = getTokenExpiration(token);
-    if (expTime && Date.now() >= expTime) {
-      if (!refreshToken) {
-        clearTokens();
-        return <Navigate to="/login?state=expired" replace />;
-      }
-      const refreshExp = getTokenExpiration(refreshToken);
-      if (refreshExp && Date.now() >= refreshExp) {
-        clearTokens();
-        return <Navigate to="/login?state=expired" replace />;
-      }
-    }
-  } else if (refreshToken) {
-    const refreshExp = getTokenExpiration(refreshToken);
-    if (refreshExp && Date.now() >= refreshExp) {
-      clearTokens();
-      return <Navigate to="/login?state=expired" replace />;
-    }
+  const storedExpiresAt = localStorage.getItem('tokenExpiresAt');
+  let expTime: number | null = storedExpiresAt ? Number(storedExpiresAt) : null;
+
+  if (!expTime && token) {
+    expTime = getTokenExpiration(token);
+  }
+
+  if (!expTime && refreshToken) {
+    expTime = getTokenExpiration(refreshToken);
+  }
+
+  const isTokenExpired = Boolean(expTime && expTime <= Date.now());
+
+  if (isTokenExpired) {
+    clearTokens();
+    return <Navigate to="/login?state=expired" replace />;
   }
 
   return children ? <>{children}</> : <Outlet />;

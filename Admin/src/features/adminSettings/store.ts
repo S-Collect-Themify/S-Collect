@@ -31,6 +31,10 @@ interface AdminSettingsStore {
     admin: AdminAccount | null;
     isSuperAdminAlert: boolean;
   };
+  reactivateAdminModal: {
+    open: boolean;
+    admin: AdminAccount | null;
+  };
   emailExistsModal: {
     open: boolean;
   };
@@ -85,6 +89,8 @@ interface AdminSettingsStore {
   updateAdmin: (id: string, admin: Partial<AdminAccount>) => boolean;
   openDeleteAdminModal: (admin: AdminAccount) => void;
   closeDeleteAdminModal: () => void;
+  openReactivateAdminModal: (admin: AdminAccount) => void;
+  closeReactivateAdminModal: () => void;
   confirmDeleteAdmin: () => void;
   closeEmailExistsModal: () => void;
 
@@ -115,6 +121,10 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
     open: false,
     admin: null,
     isSuperAdminAlert: false,
+  },
+  reactivateAdminModal: {
+    open: false,
+    admin: null,
   },
   emailExistsModal: {
     open: false,
@@ -269,6 +279,23 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
     set((state) => ({
       platformSettings: { ...state.platformSettings, ...newSettings },
     }));
+
+    if (newSettings.defaultLanguage) {
+      const langCode =
+        newSettings.defaultLanguage.toLowerCase() === 'arabic' ||
+        newSettings.defaultLanguage === 'ar' ||
+        newSettings.defaultLanguage === 'العربية'
+          ? 'ar'
+          : 'en';
+
+      localStorage.setItem('lang', langCode);
+      if (i18n.language !== langCode) {
+        i18n.changeLanguage(langCode);
+        document.documentElement.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = langCode;
+      }
+    }
+
     toast.success(
       i18n.language === 'ar'
         ? 'تم حفظ إعدادات المنصة بنجاح'
@@ -384,7 +411,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
         deleteModal: { open: false, banner: null },
       }));
       toast.success(
-        i18n.language === 'ar' ? 'تم حذف البنر بنجاح' : 'Banner deleted successfully'
+        i18n.language === 'ar' ? 'تم حذف البانر بنجاح' : 'Banner deleted successfully'
       );
     }
   },
@@ -461,6 +488,24 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
         open: false,
         admin: null,
         isSuperAdminAlert: false,
+      },
+    });
+  },
+
+  openReactivateAdminModal: (admin) => {
+    set({
+      reactivateAdminModal: {
+        open: true,
+        admin,
+      },
+    });
+  },
+
+  closeReactivateAdminModal: () => {
+    set({
+      reactivateAdminModal: {
+        open: false,
+        admin: null,
       },
     });
   },

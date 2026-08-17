@@ -40,19 +40,40 @@ export const getProductById = async (productId: string) => {
   }
 };
 
+export interface UpdateProductPayload {
+  name?: string;
+  nameAr?: string;
+  categoryId?: string;
+  description?: string;
+  descriptionAr?: string;
+}
+
 export const updateProductFull = async (
   productId: string,
-  formData: FormData
+  payload: UpdateProductPayload | FormData
 ) => {
   try {
-    const { data } = await api.patch(
-      `/vendor/products/${productId}`,
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    );
+    let body: any = payload;
+    if (payload instanceof FormData) {
+      const jsonBody: Record<string, any> = {};
+      const name = payload.get('name') || payload.get('nameEn');
+      const nameAr = payload.get('nameAr');
+      const categoryId = payload.get('categoryId');
+      const description = payload.get('description');
+      const descriptionAr = payload.get('descriptionAr');
 
+      if (name) jsonBody.name = String(name);
+      if (nameAr) jsonBody.nameAr = String(nameAr);
+      if (categoryId) jsonBody.categoryId = String(categoryId);
+      if (description !== null && description !== undefined)
+        jsonBody.description = String(description);
+      if (descriptionAr !== null && descriptionAr !== undefined)
+        jsonBody.descriptionAr = String(descriptionAr);
+
+      body = jsonBody;
+    }
+
+    const { data } = await api.patch(`/vendor/products/${productId}`, body);
     return data;
   } catch (err) {
     throw handleServiceError(err, `Failed to update product ${productId}`);

@@ -1,7 +1,10 @@
 import type { PlatformSettings, AdminAccount, ShippingZoneItem } from './types';
 
 export const INITIAL_PLATFORM_SETTINGS: PlatformSettings = {
-  defaultLanguage: 'Arabic',
+  defaultLanguage:
+    typeof window !== 'undefined' && localStorage.getItem('lang') === 'ar'
+      ? 'Arabic'
+      : 'English',
 };
 
 export const INITIAL_ADMINS: AdminAccount[] = [

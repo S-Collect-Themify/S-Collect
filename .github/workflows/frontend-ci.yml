@@ -1,0 +1,191 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+
+################################################################################
+# Detect changed applications
+################################################################################
+
+  detect:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      admin: ${{ steps.filter.outputs.admin }}
+
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            client:
+              - 'Client/**'
+
+            admin:
+              - 'Admin/**'
+
+################################################################################
+# Client CI
+################################################################################
+
+  client-ci:
+
+    needs: detect
+
+    if: needs.detect.outputs.client == 'true'
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Client
+
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # - name: Lint
+      #   run: pnpm run lint
+
+   #   - name: Build
+ #       run: pnpm run build
+
+################################################################################
+# Admin CI
+################################################################################
+
+  admin-ci:
+
+    needs: detect
+
+    if: needs.detect.outputs.admin == 'true'
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Admin
+
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # - name: Lint
+      #   run: pnpm run lint
+
+      - name: Build
+        run: pnpm run build
+
+################################################################################
+# Build & Push Client Image
+################################################################################
+
+  client-image:
+
+    needs:
+      - detect
+      - client-ci
+
+    if: needs.detect.outputs.client == 'true'
+
+    runs-on: [self-hosted, s-collect-new]
+
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Client
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Client
+          file: ./Client/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=https://api.collect-s.com/api/v1
+          tags: |
+            ghcr.io/s-collect-themify/client:latest
+            ghcr.io/s-collect-themify/client:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+################################################################################
+# Build & Push Admin Image
+################################################################################
+
+  admin-image:
+
+    needs:
+      - detect
+      - admin-ci
+
+    if: needs.detect.outputs.admin == 'true'
+
+    runs-on: [self-hosted, s-collect-new]
+
+    steps:
+
+      - uses: actions/checkout@v5
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Admin
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Admin
+          file: ./Admin/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=https://api.collect-s.com/api/v1
+          tags: |
+            ghcr.io/s-collect-themify/admin:latest
+            ghcr.io/s-collect-themify/admin:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Remove dangling images
+        run: docker image prune -af

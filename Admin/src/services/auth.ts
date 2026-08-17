@@ -43,11 +43,28 @@ export const clearTokens = (): void => {
   }
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('tokenExpiresAt');
+  localStorage.removeItem('admin_user');
+  localStorage.removeItem('user');
 };
 
-export const getTokenExpiration = (token: string): number | null => {
+export interface JwtPayload {
+  id?: string;
+  sub?: string;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  exp?: number;
+  [key: string]: unknown;
+}
+
+export const getDecodedToken = (token?: string | null): JwtPayload | null => {
+  const targetToken = token || getToken();
+  if (!targetToken) return null;
   try {
-    const parts = token.split('.');
+    const parts = targetToken.split('.');
     if (parts.length !== 3) return null;
     const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -57,11 +74,15 @@ export const getTokenExpiration = (token: string): number | null => {
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join('')
     );
-    const payload = JSON.parse(jsonPayload);
-    return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+    return JSON.parse(jsonPayload) as JwtPayload;
   } catch {
     return null;
   }
+};
+
+export const getTokenExpiration = (token: string): number | null => {
+  const payload = getDecodedToken(token);
+  return typeof payload?.exp === 'number' ? payload.exp * 1000 : null;
 };
 
 export const logoutAndRedirect = (state: string = 'expired'): void => {
@@ -74,16 +95,56 @@ export const logoutAndRedirect = (state: string = 'expired'): void => {
   }
 };
 
+export const saveAuthSession = (
+  accessToken?: string | null,
+  refreshToken?: string | null,
+  expiresInSeconds?: number | null
+): void => {
+  if (accessToken) {
+    localStorage.setItem('token', accessToken);
+  }
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  let expMs: number | null = null;
+
+  if (typeof expiresInSeconds === 'number' && expiresInSeconds > 0) {
+    expMs = Date.now() + expiresInSeconds * 1000;
+  } else if (accessToken) {
+    expMs = getTokenExpiration(accessToken);
+  } else if (refreshToken) {
+    expMs = getTokenExpiration(refreshToken);
+  }
+
+  if (expMs) {
+    localStorage.setItem('tokenExpiresAt', String(expMs));
+  }
+
+  scheduleRefreshTokenExpiration();
+};
+
 export const scheduleRefreshTokenExpiration = (): void => {
   if (logoutTimer) {
     clearTimeout(logoutTimer);
     logoutTimer = null;
   }
 
+  const token = getToken();
   const refreshToken = getRefreshToken();
-  if (!refreshToken) return;
+  if (!token && !refreshToken) return;
 
-  const expTime = getTokenExpiration(refreshToken);
+  const storedExpiresAt = localStorage.getItem('tokenExpiresAt');
+  let expTime: number | null = storedExpiresAt ? Number(storedExpiresAt) : null;
+
+  if (!expTime && token) {
+    expTime = getTokenExpiration(token);
+  }
+
+  if (!expTime && refreshToken) {
+    expTime = getTokenExpiration(refreshToken);
+  }
+
   if (!expTime) return;
 
   const now = Date.now();

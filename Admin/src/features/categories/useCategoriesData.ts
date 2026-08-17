@@ -22,7 +22,24 @@ export const useCategoriesData = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: async () => {
       const rawList = await getAdminCategories();
-      return rawList.map(mapApiCategoryToCategory);
+      const mapped = rawList.map(mapApiCategoryToCategory);
+      return mapped.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          const timeA = new Date(a.createdAt).getTime();
+          const timeB = new Date(b.createdAt).getTime();
+          if (!isNaN(timeA) && !isNaN(timeB) && timeB !== timeA) {
+            return timeB - timeA;
+          }
+        }
+        if (a.createdAt && !b.createdAt) return -1;
+        if (!a.createdAt && b.createdAt) return 1;
+        const numA = Number(a.id);
+        const numB = Number(b.id);
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return numB - numA;
+        }
+        return String(b.id).localeCompare(String(a.id));
+      });
     },
     refetchOnWindowFocus: false,
     retry: 1,

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { useShippingZonesData } from '../hooks/useShippingZonesData';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
+import { getToken, getDecodedToken } from '../../../services/auth';
 import type { ShippingZoneItem } from '../types';
 import { ShippingZonesSkeleton } from './skeletons/ShippingZonesSkeleton';
 import i18n from '../../../i18n';
@@ -12,8 +14,14 @@ export const ShippingZonesList: React.FC = () => {
   const { t } = useTranslation();
   const { setViewMode } = useAdminSettingsStore();
   const { shippingZones, isLoading, toggleZoneMutation } = useShippingZonesData();
+  const { admin: currentLoggedInAdmin } = useAdminProfile();
   const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
+
+  const token = getToken();
+  const decoded = useMemo(() => getDecodedToken(token), [token]);
+  const roleStr = (currentLoggedInAdmin?.role || decoded?.role || '').toUpperCase();
+  const isSuperAdmin = roleStr === 'SUPER_ADMIN' || roleStr === 'SUPERADMIN' || roleStr === 'SUPER ADMIN';
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
@@ -81,16 +89,16 @@ export const ShippingZonesList: React.FC = () => {
           <ShippingZonesSkeleton />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className="w-full text-left rtl:text-right text-xs border-collapse">
               <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
                 <tr>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-6 text-left rtl:text-right">
                     {t('shippingZones.table.zoneName', { defaultValue: 'Zone Name' })}
                   </th>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-6 text-left rtl:text-right">
                     {t('shippingZones.table.vendorsCount', { defaultValue: 'Vendors Count' })}
                   </th>
-                  <th className="py-4 px-6">
+                  <th className="py-4 px-6 text-left rtl:text-right">
                     {t('shippingZones.table.status', { defaultValue: 'Status' })}
                   </th>
                 </tr>
@@ -106,24 +114,38 @@ export const ShippingZonesList: React.FC = () => {
                   shippingZones.map((zone) => (
                     <tr key={zone.id} className="hover:bg-gray-50/50 transition-colors">
                       {/* Zone Name */}
-                      <td className="py-4 px-6 font-semibold text-gray-900">
+                      <td className="py-4 px-6 font-semibold text-gray-900 text-left rtl:text-right">
                         {isArabic ? zone.nameAr || zone.nameEn || zone.name : zone.nameEn || zone.nameAr || zone.name}
                       </td>
 
                       {/* Vendors Count */}
-                      <td className="py-4 px-6 text-gray-500 font-normal">
+                      <td className="py-4 px-6 text-gray-500 font-normal text-left rtl:text-right">
                         {t('shippingZones.registeredVendors', {
                           count: zone.vendorsCount,
                           defaultValue: `${zone.vendorsCount} Registered Vendors`,
                         })}
                       </td>
 
-                      {/* Status Toggle Switch */}
-                      <td className="py-4 px-6">
-                        <Toggle
-                          checked={zone.isActive}
-                          onChange={() => handleToggleClick(zone)}
-                        />
+                      {/* Status: Toggle Switch for Super Admin, Pill Badge for Admin */}
+                      <td className="py-4 px-6 text-left rtl:text-right">
+                        {isSuperAdmin ? (
+                          <Toggle
+                            checked={zone.isActive}
+                            onChange={() => handleToggleClick(zone)}
+                          />
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                              zone.isActive
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50'
+                                : 'bg-red-50 text-red-500 border border-red-100/50'
+                            }`}
+                          >
+                            {zone.isActive
+                              ? t('common.active', { defaultValue: 'Active' })
+                              : t('common.inactive', { defaultValue: 'Inactive' })}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))

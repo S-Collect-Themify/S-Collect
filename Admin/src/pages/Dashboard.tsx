@@ -8,10 +8,13 @@ import VoucherOverviewSection from '../features/dashboard/VoucherOverviewSection
 import TopPerformingVendorsSection from '../features/dashboard/TopPerformingVendorsSection';
 import PortalDropdown from '../components/ui/PortalDropdown';
 import { getDateFromToParams } from '../features/dashboard/hooks/useRevenueOverview';
+import { useAdminProfile } from '../hooks/useAdminProfile';
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const { fullName } = useAdminProfile();
+  const adminName = fullName;
 
   const dateRanges = [
     { key: 'last7Days', defaultLabel: 'Last 7 Days' },
@@ -34,7 +37,7 @@ export default function Dashboard() {
         {/* Mobile-only Greeting */}
         <div className="md:hidden mb-3">
           <p className="text-sm font-semibold text-gray-800">
-            {t('dashboardOverview.hello', '--')}
+            {isRtl ? `مرحباً، ${adminName} 👋` : `Hello, ${adminName} 👋`}
           </p>
           <p className="text-xs text-gray-400 font-medium">
             {t('dashboardOverview.todayDate', '--')}

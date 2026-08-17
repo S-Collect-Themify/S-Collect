@@ -35,61 +35,56 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
       let rawResponse: unknown;
 
       if (isEdit && productId) {
+        const updatePayload = {
+          name: productFormData.nameEn || productFormData.nameAr || '',
+          nameAr: productFormData.nameAr || productFormData.nameEn || '',
+          categoryId: productFormData.categoryId || '',
+          description: productFormData.description || '',
+          descriptionAr:
+            productFormData.descriptionAr || productFormData.description || '',
+        };
+
+        rawResponse = await updateProductFull(productId, updatePayload);
+
         try {
-          rawResponse = await updateProductFull(productId, formData);
-        } catch (fullError) {
-          console.warn(
-            'updateProductFull with variants failed, falling back:',
-            fullError
+          const latestProduct = await getProductById(productId);
+          await syncProductOptions(productId, productFormData, latestProduct);
+          const productWithSyncedOptions = await getProductById(productId);
+          const variantMutations = buildProductVariantMutations(
+            productFormData,
+            productWithSyncedOptions
           );
-          const productForm = new FormData();
-          formData.forEach((value, key) => {
-            if (key !== 'options' && key !== 'variants') {
-              productForm.append(key, value);
-            }
-          });
-          rawResponse = await updateProductFull(productId, productForm);
 
-          try {
-            const latestProduct = await getProductById(productId);
-            await syncProductOptions(productId, productFormData, latestProduct);
-            const productWithSyncedOptions = await getProductById(productId);
-            const variantMutations = buildProductVariantMutations(
-              productFormData,
-              productWithSyncedOptions
-            );
-
-            await Promise.all(
-              variantMutations.map((variant) =>
-                variant.id
-                  ? updateProductVariant(productId, variant.id, {
-                      price: variant.price,
-                      compareAtPrice: variant.compareAtPrice,
-                      stock: variant.stock,
-                      isActive: variant.isActive,
-                    }).catch((err) => {
-                      console.warn(
-                        `Failed to update variant ${variant.id}:`,
-                        err
-                      );
-                    })
-                  : createProductVariant(productId, {
-                      optionValueIds: variant.optionValueIds,
-                      sku: variant.sku,
-                      price: variant.price,
-                      compareAtPrice: variant.compareAtPrice,
-                      stock: variant.stock,
-                    }).catch((err) => {
-                      console.warn(
-                        `Failed to create variant ${variant.sku}:`,
-                        err
-                      );
-                    })
-              )
-            );
-          } catch (syncErr) {
-            console.warn('Sync options/variants error:', syncErr);
-          }
+          await Promise.all(
+            variantMutations.map((variant) =>
+              variant.id
+                ? updateProductVariant(productId, variant.id, {
+                    price: variant.price,
+                    compareAtPrice: variant.compareAtPrice,
+                    stock: variant.stock,
+                    isActive: variant.isActive,
+                  }).catch((err) => {
+                    console.warn(
+                      `Failed to update variant ${variant.id}:`,
+                      err
+                    );
+                  })
+                : createProductVariant(productId, {
+                    optionValueIds: variant.optionValueIds,
+                    sku: variant.sku,
+                    price: variant.price,
+                    compareAtPrice: variant.compareAtPrice,
+                    stock: variant.stock,
+                  }).catch((err) => {
+                    console.warn(
+                      `Failed to create variant ${variant.sku}:`,
+                      err
+                    );
+                  })
+            )
+          );
+        } catch (syncErr) {
+          console.warn('Sync options/variants error:', syncErr);
         }
       } else {
         rawResponse = await createProductFull(formData);

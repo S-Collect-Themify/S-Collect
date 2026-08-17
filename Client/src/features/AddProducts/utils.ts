@@ -366,27 +366,24 @@ export const buildProductVariantMutations = (
     option: (typeof productOptions)[number] | undefined,
     optionName: string
   ) =>
-    values.map((value) => {
-      const normalizedValue = normalizeOptionText(value);
-      const matchedValue = option?.values?.find(
-        (optionValue) =>
-          normalizeOptionText(optionValue.value) === normalizedValue ||
-          normalizeOptionText(optionValue.valueAr) === normalizedValue
-      );
-      if (!matchedValue?.id) {
-        console.error('Missing option value ID while building variant:', {
-          optionName,
-          requestedValue: value,
-          availableValues: (option?.values || []).map((optionValue) => ({
-            id: optionValue.id,
-            value: optionValue.value,
-            valueAr: optionValue.valueAr,
-          })),
-        });
-        throw new Error(`Missing option value ID for ${optionName}: ${value}`);
-      }
-      return { id: matchedValue.id, value };
-    });
+    values
+      .map((value) => {
+        const normalizedValue = normalizeOptionText(value);
+        const matchedValue = option?.values?.find(
+          (optionValue) =>
+            normalizeOptionText(optionValue.value) === normalizedValue ||
+            normalizeOptionText(optionValue.valueAr) === normalizedValue
+        );
+        if (!matchedValue?.id) {
+          console.warn('Option value ID not found yet for:', {
+            optionName,
+            value,
+          });
+          return null;
+        }
+        return { id: matchedValue.id, value };
+      })
+      .filter((v): v is { id: string; value: string } => Boolean(v && v.id));
 
   const sizeValues = resolveValues(
     formData.sizes || [],
@@ -419,25 +416,72 @@ export const buildProductVariantMutations = (
       : totalStock;
 
   return combinations.map(({ optionValueIds, skuParts }) => {
-    const existingVariant = productVariants.find((variant) => {
-      const existingValueIds = Array.isArray(variant.optionValues)
-        ? variant.optionValues
-            .map((optionValue) => optionValue?.valueId)
-            .filter((id): id is string => Boolean(id))
-        : [];
-      return (
-        optionValueIds.length > 0 &&
-        existingValueIds.length === optionValueIds.length &&
-        existingValueIds.every((id) => optionValueIds.includes(id))
-      );
-    });
+    let variantPrice = price;
+    let variantCompareAtPrice = compareAtPrice;
+
+    if (
+      Array.isArray(formData.varianceCards) &&
+      formData.varianceCards.length > 0
+    ) {
+      const matchingCard = formData.varianceCards.find((card) => {
+        const cardSizes = card.sizes || [];
+        const cardColors = card.colors || [];
+        const matchesSize =
+          cardSizes.length === 0 ||
+          skuParts.some((part) => cardSizes.includes(part));
+        const matchesColor =
+          cardColors.length === 0 ||
+          skuParts.some((part) => cardColors.includes(part));
+        return matchesSize && matchesColor;
+      });
+
+      if (matchingCard) {
+        if (matchingCard.basePrice) {
+          variantPrice = parseFloat(matchingCard.basePrice) || variantPrice;
+        }
+        if (matchingCard.comparePrice) {
+          variantCompareAtPrice =
+            parseFloat(matchingCard.comparePrice) || variantCompareAtPrice;
+        }
+      }
+    }
+
+    const existingVariant =
+      productVariants.find((variant) => {
+        const existingValueIds = Array.isArray(variant.optionValues)
+          ? variant.optionValues
+              .map(
+                (optionValue: any) =>
+                  optionValue?.valueId ||
+                  optionValue?.id ||
+                  optionValue?.optionValueId
+              )
+              .filter((id): id is string => Boolean(id))
+          : [];
+
+        if (optionValueIds.length === 0 && existingValueIds.length === 0) {
+          return true;
+        }
+
+        return (
+          optionValueIds.length > 0 &&
+          existingValueIds.length === optionValueIds.length &&
+          existingValueIds.every((id) => optionValueIds.includes(id))
+        );
+      }) ||
+      (optionValueIds.length === 0 && productVariants.length === 1
+        ? productVariants[0]
+        : undefined);
+
+    const generatedSku = [sku, ...skuParts].filter(Boolean).join('-');
 
     return {
       id: existingVariant?.id,
       optionValueIds,
-      sku: [sku, ...skuParts].filter(Boolean).join('-'),
-      price,
-      compareAtPrice,
+      sku: existingVariant?.sku || generatedSku || `SKU-${Date.now()}`,
+      price: variantPrice,
+      compareAtPrice:
+        variantCompareAtPrice > 0 ? variantCompareAtPrice : undefined,
       stock: stockPerVariant,
       isActive: true,
     };

@@ -44,15 +44,14 @@ const mapRole = (roleStr: string): string => {
   return roleStr;
 };
 
-const mapStatus = (statusStr?: string | null): 'Active' | 'Inactive' | '' => {
-  if (!statusStr) return '';
+const mapStatus = (statusStr?: string | null): 'Active' | 'Inactive' => {
+  if (!statusStr) return 'Inactive';
   const upper = statusStr.toUpperCase();
   if (upper === 'ACTIVE' || upper === 'ENABLED') return 'Active';
-  if (upper === 'INACTIVE' || upper === 'DISABLED') return 'Inactive';
-  return '';
+  return 'Inactive';
 };
 
-export const useAdminsData = () => {
+export const useAdminsData = (options?: { enabled?: boolean }) => {
   const queryClient = useQueryClient();
   const setViewMode = useAdminSettingsStore((s) => s.setViewMode);
   const setEditingAdmin = useAdminSettingsStore((s) => s.setEditingAdmin);
@@ -60,36 +59,45 @@ export const useAdminsData = () => {
   const adminsQuery = useQuery({
     queryKey: ADMINS_QUERY_KEY,
     queryFn: async (): Promise<AdminAccount[]> => {
-      const raw = await getAdminAccounts();
-      return raw.map((a: ApiAdminItem) => {
-        const fullName =
-          [a.firstName, a.lastName].filter(Boolean).join(' ').trim() ||
-          a.email?.split('@')[0] ||
-          'Admin';
+      try {
+        const raw = await getAdminAccounts();
+        return raw.map((a: ApiAdminItem) => {
+          const fullName =
+            [a.firstName, a.lastName].filter(Boolean).join(' ').trim() ||
+            a.email?.split('@')[0] ||
+            'Admin';
 
-        const rawDate = a.dateAdded || a.createdAt;
-        const formattedDate = rawDate
-          ? new Date(rawDate).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })
-          : '';
+          const rawDate = a.dateAdded || a.createdAt;
+          const formattedDate = rawDate
+            ? new Date(rawDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })
+            : '';
 
-        return {
-          id: a.id,
-          name: fullName,
-          firstName: a.firstName || '',
-          lastName: a.lastName || '',
-          email: a.email || '',
-          phoneNumber: a.phoneNumber || '',
-          role: mapRole(a.role),
-          status: mapStatus(a.status),
-          dateAdded: formattedDate,
-        };
-      });
+          return {
+            id: a.id,
+            name: fullName,
+            firstName: a.firstName || '',
+            lastName: a.lastName || '',
+            email: a.email || '',
+            phoneNumber: a.phoneNumber || '',
+            role: mapRole(a.role),
+            status: mapStatus(a.status),
+            dateAdded: formattedDate,
+          };
+        });
+      } catch (err: any) {
+        if (err?.response?.status === 403 || err?.status === 403) {
+          return [];
+        }
+        throw err;
+      }
     },
+    enabled: options?.enabled ?? true,
     staleTime: 2 * 60 * 1000,
+    retry: false,
   });
 
   const createAdminMutation = useMutation({
@@ -147,9 +155,12 @@ export const useAdminsData = () => {
         err?.response?.data?.message || err?.message || 'Failed to toggle admin status'
       );
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const isActivating = data?.nextStatus === 'ACTIVE';
       toast.success(
-        i18n.language === 'ar' ? 'تم تحديث حالة المسؤول بنجاح' : 'Admin status updated successfully'
+        isActivating
+          ? (i18n.language === 'ar' ? 'تم تفعيل المسؤول بنجاح' : 'Admin reactivated successfully')
+          : (i18n.language === 'ar' ? 'تم إلغاء تفعيل المسؤول بنجاح' : 'Admin deactivated successfully')
       );
     },
     onSettled: () => {
