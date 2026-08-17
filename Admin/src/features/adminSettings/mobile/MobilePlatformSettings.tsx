@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { usePlatformSettingsData } from '../hooks/usePlatformSettingsData';
+import { ConfirmLanguageChangeModal } from '../components/ConfirmLanguageChangeModal';
 import type { PlatformSettings } from '../types';
 import i18n from '../../../i18n';
 
@@ -17,29 +18,47 @@ export const MobilePlatformSettings: React.FC = () => {
   const isArabic = i18n.language === 'ar';
   const { setViewMode } = useAdminSettingsStore();
   const {
-    languageQuery,
     updateLanguageMutation,
     isSuperAdmin,
     defaultLanguage,
   } = usePlatformSettingsData();
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [pendingLanguage, setPendingLanguage] = useState<string>(defaultLanguage);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<PlatformSettings>({
     defaultValues: { defaultLanguage },
     mode: 'onChange',
   });
 
+  const selectedLanguage = watch('defaultLanguage');
+  const isLanguageChanged = Boolean(
+    selectedLanguage && selectedLanguage !== defaultLanguage
+  );
+
   React.useEffect(() => {
     reset({ defaultLanguage });
+    setPendingLanguage(defaultLanguage);
   }, [defaultLanguage, reset]);
 
   const onSubmit = (data: PlatformSettings) => {
-    if (!isSuperAdmin) return;
-    updateLanguageMutation.mutate(data.defaultLanguage);
+    if (!isSuperAdmin || !isLanguageChanged) return;
+    setPendingLanguage(data.defaultLanguage);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmLanguageChange = () => {
+    updateLanguageMutation.mutate(pendingLanguage, {
+      onSuccess: () => {
+        setIsConfirmModalOpen(false);
+      },
+    });
   };
 
   return (
@@ -76,7 +95,7 @@ export const MobilePlatformSettings: React.FC = () => {
             <div className="relative">
               <select
                 id="mob-defaultLanguage"
-                disabled={!isSuperAdmin || updateLanguageMutation.isPending || languageQuery.isLoading}
+                disabled={!isSuperAdmin || updateLanguageMutation.isPending}
                 {...register('defaultLanguage', {
                   required: isArabic
                     ? 'اللغة مطلوبة'
@@ -120,11 +139,15 @@ export const MobilePlatformSettings: React.FC = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={updateLanguageMutation.isPending}
-                className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white font-semibold text-sm py-3 rounded-xl transition-colors cursor-pointer disabled:cursor-not-allowed shadow-2xs inline-flex items-center justify-center gap-2"
+                disabled={!isLanguageChanged || updateLanguageMutation.isPending}
+                className={`w-full font-semibold text-sm py-3 rounded-xl transition-all inline-flex items-center justify-center gap-2 ${
+                  !isLanguageChanged || updateLanguageMutation.isPending
+                    ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed opacity-70'
+                    : 'bg-black hover:bg-gray-800 text-white cursor-pointer shadow-2xs'
+                }`}
               >
                 {updateLanguageMutation.isPending && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                 )}
                 {t('adminSettings.saveSettings', { defaultValue: 'Save Settings' })}
               </button>
@@ -132,6 +155,15 @@ export const MobilePlatformSettings: React.FC = () => {
           )}
         </form>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmLanguageChangeModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmLanguageChange}
+        targetLanguage={pendingLanguage}
+        isPending={updateLanguageMutation.isPending}
+      />
 
       {/* Navigation Quick Action Cards Stack */}
       <div className="space-y-3.5">

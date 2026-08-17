@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Calendar, ChevronDown, AlertCircle } from 'lucide-react';
+import { ChevronDown, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Toggle from '../../../components/ui/Toggle';
@@ -323,10 +323,6 @@ export const VoucherForm = ({
                     ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
                     : 'border-gray-200 focus:ring-2 focus:ring-black/5 focus:border-gray-400'
                 }`}
-              />
-              <Calendar
-                size={16}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:right-auto rtl:left-3.5 hidden sm:block"
               />
             </div>
             {errors.expiryDate && (

@@ -1216,7 +1216,7 @@
       "edit": "تعديل قسيمة"
     },
     "createButton": "إنشاء قسيمة",
-    "searchPlaceholder": "البحث حسب الكود أو الحملة...",
+    "searchPlaceholder": "البحث حسب الكود",
     "stats": {
       "activeVouchers": "القسائم النشطة",
       "currentlyRunning": "{{count}} تعمل حالياً",
@@ -1273,7 +1273,7 @@
     },
     "form": {
       "voucherCode": "كود القسيمة *",
-      "voucherCodePlaceholder": "أدخل كود القسيمة أو اتركه فارغاً للتوليد التلقائي",
+      "voucherCodePlaceholder": "أدخل كود القسيمة",
       "category": "الفئة *",
       "categoryPlaceholder": "اختر الفئة",
       "scope": "النطاق *",
@@ -1334,6 +1334,12 @@
     "viewOnly": "للعرض فقط",
     "adminCannotChangeLanguage": "فقط المشرف العام (Super Admin) يمكنه تغيير لغة المنصة الافتراضية.",
     "saveSettings": "حفظ الإعدادات",
+    "confirmLanguageModal": {
+      "title": "تغيير لغة المنصة الافتراضية؟",
+      "message": "هل أنت متأكد من رغبتك في تغيير لغة المنصة الافتراضية إلى {{language}}؟ سيتم اعتماد هذه اللغة كلغة افتراضية للمنصة.",
+      "confirm": "نعم، تغيير اللغة",
+      "cancel": "إلغاء"
+    },
     "backToSettings": "العودة للإعدادات",
     "currencies": {
       "sar": "SAR - ريال سعودي",

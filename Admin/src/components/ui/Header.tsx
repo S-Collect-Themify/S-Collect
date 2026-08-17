@@ -102,7 +102,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   );
 
   const { fullName } = useAdminProfile();
-  const userName = fullName;
+  const userName = fullName || 'Admin';
 
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
