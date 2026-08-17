@@ -21,7 +21,7 @@ export const MobilePlatformSettings: React.FC = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<PlatformSettings>({
+  } = useForm<PlatformSettings>({    
     defaultValues: platformSettings,
     mode: 'onChange',
   });
