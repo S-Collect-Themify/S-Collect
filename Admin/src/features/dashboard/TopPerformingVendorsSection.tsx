@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { useTopPerformingVendors } from '../vendors/hooks/useVendors';
 
 const avatarBgColors = [
@@ -54,32 +54,23 @@ export default function TopPerformingVendorsSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const { data, isLoading } = useTopPerformingVendors({ pageNum: 1, pageSize: 25 });
-  const vendors = data?.items || [];
+  const { data, isLoading } = useTopPerformingVendors({ pageNum: 1, pageSize: 5 });
+  const vendors = (data?.items || []).slice(0, 5);
   const totalActive = data?.pagination?.totalItems ?? vendors.length;
 
   return (
     <div className="space-y-4">
       {/* Section Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold text-gray-900">
-            {t('dashboardOverview.topPerformingVendors', 'Top Performing Vendors')}
-          </h2>
-          <p className="text-[11px] text-gray-500 font-medium mt-0.5">
-            {t('dashboardOverview.tableHeaders.activeVendors', {
-              defaultValue: `Active Vendors: ${isLoading ? '...' : totalActive}`,
-              count: totalActive,
-            })}
-          </p>
-        </div>
-        <Link
-          to="/vendors"
-          className="text-xs font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors"
-        >
-          <span>{t('dashboardOverview.viewAll', 'View All')}</span>
-          <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 transition-transform" />
-        </Link>
+        <h2 className="text-base font-bold text-gray-900">
+          {t('dashboardOverview.topPerformingVendors', 'Top Performing Vendors')}
+        </h2>
+        <span className="text-xs font-semibold text-gray-500">
+          {t('dashboardOverview.tableHeaders.activeVendors', {
+            defaultValue: `Active Vendors: ${isLoading ? '...' : totalActive}`,
+            count: totalActive,
+          })}
+        </span>
       </div>
 
       {/* Table / Mobile Cards */}
