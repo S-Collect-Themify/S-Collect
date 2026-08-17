@@ -12,7 +12,9 @@ import {
   getVendorPayoutStats,
   featureVendor,
   unfeatureVendor,
+  getTopPerformingVendors,
   type GetVendorsParams,
+  type GetTopPerformingVendorsParams,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
@@ -247,5 +249,13 @@ export function useUnfeatureVendor() {
       const message = error?.response?.data?.message || error?.message;
       toast.error(message || 'Failed to unfeature vendor');
     },
+  });
+}
+
+export function useTopPerformingVendors(params?: GetTopPerformingVendorsParams) {
+  return useQuery({
+    queryKey: ['top-performing-vendors', params],
+    queryFn: () => getTopPerformingVendors(params),
+    staleTime: 3 * 60 * 1000,
   });
 }
