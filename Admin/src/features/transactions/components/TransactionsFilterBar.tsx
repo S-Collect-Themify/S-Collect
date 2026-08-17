@@ -179,9 +179,15 @@ export const TransactionsFilterBar: React.FC = () => {
                   </label>
                   <input
                     id="trans-min-amount"
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={tempMin}
-                    onChange={(e) => setTempMin(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                        setTempMin(val);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         applyTempAmount();
@@ -189,7 +195,7 @@ export const TransactionsFilterBar: React.FC = () => {
                       }
                     }}
                     placeholder="0"
-                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400 placeholder-gray-500"
+                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-900 focus:bg-white placeholder-gray-500 transition-colors"
                   />
                 </div>
                 <div>
@@ -198,9 +204,15 @@ export const TransactionsFilterBar: React.FC = () => {
                   </label>
                   <input
                     id="trans-max-amount"
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={tempMax}
-                    onChange={(e) => setTempMax(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                        setTempMax(val);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         applyTempAmount();
@@ -208,7 +220,7 @@ export const TransactionsFilterBar: React.FC = () => {
                       }
                     }}
                     placeholder="100000"
-                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-400 placeholder-gray-500"
+                    className="w-full h-8 px-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-900 focus:outline-none focus:border-gray-900 focus:bg-white placeholder-gray-500 transition-colors"
                   />
                 </div>
               </div>

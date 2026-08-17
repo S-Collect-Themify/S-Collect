@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Edit2, ExternalLink, Check, X, Loader2, MessageSquare } from 'lucide-react';
+import { ChevronDown, Edit2, ExternalLink, Check, X, Loader2, MessageSquare, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { AdminSubOrder } from '../../../services/orders';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
 
 interface SubOrderCardProps {
   subOrder: AdminSubOrder;
@@ -26,6 +28,7 @@ export const SubOrderCard = ({
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const { isSuperAdmin } = useAdminProfile();
 
   const defaultTracking = typeof subOrder.trackingNumber === 'string' && subOrder.trackingNumber ? subOrder.trackingNumber : '--';
   const defaultReason = typeof subOrder.statusOverrideReason === 'string' ? subOrder.statusOverrideReason : '';
@@ -47,6 +50,10 @@ export const SubOrderCard = ({
   ];
 
   const handleSaveTracking = async () => {
+    if (!isSuperAdmin) {
+      toast.error(t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.'));
+      return;
+    }
     setIsEditingTracking(false);
     await onUpdateStatus({
       status: subOrder.status,
@@ -56,6 +63,10 @@ export const SubOrderCard = ({
   };
 
   const handleStatusSelect = (st: string) => {
+    if (!isSuperAdmin) {
+      toast.error(t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.'));
+      return;
+    }
     if (st === subOrder.status) return;
     setPendingStatus(st);
     setReasonError(false);
@@ -63,6 +74,10 @@ export const SubOrderCard = ({
   };
 
   const handleConfirmStatusChange = async () => {
+    if (!isSuperAdmin) {
+      toast.error(t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.'));
+      return;
+    }
     if (!pendingStatus) return;
     if (!reasonText.trim()) {
       setReasonError(true);
@@ -129,7 +144,7 @@ export const SubOrderCard = ({
             <input
               type="text"
               value={trackingNumber}
-              disabled={!isEditingTracking}
+              disabled={!isEditingTracking || !isSuperAdmin}
               onChange={(e) => setTrackingNumber(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && isEditingTracking) {
@@ -168,9 +183,15 @@ export const SubOrderCard = ({
               ) : (
                 <button
                   type="button"
-                  onClick={() => setIsEditingTracking(true)}
-                  title="Edit tracking number"
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (!isSuperAdmin) {
+                      toast.error(t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.'));
+                      return;
+                    }
+                    setIsEditingTracking(true);
+                  }}
+                  title={!isSuperAdmin ? t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.') : "Edit tracking number"}
+                  className={`p-1 rounded-lg transition-colors ${!isSuperAdmin ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer'}`}
                 >
                   <Edit2 size={13} />
                 </button>
@@ -181,8 +202,13 @@ export const SubOrderCard = ({
 
         {/* Change Status */}
         <div>
-          <label className="block text-[11px] text-gray-400 mb-1 font-medium">
-            {t('ordersPage.changeStatus', 'Change Status')}
+          <label className="block text-[11px] text-gray-400 mb-1 font-medium flex items-center justify-between">
+            <span>{t('ordersPage.changeStatus', 'Change Status')}</span>
+            {!isSuperAdmin && (
+              <span className="text-[10px] text-rose-500 font-semibold flex items-center gap-0.5">
+                <Lock size={10} /> Super Admin Only
+              </span>
+            )}
           </label>
           <PortalDropdown
             minWidth={160}
@@ -191,8 +217,20 @@ export const SubOrderCard = ({
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
-                onClick={toggle}
-                className="w-full flex items-center justify-between py-2 px-3 rounded-lg border border-gray-200 text-xs text-gray-800 bg-gray-50/50 hover:bg-white focus:outline-none cursor-pointer transition-colors"
+                onClick={() => {
+                  if (!isSuperAdmin) {
+                    toast.error(t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.'));
+                    return;
+                  }
+                  toggle();
+                }}
+                disabled={!isSuperAdmin}
+                title={!isSuperAdmin ? t('ordersPage.superAdminOnly', 'Restricted: Only Super Admin can change order status.') : undefined}
+                className={`w-full flex items-center justify-between py-2 px-3 rounded-lg border text-xs transition-colors ${
+                  !isSuperAdmin
+                    ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'border-gray-200 text-gray-800 bg-gray-50/50 hover:bg-white cursor-pointer'
+                }`}
               >
                 <span>{t(`ordersPage.statuses.${subOrder.status}`, subOrder.status)}</span>
                 <ChevronDown

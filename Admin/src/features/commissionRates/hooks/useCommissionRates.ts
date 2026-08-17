@@ -302,10 +302,12 @@ export function useResetCategoryCommission() {
 }
 
 // ─── Main Hook ────────────────────────────────────────────────────────────────
+import { useAdminProfile } from '../../../hooks/useAdminProfile';
 
 export function useCommissionRates() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const { isSuperAdmin } = useAdminProfile();
 
   // ── Modal / confirm state ───────────────────────────────────────────────────
   const [editTarget, setEditTarget] = useState<EditModalTarget | null>(null);
@@ -368,6 +370,10 @@ export function useCommissionRates() {
   // ── Modal openers ───────────────────────────────────────────────────────────
 
   const handleOpenEditPlatform = () => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setEditTarget({
       type: 'platform',
       id: 'platform',
@@ -378,6 +384,10 @@ export function useCommissionRates() {
   };
 
   const handleOpenEditVendor = (item: VendorCommissionItem) => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setEditTarget({
       type: 'vendor',
       id: item.id,
@@ -390,6 +400,10 @@ export function useCommissionRates() {
   };
 
   const handleOpenEditCategory = (item: CategoryCommissionItem) => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setEditTarget({
       type: 'category',
       id: item.id,
@@ -408,6 +422,10 @@ export function useCommissionRates() {
     type: 'platform' | 'vendor' | 'category',
     newRate: number
   ) => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setPendingChange({ id, type, newRate });
     setIsConfirmOpen(true);
   };
@@ -415,6 +433,10 @@ export function useCommissionRates() {
   // ── Confirm & save ──────────────────────────────────────────────────────────
 
   const handleConfirmRateChange = () => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     if (!pendingChange) return;
     const { id, type, newRate } = pendingChange;
 
@@ -442,11 +464,19 @@ export function useCommissionRates() {
   // ── Reset handlers ──────────────────────────────────────────────────────────
 
   const handleResetVendorCommission = (item: VendorCommissionItem) => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setResetTarget({ id: item.id, name: item.vendorName, type: 'vendor' });
     setIsResetConfirmOpen(true);
   };
 
   const handleResetCategoryCommission = (item: CategoryCommissionItem) => {
+    if (!isSuperAdmin) {
+      toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
     setResetTarget({ id: item.id, name: item.categoryName, type: 'category' });
     setIsResetConfirmOpen(true);
   };
