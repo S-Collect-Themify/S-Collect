@@ -70,16 +70,15 @@ export const updateAccountSettings = async (
   try {
     const { api } = await import('./api');
     const formData = new FormData();
-    if (settings.firstName) formData.append('firstName', settings.firstName);
-    if (settings.lastName) formData.append('lastName', settings.lastName);
-
-    const { data: rawData } = await api
+    const res = await api
       .patch('/vendor/profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .catch(() => null);
+
+    const rawData = res?.data;
 
     const data =
       rawData && typeof rawData === 'object' && 'data' in rawData
