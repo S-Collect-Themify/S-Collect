@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import type { SubOrderStatus } from '../Orders/types/subOrder';
-import { NEXT_STATUS } from '../Orders/types/subOrder';
+import { NEXT_STATUS, getOrderStatusLabel } from '../Orders/types/subOrder';
 
 interface Props {
   currentStatus: SubOrderStatus;
@@ -10,14 +10,6 @@ interface Props {
   isSuccess: boolean;
   onUpdateStatus: (status: SubOrderStatus | null, tracking: string) => void;
 }
-
-const STATUS_LABEL: Record<SubOrderStatus, string> = {
-  PENDING: 'Pending',
-  PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
-  DELIVERED: 'Delivered',
-  CANCELLED: 'Cancelled',
-};
 
 export const SubOrderStatusUpdate = ({
   currentStatus,
@@ -82,7 +74,7 @@ export const SubOrderStatusUpdate = ({
                       : 'border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer'
               }`}
             >
-              {STATUS_LABEL[s]}
+              {getOrderStatusLabel(s, t)}
             </button>
           );
         })}

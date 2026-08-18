@@ -66,6 +66,26 @@ export const STATUS_STYLES: Record<SubOrderStatus, string> = {
   CANCELLED: 'bg-red-50 text-red-500',
 };
 
+export const getOrderStatusLabel = (
+  status: SubOrderStatus,
+  t: (key: string, options?: { defaultValue?: string }) => string
+): string => {
+  switch (status) {
+    case 'PENDING':
+      return t('ordersPage.pending', { defaultValue: 'Pending' });
+    case 'PROCESSING':
+      return t('ordersPage.processing', { defaultValue: 'Processing' });
+    case 'SHIPPED':
+      return t('ordersPage.shipped', { defaultValue: 'Shipped' });
+    case 'DELIVERED':
+      return t('ordersPage.delivered', { defaultValue: 'Delivered' });
+    case 'CANCELLED':
+      return t('ordersPage.cancelled', { defaultValue: 'Cancelled' });
+    default:
+      return status;
+  }
+};
+
 // Valid forward transitions the vendor can make
 export const NEXT_STATUS: Partial<Record<SubOrderStatus, SubOrderStatus>> = {
   PENDING: 'PROCESSING',

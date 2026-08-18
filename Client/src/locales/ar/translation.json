@@ -356,6 +356,7 @@
     "processing": "قيد المعالجة",
     "shipped": "تم الشحن",
     "delivered": "تم التسليم",
+    "cancelled": "ملغي",
 
     "sortBy": "ترتيب حسب",
     "newestFirst": "الأحدث أولاً",
