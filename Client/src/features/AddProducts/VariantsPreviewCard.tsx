@@ -27,7 +27,7 @@ export default function VariantsPreviewCard({
   quantity = 0,
   varianceCards,
 }: VariantsPreviewCardProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
 
   const priceNum = parseFloat(basePrice) || 0;

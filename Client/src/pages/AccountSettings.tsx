@@ -2,7 +2,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { ChevronsRight } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 import { AccountSettingsForm } from '../features/settings/AccountSettingsForm';
 import { AccountSettingsFormSkeleton } from '../features/settings/skeleton/SettingsSkeletons';
@@ -63,9 +62,6 @@ export default function AccountSettingsPage({
             <AccountSettingsForm
               initialData={accountData}
               onSave={onAccountSettingsSave}
-              onSuccess={() =>
-                toast.success(t('settings.toast.accountSettingsSaved'))
-              }
             />
           )}
         </div>

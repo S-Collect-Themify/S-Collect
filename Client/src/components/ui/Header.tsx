@@ -90,22 +90,18 @@ const LanguageDropdown = () => {
 
 const Header = ({ onMenuClick }: HeaderProps) => {
   const { t, i18n } = useTranslation();
-  const { data: profile } = useStoreProfile();
-  const { data: account } = useAccountSettings();
+  const { data: profile, isLoading: isProfileLoading } = useStoreProfile();
+  const { data: account, isLoading: isAccountLoading } = useAccountSettings();
 
+  const isLoading = isProfileLoading || isAccountLoading;
   const logoUrl = profile?.storeLogoUrl;
-  console.log('Header Logo URL:', logoUrl);
-  console.log('Full Profile:', profile);
 
   const isArabic = i18n.language === 'ar';
-  const storeName = isArabic
-    ? profile?.storeNameAr || profile?.storeName || ''
-    : profile?.storeName || profile?.storeNameAr || '';
 
   const vendorName = [account?.firstName, account?.lastName]
     .filter(Boolean)
     .join(' ');
-  const displayName = vendorName || storeName || (isArabic ? 'تاجر' : 'Vendor');
+  const displayName = vendorName || (isArabic ? 'تاجر' : 'Vendor');
 
   const today = new Date().toLocaleDateString(
     isArabic ? 'ar-EG' : 'en-US',
@@ -142,7 +138,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               aria-label={t('header.account')}
               className="inline-flex h-11 w-11 items-center justify-center text-gray-50"
             >
-              {logoUrl ? (
+              {isProfileLoading ? (
+                <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
+              ) : logoUrl ? (
                 <img
                   src={logoUrl}
                   alt="Store Logo"
@@ -159,11 +157,15 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
         <div className="hidden items-center justify-between gap-4 md:flex">
           <div>
-            <h1 className="text-2xl font-bold">
-              {isArabic
-                ? `مرحباً, ${displayName} 👋`
-                : `Hello, ${displayName} 👋`}
-            </h1>
+            {isLoading ? (
+              <div className="h-7 w-48 bg-white/20 rounded-md animate-pulse my-1" />
+            ) : (
+              <h1 className="text-2xl font-bold">
+                {isArabic
+                  ? `مرحباً, ${displayName}`
+                  : `Hello, ${displayName}`}
+              </h1>
+            )}
             <p className="text-sm text-gray-200">{today}</p>
           </div>
         </div>
@@ -181,7 +183,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             aria-label={t('header.account')}
             className="hidden text-2xl md:block"
           >
-            {logoUrl ? (
+            {isProfileLoading ? (
+              <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
+            ) : logoUrl ? (
               <img
                 src={logoUrl}
                 alt="Store Logo"

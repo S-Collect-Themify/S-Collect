@@ -122,12 +122,11 @@ export function PersonalInfoSection() {
                       <img
                         src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
                         alt="Saudi Arabia"
-                        className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
+                        className="w-5 h-3.5 rounded-xs object-cover shadow-sm"
                       />
                       <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
                     </div>
                   )}
-                  value={normalizeSaudiPhone(field.value)}
                   onChange={(v) => field.onChange(normalizeSaudiPhone(v))}
                   className={cn(
                     'phone-input-custom h-10 rounded-lg px-3',

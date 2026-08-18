@@ -554,7 +554,7 @@ export const mapFormToMultipartFormData = (
     )
   );
 
-  const options = [];
+  const options: any[] = [];
   if (uniqueSizes.length > 0) {
     const sizeMeta = findOptionMeta('Size');
     options.push({
@@ -599,7 +599,7 @@ export const mapFormToMultipartFormData = (
 
     if (card.size && card.size.trim()) {
       const sizeVal = sizeOption?.values.find(
-        (v) => normalizeOptionText(v.value) === normalizeOptionText(card.size)
+        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.size)
       );
       if (sizeOption) {
         optionValues.push({
@@ -616,7 +616,7 @@ export const mapFormToMultipartFormData = (
 
     if (card.color && card.color.trim()) {
       const colorVal = colorOption?.values.find(
-        (v) => normalizeOptionText(v.value) === normalizeOptionText(card.color)
+        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.color)
       );
       if (colorOption) {
         optionValues.push({
