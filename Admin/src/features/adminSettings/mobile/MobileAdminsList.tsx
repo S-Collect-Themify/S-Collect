@@ -35,12 +35,19 @@ export const MobileAdminsList: React.FC = () => {
     openDeleteAdminModal(admin);
   };
 
+  const getRoleLabel = (role: string) => {
+    const r = (role || '').toUpperCase();
+    if (r.includes('SUPER')) return t('adminSettings.adminAccounts.roles.superAdmin', { defaultValue: 'Super Admin' });
+    if (r.includes('ADMIN')) return t('adminSettings.adminAccounts.roles.admin', { defaultValue: 'Admin' });
+    return role;
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'Super Admin':
-        return 'bg-blue-50 text-blue-600 border border-blue-100/50';
+        return 'bg-blue-50 text-blue-600 border border-blue-100';
       case 'Admin':
-        return 'bg-emerald-50 text-emerald-600 border border-emerald-100/50';
+        return 'bg-emerald-50 text-emerald-600 border border-emerald-100';
       default:
         return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
@@ -132,7 +139,7 @@ export const MobileAdminsList: React.FC = () => {
                       admin.role
                     )}`}
                   >
-                    {admin.role}
+                    {getRoleLabel(admin.role)}
                   </span>
                 </div>
 
@@ -180,7 +187,7 @@ export const MobileAdminsList: React.FC = () => {
                       type="button"
                       onClick={() => handleDelete(admin)}
                       className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      title="Delete Admin"
+                      title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
                     >
                       <Trash2 size={15} />
                     </button>
