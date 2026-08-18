@@ -32,7 +32,7 @@ export const useUpdateBankInfo = () => {
 
       return {
         bankName: response.bankName,
-        iban: response.ibanMasked || response.iban,
+        iban: response.iban || response.ibanMasked,
         accountHolderName: response.accountHolderName,
       };
     },
