@@ -1462,6 +1462,10 @@
       "phoneNumberPlaceholder": "+966 50 000 0000",
       "phoneNumberRequired": "Saudi phone number is required",
       "phoneInvalidSaudi": "Please enter a valid Saudi phone number (e.g. +966500000000 or 0500000000)",
+      "addBtnShort": "Add Admin",
+      "noAdmins": "No admin accounts found.",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Please enter a valid email address",
       "addAdminBtn": "Add Admin",
       "saveChangesBtn": "Save Changes",
       "fileTooLarge": "Image file size must be 2MB or less",
@@ -1473,6 +1477,17 @@
         "dateAdded": "Date Added",
         "actions": "Actions"
       }
+    },
+    "quickActions": {
+      "adminsTitle": "Admin Accounts",
+      "adminsDesc": "Manage platform admin accounts and permissions",
+      "manageAdmins": "Manage Admins",
+      "bannersTitle": "Banners",
+      "bannersDesc": "Manage homepage banners and promotional slots",
+      "manageBanners": "Manage Banners",
+      "shippingTitle": "Shipping Management",
+      "shippingDesc": "Manage shipping zones and view vendor rates",
+      "manageShipping": "Manage Shipping"
     },
     "confirmDeleteAdminTitle": "Confirm Delete Admin",
     "confirmDeleteAdminDesc": "Are you sure you want to remove this admin? They will lose all access to the platform.",

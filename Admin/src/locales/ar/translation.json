@@ -1458,6 +1458,10 @@
       "phoneNumberPlaceholder": "+966 50 000 0000",
       "phoneNumberRequired": "رقم الهاتف السعودي مطلوب",
       "phoneInvalidSaudi": "يرجى إدخال رقم هاتف سعودي صحيح (مثال: +966500000000 أو 0500000000)",
+      "addBtnShort": "إضافة مسؤول",
+      "noAdmins": "لم يتم العثور على حسابات مسؤولين.",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
       "addAdminBtn": "إضافة مسؤول",
       "saveChangesBtn": "حفظ التغييرات",
       "fileTooLarge": "يجب ألا يتجاوز حجم ملف الصورة 2 ميجابايت",
@@ -1469,6 +1473,17 @@
         "dateAdded": "تاريخ الإضافة",
         "actions": "الإجراءات"
       }
+    },
+    "quickActions": {
+      "adminsTitle": "حسابات الأدمن",
+      "adminsDesc": "إدارة حسابات وصلاحيات مسؤولي المنصة",
+      "manageAdmins": "إدارة المسؤولين",
+      "bannersTitle": "الإعلانات البانريّة",
+      "bannersDesc": "إدارة بانرات الصفحة الرئيسية والعروض الترويجية",
+      "manageBanners": "إدارة البانرات",
+      "shippingTitle": "إدارة الشحن",
+      "shippingDesc": "إدارة مناطق الشحن واستعراض أسعار الموردين",
+      "manageShipping": "إدارة الشحن"
     },
     "confirmDeleteAdminTitle": "تأكيد حذف المسؤول",
     "confirmDeleteAdminDesc": "هل أنت تأكد من إزالة هذا المسؤول؟ سيفقد كل صلاحيات الوصول إلى المنصة.",
