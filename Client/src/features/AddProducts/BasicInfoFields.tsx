@@ -48,10 +48,8 @@ const BasicInfoFields = () => {
             required: t('addProduct.errors.nameArRequired'),
           })}
         />
-        {errors.nameAr ? (
+        {errors.nameAr && (
           <p className={errorCls}>{errors.nameAr.message}</p>
-        ) : (
-          <p className="mt-1 text-xs text-gray-400">Hint...</p>
         )}
       </div>
 
@@ -67,10 +65,8 @@ const BasicInfoFields = () => {
             required: t('addProduct.errors.nameEnRequired'),
           })}
         />
-        {errors.nameEn ? (
+        {errors.nameEn && (
           <p className={errorCls}>{errors.nameEn.message}</p>
-        ) : (
-          <p className="mt-1 text-xs text-gray-400">Hint...</p>
         )}
       </div>
 

@@ -85,6 +85,18 @@ const MobilePricingStep = () => {
                   'Must be positive'
                 ),
               },
+              validate: (val, formValues) => {
+                if (!val) return true;
+                const compare = parseFloat(val);
+                const base = parseFloat(formValues.basePrice);
+                if (!isNaN(compare) && !isNaN(base) && compare > 0 && compare <= base) {
+                  return t(
+                    'addProduct.errors.comparePriceMustBeGreater',
+                    'Compare-at price must be greater than base price'
+                  );
+                }
+                return true;
+              },
             })}
           />
         </div>

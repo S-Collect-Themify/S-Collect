@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers } from 'lucide-react';
+import type { VarianceCardData } from './types';
 
 interface CustomVarianceProp {
   name: string;
@@ -14,6 +15,7 @@ interface VariantsPreviewCardProps {
   basePrice?: string;
   sku?: string;
   quantity?: number;
+  varianceCards?: VarianceCardData[];
 }
 
 export default function VariantsPreviewCard({
@@ -23,6 +25,7 @@ export default function VariantsPreviewCard({
   basePrice = '0',
   sku = '',
   quantity = 0,
+  varianceCards,
 }: VariantsPreviewCardProps) {
   const { i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
@@ -30,8 +33,19 @@ export default function VariantsPreviewCard({
   const priceNum = parseFloat(basePrice) || 0;
   const totalStock = quantity || 0;
 
-  // Generate combinations dynamically from sizes, colors, and custom variances
+  // Generate combinations dynamically from varianceCards or fallback from sizes, colors, and custom variances
   const variantCombinations = useMemo(() => {
+    if (varianceCards && varianceCards.length > 0) {
+      return varianceCards.map((card) => ({
+        size: card.size || undefined,
+        color: card.color || undefined,
+        customAttrs: undefined as Record<string, string> | undefined,
+        variantSku: card.sku || [sku, card.size, card.color].filter(Boolean).join('-') || 'SKU',
+        stock: Number(card.stock) || 0,
+        price: parseFloat(card.basePrice) || priceNum,
+      }));
+    }
+
     const validSizes = sizes.filter((s) => s.trim().length > 0);
     const validColors = colors.filter((c) => c.trim().length > 0);
     const validCustoms = customVariances
@@ -58,6 +72,7 @@ export default function VariantsPreviewCard({
       customAttrs?: Record<string, string>;
       variantSku: string;
       stock: number;
+      price: number;
     }[] = [];
 
     // Cartesian product
@@ -69,6 +84,7 @@ export default function VariantsPreviewCard({
           customAttrs: {},
           variantSku: '',
           stock: 0,
+          price: priceNum,
         });
       });
     });
@@ -102,9 +118,10 @@ export default function VariantsPreviewCard({
         ...combo,
         variantSku: skuParts.join('-'),
         stock: stockPerVariant,
+        price: priceNum,
       };
     });
-  }, [sizes, colors, customVariances, sku, totalStock]);
+  }, [varianceCards, sizes, colors, customVariances, sku, totalStock, priceNum]);
 
   if (variantCombinations.length === 0) {
     return null;
@@ -116,12 +133,14 @@ export default function VariantsPreviewCard({
         <div className="flex items-center gap-2">
           <Layers className="h-4 w-4 text-gray-700" />
           <h4 className="text-sm font-bold text-gray-900">
-            {isArabic ? 'الأنواع والمتغيرات' : 'Generated Product Variants'}
+            {t('addProduct.preview.productVariances', 'Generated Product Variants')}
           </h4>
         </div>
         <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
           {variantCombinations.length}{' '}
-          {isArabic ? 'متغير' : variantCombinations.length === 1 ? 'variant' : 'variants'}
+          {variantCombinations.length === 1
+            ? t('addProduct.preview.variance', 'variant')
+            : t('addProduct.preview.productVariances', 'variants')}
         </span>
       </div>
 
@@ -131,21 +150,21 @@ export default function VariantsPreviewCard({
           <thead className="sticky top-0 z-10 border-b border-gray-100 bg-gray-50 font-semibold text-gray-500">
             <tr>
               <th className="px-4 py-2.5">#</th>
-              <th className="px-4 py-2.5">{isArabic ? 'رمز المنتج (SKU)' : 'SKU'}</th>
+              <th className="px-4 py-2.5">{t('addProduct.sku', 'SKU')}</th>
               {sizes.length > 0 && (
-                <th className="px-4 py-2.5">{isArabic ? 'المقاس' : 'Size'}</th>
+                <th className="px-4 py-2.5">{t('addProduct.size', 'Size')}</th>
               )}
               {colors.length > 0 && (
-                <th className="px-4 py-2.5">{isArabic ? 'اللون' : 'Color'}</th>
+                <th className="px-4 py-2.5">{t('addProduct.color', 'Color')}</th>
               )}
               {customVariances.map((cv) => (
                 <th key={cv.name} className="px-4 py-2.5">
                   {cv.name}
                 </th>
               ))}
-              <th className="px-4 py-2.5">{isArabic ? 'السعر' : 'Price'}</th>
-              <th className="px-4 py-2.5">{isArabic ? 'المخزون' : 'Stock'}</th>
-              <th className="px-4 py-2.5">{isArabic ? 'الحالة' : 'Status'}</th>
+              <th className="px-4 py-2.5">{t('addProduct.basePrice', 'Price')}</th>
+              <th className="px-4 py-2.5">{t('addProduct.preview.stock', 'Stock')}</th>
+              <th className="px-4 py-2.5">{t('addProduct.preview.status', 'Status')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
@@ -177,14 +196,14 @@ export default function VariantsPreviewCard({
                   </td>
                 ))}
                 <td className="px-4 py-2.5 font-semibold text-gray-900">
-                  {priceNum.toLocaleString()} SAR
+                  {(item.price ?? priceNum).toLocaleString()} SAR
                 </td>
                 <td className="px-4 py-2.5 font-medium text-gray-700">
-                  {item.stock} {isArabic ? 'وحدة' : 'units'}
+                  {item.stock} {t('addProduct.preview.units', 'units')}
                 </td>
                 <td className="px-4 py-2.5">
                   <span className="inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
-                    {isArabic ? 'نشط' : 'Active'}
+                    {t('addProduct.active', 'Active')}
                   </span>
                 </td>
               </tr>
