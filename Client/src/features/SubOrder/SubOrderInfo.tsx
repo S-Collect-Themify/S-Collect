@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { SubOrderStatus, SubOrderCustomer } from '../Orders/types/subOrder';
+import { getOrderStatusLabel } from '../Orders/types/subOrder';
 
 interface Props {
   id: string;
@@ -9,14 +10,6 @@ interface Props {
   status: SubOrderStatus;
   customer?: SubOrderCustomer | null;
 }
-
-const STATUS_LABEL: Record<SubOrderStatus, string> = {
-  PENDING: 'Pending',
-  PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
-  DELIVERED: 'Delivered',
-  CANCELLED: 'Cancelled',
-};
 
 export const SubOrderInfo = ({
   id,
@@ -76,7 +69,7 @@ export const SubOrderInfo = ({
                     : 'text-gray-500'
           }`}
         >
-          {STATUS_LABEL[status]}
+          {getOrderStatusLabel(status, t)}
         </span>
       </div>
       {infoRows.map(([label, val]) => (
