@@ -234,6 +234,12 @@
     "categories": "التصنيفات",
     "sizes": "المقاسات",
     "colors": "الألوان",
+    "size": "المقاس",
+    "color": "اللون",
+    "selectSize": "اختر المقاس",
+    "stockQuantity": "كمية المخزون",
+    "addVariance": "إضافة تنوع",
+    "removeVarianceCard": "حذف البطاقة",
 
     "addCategory": "إضافة تصنيف",
     "addSize": "إضافة مقاس",
@@ -273,6 +279,37 @@
 
     "active": "نشط",
     "inactive": "غير نشط",
+    "thumbnail": "الصورة المصغرة",
+    "updated": "تم التحديث",
+    "published": "تم النشر",
+    "publishing": "جاري النشر...",
+
+    "preview": {
+      "productName": "اسم المنتج",
+      "uncategorized": "غير مصنف",
+      "brand": "العلامة التجارية",
+      "generic": "عام",
+      "sku": "رمز المنتج",
+      "stock": "المخزون",
+      "units": "وحدة",
+      "status": "الحالة",
+      "discount": "الخصم",
+      "cost": "التكلفة",
+      "description": "الوصف",
+      "descriptionAr": "الوصف بالعربية",
+      "productVariances": "تنوعات المنتج",
+      "variance": "تنوع",
+      "size": "المقاس",
+      "color": "اللون"
+    },
+    "stepSummary": {
+      "title": "ملخص الخطوات",
+      "basicInfo": "المعلومات الأساسية",
+      "categorization": "التصنيف",
+      "pricing": "التسعير",
+      "inventory": "المخزون",
+      "review": "المراجعة"
+    },
 
     "addingProduct": "جاري إضافة المنتج...",
     "addingProductMessage": "يرجى الانتظار بينما نقوم بإضافة منتجك.",
@@ -289,8 +326,9 @@
       "descriptionArRequired": "الوصف بالعربية مطلوب",
       "basePriceRequired": "السعر الأساسي مطلوب",
       "comparePriceRequired": "السعر قبل الخصم مطلوب",
+      "comparePriceMustBeGreater": "السعر قبل الخصم يجب أن يكون أكبر من السعر الأساسي",
       "skuRequired": "رمز المنتج مطلوب",
-      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0"
+      "priceMinValue": "يجب أن يكون السعر أكبر من أو يساوي 0"
     },
     "mobile": {
       "addProduct": "إضافة منتج",

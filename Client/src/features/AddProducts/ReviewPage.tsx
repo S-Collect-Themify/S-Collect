@@ -4,16 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import ProductPreviewCard from './ProductPreviewCard';
 import StepSummary from './StepSummary';
-import type { ProductFormData } from './types';
+import type { ProductFormData, VarianceCardData } from './types';
 import { containerVariants, itemVariants } from '../../utils/animations';
-
-export interface VarianceCardItem {
-  id: string;
-  sizes: string[];
-  colors: string[];
-  basePrice: string;
-  comparePrice: string;
-}
 
 interface ReviewPageProps {
   formData: ProductFormData;
@@ -21,7 +13,7 @@ interface ReviewPageProps {
   sizes: string[];
   colors: string[];
   quantity: number;
-  varianceCards?: VarianceCardItem[];
+  varianceCards?: VarianceCardData[];
   onPrevious: () => void;
   onPublish: () => void;
   isPublishing?: boolean;

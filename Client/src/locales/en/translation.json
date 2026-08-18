@@ -235,6 +235,12 @@
     "categories": "Categories",
     "sizes": "Sizes",
     "colors": "Colors",
+    "size": "Size",
+    "color": "Color",
+    "selectSize": "Select Size",
+    "stockQuantity": "Stock Quantity",
+    "addVariance": "Add Variance",
+    "removeVarianceCard": "Remove Card",
 
     "addCategory": "Add Category",
     "addSize": "Add Size",
@@ -273,6 +279,37 @@
 
     "active": "Active",
     "inactive": "Inactive",
+    "thumbnail": "Thumbnail",
+    "updated": "Updated",
+    "published": "Published",
+    "publishing": "Publishing...",
+
+    "preview": {
+      "productName": "Product Name",
+      "uncategorized": "Uncategorized",
+      "brand": "Brand",
+      "generic": "Generic",
+      "sku": "SKU",
+      "stock": "Stock",
+      "units": "units",
+      "status": "Status",
+      "discount": "Discount",
+      "cost": "Cost",
+      "description": "Description",
+      "descriptionAr": "الوصف",
+      "productVariances": "Product Variances",
+      "variance": "Variance",
+      "size": "Size",
+      "color": "Color"
+    },
+    "stepSummary": {
+      "title": "Step Summary",
+      "basicInfo": "Basic Info",
+      "categorization": "Categorization",
+      "pricing": "Pricing",
+      "inventory": "Inventory",
+      "review": "Review"
+    },
 
     "addingProduct": "Adding Product...",
     "addingProductMessage": "Please wait while we add your product.",
@@ -289,6 +326,7 @@
       "descriptionArRequired": "Description in Arabic is required",
       "basePriceRequired": "Base price is required",
       "comparePriceRequired": "Compare-at price is required",
+      "comparePriceMustBeGreater": "Compare-at price must be greater than base price",
       "skuRequired": "SKU is required",
       "priceMinValue": "Price must be greater than or equal to 0"
     },

@@ -2,14 +2,6 @@
 import { CircleCheckBig } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const STEPS = [
-  { label: 'Basic Info' },
-  { label: 'Categorization' },
-  { label: 'Pricing' },
-  { label: 'Inventory' },
-  { label: 'Review' },
-];
-
 interface StepSummaryProps {
   onPrevious: () => void;
   onPublish: () => void;
@@ -23,13 +15,23 @@ const StepSummary = ({
 }: StepSummaryProps) => {
   const { t } = useTranslation();
 
+  const steps = [
+    { key: 'basicInfo', label: t('addProduct.stepSummary.basicInfo', 'Basic Info') },
+    { key: 'categorization', label: t('addProduct.stepSummary.categorization', 'Categorization') },
+    { key: 'pricing', label: t('addProduct.stepSummary.pricing', 'Pricing') },
+    { key: 'inventory', label: t('addProduct.stepSummary.inventory', 'Inventory') },
+    { key: 'review', label: t('addProduct.stepSummary.review', 'Review') },
+  ];
+
   return (
     <div className="rounded-2xl border border-gray-200 p-6 bg-white flex flex-col justify-between h-full shadow-xs">
       <div>
-        <h3 className="mb-6 font-bold text-gray-900 text-base">Step Summary</h3>
+        <h3 className="mb-6 font-bold text-gray-900 text-base">
+          {t('addProduct.stepSummary.title', 'Step Summary')}
+        </h3>
         <div className="space-y-4">
-          {STEPS.map((step) => (
-            <div key={step.label} className="flex items-center justify-between py-1">
+          {steps.map((step) => (
+            <div key={step.key} className="flex items-center justify-between py-1">
               <span className="text-sm font-medium text-gray-700">{step.label}</span>
               <CircleCheckBig size={20} className="text-emerald-500 shrink-0" />
             </div>

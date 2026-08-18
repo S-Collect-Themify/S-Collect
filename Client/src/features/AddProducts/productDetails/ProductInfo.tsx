@@ -211,12 +211,6 @@ export default function ProductInfo({
             </div>
             <div className="flex gap-0.5 sm:flex-row sm:gap-2">
               <span className="text-gray-400">
-                {t('productDetails.productInfo.brand')}
-              </span>
-              <span className="font-bold text-gray-700">{brand}</span>
-            </div>
-            <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400">
                 {t('productDetails.productInfo.sku')}
               </span>
               <span className="font-bold text-gray-700">{sku}</span>
@@ -243,20 +237,15 @@ export default function ProductInfo({
               <span className="text-[28px] font-bold text-gray-900">
                 {price} {currency}
               </span>
-              {compareAtPrice != null && (
-                <span className="text-sm text-gray-400 line-through">
-                  {compareAtPrice} {currency}
-                </span>
-              )}
+              {compareAtPrice != null &&
+                Number(compareAtPrice) > Number(price ?? 0) &&
+                Number(compareAtPrice) > 0 && (
+                  <span className="text-sm text-gray-400 line-through">
+                    {compareAtPrice} {currency}
+                  </span>
+                )}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400 sm:ml-2">
-                {t('productDetails.productInfo.cost')}
-              </span>
-              <span className="text-sm font-semibold text-gray-700">
-                {cost} {currency}
-              </span>
-            </div>
+
           </div>
 
           <hr className="mb-6 border-gray-100" />

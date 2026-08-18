@@ -24,10 +24,12 @@ export interface VariantMeta {
 
 export interface VarianceCardData {
   id: string;
-  sizes: string[];
-  colors: string[];
+  size: string;
+  color: string;
+  stock: number;
   basePrice: string;
   comparePrice: string;
+  sku: string;
 }
 
 export interface ProductFormData {

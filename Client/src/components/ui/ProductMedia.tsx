@@ -223,7 +223,7 @@ const ProductMedia = () => {
 
               {isThumbnail && (
                 <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                  Thumbnail
+                  {t('addProduct.thumbnail', 'Thumbnail')}
                 </span>
               )}
 

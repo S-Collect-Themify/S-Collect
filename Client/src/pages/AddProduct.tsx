@@ -1,27 +1,29 @@
 import { useState, useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronDown } from 'lucide-react';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
 import BasicInfoFields from '../features/AddProducts/BasicInfoFields';
-import QuantityInput from '../features/AddProducts/QuantityInput';
-import TagInput from '../features/AddProducts/TagInput';
 import CategorySelect from '../features/AddProducts/CategorySelect';
 import SuccessPopup from '../features/AddProducts/SuccessPopup';
 import MobileAddProduct from '../features/AddProducts/mobile/MobileAddProduct';
 import { useAddProductPage } from '../features/AddProducts/useAddProductPage';
 import { motion } from 'motion/react';
-
+import type { VarianceCardData } from '../features/AddProducts/types';
 import { containerVariants, itemVariants } from '../utils/animations';
 
-interface VarianceCardData {
-  id: string;
-  sizes: string[];
-  colors: string[];
-  basePrice: string;
-  comparePrice: string;
-}
+const SIZE_OPTIONS = [
+  'XS',
+  'S',
+  'M',
+  'L',
+  'XL',
+  '2XL',
+  '3XL',
+  '4XL',
+  'One Size',
+];
 
 const AddProduct = () => {
   const {
@@ -46,7 +48,15 @@ const AddProduct = () => {
   } = useAddProductPage();
 
   const [varianceCards, setVarianceCards] = useState<VarianceCardData[]>([
-    { id: '1', sizes: [], colors: [], basePrice: '', comparePrice: '' },
+    {
+      id: '1',
+      size: 'XS',
+      color: '',
+      stock: 150,
+      basePrice: '',
+      comparePrice: '',
+      sku: '',
+    },
   ]);
 
   // Sync varianceCards when edit product data is loaded
@@ -65,28 +75,46 @@ const AddProduct = () => {
         setVarianceCards([
           {
             id: '1',
-            sizes: fetchedProductData.sizes || [],
-            colors: fetchedProductData.colors || [],
+            size: fetchedProductData.sizes?.[0] || 'XS',
+            color: fetchedProductData.colors?.[0] || '',
+            stock: fetchedProductData.quantity || 150,
             basePrice: fetchedProductData.basePrice || '',
             comparePrice: fetchedProductData.comparePrice || '',
+            sku: fetchedProductData.sku || '',
           },
         ]);
       }
     }
   }, [isEdit, fetchedProductData]);
 
+  // Keep form values in sync with varianceCards
   useEffect(() => {
-    const allSizes = Array.from(new Set(varianceCards.flatMap((c) => c.sizes)));
+    methods.setValue('varianceCards', varianceCards);
+
+    const totalStock = varianceCards.reduce(
+      (acc, c) => acc + (Number(c.stock) || 0),
+      0
+    );
+    methods.setValue('quantity', totalStock);
+
+    const allSizes = Array.from(
+      new Set(varianceCards.map((c) => c.size?.trim()).filter(Boolean))
+    );
     const allColors = Array.from(
-      new Set(varianceCards.flatMap((c) => c.colors))
+      new Set(varianceCards.map((c) => c.color?.trim()).filter(Boolean))
     );
     methods.setValue('sizes', allSizes);
     methods.setValue('colors', allColors);
-    const firstPrice = varianceCards.find((c) => c.basePrice)?.basePrice || '';
+
+    const firstPrice =
+      varianceCards.find((c) => c.basePrice)?.basePrice || '';
     const firstCompare =
       varianceCards.find((c) => c.comparePrice)?.comparePrice || '';
+    const firstSku = varianceCards.find((c) => c.sku)?.sku || '';
+
     if (firstPrice) methods.setValue('basePrice', firstPrice);
     if (firstCompare) methods.setValue('comparePrice', firstCompare);
+    if (firstSku) methods.setValue('sku', firstSku);
   }, [varianceCards, methods]);
 
   const handleAddVarianceCard = () => {
@@ -94,10 +122,12 @@ const AddProduct = () => {
       ...prev,
       {
         id: Date.now().toString(),
-        sizes: [],
-        colors: [],
-        basePrice: '',
-        comparePrice: '',
+        size: 'XS',
+        color: '',
+        stock: 150,
+        basePrice: prev[0]?.basePrice || '',
+        comparePrice: prev[0]?.comparePrice || '',
+        sku: '',
       },
     ]);
   };
@@ -108,43 +138,10 @@ const AddProduct = () => {
     }
   };
 
-  const handleAddCardTag = (
+  const handleUpdateCardField = (
     cardId: string,
-    field: 'sizes' | 'colors',
-    val: string
-  ) => {
-    setVarianceCards((prev) =>
-      prev.map((c) => {
-        if (c.id === cardId && !c[field].includes(val)) {
-          return { ...c, [field]: [...c[field], val] };
-        }
-        return c;
-      })
-    );
-  };
-
-  const handleRemoveCardTag = (
-    cardId: string,
-    field: 'sizes' | 'colors',
-    index: number
-  ) => {
-    setVarianceCards((prev) =>
-      prev.map((c) => {
-        if (c.id === cardId) {
-          return {
-            ...c,
-            [field]: c[field].filter((_, i) => i !== index),
-          };
-        }
-        return c;
-      })
-    );
-  };
-
-  const handleUpdateCardPrice = (
-    cardId: string,
-    field: 'basePrice' | 'comparePrice',
-    val: string
+    field: keyof VarianceCardData,
+    val: any
   ) => {
     setVarianceCards((prev) =>
       prev.map((c) => {
@@ -173,8 +170,8 @@ const AddProduct = () => {
       <ReviewPage
         formData={methods.getValues()}
         categories={categories}
-        sizes={varianceCards[0]?.sizes || []}
-        colors={varianceCards[0]?.colors || []}
+        sizes={varianceCards.map((c) => c.size).filter(Boolean)}
+        colors={varianceCards.map((c) => c.color).filter(Boolean)}
         quantity={quantity}
         varianceCards={varianceCards}
         onPrevious={() => setStep('form')}
@@ -214,100 +211,238 @@ const AddProduct = () => {
                 >
                   <BasicInfoFields />
 
-                  <QuantityInput
-                    value={quantity}
-                    onChange={(val) => methods.setValue('quantity', val)}
-                  />
-
-                  {/* Category Dropdown (Right below Quantity) */}
+                  {/* Category Dropdown */}
                   <CategorySelect />
 
                   {/* Options & Variance Cards */}
                   <div className="space-y-5">
-                    {varianceCards.map((card, cardIdx) => (
-                      <div
-                        key={card.id}
-                        className="relative rounded-2xl border border-gray-200/80 bg-gray-50/40 p-5 space-y-5"
-                      >
-                        {varianceCards.length > 1 && (
-                          <div className="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                    {varianceCards.map((card, cardIdx) => {
+                      const baseNum = parseFloat(card.basePrice);
+                      const compareNum = parseFloat(card.comparePrice);
+                      const hasCompareError = Boolean(
+                        card.comparePrice &&
+                          card.comparePrice.trim() !== '' &&
+                          !isNaN(compareNum) &&
+                          !isNaN(baseNum) &&
+                          compareNum > 0 &&
+                          compareNum <= baseNum
+                      );
+
+                      return (
+                        <div
+                          key={card.id}
+                          className="relative rounded-2xl border border-gray-200/80 bg-white p-5 space-y-4 shadow-xs"
+                        >
+                          <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                              Variance #{cardIdx + 1}
+                              {varianceCards.length > 1
+                                ? `${t('addProduct.preview.variance', 'Variance')} #${cardIdx + 1}`
+                                : ''}
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveVarianceCard(card.id)}
-                              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer font-medium"
-                            >
-                              <Trash2 size={13} />
-                              {t('addProduct.removeVarianceCard', 'Remove Card')}
-                            </button>
+                            {varianceCards.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveVarianceCard(card.id)}
+                                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer font-medium ml-auto"
+                                title={t(
+                                  'addProduct.removeVarianceCard',
+                                  'Remove Card'
+                                )}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            )}
                           </div>
-                        )}
 
-                        <TagInput
-                          label={t('addProduct.sizes', 'Size')}
-                          required
-                          items={card.sizes}
-                          onAdd={(val) => handleAddCardTag(card.id, 'sizes', val)}
-                          onRemove={(idx) => handleRemoveCardTag(card.id, 'sizes', idx)}
-                          placeholder={t('addProduct.enterSize')}
-                          addLabel={t('addProduct.addSize', 'Add Size')}
-                          addBtnLabel={t('addProduct.add')}
-                          cancelBtnLabel={t('addProduct.cancel')}
-                        />
-
-                        <TagInput
-                          label={t('addProduct.colors', 'Color')}
-                          required
-                          items={card.colors}
-                          onAdd={(val) => handleAddCardTag(card.id, 'colors', val)}
-                          onRemove={(idx) => handleRemoveCardTag(card.id, 'colors', idx)}
-                          placeholder={t('addProduct.enterColor')}
-                          addLabel={t('addProduct.addColor', 'Add Color')}
-                          addBtnLabel={t('addProduct.add')}
-                          cancelBtnLabel={t('addProduct.cancel')}
-                        />
-
-                        <div className="grid gap-4 md:grid-cols-2">
+                          {/* Size Dropdown */}
                           <div>
                             <label className="mb-2 block text-xs font-semibold text-gray-800">
-                              {t('addProduct.basePrice', 'Base Price')}{' '}
+                              {t('addProduct.size', 'Size')}{' '}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <select
+                                value={card.size}
+                                onChange={(e) =>
+                                  handleUpdateCardField(
+                                    card.id,
+                                    'size',
+                                    e.target.value
+                                  )
+                                }
+                                className="w-full appearance-none rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white cursor-pointer pr-10"
+                              >
+                                <option value="" disabled>
+                                  {t('addProduct.selectSize', 'Select Size')}
+                                </option>
+                                {SIZE_OPTIONS.map((s) => (
+                                  <option key={s} value={s}>
+                                    {s}
+                                  </option>
+                                ))}
+                                {card.size &&
+                                  !SIZE_OPTIONS.includes(card.size) && (
+                                    <option value={card.size}>{card.size}</option>
+                                  )}
+                              </select>
+                              <ChevronDown
+                                size={16}
+                                className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 rtl:right-auto rtl:left-3.5"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Color Input */}
+                          <div>
+                            <label className="mb-2 block text-xs font-semibold text-gray-800">
+                              {t('addProduct.color', 'Color')}{' '}
                               <span className="text-red-500">*</span>
                             </label>
                             <input
-                              type="number"
+                              type="text"
                               className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
-                              placeholder="189 SAR"
-                              step="0.01"
-                              min="0"
-                              value={card.basePrice}
+                              placeholder={t('addProduct.enterColor', 'Red')}
+                              value={card.color}
                               onChange={(e) =>
-                                handleUpdateCardPrice(card.id, 'basePrice', e.target.value)
+                                handleUpdateCardField(
+                                  card.id,
+                                  'color',
+                                  e.target.value
+                                )
                               }
                             />
                           </div>
 
+                          {/* Stock Quantity Stepper */}
                           <div>
                             <label className="mb-2 block text-xs font-semibold text-gray-800">
-                              {t('addProduct.comparePrice', 'Compare-at Price')}{' '}
-                              <span className="text-red-500">*</span>
+                              {t('addProduct.stockQuantity', 'Stock Quantity')}
+                            </label>
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleUpdateCardField(
+                                    card.id,
+                                    'stock',
+                                    Math.max(0, (card.stock || 0) - 1)
+                                  )
+                                }
+                                className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-300 text-base font-semibold text-gray-700 hover:bg-gray-100 transition active:scale-95 cursor-pointer bg-white"
+                              >
+                                −
+                              </button>
+                              <div className="flex h-9 w-20 items-center justify-center rounded-xl border border-gray-300 bg-white">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={card.stock}
+                                  onChange={(e) =>
+                                    handleUpdateCardField(
+                                      card.id,
+                                      'stock',
+                                      Math.max(0, Number(e.target.value))
+                                    )
+                                  }
+                                  className="w-full text-center text-sm font-semibold focus:outline-none bg-transparent"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleUpdateCardField(
+                                    card.id,
+                                    'stock',
+                                    (card.stock || 0) + 1
+                                  )
+                                }
+                                className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-300 text-base font-semibold text-gray-700 hover:bg-gray-100 transition active:scale-95 cursor-pointer bg-white"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Base Price & Compare-at Price */}
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                              <label className="mb-2 block text-xs font-semibold text-gray-800">
+                                {t('addProduct.basePrice', 'Base Price')}{' '}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
+                                placeholder="189 SAR"
+                                step="0.01"
+                                min="0"
+                                value={card.basePrice}
+                                onChange={(e) =>
+                                  handleUpdateCardField(
+                                    card.id,
+                                    'basePrice',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </div>
+
+                            <div>
+                              <label className="mb-2 block text-xs font-semibold text-gray-800">
+                                {t('addProduct.comparePrice', 'Compare-at Price')}
+                              </label>
+                              <input
+                                type="number"
+                                className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none bg-white ${
+                                  hasCompareError
+                                    ? 'border-red-500 focus:border-red-500'
+                                    : 'border-gray-300 focus:border-gray-950'
+                                }`}
+                                placeholder="250 SAR"
+                                step="0.01"
+                                min="0"
+                                value={card.comparePrice}
+                                onChange={(e) =>
+                                  handleUpdateCardField(
+                                    card.id,
+                                    'comparePrice',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              {hasCompareError && (
+                                <p className="mt-1 text-xs text-red-500">
+                                  {t(
+                                    'addProduct.errors.comparePriceMustBeGreater',
+                                    'Compare-at price must be greater than base price'
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* SKU */}
+                          <div>
+                            <label className="mb-2 block text-xs font-semibold text-gray-800">
+                              {t('addProduct.sku', 'SKU')}
                             </label>
                             <input
-                              type="number"
-                              className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
-                              placeholder="250 SAR"
-                              step="0.01"
-                              min="0"
-                              value={card.comparePrice}
+                              type="text"
+                              className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white font-mono"
+                              placeholder="PRD-NAN-001"
+                              value={card.sku}
                               onChange={(e) =>
-                                handleUpdateCardPrice(card.id, 'comparePrice', e.target.value)
+                                handleUpdateCardField(
+                                  card.id,
+                                  'sku',
+                                  e.target.value
+                                )
                               }
                             />
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Add Variance Link/Button */}
@@ -321,24 +456,6 @@ const AddProduct = () => {
                       {t('addProduct.addVariance', 'Add Variance')}
                     </button>
                   </div>
-
-
-
-                  {/* SKU Field */}
-                  {!isEdit && (
-                    <div className="pt-2">
-                      <label className="mb-2 block text-xs font-semibold text-gray-800">
-                        SKU <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:border-gray-950 focus:outline-none"
-                        placeholder="PRD-NAN-001"
-                        {...methods.register('sku', {
-                          required: t('addProduct.errors.skuRequired'),
-                        })}
-                      />
-                    </div>
-                  )}
                 </form>
               </motion.div>
 
