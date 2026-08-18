@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import type { Transaction } from './constants';
 import StatusBadge from './StatusBadge';
 import { formatAmount } from './utils';
@@ -10,6 +11,7 @@ export default function TransactionRow({
   transaction: Transaction;
   index: number;
 }) {
+  const { t } = useTranslation();
   const isNegative = transaction.amount < 0;
 
   return (
@@ -36,7 +38,7 @@ export default function TransactionRow({
         className={`px-3 py-6 font-semibold ${isNegative ? 'text-red-600' : 'text-gray-900'}`}
       >
         {isNegative ? '-' : ''}
-        {formatAmount(transaction.amount)} SAR
+        {formatAmount(transaction.amount)} {t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' })}
       </td>
     </motion.tr>
   );

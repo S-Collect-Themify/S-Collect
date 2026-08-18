@@ -31,12 +31,13 @@ export function ReturnProductInfoCard({ item }: ReturnProductInfoCardProps) {
             </span>
             <span>•</span>
             <span>
-              Variant:{' '}
+              {t('returnsPage.variant', { defaultValue: 'Variant' })}:{' '}
               <strong className="text-gray-700">{item.productVariant}</strong>
             </span>
             <span>•</span>
             <span>
-              Qty: <strong className="text-gray-700">{item.productQty}</strong>
+              {t('returnsPage.qty', { defaultValue: 'Qty' })}:{' '}
+              <strong className="text-gray-700">{item.productQty}</strong>
             </span>
             <span>•</span>
             <span className="font-bold text-gray-900 text-base">

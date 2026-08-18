@@ -44,8 +44,9 @@ export const SubOrderTimeline = ({
   deliveredAt,
   statusOverrideReason,
 }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const currentStepIdx = TIMELINE_STEPS.findIndex((s) => s.status === status);
+  const locale = i18n.language === 'ar' ? 'ar-EG' : 'en-US';
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5">
@@ -57,10 +58,14 @@ export const SubOrderTimeline = ({
         <div className="flex items-center gap-3 text-red-500 py-2">
           <Ban size={20} />
           <div>
-            <p className="font-semibold">Order Cancelled</p>
+            <p className="font-semibold">
+              {t('ordersPage.orderCancelled', {
+                defaultValue: 'Order Cancelled',
+              })}
+            </p>
             {statusOverrideReason && (
               <p className="text-gray-500 text-sm mt-0.5">
-                Reason: {statusOverrideReason}
+                {t('ordersPage.reason', { defaultValue: 'Reason' })}: {statusOverrideReason}
               </p>
             )}
           </div>
@@ -88,10 +93,33 @@ export const SubOrderTimeline = ({
               return label;
             };
 
+            const getStepDesc = (s: SubOrderStatus, defaultDesc: string) => {
+              switch (s) {
+                case 'PENDING':
+                  return t('ordersPage.timeline.orderPlacedDesc', {
+                    defaultValue: defaultDesc,
+                  });
+                case 'PROCESSING':
+                  return t('ordersPage.timeline.processingDesc', {
+                    defaultValue: defaultDesc,
+                  });
+                case 'SHIPPED':
+                  return t('ordersPage.timeline.shippedDesc', {
+                    defaultValue: defaultDesc,
+                  });
+                case 'DELIVERED':
+                  return t('ordersPage.timeline.deliveredDesc', {
+                    defaultValue: defaultDesc,
+                  });
+                default:
+                  return defaultDesc;
+              }
+            };
+
             // Date label
             let dateLabel = '';
             if (step.status === 'PENDING')
-              dateLabel = new Date(createdAt).toLocaleString('en-US', {
+              dateLabel = new Date(createdAt).toLocaleString(locale, {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
@@ -99,7 +127,7 @@ export const SubOrderTimeline = ({
                 minute: '2-digit',
               });
             if (step.status === 'SHIPPED' && shippedAt)
-              dateLabel = new Date(shippedAt).toLocaleString('en-US', {
+              dateLabel = new Date(shippedAt).toLocaleString(locale, {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
@@ -107,7 +135,7 @@ export const SubOrderTimeline = ({
                 minute: '2-digit',
               });
             if (step.status === 'DELIVERED' && deliveredAt)
-              dateLabel = new Date(deliveredAt).toLocaleString('en-US', {
+              dateLabel = new Date(deliveredAt).toLocaleString(locale, {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
@@ -172,7 +200,7 @@ export const SubOrderTimeline = ({
                     <p
                       className={`text-xs sm:text-sm mt-1 transition-colors duration-200 ${done ? 'text-gray-500' : 'text-gray-300'}`}
                     >
-                      {step.desc}
+                      {getStepDesc(step.status, step.desc)}
                     </p>
                   </div>
                   <p
