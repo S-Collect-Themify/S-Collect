@@ -6,7 +6,7 @@ import { Loader2, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSubOrders } from '../useSubOrders';
 import { getPaginationRange } from '../../../utils/pagination';
 import type { SubOrder, SubOrderStatus } from '../types/subOrder';
-import { STATUS_STYLES } from '../types/subOrder';
+import { STATUS_STYLES, getOrderStatusLabel } from '../types/subOrder';
 import MobileSubOrderDetails from './MobileSubOrderDetails';
 
 const ITEMS_PER_PAGE = 8;
@@ -166,7 +166,7 @@ const MobileIncomingOrders = () => {
                       <span
                         className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[order.status]}`}
                       >
-                        {order.status}
+                        {getOrderStatusLabel(order.status, t)}
                       </span>
                     </div>
 
