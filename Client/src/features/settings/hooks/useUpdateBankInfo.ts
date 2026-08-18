@@ -9,6 +9,7 @@ import { BANK_INFO_QUERY_KEY } from './useBankInfo';
 import { STORE_PROFILE_QUERY_KEY } from './useStoreProfile';
 import { getErrorMessage } from '../../../types/api';
 import { ServiceError } from '../../../services/api';
+import i18n from '../../../i18n';
 
 export const useUpdateBankInfo = () => {
   const queryClient = useQueryClient();
@@ -32,7 +33,7 @@ export const useUpdateBankInfo = () => {
 
       return {
         bankName: response.bankName,
-        iban: response.ibanMasked || response.iban,
+        iban: response.iban || response.ibanMasked,
         accountHolderName: response.accountHolderName,
       };
     },
@@ -40,7 +41,12 @@ export const useUpdateBankInfo = () => {
       queryClient.setQueryData(BANK_INFO_QUERY_KEY, updatedData);
       queryClient.invalidateQueries({ queryKey: BANK_INFO_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: STORE_PROFILE_QUERY_KEY });
-      toast.success('Bank info updated successfully!');
+      toast.success(
+        i18n.t(
+          'settings.toast.bankAccountSaved',
+          'Bank Account updated successfully.'
+        )
+      );
     },
     onError: (err: unknown) => {
       console.error('Failed to update bank info:', err);

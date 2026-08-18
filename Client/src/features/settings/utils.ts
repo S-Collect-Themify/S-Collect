@@ -86,3 +86,15 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
     });
   }
 }
+
+export function normalizeSaudiPhone(val?: string | null): string {
+  if (!val) return '+966';
+  const cleaned = val.trim();
+  if (cleaned === '') return '+966';
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.startsWith('00966')) return '+' + cleaned.slice(2);
+  if (cleaned.startsWith('966')) return '+' + cleaned;
+  if (cleaned.startsWith('05')) return '+966' + cleaned.slice(1);
+  if (cleaned.startsWith('5')) return '+966' + cleaned;
+  return '+966' + cleaned;
+}

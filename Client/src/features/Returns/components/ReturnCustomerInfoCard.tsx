@@ -17,7 +17,9 @@ export function ReturnCustomerInfoCard({ item }: ReturnCustomerInfoCardProps) {
       </h2>
       <div className="space-y-3.5 text-xs sm:text-sm">
         <div className="flex justify-between items-center">
-          <span className="text-gray-400 font-medium">Name</span>
+          <span className="text-gray-400 font-medium">
+            {t('returnsPage.name', { defaultValue: 'Name' })}
+          </span>
           <span className="font-bold text-gray-900">{item.customerName}</span>
         </div>
         {item.customerEmail && (

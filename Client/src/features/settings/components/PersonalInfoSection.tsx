@@ -5,7 +5,7 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 
 import { SectionCard, TextInput } from '../shared';
-import { cn } from '../utils';
+import { cn, normalizeSaudiPhone } from '../utils';
 import type { AccountSettingsData, PasswordData } from '../types';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
 
@@ -115,19 +115,19 @@ export function PersonalInfoSection() {
             render={({ field, fieldState: { error } }) => (
               <>
                 <PhoneInput
+                  defaultCountry="SA"
                   country="SA"
                   countrySelectComponent={() => (
                     <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
                       <img
                         src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
                         alt="Saudi Arabia"
-                        className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
+                        className="w-5 h-3.5 rounded-xs object-cover shadow-sm"
                       />
                       <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
                     </div>
                   )}
-                  value={field.value}
-                  onChange={(v) => field.onChange(v ?? '')}
+                  onChange={(v) => field.onChange(normalizeSaudiPhone(v))}
                   className={cn(
                     'phone-input-custom h-10 rounded-lg px-3',
                     error && 'phone-error'

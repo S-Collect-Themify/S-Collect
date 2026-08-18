@@ -55,7 +55,7 @@ const SubOrdersTable = ({
   orders: SubOrder[];
   onViewDetails: (o: SubOrder) => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="overflow-x-auto">
@@ -103,7 +103,7 @@ const SubOrdersTable = ({
 
                 {/* Date */}
                 <td className="py-4 px-4 text-gray-500 text-sm whitespace-nowrap">
-                  {new Date(order.createdAt).toLocaleDateString('en-US', {
+                  {new Date(order.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -117,7 +117,7 @@ const SubOrdersTable = ({
 
                 {/* Total */}
                 <td className="py-4 px-4 font-medium text-gray-900 text-sm whitespace-nowrap">
-                  {grandTotal.toLocaleString()} SAR
+                  {grandTotal.toLocaleString()} {t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' })}
                 </td>
 
                 {/* Status dropdown */}

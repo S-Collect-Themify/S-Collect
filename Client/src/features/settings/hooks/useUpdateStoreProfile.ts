@@ -4,6 +4,7 @@ import type { StoreProfileData } from '../types';
 import { STORE_PROFILE_QUERY_KEY } from './useStoreProfile';
 import { getErrorMessage } from '../../../types/api';
 import { updateVendorProfile } from '../../../services/vendorProfile';
+import i18n from '../../../i18n';
 
 export const useUpdateStoreProfile = () => {
   const queryClient = useQueryClient();
@@ -103,7 +104,12 @@ export const useUpdateStoreProfile = () => {
     onSuccess: (updatedData) => {
       queryClient.setQueryData(STORE_PROFILE_QUERY_KEY, updatedData);
       queryClient.invalidateQueries({ queryKey: STORE_PROFILE_QUERY_KEY });
-      toast.success('Store profile updated successfully!');
+      toast.success(
+        i18n.t(
+          'settings.toast.storeProfileSaved',
+          'Store Profile updated successfully.'
+        )
+      );
     },
     onError: (err: unknown) => {
       console.error('Failed to update store profile:', err);
