@@ -276,6 +276,7 @@
     "imageUploadFailed": "فشل رفع الصورة",
     "imageDeleted": "تم حذف الصورة بنجاح",
     "imageDeleteFailed": "فشل حذف الصورة",
+    "maxImagesExceeded": "لا يمكنك إضافة أكثر من 6 صور للمنتج.",
 
     "active": "نشط",
     "inactive": "غير نشط",

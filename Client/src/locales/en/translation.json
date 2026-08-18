@@ -276,6 +276,7 @@
     "imageUploadFailed": "Failed to upload image",
     "imageDeleted": "Image deleted successfully",
     "imageDeleteFailed": "Failed to delete image",
+    "maxImagesExceeded": "You cannot upload more than 6 images for a product.",
 
     "active": "Active",
     "inactive": "Inactive",

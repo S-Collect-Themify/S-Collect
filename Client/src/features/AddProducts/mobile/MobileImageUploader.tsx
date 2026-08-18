@@ -1,6 +1,8 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { UploadCloud, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import type { ProductFormData } from '../types';
 import { compressImage } from '../utils';
 
@@ -11,15 +13,17 @@ interface PreviewImage {
 }
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_IMAGES = 6;
 
 const MobileImageUploader = () => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { setValue, watch } = useFormContext<ProductFormData>();
 
   const files = watch('images') || [];
+  const existingImages = watch('existingImages') || [];
 
-  const [previews, setPreviews] = useState<PreviewImage[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
 
   // Use a stable key based on file names+sizes to avoid re-running on every
@@ -27,20 +31,20 @@ const MobileImageUploader = () => {
   // cause an infinite loop if used directly as a useEffect dependency).
   const filesKey = files.map((f) => `${f.name}-${f.size}`).join(',');
 
-  useEffect(() => {
-    const newPreviews = files.map((file) => ({
-      id: crypto.randomUUID(),
+  const previews: PreviewImage[] = useMemo(() => {
+    return files.map((file) => ({
+      id: `${file.name}-${file.size}`,
       file,
       preview: URL.createObjectURL(file),
     }));
-
-    setPreviews(newPreviews);
-
-    return () => {
-      newPreviews.forEach((image) => URL.revokeObjectURL(image.preview));
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filesKey]);
+
+  useEffect(() => {
+    return () => {
+      previews.forEach((image) => URL.revokeObjectURL(image.preview));
+    };
+  }, [previews]);
 
   useEffect(() => {
     files.forEach((file) => {
@@ -63,6 +67,18 @@ const MobileImageUploader = () => {
 
   const handleSelect = async (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
+
+    const currentCount = existingImages.length + files.length;
+    if (currentCount + selectedFiles.length > MAX_IMAGES) {
+      toast.error(
+        t(
+          'addProduct.maxImagesExceeded',
+          'You cannot upload more than 6 images for a product.'
+        )
+      );
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
 
     const validFiles = Array.from(selectedFiles).filter((file) => {
       if (!file.type.startsWith('image/')) return false;
@@ -93,7 +109,19 @@ const MobileImageUploader = () => {
 
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={() => {
+          const currentCount = existingImages.length + files.length;
+          if (currentCount >= MAX_IMAGES) {
+            toast.error(
+              t(
+                'addProduct.maxImagesExceeded',
+                'You cannot upload more than 6 images for a product.'
+              )
+            );
+            return;
+          }
+          inputRef.current?.click();
+        }}
         className="flex h-35 w-full flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white transition hover:bg-gray-50 cursor-pointer"
       >
         <UploadCloud className="mb-3 h-8 w-8 text-gray-400" />
