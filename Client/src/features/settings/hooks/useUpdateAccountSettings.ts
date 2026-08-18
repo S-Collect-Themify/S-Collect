@@ -22,6 +22,7 @@ export const useUpdateAccountSettings = () => {
         })
       );
       queryClient.invalidateQueries({ queryKey: ACCOUNT_SETTINGS_QUERY_KEY });
+      toast.success('Account settings saved!');
     },
     onError: (err: unknown) => {
       console.error('Failed to update account settings:', err);

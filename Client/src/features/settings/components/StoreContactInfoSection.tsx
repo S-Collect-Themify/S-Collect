@@ -5,7 +5,7 @@ import 'react-phone-number-input/style.css';
 
 import { FieldWrap, TextInput } from '../shared';
 import type { StoreProfileData } from '../types';
-import { cn, isValidEmail } from '../utils';
+import { cn, isValidEmail, normalizeSaudiPhone } from '../utils';
 
 export function StoreContactInfoSection({
   isPending,
@@ -54,6 +54,7 @@ export function StoreContactInfoSection({
             }}
             render={({ field }) => (
               <PhoneInput
+                defaultCountry="SA"
                 country="SA"
                 countrySelectComponent={() => (
                   <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
@@ -65,8 +66,8 @@ export function StoreContactInfoSection({
                     <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
                   </div>
                 )}
-                value={field.value}
-                onChange={(v) => field.onChange(v ?? '')}
+                value={normalizeSaudiPhone(field.value)}
+                onChange={(v) => field.onChange(normalizeSaudiPhone(v))}
                 disabled={isPending}
                 className={cn(
                   'phone-input-custom h-10 rounded-lg px-3',
