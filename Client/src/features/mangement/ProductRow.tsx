@@ -37,7 +37,10 @@ export default function ProductRow({
     );
   };
 
+  const isProductDisabled = product.isDisabled || product.status === 'Disabled';
+
   const handleToggle = () => {
+    if (isProductDisabled) return;
     if (product.enabled) {
       showDeleteConfirmation(
         'managementTable.toggleUnpublishConfirmMessage',
@@ -74,20 +77,26 @@ export default function ProductRow({
       }`}
     >
       <td className="px-3 py-3 border-b border-gray-100 text-start">
-        <label className="inline-flex items-center justify-center w-4 h-4 cursor-pointer">
+        <label
+          className={`inline-flex items-center justify-center w-4 h-4 ${
+            isProductDisabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+          }`}
+        >
           <input
             type="checkbox"
-            checked={selected}
-            onChange={onSelect}
+            checked={selected && !isProductDisabled}
+            onChange={isProductDisabled ? undefined : onSelect}
+            disabled={isProductDisabled}
             className="peer sr-only"
           />
           <span
-            className="w-4 h-4 rounded-[4px] border border-gray-300 bg-white
-                       flex items-center justify-center
-                       peer-checked:bg-gray-900 peer-checked:border-gray-900
-                       transition-colors"
+            className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition-colors ${
+              isProductDisabled
+                ? 'border-gray-200 bg-gray-100'
+                : 'border-gray-300 bg-white peer-checked:bg-gray-900 peer-checked:border-gray-900'
+            }`}
           >
-            {selected && (
+            {selected && !isProductDisabled && (
               <Check className="text-white" size={11} strokeWidth={3} />
             )}
           </span>
@@ -145,7 +154,11 @@ export default function ProductRow({
       </td>
 
       <td className="px-3 py-3 border-b border-gray-100">
-        <Toggle checked={product.enabled} onChange={handleToggle} />
+        <Toggle
+          checked={product.enabled}
+          onChange={handleToggle}
+          disabled={isProductDisabled}
+        />
       </td>
 
       <td className="px-3 py-3 border-b border-gray-100">

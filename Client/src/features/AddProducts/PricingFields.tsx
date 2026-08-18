@@ -47,8 +47,7 @@ const PricingFields = () => {
 
         <div>
           <label className="mb-2 block text-xs font-semibold text-gray-800">
-            {t('addProduct.comparePrice', 'Compare-at Price')}{' '}
-            <span className="text-red-500">*</span>
+            {t('addProduct.comparePrice', 'Compare-at Price')}
           </label>
           <input
             type="number"
@@ -57,7 +56,6 @@ const PricingFields = () => {
             step="0.01"
             min="0"
             {...register('comparePrice', {
-              required: t('addProduct.errors.comparePriceRequired'),
               min: { value: 0, message: t('addProduct.errors.priceMinValue') },
               validate: (val, formValues) => {
                 if (!val) return true;

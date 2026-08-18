@@ -9,9 +9,18 @@ interface ProductStatusProps {
   enabled: boolean;
   setEnabled: (value: boolean) => void;
   productId?: string;
+  disabled?: boolean;
+  isDisabled?: boolean;
 }
 
-const ProductStatus = ({ enabled, setEnabled, productId }: ProductStatusProps) => {
+const ProductStatus = ({
+  enabled,
+  setEnabled,
+  productId,
+  disabled,
+  isDisabled,
+}: ProductStatusProps) => {
+  const isComponentDisabled = Boolean(disabled || isDisabled);
   const { t } = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingValue, setPendingValue] = useState(false);
@@ -20,6 +29,7 @@ const ProductStatus = ({ enabled, setEnabled, productId }: ProductStatusProps) =
   const isLoading = mutation.isPending;
 
   const handleToggle = (value: boolean) => {
+    if (isComponentDisabled) return;
     setPendingValue(value);
     setShowConfirm(true);
   };
@@ -132,9 +142,14 @@ const ProductStatus = ({ enabled, setEnabled, productId }: ProductStatusProps) =
           <Switch
             checked={enabled}
             onChange={handleToggle}
+            disabled={isComponentDisabled}
             className={`${
-              enabled ? 'bg-green-600' : 'bg-gray-300'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer`}
+              isComponentDisabled
+                ? 'bg-gray-200 cursor-not-allowed opacity-50'
+                : enabled
+                  ? 'bg-green-600 cursor-pointer'
+                  : 'bg-gray-300 cursor-pointer'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
           >
             <span
               className={`${

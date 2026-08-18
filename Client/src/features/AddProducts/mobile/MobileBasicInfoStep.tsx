@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import type { ProductFormData } from '../types';
 import TagInput from '../TagInput';
 import BasicInfoFields from '../BasicInfoFields';
+import CategorySelect from '../CategorySelect';
 import { useMobileAddProductStore } from './mobileAddProductStore';
 import { deleteProductOptionValue } from '../../../services/products';
 
@@ -83,6 +84,7 @@ const MobileBasicInfoStep = () => {
   return (
     <div className="flex flex-col gap-5">
       <BasicInfoFields />
+      <CategorySelect />
 
       {/* Sizes */}
       <TagInput

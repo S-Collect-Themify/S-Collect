@@ -52,7 +52,7 @@ const AddProduct = () => {
       id: '1',
       size: 'XS',
       color: '',
-      stock: 150,
+      stock: 1,
       basePrice: '',
       comparePrice: '',
       sku: '',
@@ -77,7 +77,7 @@ const AddProduct = () => {
             id: '1',
             size: fetchedProductData.sizes?.[0] || 'XS',
             color: fetchedProductData.colors?.[0] || '',
-            stock: fetchedProductData.quantity || 150,
+            stock: fetchedProductData.quantity || 1,
             basePrice: fetchedProductData.basePrice || '',
             comparePrice: fetchedProductData.comparePrice || '',
             sku: fetchedProductData.sku || '',
@@ -124,7 +124,7 @@ const AddProduct = () => {
         id: Date.now().toString(),
         size: 'XS',
         color: '',
-        stock: 150,
+        stock: 1,
         basePrice: prev[0]?.basePrice || '',
         comparePrice: prev[0]?.comparePrice || '',
         sku: '',
@@ -221,11 +221,11 @@ const AddProduct = () => {
                       const compareNum = parseFloat(card.comparePrice);
                       const hasCompareError = Boolean(
                         card.comparePrice &&
-                          card.comparePrice.trim() !== '' &&
-                          !isNaN(compareNum) &&
-                          !isNaN(baseNum) &&
-                          compareNum > 0 &&
-                          compareNum <= baseNum
+                        card.comparePrice.trim() !== '' &&
+                        !isNaN(compareNum) &&
+                        !isNaN(baseNum) &&
+                        compareNum > 0 &&
+                        compareNum <= baseNum
                       );
 
                       return (
@@ -393,11 +393,10 @@ const AddProduct = () => {
                               </label>
                               <input
                                 type="number"
-                                className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none bg-white ${
-                                  hasCompareError
+                                className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none bg-white ${hasCompareError
                                     ? 'border-red-500 focus:border-red-500'
                                     : 'border-gray-300 focus:border-gray-950'
-                                }`}
+                                  }`}
                                 placeholder="250 SAR"
                                 step="0.01"
                                 min="0"

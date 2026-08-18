@@ -9,7 +9,6 @@ export type ReviewFilter =
   | '3'
   | '2'
   | '1'
-  | 'photos'
   | 'newest'
   | 'highest'
   | 'lowest';
@@ -43,7 +42,6 @@ const FILTERS: ReviewFilter[] = [
   '3',
   '2',
   '1',
-  'photos',
   'newest',
   'highest',
   'lowest',
