@@ -233,6 +233,9 @@
     "descriptionEn": "Description (English)",
 
     "categories": "Categories",
+    "category": "Category",
+    "selectCategory": "Select a category",
+    "loadingCategories": "Loading categories...",
     "sizes": "Sizes",
     "colors": "Colors",
     "size": "Size",
@@ -320,6 +323,7 @@
     "productUpdatedMessage": "Your product has been updated successfully.",
     "done": "Done",
     "errors": {
+      "categoryRequired": "Category is required",
       "nameArRequired": "Product name in Arabic is required",
       "nameEnRequired": "Product name in English is required",
       "descriptionRequired": "Description in English is required",

@@ -232,6 +232,9 @@
     "descriptionEn": "الوصف (بالإنجليزية)",
 
     "categories": "التصنيفات",
+    "category": "التصنيف",
+    "selectCategory": "اختر التصنيف",
+    "loadingCategories": "جاري تحميل التصنيفات...",
     "sizes": "المقاسات",
     "colors": "الألوان",
     "size": "المقاس",
@@ -320,6 +323,7 @@
     "productUpdatedMessage": "تم تحديث منتجك بنجاح.",
     "done": "تم",
     "errors": {
+      "categoryRequired": "التصنيف مطلوب",
       "nameArRequired": "اسم المنتج بالعربية مطلوب",
       "nameEnRequired": "اسم المنتج بالإنجليزية مطلوب",
       "descriptionRequired": "الوصف بالإنجليزية مطلوب",
