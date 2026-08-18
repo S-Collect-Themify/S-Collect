@@ -390,12 +390,14 @@ export const buildProductVariantMutations = (
   const colorOption = findOption('Color', 'اللون');
 
   return cards.map((card) => {
-    const sizeValId = card.size ? findValueId(sizeOption, card.size) : undefined;
+    const sizeValId = card.size
+      ? findValueId(sizeOption, card.size)
+      : undefined;
     const colorValId = card.color
       ? findValueId(colorOption, card.color)
       : undefined;
-    const optionValueIds = [sizeValId, colorValId].filter(
-      (id): id is string => Boolean(id)
+    const optionValueIds = [sizeValId, colorValId].filter((id): id is string =>
+      Boolean(id)
     );
 
     const price =
@@ -479,10 +481,7 @@ export const mapFormToMultipartFormData = (
           },
         ];
 
-  const totalStock = cards.reduce(
-    (sum, c) => sum + (Number(c.stock) || 0),
-    0
-  );
+  const totalStock = cards.reduce((sum, c) => sum + (Number(c.stock) || 0), 0);
   multipart.append('stock', totalStock.toString());
 
   const firstBasePrice =
@@ -541,16 +540,12 @@ export const mapFormToMultipartFormData = (
   // 3. Options structure (JSON-encoded array of options) — preserve real IDs
   const uniqueSizes = Array.from(
     new Set(
-      cards
-        .map((c) => c.size?.trim())
-        .filter((s): s is string => Boolean(s))
+      cards.map((c) => c.size?.trim()).filter((s): s is string => Boolean(s))
     )
   );
   const uniqueColors = Array.from(
     new Set(
-      cards
-        .map((c) => c.color?.trim())
-        .filter((c): c is string => Boolean(c))
+      cards.map((c) => c.color?.trim()).filter((c): c is string => Boolean(c))
     )
   );
 
@@ -640,13 +635,10 @@ export const mapFormToMultipartFormData = (
         : undefined;
 
     const existingVariantId =
-      card.id && !card.id.match(/^\d{13}$/)
-        ? card.id
-        : findVariantId(valueIds);
+      card.id && !card.id.match(/^\d{13}$/) ? card.id : findVariantId(valueIds);
 
     const skuParts = [formData.sku, card.size, card.color].filter(Boolean);
-    const sku =
-      card.sku || skuParts.join('-') || `SKU-${Date.now()}`;
+    const sku = card.sku || skuParts.join('-') || `SKU-${Date.now()}`;
 
     return {
       ...(existingVariantId ? { id: existingVariantId } : {}),
