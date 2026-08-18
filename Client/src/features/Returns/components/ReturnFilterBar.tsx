@@ -58,11 +58,31 @@ export function ReturnFilterBar({
                 defaultValue: 'Status: All Statuses',
               })}
             </option>
-            <option value="PENDING_REVIEW">Pending Review</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="AWAITING_ITEM">Awaiting Item</option>
-            <option value="COMPLETED">Completed</option>
+            <option value="PENDING_REVIEW">
+              {t('returnsPage.statuses.pendingReview', {
+                defaultValue: 'Pending Review',
+              })}
+            </option>
+            <option value="APPROVED">
+              {t('returnsPage.statuses.approved', {
+                defaultValue: 'Approved',
+              })}
+            </option>
+            <option value="REJECTED">
+              {t('returnsPage.statuses.rejected', {
+                defaultValue: 'Rejected',
+              })}
+            </option>
+            <option value="AWAITING_ITEM">
+              {t('returnsPage.statuses.awaitingItem', {
+                defaultValue: 'Awaiting Item',
+              })}
+            </option>
+            <option value="COMPLETED">
+              {t('returnsPage.statuses.completed', {
+                defaultValue: 'Completed',
+              })}
+            </option>
           </select>
           <ChevronDown
             size={16}
@@ -81,13 +101,21 @@ export function ReturnFilterBar({
                 defaultValue: 'All Dates',
               })}
             </option>
-            <option value="7">Last 7 Days</option>
+            <option value="7">
+              {t('returnsPage.last7Days', {
+                defaultValue: 'Last 7 Days',
+              })}
+            </option>
             <option value="30">
               {t('returnsPage.last30Days', {
                 defaultValue: 'Last 30 Days',
               })}
             </option>
-            <option value="90">Last 90 Days</option>
+            <option value="90">
+              {t('returnsPage.last90Days', {
+                defaultValue: 'Last 90 Days',
+              })}
+            </option>
           </select>
           <ChevronDown
             size={16}

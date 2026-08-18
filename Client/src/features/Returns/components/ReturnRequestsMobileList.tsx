@@ -46,7 +46,7 @@ export function ReturnRequestsMobileList({
                   {item.productTitle}
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Customer:{' '}
+                  {t('returnsPage.customer', { defaultValue: 'Customer' })}:{' '}
                   <span className="font-medium text-gray-700">
                     {item.customerName}
                   </span>
@@ -58,7 +58,7 @@ export function ReturnRequestsMobileList({
             <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
               <div>
                 <p className="text-gray-500">
-                  Reason:{' '}
+                  {t('returnsPage.reason', { defaultValue: 'Reason' })}:{' '}
                   <span className="text-gray-800 font-semibold">
                     {item.reason}
                   </span>

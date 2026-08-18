@@ -19,21 +19,23 @@ export const SubOrderInfo = ({
   status,
   customer,
 }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const displayOrderId = orderNumber ? `#${orderNumber}` : `#${id.slice(0, 8).toUpperCase()}`;
+
+  const paymentStatusLabel = t('ordersPage.paymentStatus', { defaultValue: 'Payment Status' });
 
   const infoRows = [
     [t('ordersPage.orderId'), displayOrderId],
     [
       t('ordersPage.orderDate'),
-      new Date(createdAt).toLocaleDateString('en-US', {
+      new Date(createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric',
       }),
     ],
-    ['Payment Status', 'Paid'],
+    [paymentStatusLabel, t('ordersPage.paid', { defaultValue: 'Paid' })],
     [t('ordersPage.trackingNumber'), trackingNumber ?? '—'],
   ];
 
@@ -79,7 +81,7 @@ export const SubOrderInfo = ({
         >
           <span className="text-gray-400">{label}</span>
           <span
-            className={`font-medium text-right ${label === 'Payment Status' ? 'text-green-600' : 'text-gray-800'}`}
+            className={`font-medium text-right ${label === paymentStatusLabel ? 'text-green-600' : 'text-gray-800'}`}
           >
             {val}
           </span>
