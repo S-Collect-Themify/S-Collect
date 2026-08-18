@@ -22,7 +22,8 @@ export default function VendorRecentProductsTable({
   vendorName,
   products,
 }: VendorRecentProductsTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const navigate = useNavigate();
   const { handleNavigate } = useVendorDetailsStore();
 
@@ -72,7 +73,7 @@ export default function VendorRecentProductsTable({
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-xs">{product.category}</td>
                   <td className="px-6 py-4 text-gray-900 text-xs font-bold">
-                    SAR {product.price.toLocaleString()}
+                    {product.price.toLocaleString()} {isRtl ? '﷼' : 'SAR'}
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -129,7 +130,7 @@ export default function VendorRecentProductsTable({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-gray-900">
-                    SAR {product.price.toLocaleString()}
+                    {product.price.toLocaleString()} {isRtl ? '﷼' : 'SAR'}
                   </span>
                   <span
                     className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${

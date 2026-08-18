@@ -1,4 +1,5 @@
 import { api } from './api';
+import i18n from '../i18n';
 import type { TableItem } from '../features/Orders/types';
 
 export interface AdminRefundItemProduct {
@@ -60,6 +61,7 @@ export interface GetAdminRefundsParams {
   pageSize?: number;
   status?: string;
   vendorId?: string;
+  buyerAccountId?: string;
   orderId?: string;
   search?: string;
   startDate?: string;
@@ -82,6 +84,8 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
       per_page: pageSize,
       status: params?.status,
       vendorId: params?.vendorId,
+      buyerAccountId: params?.buyerAccountId,
+      buyerId: params?.buyerAccountId,
       orderId: params?.orderId,
       search: params?.search || undefined,
       q: params?.search || undefined,
@@ -233,7 +237,7 @@ export function mapAdminRefundToTableItem(refund: AdminRefund): TableItem {
     totalFormatted: `${(refund.totalRefundAmount || 0).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })} SAR`,
+    })} ${i18n.language === 'ar' ? '﷼' : 'SAR'}`,
     status: (refund.status || 'PENDING').toUpperCase(),
     subOrdersCount: refund.items?.length || 1,
     reason: reasonStr,

@@ -20,7 +20,8 @@ export default function VendorPayoutsLogTable({
   payouts,
   statusStyles,
 }: VendorPayoutsLogTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   return (
     <Card className="mb-5 overflow-hidden border border-gray-100/80 shadow-2xs">
@@ -64,7 +65,7 @@ export default function VendorPayoutsLogTable({
                     <td className="px-6 py-4 text-amber-500 font-bold text-xs">{payout.id || '--'}</td>
                     <td className="px-6 py-4 text-gray-400 text-xs">{payout.date || '--'}</td>
                     <td className="px-6 py-4 text-gray-900 text-xs font-bold">
-                      {payout.amount != null ? `SAR ${payout.amount.toLocaleString()}` : '--'}
+                      {payout.amount != null ? `${payout.amount.toLocaleString()} ${isRtl ? '﷼' : 'SAR'}` : '--'}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -116,7 +117,7 @@ export default function VendorPayoutsLogTable({
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-gray-900">
-                      {payout.amount != null ? `SAR ${payout.amount.toLocaleString()}` : '--'}
+                      {payout.amount != null ? `${payout.amount.toLocaleString()} ${isRtl ? '﷼' : 'SAR'}` : '--'}
                     </span>
                     <span
                       className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${style.className}`}

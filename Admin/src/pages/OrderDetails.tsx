@@ -1,20 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, AlertTriangle } from 'lucide-react';
+import { ChevronRight, AlertTriangle, Package } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAdminOrderDetail, useUpdateAdminSubOrderStatus } from '../features/Orders/hooks/useAdminOrders';
-import { SubOrderCard } from '../features/Orders/components/SubOrderCard';
-
-// ── Emoji thumbnail helper (purely cosmetic, no mock data) ─────────────────
-const getProductThumbnail = (name?: string) => {
-  const lower = (name || '').toLowerCase();
-  if (lower.includes('oud') || lower.includes('wood') || lower.includes('perfume')) return '🪵';
-  if (lower.includes('shoe') || lower.includes('nike') || lower.includes('adidas')) return '👟';
-  if (lower.includes('shirt') || lower.includes('hoodie') || lower.includes('jacket')) return '👕';
-  if (lower.includes('bag') || lower.includes('pack')) return '🎒';
-  if (lower.includes('watch') || lower.includes('tech')) return '⌚';
-  return '📦';
-};
+import { SubOrderCard, getItemThumbnail } from '../features/Orders/components/SubOrderCard';
 
 // ── Status Pill Component ───────────────────────────────────────────────────
 const StatusBadge = ({ status }: { status?: string }) => {
@@ -226,14 +215,14 @@ export default function OrderDetailsPage() {
   if (isError || !orderData) {
     return (
       <div className="flex-1 p-8 bg-gray-50/80 min-h-screen flex flex-col items-center justify-center text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Order Not Found</h2>
-        <p className="text-sm text-gray-500 mb-4">Could not load details for order ID: {id}</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{t('ordersPage.notFoundTitle', 'Order Not Found')}</h2>
+        <p className="text-sm text-gray-500 mb-4">{t('ordersPage.couldNotLoad', 'Could not load details for order ID: {{id}}', { id })}</p>
         <button
           type="button"
           onClick={() => navigate('/incoming-orders')}
           className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-lg"
         >
-          Back to Orders
+          {t('ordersPage.backToOrders', 'Back to Orders')}
         </button>
       </div>
     );
@@ -376,7 +365,6 @@ export default function OrderDetailsPage() {
                       updateSubOrderStatusMutation.variables?.subOrderId === sub.id
                     }
                     StatusBadge={StatusBadge}
-                    getProductThumbnail={getProductThumbnail}
                   />
                 ))}
               </div>
@@ -412,15 +400,20 @@ export default function OrderDetailsPage() {
                       ) : (
                         allOrderItems.map((it) => {
                           const itemProdId = (it.productId || it.id) as string | undefined;
+                          const thumbUrl = getItemThumbnail(it);
                           return (
                             <tr key={it.id}>
                               <td className="py-4 text-start">
                                 <div className="flex items-center gap-3">
                                   <div
                                     onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
-                                    className="w-11 h-11 rounded-lg bg-amber-900/10 border border-gray-100 shrink-0 flex items-center justify-center text-xl cursor-pointer hover:bg-amber-900/20 transition-colors"
+                                    className="w-11 h-11 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors overflow-hidden"
                                   >
-                                    {getProductThumbnail(it.productName)}
+                                    {thumbUrl ? (
+                                      <img src={thumbUrl} alt={it.productName} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <Package className="text-gray-400" size={18} />
+                                    )}
                                   </div>
                                   <div>
                                     <p
@@ -513,7 +506,6 @@ export default function OrderDetailsPage() {
                       updateSubOrderStatusMutation.variables?.subOrderId === sub.id
                     }
                     StatusBadge={StatusBadge}
-                    getProductThumbnail={getProductThumbnail}
                   />
                 ))}
 

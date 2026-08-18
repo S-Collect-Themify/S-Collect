@@ -14,11 +14,11 @@ const STATUS_OPTIONS: { key: TransactionStatusFilter; labelKey: string; defaultL
 ];
 
 const DATE_RANGES = [
-  { key: 'all', defaultLabel: 'All Dates' },
-  { key: 'last7Days', defaultLabel: 'Last 7 Days' },
-  { key: 'last30Days', defaultLabel: 'Last 30 Days' },
-  { key: 'thisMonth', defaultLabel: 'This Month' },
-  { key: 'thisYear', defaultLabel: 'This Year' },
+  { key: 'all', translationKey: 'allDates', defaultLabel: 'All Dates' },
+  { key: 'last7Days', translationKey: 'last7Days', defaultLabel: 'Last 7 Days' },
+  { key: 'last30Days', translationKey: 'last30Days', defaultLabel: 'Last 30 Days' },
+  { key: 'thisMonth', translationKey: 'thisMonth', defaultLabel: 'This Month' },
+  { key: 'thisYear', translationKey: 'thisYear', defaultLabel: 'This Year' },
 ];
 
 export const TransactionsFilterBar: React.FC = () => {
@@ -263,10 +263,12 @@ export const TransactionsFilterBar: React.FC = () => {
               <div className="flex items-center gap-1.5 min-w-0">
                 <Calendar size={14} className="text-gray-400 shrink-0" />
                 <span className="truncate whitespace-nowrap leading-snug">
-                  {t(
-                    `dashboardOverview.${dateRangeKey}`,
-                    DATE_RANGES.find((r) => r.key === dateRangeKey)?.defaultLabel ?? ''
-                  )}
+                  {(() => {
+                    const currentOpt = DATE_RANGES.find((r) => r.key === dateRangeKey);
+                    return currentOpt
+                      ? t(`dashboardOverview.${currentOpt.translationKey}`, currentOpt.defaultLabel)
+                      : t('dashboardOverview.allDates', 'All Dates');
+                  })()}
                 </span>
               </div>
               <ChevronDown
@@ -290,7 +292,7 @@ export const TransactionsFilterBar: React.FC = () => {
                   }}
                   className="w-full text-start px-3.5 py-2 text-xs transition-colors cursor-pointer whitespace-nowrap text-gray-700 hover:bg-gray-50"
                 >
-                  {t(`dashboardOverview.${opt.key}`, opt.defaultLabel)}
+                  {t(`dashboardOverview.${opt.translationKey}`, opt.defaultLabel)}
                 </button>
               ))}
             </div>

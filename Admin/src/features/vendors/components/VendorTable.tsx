@@ -182,7 +182,7 @@ export default function VendorTable() {
         ? vendorName
         : targetIds.length === 1
         ? fetchedVendors.find((v) => v.id === targetIds[0])?.businessName
-        : `${targetIds.length} Vendors`;
+        : t('vendors.table.bulkVendorsCount', { count: targetIds.length, defaultValue: `${targetIds.length} Vendors` });
 
     if (type === 'reject') {
       setRejectModal({

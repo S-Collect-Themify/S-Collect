@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { motion, type Variants } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 
 export const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -56,6 +57,10 @@ export function StatCard({
   unit?: string;
   highlight?: boolean;
 }) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const displayUnit = unit === 'SAR' ? (isAr ? '﷼' : 'SAR') : unit;
+
   let displayVal = '--';
 
   if (typeof value === 'number') {
@@ -77,8 +82,8 @@ export function StatCard({
         }`}
       >
         {displayVal}
-        {unit && displayVal !== '--' && (
-          <span className="text-xs font-normal text-gray-400 ms-1">{unit}</span>
+        {displayUnit && displayVal !== '--' && (
+          <span className="text-xs font-normal text-gray-400 ms-1">{displayUnit}</span>
         )}
       </p>
     </div>

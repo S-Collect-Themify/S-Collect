@@ -9,7 +9,9 @@ interface PayoutMobileCardProps {
 }
 
 export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobileCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
+  const currencySymbol = isRtl ? '﷼' : 'SAR';
   const { isSuperAdmin } = useAdminProfile();
 
   const handleClick = () => {
@@ -37,7 +39,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.totalGmvLabel', 'Total GMV')}
           </span>
           <span className="font-bold text-gray-900">
-            {item.totalGmv != null ? `${item.totalGmv.toLocaleString()} SAR` : '--'}
+            {item.totalGmv != null ? `${item.totalGmv.toLocaleString()} ${currencySymbol}` : '--'}
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -45,7 +47,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.commissionLabel', 'Commission')}
           </span>
           <span className="font-bold text-gray-900">
-            {item.commission != null ? `${item.commission.toLocaleString()} SAR` : '--'}
+            {item.commission != null ? `${item.commission.toLocaleString()} ${currencySymbol}` : '--'}
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -53,7 +55,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.totalPayoutsLabel', 'Total Payouts')}
           </span>
           <span className="font-bold text-gray-900">
-            {item.totalPayouts != null ? `${item.totalPayouts.toLocaleString()} SAR` : '--'}
+            {item.totalPayouts != null ? `${item.totalPayouts.toLocaleString()} ${currencySymbol}` : '--'}
           </span>
         </div>
         <div className="flex items-center justify-between pt-1">
@@ -61,7 +63,7 @@ export default function PayoutMobileCard({ item, onRegisterPayout }: PayoutMobil
             {t('payouts.pendingPayoutLabel', 'Pending Payout')}
           </span>
           <span className="font-extrabold text-gray-900">
-            {item.pendingPayout != null ? `${item.pendingPayout.toLocaleString()} SAR` : '--'}
+            {item.pendingPayout != null ? `${item.pendingPayout.toLocaleString()} ${currencySymbol}` : '--'}
           </span>
         </div>
       </div>

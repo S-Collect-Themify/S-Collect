@@ -10,22 +10,28 @@ const cardVariants: Variants = {
 };
 
 function OrderStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const s = (status || '').toUpperCase();
   let badgeClass = 'bg-gray-100 text-gray-600';
+  let label = status || '---';
 
   if (s === 'ACTIVE' || s === 'DELIVERED' || s === 'COMPLETED') {
     badgeClass = 'bg-emerald-100/80 text-emerald-700';
+    label = t(`ordersPage.statuses.${s}`, status);
   } else if (s === 'SHIPPED' || s === 'PARTIALLY_SHIPPED') {
     badgeClass = 'bg-blue-100/80 text-blue-700';
+    label = t(`ordersPage.statuses.${s}`, status);
   } else if (s === 'CANCELLED' || s === 'CANCELED') {
     badgeClass = 'bg-rose-100/80 text-rose-700';
+    label = t(`ordersPage.statuses.${s}`, status);
   } else if (s === 'PENDING' || s === 'PROCESSING') {
     badgeClass = 'bg-amber-100/80 text-amber-800';
+    label = t(`ordersPage.statuses.${s}`, status);
   }
 
   return (
     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}`}>
-      {status || '---'}
+      {label}
     </span>
   );
 }
@@ -37,7 +43,9 @@ interface BuyerOrdersTableProps {
 
 export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrdersTableProps) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
+  const currencySymbol = isRtl ? '﷼' : 'SAR';
 
   // Fetch ONLY 4 orders for the Buyer Details page
   const { data, isLoading } = useBuyerOrders(buyerAccountId, 1, 4);
@@ -69,10 +77,10 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
           {orders.map((order) => {
             const formattedAmount =
               typeof order.amount === 'number'
-                ? `${order.amount.toFixed(2)} SAR`
+                ? `${order.amount.toFixed(2)} ${currencySymbol}`
                 : order.amount === '---'
                 ? '---'
-                : `${order.amount} SAR`;
+                : `${order.amount} ${currencySymbol}`;
 
             return (
               <div
@@ -138,10 +146,10 @@ export default function BuyerOrdersTable({ buyerAccountId, isMobile }: BuyerOrde
                 {orders.map((order) => {
                   const formattedAmount =
                     typeof order.amount === 'number'
-                      ? `${order.amount.toFixed(2)} SAR`
+                      ? `${order.amount.toFixed(2)} ${currencySymbol}`
                       : order.amount === '---'
                       ? '---'
-                      : `${order.amount} SAR`;
+                      : `${order.amount} ${currencySymbol}`;
 
                   return (
                     <tr

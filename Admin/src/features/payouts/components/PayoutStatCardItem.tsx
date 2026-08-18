@@ -7,7 +7,16 @@ interface PayoutStatCardItemProps {
 }
 
 export default function PayoutStatCardItem({ stat }: PayoutStatCardItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
+  const displayUnit =
+    stat.unit === 'SAR'
+      ? isRtl
+        ? '﷼'
+        : 'SAR'
+      : stat.unit === 'Vendors'
+      ? t('payouts.vendorsUnit', 'Vendors')
+      : stat.unit;
 
   const renderIcon = (type: 'check' | 'clock' | 'users') => {
     switch (type) {
@@ -67,7 +76,7 @@ export default function PayoutStatCardItem({ stat }: PayoutStatCardItemProps) {
           <span className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
             {stat.value}
           </span>
-          <span className="text-xs text-gray-400 font-medium">{stat.unit}</span>
+          <span className="text-xs text-gray-400 font-medium">{displayUnit}</span>
         </div>
 
         {renderBadge(stat.badgeVariant, t(stat.badgeTextKey, stat.defaultBadgeText))}

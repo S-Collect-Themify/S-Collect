@@ -132,7 +132,7 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
             <p className="text-xs text-gray-400 mb-1">{vendor.category || '--'}</p>
             {(vendor.joinedDate || vendor.submittedDate) && (
               <p className="text-[11px] text-gray-400">
-                Joined {vendor.joinedDate || vendor.submittedDate || '--'}
+                {t('vendors.details.joined', 'Joined')} {vendor.joinedDate || vendor.submittedDate || '--'}
               </p>
             )}
           </div>
@@ -166,7 +166,7 @@ export default function VendorOverviewCard({ vendor }: VendorOverviewCardProps) 
             <p className="text-xs text-gray-400 mb-2">
               {vendor.category || '--'}
               {(vendor.joinedDate || vendor.submittedDate) && (
-                <span> • Joined {vendor.joinedDate || vendor.submittedDate || '--'}</span>
+                <span> • {t('vendors.details.joined', 'Joined')} {vendor.joinedDate || vendor.submittedDate || '--'}</span>
               )}
             </p>
             {vendor.description && (

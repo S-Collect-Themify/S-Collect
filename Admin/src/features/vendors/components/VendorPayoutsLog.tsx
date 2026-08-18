@@ -47,11 +47,43 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
         label: t('vendors.payoutsLog.statusCompleted', 'Completed'),
         className: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
       },
+      paid: {
+        label: t('vendors.payoutsLog.statusCompleted', 'Completed'),
+        className: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+      },
+      captured: {
+        label: t('vendors.payoutsLog.statusCompleted', 'Completed'),
+        className: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+      },
+      success: {
+        label: t('vendors.payoutsLog.statusCompleted', 'Completed'),
+        className: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+      },
       pending: {
         label: t('vendors.payoutsLog.statusPending', 'Pending'),
         className: 'bg-amber-50 text-amber-600 border border-amber-100',
       },
+      processing: {
+        label: t('vendors.payoutsLog.statusPending', 'Pending'),
+        className: 'bg-amber-50 text-amber-600 border border-amber-100',
+      },
+      in_progress: {
+        label: t('vendors.payoutsLog.statusPending', 'Pending'),
+        className: 'bg-amber-50 text-amber-600 border border-amber-100',
+      },
       rejected: {
+        label: t('vendors.payoutsLog.statusRejected', 'Rejected'),
+        className: 'bg-red-50 text-red-600 border border-red-100',
+      },
+      failed: {
+        label: t('vendors.payoutsLog.statusRejected', 'Rejected'),
+        className: 'bg-red-50 text-red-600 border border-red-100',
+      },
+      cancelled: {
+        label: t('vendors.payoutsLog.statusRejected', 'Rejected'),
+        className: 'bg-red-50 text-red-600 border border-red-100',
+      },
+      canceled: {
         label: t('vendors.payoutsLog.statusRejected', 'Rejected'),
         className: 'bg-red-50 text-red-600 border border-red-100',
       },
@@ -85,7 +117,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
       if (rawDate) {
         const parsed = new Date(rawDate);
         if (!isNaN(parsed.getTime())) {
-          dateStr = parsed.toLocaleDateString('en-US', {
+          dateStr = parsed.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric',
@@ -211,13 +243,13 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
     if (typeof raw === 'string' && raw.trim()) {
       const d = new Date(raw);
       return !isNaN(d.getTime())
-        ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? d.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         : raw;
     }
     if (typeof raw === 'number') {
       const d = new Date(raw);
       return !isNaN(d.getTime())
-        ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        ? d.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         : '--';
     }
     if (typeof raw === 'object' && Object.keys(raw).length > 0) {
@@ -225,7 +257,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
       if (typeof val === 'string') {
         const d = new Date(val);
         return !isNaN(d.getTime())
-          ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          ? d.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
           : val;
       }
     }
@@ -279,7 +311,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   )}
                 </span>
                 {totalPayout !== null && (
-                  <span className="text-xs font-bold text-emerald-600">SAR</span>
+                  <span className="text-xs font-bold text-emerald-600">{isRtl ? '﷼' : 'SAR'}</span>
                 )}
               </>
             )}
@@ -307,7 +339,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   )}
                 </span>
                 {pendingAmount !== null && (
-                  <span className="text-xs font-bold text-amber-500">SAR</span>
+                  <span className="text-xs font-bold text-amber-500">{isRtl ? '﷼' : 'SAR'}</span>
                 )}
               </>
             )}
@@ -382,10 +414,10 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   {t('vendors.payoutsLog.colAmount', 'Amount')}
                 </th>
                 <th className="px-6 py-4 text-start font-bold text-gray-900">
-                  {t('vendors.payoutsLog.colRefNo', 'Reference Number')}
+                  {t('vendors.payoutsLog.colRefNumber', 'Reference Number')}
                 </th>
                 <th className="px-6 py-4 text-start font-bold text-gray-900">
-                  {t('vendors.payoutsLog.colAdmin', 'Admin Name')}
+                  {t('vendors.payoutsLog.colAdminName', 'Admin Name')}
                 </th>
                 <th className="px-6 py-4 text-start font-bold text-gray-900">
                   {t('vendors.payoutsLog.colStatus', 'Status')}
@@ -413,8 +445,9 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
               ) : (
                 paginatedItems.map((payout, idx) => {
                   const hasStatus = payout.status && payout.status !== '--';
-                  const style = hasStatus ? PAYOUT_STATUS_STYLES[payout.status] || {
-                    label: payout.status.toUpperCase(),
+                  const sLower = String(payout.status || '').toLowerCase();
+                  const style = hasStatus ? PAYOUT_STATUS_STYLES[sLower] || {
+                    label: t(`vendors.payoutsLog.status${sLower.charAt(0).toUpperCase()}${sLower.slice(1)}`, payout.status.toUpperCase()),
                     className: 'bg-gray-100 text-gray-700',
                   } : null;
 
@@ -428,7 +461,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                       </td>
                       <td className="px-6 py-4 font-bold text-gray-900 text-xs">
                         {payout.amount >= 0
-                          ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          ? `${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${isRtl ? '﷼' : 'SAR'}`
                           : '--'}
                       </td>
                       <td className="px-6 py-4 text-gray-400 text-xs font-medium">
@@ -470,8 +503,9 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
           ) : (
             paginatedItems.map((payout, idx) => {
               const hasStatus = payout.status && payout.status !== '--';
-              const style = hasStatus ? PAYOUT_STATUS_STYLES[payout.status] || {
-                label: payout.status.toUpperCase(),
+              const sLower = String(payout.status || '').toLowerCase();
+              const style = hasStatus ? PAYOUT_STATUS_STYLES[sLower] || {
+                label: t(`vendors.payoutsLog.status${sLower.charAt(0).toUpperCase()}${sLower.slice(1)}`, payout.status.toUpperCase()),
                 className: 'bg-gray-100 text-gray-700',
               } : null;
 
@@ -490,12 +524,12 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                   <p className="text-xs text-gray-400">{payout.date || '--'}</p>
                   <p className="text-base font-bold text-gray-900">
                     {payout.amount >= 0
-                      ? `SAR ${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      ? `${payout.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${isRtl ? '﷼' : 'SAR'}`
                       : '--'}
                   </p>
                   <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-50">
-                    <span>Ref Number: <strong className="text-gray-700">{payout.referenceNumber || '--'}</strong></span>
-                    <span>Admin: <strong className="text-gray-700">{payout.adminName || '--'}</strong></span>
+                    <span>{t('vendors.payoutsLog.refLabel', 'Ref Number')}: <strong className="text-gray-700">{payout.referenceNumber || '--'}</strong></span>
+                    <span>{t('vendors.payoutsLog.adminLabel', 'Admin')}: <strong className="text-gray-700">{payout.adminName || '--'}</strong></span>
                   </div>
                 </div>
               );
@@ -507,7 +541,12 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
         {totalCount > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 text-xs text-gray-500">
             <div>
-              Showing {Math.min((safePage - 1) * itemsPerPage + 1, totalCount)}-{Math.min(safePage * itemsPerPage, totalCount)} of {totalCount} payouts
+              {t('vendors.payoutsLog.showingPayouts', {
+                start: Math.min((safePage - 1) * itemsPerPage + 1, totalCount),
+                end: Math.min(safePage * itemsPerPage, totalCount),
+                total: totalCount,
+                defaultValue: `Showing ${Math.min((safePage - 1) * itemsPerPage + 1, totalCount)}-${Math.min(safePage * itemsPerPage, totalCount)} of ${totalCount} payouts`,
+              })}
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -544,7 +583,7 @@ export default function VendorPayoutsLog({ vendor, vendorId }: VendorPayoutsLogP
                 onClick={() => setPage(safePage + 1)}
                 className="px-3 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs font-semibold cursor-pointer inline-flex items-center gap-1"
               >
-                Next <ChevronRight size={14} className={isRtl ? 'rotate-180' : ''} />
+                {t('vendors.payoutsLog.next', 'Next')} <ChevronRight size={14} className={isRtl ? 'rotate-180' : ''} />
               </button>
             </div>
           </div>

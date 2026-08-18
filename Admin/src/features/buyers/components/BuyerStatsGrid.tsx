@@ -15,11 +15,11 @@ interface BuyerStatsGridProps {
   isMobile: boolean;
 }
 
-const formatCurrencyStat = (val?: number | string | null): string => {
+const formatCurrencyStat = (val?: number | string | null, isAr?: boolean): string => {
   if (val === undefined || val === null || val === '' || val === '---') return '---';
   const num = typeof val === 'number' ? val : parseFloat(String(val));
   if (isNaN(num)) return '---';
-  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} SAR`;
+  return `${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${isAr ? '﷼' : 'SAR'}`;
 };
 
 const formatGeneralStat = (val?: number | string | null): string => {
@@ -35,11 +35,12 @@ export default function BuyerStatsGrid({
   lastActive,
   isMobile,
 }: BuyerStatsGridProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   const formattedOrders = formatGeneralStat(ordersNum);
-  const formattedSpent = formatCurrencyStat(totalSpent);
-  const formattedAvg = formatCurrencyStat(avgOrderValue);
+  const formattedSpent = formatCurrencyStat(totalSpent, isAr);
+  const formattedAvg = formatCurrencyStat(avgOrderValue, isAr);
   const formattedActive = formatGeneralStat(lastActive);
 
   const stats = [

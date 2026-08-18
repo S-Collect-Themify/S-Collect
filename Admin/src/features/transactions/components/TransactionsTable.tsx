@@ -8,7 +8,8 @@ interface TransactionsTableProps {
 }
 
 export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   return (
     <div className="hidden md:block overflow-x-auto">
@@ -25,35 +26,23 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
               {t('dashboardOverview.transactionsLog.buyerName', 'Buyer Name')}
             </th>
             <th className="text-left rtl:text-right py-3.5 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
-              {t(
-                'dashboardOverview.transactionsLog.totalAmount',
-                'Total Amount (SAR)'
-              )}
+              {t('dashboardOverview.transactionsLog.totalAmount', 'Total Amount (SAR)')}
             </th>
             <th className="text-left rtl:text-right py-3.5 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
-              {t(
-                'dashboardOverview.transactionsLog.paymentMethod',
-                'Payment Method'
-              )}
+              {t('dashboardOverview.transactionsLog.paymentMethod', 'Payment Method')}
             </th>
             <th className="text-left rtl:text-right py-3.5 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
-              {t(
-                'dashboardOverview.transactionsLog.paymentStatus',
-                'Payment Status'
-              )}
+              {t('dashboardOverview.transactionsLog.paymentStatus', 'Payment Status')}
             </th>
             <th className="text-left rtl:text-right py-3.5 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">
-              {t(
-                'dashboardOverview.transactionsLog.myFatoorahRef',
-                'MyFatoorah Ref #'
-              )}
+              {t('dashboardOverview.transactionsLog.myFatoorahRef', 'MyFatoorah Ref #')}
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 text-gray-700">
+        <tbody className="divide-y divide-gray-100 text-sm">
           {data.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-5 py-12 text-center text-gray-400">
+              <td colSpan={7} className="py-8 text-center text-gray-400 text-sm">
                 No transactions found.
               </td>
             </tr>
@@ -61,7 +50,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
             data.map((item) => (
               <tr
                 key={item.id}
-                className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors group"
+                className="hover:bg-gray-50/60 transition-colors"
               >
                 <td className="py-3.5 px-4 font-bold text-gray-900 font-mono">
                   {item.orderNo || '--'}
@@ -73,7 +62,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) =>
                   {item.buyerName || '--'}
                 </td>
                 <td className="py-3.5 px-4 font-bold text-gray-900">
-                  {item.amount ? `${item.amount.toLocaleString()} SAR` : '--'}
+                  {item.amount ? `${item.amount.toLocaleString()} ${isRtl ? '﷼' : 'SAR'}` : '--'}
                 </td>
                 <td className="py-3.5 px-4 text-gray-700 font-medium">
                   {item.paymentMethod || '--'}
