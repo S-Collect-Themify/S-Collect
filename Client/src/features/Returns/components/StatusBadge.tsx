@@ -8,27 +8,27 @@ export function StatusBadge({ status }: { status: ReturnItem['status'] }) {
     PENDING_REVIEW: {
       labelKey: 'returnsPage.statuses.pendingReview',
       defaultLabel: 'Pending Review',
-      cls: 'bg-amber-100/90 text-amber-900 border-amber-300/70',
+      cls: 'bg-[#FEF3C7] text-[#B45309] border-none',
     },
     APPROVED: {
       labelKey: 'returnsPage.statuses.approved',
       defaultLabel: 'Approved',
-      cls: 'bg-emerald-100/90 text-emerald-900 border-emerald-300/70',
+      cls: 'bg-[#D1FAE5] text-[#059669] border-none',
     },
     REJECTED: {
       labelKey: 'returnsPage.statuses.rejected',
       defaultLabel: 'Rejected',
-      cls: 'bg-rose-100/90 text-rose-900 border-rose-300/70',
+      cls: 'bg-[#FEE2E2] text-[#DC2626] border-none',
     },
     AWAITING_ITEM: {
       labelKey: 'returnsPage.statuses.awaitingItem',
       defaultLabel: 'Awaiting Item',
-      cls: 'bg-sky-100/90 text-sky-900 border-sky-300/70',
+      cls: 'bg-[#EFF6FF] text-[#059669] border-none',
     },
     COMPLETED: {
       labelKey: 'returnsPage.statuses.completed',
       defaultLabel: 'Completed',
-      cls: 'bg-emerald-100/90 text-emerald-900 border-emerald-300/70',
+      cls: 'bg-[#ECFDF5] text-[#047857] border-none',
     },
   };
 
