@@ -95,12 +95,22 @@ export function useManagementTable() {
     const items =
       rawProducts?.items || (Array.isArray(rawProducts) ? rawProducts : []);
     return items.map((p: any) => {
-      // Search endpoint doesn't return variants; determine status from isActive/isDisabled
-      const status: ProductStatus = p.isDisabled
-        ? 'Out Of Stock'
-        : p.isActive
-          ? 'In Stock'
-          : 'Low Stock';
+      // Determine product status (Published / Unpublished / Disabled)
+      let status: ProductStatus = 'Published';
+      if (p.isDisabled || p.status === 'DISABLED' || p.status === 'Disabled') {
+        status = 'Disabled';
+      } else if (
+        p.isActive === false ||
+        p.enabled === false ||
+        p.status === 'UNPUBLISHED' ||
+        p.status === 'Unpublished' ||
+        p.status === 'INACTIVE' ||
+        p.status === 'Inactive'
+      ) {
+        status = 'Unpublished';
+      } else {
+        status = 'Published';
+      }
 
       const catObj = p.category || {};
       const categoryId = p.categoryId || catObj.id || '';
@@ -188,7 +198,8 @@ export function useManagementTable() {
         rating,
         ratingCount,
         status,
-        enabled: p.isActive ?? true,
+        enabled: status === 'Published',
+        isDisabled: status === 'Disabled' || Boolean(p.isDisabled),
         icon: iconUrl || 'ti-package',
       } as Product;
     });
@@ -241,8 +252,10 @@ export function useManagementTable() {
     totalPages,
     selectedCount: selectedRows.length,
     allChecked:
-      paginatedProducts.length > 0 &&
-      paginatedProducts.every((product) => selectedRows.includes(product.id)),
+      paginatedProducts.some((p) => !p.isDisabled && p.status !== 'Disabled') &&
+      paginatedProducts
+        .filter((p) => !p.isDisabled && p.status !== 'Disabled')
+        .every((product) => selectedRows.includes(product.id)),
   };
 }
 

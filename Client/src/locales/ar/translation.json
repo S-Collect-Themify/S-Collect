@@ -633,6 +633,9 @@
       "Youth clothes": "ملابس شبابية"
     },
     "statuses": {
+      "Published": "منشور",
+      "Unpublished": "غير منشور",
+      "Disabled": "معطل",
       "In Stock": "متوفر",
       "Low Stock": "مخزون منخفض",
       "Out Of Stock": "نفد المخزون"

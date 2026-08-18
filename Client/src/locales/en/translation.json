@@ -636,6 +636,9 @@
       "Youth clothes": "Youth clothes"
     },
     "statuses": {
+      "Published": "Published",
+      "Unpublished": "Unpublished",
+      "Disabled": "Disabled",
       "In Stock": "In Stock",
       "Low Stock": "Low Stock",
       "Out Of Stock": "Out Of Stock"

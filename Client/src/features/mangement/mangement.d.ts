@@ -1,4 +1,4 @@
-export type ProductStatus = 'In Stock' | 'Low Stock' | 'Out Of Stock';
+export type ProductStatus = 'Published' | 'Unpublished' | 'Disabled';
 export type StatusFilter = 'All' | ProductStatus;
 
 export interface Product {
@@ -11,5 +11,6 @@ export interface Product {
   ratingCount: number;
   status: ProductStatus;
   enabled: boolean;
+  isDisabled?: boolean;
   icon: string;
 }
