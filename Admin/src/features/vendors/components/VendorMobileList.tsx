@@ -51,8 +51,8 @@ export default function VendorMobileList({
             <span>{t('selectAll', 'Select All')}</span>
           </label>
           {selectedCount > 0 && (
-            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
-              {selectedCount} selected
+            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+              {t('vendors.table.selected', { count: selectedCount })}
             </span>
           )}
         </div>

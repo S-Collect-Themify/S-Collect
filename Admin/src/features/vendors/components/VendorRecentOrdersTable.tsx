@@ -16,7 +16,8 @@ export default function VendorRecentOrdersTable({
   orders,
   statusStyles,
 }: VendorRecentOrdersTableProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   const ordersUrl = `/orders?vendorId=${encodeURIComponent(vendorId)}${
     vendorName ? `&vendorName=${encodeURIComponent(vendorName)}` : ''
@@ -70,7 +71,7 @@ export default function VendorRecentOrdersTable({
                       {order.customerName}
                     </td>
                     <td className="px-6 py-4 text-gray-900 text-xs font-bold">
-                      SAR {order.price.toLocaleString()}
+                      {order.price.toLocaleString()} {isRtl ? '﷼' : 'SAR'}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -125,7 +126,7 @@ export default function VendorRecentOrdersTable({
                       {order.customerName}
                     </span>
                     <span className="text-xs font-bold text-gray-900">
-                      SAR {order.price.toLocaleString()}
+                      {order.price.toLocaleString()} {isRtl ? '﷼' : 'SAR'}
                     </span>
                   </div>
                   <div>

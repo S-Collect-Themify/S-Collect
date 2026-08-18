@@ -145,7 +145,7 @@ export default function ReturnRequestDetailsPage() {
       <div className="flex-1 p-6 bg-gray-50/80 min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
           <Loader2 className="animate-spin text-gray-900" size={20} />
-          <span>Loading refund details...</span>
+          <span>{t('refundDetails.loading', 'Loading refund details...')}</span>
         </div>
       </div>
     );
@@ -154,14 +154,14 @@ export default function ReturnRequestDetailsPage() {
   if (isError || !refund) {
     return (
       <div className="flex-1 p-8 bg-gray-50/80 min-h-screen flex flex-col items-center justify-center text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Refund Not Found</h2>
-        <p className="text-sm text-gray-500 mb-4">Could not load details for refund ID: {id}</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{t('refundDetails.notFound', 'Refund Not Found')}</h2>
+        <p className="text-sm text-gray-500 mb-4">{t('refundDetails.couldNotLoad', 'Could not load details for refund ID: {{id}}', { id })}</p>
         <button
           type="button"
           onClick={() => navigate('/orders')}
           className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-lg"
         >
-          Back to Orders
+          {t('refundDetails.backToOrders', 'Back to Orders')}
         </button>
       </div>
     );
@@ -198,7 +198,7 @@ export default function ReturnRequestDetailsPage() {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-[11px] text-gray-400 font-semibold tracking-wider uppercase">
-                    Refund ID
+                    {t('refundDetails.refundId', 'Refund ID')}
                   </p>
                   <p className="font-bold text-gray-900 text-base">{refundIdCode}</p>
                 </div>
@@ -206,11 +206,11 @@ export default function ReturnRequestDetailsPage() {
               </div>
               <div className="space-y-1.5 text-xs border-t border-gray-100 pt-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Requested Date:</span>
+                  <span className="text-gray-400">{t('refundDetails.requestedDate', 'Requested Date:')}</span>
                   <span className="text-gray-700 font-medium">{formattedDate}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Payment Method:</span>
+                  <span className="text-gray-400">{t('refundDetails.paymentMethod', 'Payment Method:')}</span>
                   <span className="text-gray-700 font-medium">{paymentMethod}</span>
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function ReturnRequestDetailsPage() {
 
             {/* 2. Customer Explanation Card */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
-              <h2 className="font-bold text-gray-900 text-sm mb-3">Reason / Explanation</h2>
+              <h2 className="font-bold text-gray-900 text-sm mb-3">{t('refundDetails.reasonExplanation', 'Reason / Explanation')}</h2>
               <div className="bg-gray-50/80 border border-gray-100 rounded-lg p-3.5 text-xs text-gray-700 leading-relaxed font-medium italic">
                 "{itemReason}"
               </div>
@@ -226,24 +226,24 @@ export default function ReturnRequestDetailsPage() {
 
             {/* 3. Order & Customer Info Card */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
-              <h2 className="font-bold text-gray-900 text-sm mb-3">Order & Customer Info</h2>
+              <h2 className="font-bold text-gray-900 text-sm mb-3">{t('refundDetails.orderCustomerInfo', 'Order & Customer Info')}</h2>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Order ID</span>
+                  <span className="text-gray-400">{t('refundDetails.orderId', 'Order ID')}</span>
                   <span className="font-bold text-gray-900">{orderIdCode}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Customer Name</span>
+                  <span className="text-gray-400">{t('refundDetails.customerName', 'Customer Name')}</span>
                   <span className="font-bold text-gray-900">{customerName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Email Address</span>
+                  <span className="text-gray-400">{t('refundDetails.emailAddress', 'Email Address')}</span>
                   <a href={`mailto:${customerEmail}`} className="text-blue-600 font-medium hover:underline">
                     {customerEmail}
                   </a>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Phone Number</span>
+                  <span className="text-gray-400">{t('refundDetails.phoneNumber', 'Phone Number')}</span>
                   <span className="text-gray-900 font-medium">{customerPhone}</span>
                 </div>
               </div>
@@ -251,14 +251,14 @@ export default function ReturnRequestDetailsPage() {
 
             {/* 4. Financial Summary Card */}
             <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs">
-              <h2 className="font-bold text-gray-900 text-sm mb-3">Financial Summary</h2>
+              <h2 className="font-bold text-gray-900 text-sm mb-3">{t('refundDetails.financialSummary', 'Financial Summary')}</h2>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Requested Refund Amount</span>
-                  <span className="font-bold text-gray-900">{(refund.totalRefundAmount || 0).toFixed(2)} SAR</span>
+                  <span className="text-gray-400">{t('refundDetails.requestedRefundAmount', 'Requested Refund Amount')}</span>
+                  <span className="font-bold text-gray-900">{(refund.totalRefundAmount || 0).toFixed(2)} {i18n.language === 'ar' ? '﷼' : 'SAR'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Reason for Refund</span>
+                  <span className="text-gray-400">{t('refundDetails.reasonForRefund', 'Reason for Refund')}</span>
                   <span className="text-gray-900 font-medium">{itemReason}</span>
                 </div>
               </div>

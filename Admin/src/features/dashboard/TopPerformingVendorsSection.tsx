@@ -20,40 +20,41 @@ function getInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-function getStatusBadgeInfo(status: string) {
+function getStatusBadgeInfo(status: string, t: any) {
   const s = (status || '').toUpperCase();
   if (s === 'ACTIVE' || s === 'TOP_RATED') {
     return {
       badgeClass: 'bg-emerald-100/80 text-emerald-700',
-      label: 'Active',
+      label: t('dashboardOverview.tableHeaders.active', 'Active'),
     };
   }
   if (s === 'VERIFIED') {
     return {
       badgeClass: 'bg-blue-100/80 text-blue-700',
-      label: 'Verified',
+      label: t('dashboardOverview.tableHeaders.verified', 'Verified'),
     };
   }
   if (s === 'GROWTH' || s === 'ON_GROWTH') {
     return {
       badgeClass: 'bg-amber-100/80 text-amber-700',
-      label: 'On Growth',
+      label: t('dashboardOverview.tableHeaders.onGrowth', 'On Growth'),
     };
   }
   if (s === 'PENDING_APPROVAL' || s === 'PENDING') {
     return {
       badgeClass: 'bg-amber-100/80 text-amber-700',
-      label: 'Pending',
+      label: t('dashboardOverview.tableHeaders.pending', 'Pending'),
     };
   }
   return {
     badgeClass: 'bg-gray-100 text-gray-600',
-    label: status || 'Inactive',
+    label: status ? status : t('dashboardOverview.tableHeaders.inactive', 'Inactive'),
   };
 }
 
 export default function TopPerformingVendorsSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
 
   const { data, isLoading } = useTopPerformingVendors({ pageNum: 1, pageSize: 5 });
@@ -119,7 +120,7 @@ export default function TopPerformingVendorsSection() {
                       const initials = getInitials(name);
                       const revenue = typeof v.totalRevenue === 'number' ? v.totalRevenue : 0;
                       const orders = typeof v.deliveredOrders === 'number' ? v.deliveredOrders : 0;
-                      const badgeInfo = getStatusBadgeInfo(v.status);
+                      const badgeInfo = getStatusBadgeInfo(v.status, t);
                       const bgColor = avatarBgColors[idx % avatarBgColors.length];
 
                       return (
@@ -135,7 +136,7 @@ export default function TopPerformingVendorsSection() {
                             </div>
                           </td>
                           <td className="px-6 py-4 font-bold text-gray-900 text-xs text-end">
-                            SAR {revenue.toLocaleString()}
+                            {revenue.toLocaleString()} {isAr ? '﷼' : 'SAR'}
                           </td>
                           <td className="px-6 py-4 text-gray-500 font-normal text-xs text-end">
                             {orders.toLocaleString()}
@@ -175,7 +176,7 @@ export default function TopPerformingVendorsSection() {
                   const initials = getInitials(name);
                   const revenue = typeof v.totalRevenue === 'number' ? v.totalRevenue : 0;
                   const orders = typeof v.deliveredOrders === 'number' ? v.deliveredOrders : 0;
-                  const badgeInfo = getStatusBadgeInfo(v.status);
+                  const badgeInfo = getStatusBadgeInfo(v.status, t);
                   const bgColor = avatarBgColors[idx % avatarBgColors.length];
 
                   return (
@@ -200,7 +201,7 @@ export default function TopPerformingVendorsSection() {
                           </div>
                           <p className="text-[11px] text-gray-500 font-medium">
                             <span className="font-bold text-gray-900">
-                              SAR {revenue.toLocaleString()}
+                              {revenue.toLocaleString()} {isAr ? '﷼' : 'SAR'}
                             </span>{' '}
                             • {orders.toLocaleString()} {t('dashboardOverview.tableHeaders.orders', 'orders')}
                           </p>

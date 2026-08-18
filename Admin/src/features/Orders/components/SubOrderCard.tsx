@@ -1,9 +1,31 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Edit2, ExternalLink, Check, X, Loader2, MessageSquare, Lock } from 'lucide-react';
+import { ChevronDown, Edit2, ExternalLink, Check, X, Loader2, MessageSquare, Lock, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { AdminSubOrder } from '../../../services/orders';
+
+export function getItemThumbnail(it: any): string | null {
+  if (!it) return null;
+  const raw =
+    it.thumbnailUrl ||
+    it.imageUrl ||
+    it.image ||
+    it.thumbnail ||
+    it.productImage ||
+    it.productImageUrl ||
+    it.mainImage ||
+    it.product?.thumbnailUrl ||
+    it.product?.imageUrl ||
+    (Array.isArray(it.product?.images) && (it.product.images[0]?.url || it.product.images[0])) ||
+    (Array.isArray(it.images) && (it.images[0]?.url || it.images[0]));
+
+  if (typeof raw === 'string' && raw.trim()) return raw.trim();
+  if (typeof raw === 'object' && raw !== null) {
+    return (raw.url || raw.src || raw.link || null) as string | null;
+  }
+  return null;
+}
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 import { useAdminProfile } from '../../../hooks/useAdminProfile';
 
@@ -14,7 +36,7 @@ interface SubOrderCardProps {
   onUpdateStatus: (payload: { status: string; trackingNumber?: string; reason?: string }) => Promise<void> | void;
   isUpdating?: boolean;
   StatusBadge: React.ComponentType<{ status?: string }>;
-  getProductThumbnail: (name?: string) => string;
+  getProductThumbnail?: (name?: string) => string;
 }
 
 export const SubOrderCard = ({
@@ -279,14 +301,19 @@ export const SubOrderCard = ({
       <div className="space-y-3 pt-2 border-t border-gray-100">
         {currentItems.map((it) => {
           const itemProdId = (it.productId || it.id) as string | undefined;
+          const thumbUrl = getItemThumbnail(it);
           return (
             <div key={it.id} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
                 <div
                   onClick={() => itemProdId && handleViewProduct(itemProdId)}
-                  className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center text-base cursor-pointer hover:bg-gray-200 transition-colors"
+                  className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center text-base cursor-pointer hover:bg-gray-200 transition-colors overflow-hidden"
                 >
-                  {getProductThumbnail(it.productName)}
+                  {thumbUrl ? (
+                    <img src={thumbUrl} alt={it.productName} className="w-full h-full object-cover" />
+                  ) : (
+                    <Package className="text-gray-400" size={16} />
+                  )}
                 </div>
                 <div>
                   <p
@@ -300,7 +327,7 @@ export const SubOrderCard = ({
                   </p>
                 </div>
               </div>
-              <span className="font-bold text-gray-900 text-xs">{(it.lineTotal || 0).toFixed(2)} SAR</span>
+              <span className="font-bold text-gray-900 text-xs">{(it.lineTotal || 0).toFixed(2)} {isRtl ? '﷼' : 'SAR'}</span>
             </div>
           );
         })}
@@ -309,11 +336,11 @@ export const SubOrderCard = ({
       <div className="pt-2 border-t border-gray-100 text-end text-xs space-y-0.5 text-gray-500">
         <p className='flex justify-between'>
           {t('ordersPage.subtotalColon', 'Subtotal:')}{' '}
-          <span className="font-semibold text-gray-900">{subtotal.toFixed(2)} SAR</span>
+          <span className="font-semibold text-gray-900">{subtotal.toFixed(2)} {isRtl ? '﷼' : 'SAR'}</span>
         </p>
         <p className='flex justify-between'>
           {t('ordersPage.shippingColon', 'Shipping:')}{' '}
-          <span className="font-semibold text-gray-900">{(subOrder.shippingRateApplied || 0).toFixed(2)} SAR</span>
+          <span className="font-semibold text-gray-900">{(subOrder.shippingRateApplied || 0).toFixed(2)} {isRtl ? '﷼' : 'SAR'}</span>
         </p>
       </div>
 

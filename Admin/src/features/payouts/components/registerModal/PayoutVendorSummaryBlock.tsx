@@ -8,7 +8,8 @@ interface PayoutVendorSummaryBlockProps {
 }
 
 export default function PayoutVendorSummaryBlock({ item }: PayoutVendorSummaryBlockProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
   const { data: bankInfo, isLoading } = useVendorBankInfo(item.id);
 
   const iban = bankInfo?.iban || (item.bankAccount !== '--' ? item.bankAccount : null);
@@ -68,7 +69,7 @@ export default function PayoutVendorSummaryBlock({ item }: PayoutVendorSummaryBl
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}{' '}
-          SAR
+          {isRtl ? '﷼' : 'SAR'}
         </span>
       </div>
     </div>

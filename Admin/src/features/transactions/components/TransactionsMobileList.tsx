@@ -8,7 +8,8 @@ interface TransactionsMobileListProps {
 }
 
 export const TransactionsMobileList: React.FC<TransactionsMobileListProps> = ({ data }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   return (
     <div className="md:hidden space-y-3 p-3 bg-gray-50/50">
@@ -43,7 +44,7 @@ export const TransactionsMobileList: React.FC<TransactionsMobileListProps> = ({ 
                   {t('dashboardOverview.transactionsLog.totalAmount', 'Total Amount')}
                 </span>
                 <span className="font-bold text-gray-900">
-                  {item.amount ? `${item.amount.toLocaleString()} SAR` : '--'}
+                  {item.amount ? `${item.amount.toLocaleString()} ${isRtl ? '﷼' : 'SAR'}` : '--'}
                 </span>
               </div>
               <div className="flex items-center justify-between">

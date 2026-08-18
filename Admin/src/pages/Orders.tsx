@@ -22,6 +22,8 @@ export default function Orders() {
     handleStatusFilterChange,
     dateFilter,
     handleDateFilterChange,
+    buyerAccountIdFilter,
+    handleBuyerFilterChange,
     setPage,
     safePage,
     isLoading,
@@ -64,6 +66,8 @@ export default function Orders() {
           onStatusFilterChange={handleStatusFilterChange}
           dateFilter={dateFilter}
           onDateFilterChange={handleDateFilterChange}
+          buyerAccountId={buyerAccountIdFilter}
+          onBuyerAccountIdChange={handleBuyerFilterChange}
         />
 
         {/* Content Views: Skeleton vs Mobile Cards vs Desktop Table wrapped in Activity */}

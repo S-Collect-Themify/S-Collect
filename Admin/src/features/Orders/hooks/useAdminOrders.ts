@@ -54,12 +54,13 @@ export const useAdminOrderDetail = (id?: string) => {
 
 export const useUpdateAdminSubOrderStatus = (orderId?: string) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ subOrderId, payload }: { subOrderId: string; payload: UpdateSubOrderStatusPayload }) =>
       updateAdminSubOrderStatus(subOrderId, payload),
     onSuccess: () => {
-      toast.success('Sub-order updated successfully');
+      toast.success(t('ordersPage.notifications.updateSuccess', 'Sub-order updated successfully'));
       if (orderId) {
         queryClient.invalidateQueries({ queryKey: ['admin-order-detail', orderId] });
       }
@@ -74,7 +75,7 @@ export const useUpdateAdminSubOrderStatus = (orderId?: string) => {
       queryClient.invalidateQueries({ queryKey: ['revenue-overview-orders-summary'] });
     },
     onError: (err: any) => {
-      const message = err?.response?.data?.message || err?.message || 'Failed to update sub-order';
+      const message = err?.response?.data?.message || err?.message || t('ordersPage.notifications.updateError', 'Failed to update sub-order');
       toast.error(message);
     },
   });

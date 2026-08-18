@@ -47,7 +47,7 @@ export default function PayoutsDesktopTable({
           <tbody className="divide-y divide-gray-100">
             <tr>
               <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
-                No pending payouts found.
+                {t('payouts.noPendingPayouts', 'No pending payouts found.')}
               </td>
             </tr>
           </tbody>

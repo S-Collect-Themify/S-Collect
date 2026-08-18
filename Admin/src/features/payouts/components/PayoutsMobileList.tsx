@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PendingPayoutItem } from '../types';
 import PayoutCardSkeleton from './skeletons/PayoutCardSkeleton';
 import PayoutMobileCard from './PayoutMobileCard';
@@ -13,6 +14,8 @@ export default function PayoutsMobileList({
   onRegisterPayout,
   isLoading = false,
 }: PayoutsMobileListProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <div className="block md:hidden">
@@ -24,7 +27,7 @@ export default function PayoutsMobileList({
   if (!isLoading && items.length === 0) {
     return (
       <div className="block md:hidden p-8 text-center text-gray-400 text-sm bg-white rounded-2xl border border-gray-100">
-        No pending payouts found.
+        {t('payouts.noPendingPayouts', 'No pending payouts found.')}
       </div>
     );
   }

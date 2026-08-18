@@ -13,7 +13,7 @@ import type { TableItem, OrderMainTab } from '../types';
 
 export const useOrdersLogic = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const urlVendorId = searchParams.get('vendorId');
   const urlBuyerAccountId = searchParams.get('buyerAccountId');
   const { isMobile } = useBreakpoint();
@@ -69,6 +69,7 @@ export const useOrdersLogic = () => {
   } = useAdminSubOrders(
     {
       vendorId: vendorIdFilter,
+      buyerAccountId: buyerAccountIdFilter,
       pageNum: page,
       pageSize: itemsPerPage,
       status: statusParam,
@@ -106,6 +107,7 @@ export const useOrdersLogic = () => {
       pageSize: itemsPerPage,
       status: statusParam,
       vendorId: vendorIdFilter,
+      buyerAccountId: buyerAccountIdFilter,
       search: searchParam,
       startDate: startDateParam,
     },
@@ -215,6 +217,18 @@ export const useOrdersLogic = () => {
     setPage(1);
   };
 
+  const handleBuyerFilterChange = (id: string | undefined) => {
+    setBuyerAccountIdFilter(id);
+    setPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    if (id) {
+      newParams.set('buyerAccountId', id);
+    } else {
+      newParams.delete('buyerAccountId');
+    }
+    setSearchParams(newParams);
+  };
+
   const handleViewDetails = (item: TableItem) => {
     if (activeMainTab === 'refunds') {
       navigate(`/returns/${item.id}`);
@@ -232,6 +246,8 @@ export const useOrdersLogic = () => {
     handleStatusFilterChange,
     dateFilter,
     handleDateFilterChange,
+    buyerAccountIdFilter,
+    handleBuyerFilterChange,
     setPage,
     safePage,
     isLoading,

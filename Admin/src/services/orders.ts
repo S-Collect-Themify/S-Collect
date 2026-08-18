@@ -1,4 +1,5 @@
 import { api } from './api';
+import i18n from '../i18n';
 import type { TransactionItem } from '../features/transactions/types/transaction.types';
 import type { TableItem } from '../features/Orders/types';
 
@@ -245,6 +246,7 @@ export async function updateAdminSubOrderStatus(
 
 export interface GetAdminSubOrdersParams {
   vendorId?: string;
+  buyerAccountId?: string;
   pageNum?: number;
   pageSize?: number;
   status?: string;
@@ -306,6 +308,8 @@ export async function getAdminSubOrders(
     const response = await api.get('/admin/sub-orders', {
       params: {
         vendorId: params?.vendorId,
+        buyerAccountId: params?.buyerAccountId,
+        buyerId: params?.buyerAccountId,
         pageNum,
         page: pageNum,
         pageSize,
@@ -386,7 +390,8 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
   const shortId = order.id ? (order.id.length > 8 ? order.id.slice(-6).toUpperCase() : order.id) : 'N/A';
   const code = order.orderNumber ? `#ORD-${order.orderNumber}` : `#ORD-${shortId}`;
   const total = order.grandTotalAmount ?? order.subtotalAmount ?? 0;
-  const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
+  const currency = i18n.language === 'ar' ? '﷼' : 'SAR';
+  const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
 
   // Use overallStatus from backend for Orders page
   const rawStatus = (order.overallStatus || order.paymentStatus || 'PENDING').toUpperCase();
@@ -430,7 +435,8 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
   const code = sub.orderNumber ? `#SUB-${sub.orderNumber}` : `#SUB-${shortId}`;
 
   const total = sub.totalAmount ?? sub.items?.reduce((acc, i) => acc + (i.lineTotal ?? 0), 0) ?? 0;
-  const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`;
+  const currency = i18n.language === 'ar' ? '﷼' : 'SAR';
+  const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
 
   const rawStatus = (sub.status || 'PENDING').toUpperCase();
 

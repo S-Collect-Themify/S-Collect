@@ -35,7 +35,8 @@ function getVoucherStatusBadge(v: BackendVoucherItem, t: any) {
 }
 
 export default function VoucherOverviewSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   const { data: stats, isLoading: isLoadingStats } = useQuery({
     queryKey: ['admin-vouchers-stats'],
@@ -111,9 +112,9 @@ export default function VoucherOverviewSection() {
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
             <div className="flex items-baseline gap-1">
               <span className="text-xl sm:text-2xl font-bold text-gray-900">
-                SAR {isLoadingStats ? '...' : totalCostSaved}
+                {isLoadingStats ? '...' : totalCostSaved}
               </span>
-              <span className="text-[10px] font-bold text-gray-600">SAR</span>
+              <span className="text-[10px] font-bold text-gray-600">{isAr ? '﷼' : 'SAR'}</span>
             </div>
             <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">
               {t('dashboardOverview.platformMarketingExpense', 'Platform Marketing Expense')}
@@ -183,7 +184,7 @@ export default function VoucherOverviewSection() {
                   ) : (
                     vouchers.map((v) => {
                       const isPercentage = v.type === 'PERCENTAGE';
-                      const discountStr = isPercentage ? `${v.value ?? 0}%` : `SAR ${v.value ?? 0}`;
+                      const discountStr = isPercentage ? `${v.value ?? 0}%` : `${v.value ?? 0} ${isAr ? '﷼' : 'SAR'}`;
                       const usageStr = `${v.usesCount ?? 0}/${v.maxTotalUses ? v.maxTotalUses : '∞'}`;
                       const expiryStr = v.endsAt ? String(v.endsAt).split('T')[0] : '--';
                       const badgeInfo = getVoucherStatusBadge(v, t);
@@ -231,7 +232,7 @@ export default function VoucherOverviewSection() {
               ) : (
                 vouchers.map((v) => {
                   const isPercentage = v.type === 'PERCENTAGE';
-                  const discountStr = isPercentage ? `${v.value ?? 0}%` : `SAR ${v.value ?? 0}`;
+                  const discountStr = isPercentage ? `${v.value ?? 0}%` : `${v.value ?? 0} ${isAr ? '﷼' : 'SAR'}`;
                   const usageStr = `${v.usesCount ?? 0}/${v.maxTotalUses ? v.maxTotalUses : '∞'}`;
                   const expiryStr = v.endsAt ? String(v.endsAt).split('T')[0] : '--';
                   const badgeInfo = getVoucherStatusBadge(v, t);
