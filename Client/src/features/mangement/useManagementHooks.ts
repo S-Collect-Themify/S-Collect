@@ -10,6 +10,7 @@ import {
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
+import { resolveImageUrl } from '../../utils/image';
 
 const ITEMS_PER_PAGE = 8;
 const FETCH_PAGE_SIZE = 100;
@@ -180,13 +181,8 @@ export function useManagementTable() {
           typeof thumb === 'string' ? thumb : thumb.url || thumb.src || '';
       }
 
-      if (
-        iconUrl &&
-        !iconUrl.startsWith('http://') &&
-        !iconUrl.startsWith('https://') &&
-        !iconUrl.startsWith('data:')
-      ) {
-        iconUrl = `https://api.collect-s.com${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}`;
+      if (iconUrl) {
+        iconUrl = resolveImageUrl(iconUrl, '');
       }
 
       return {

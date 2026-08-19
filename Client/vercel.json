@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "https://api.collect-s.com/api/v1/:path*"
+      "destination": "https://api.collects.ihkam.tech/api/v1/:path*"
     },
     {
       "source": "/(.*)",
