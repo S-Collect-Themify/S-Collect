@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import VendorTable from '../features/vendors/components/VendorTable';
+import { useVendorStore } from '../features/vendors/store/vendorStore';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 
@@ -22,6 +24,10 @@ const itemVariants: Variants = {
 
 const Vendors = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    useVendorStore.getState().setPage(1);
+  }, []);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,6 +6,7 @@ import {
   useDeactivateVendor,
   useReactivateVendor,
 } from '../features/vendors/hooks/useVendors';
+import { useVendorOrdersStore } from '../store/vendorOrdersStore';
 import VendorHeader from '../features/vendors/components/VendorHeader';
 import VendorOrdersLog from '../features/vendors/components/VendorOrdersLog';
 import DeactivateVendorModal from '../features/vendors/modals/DeactivateVendorModal';
@@ -15,6 +16,10 @@ export default function VendorOrdersPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    useVendorOrdersStore.getState().setPage(1);
+  }, []);
 
   const vendorId = id ?? '';
   const { data: vendor, isLoading, isError } = useVendorDetails(vendorId);

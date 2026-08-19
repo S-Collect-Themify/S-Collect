@@ -124,21 +124,27 @@ export default function VendorDetails() {
       : [];
 
     if (rawItems.length > 0) {
-      return rawItems.map((item: any) => ({
-        id: (item.id || '') as string,
-        name: (item.name || item.nameAr || '--') as string,
-        category: (typeof item.category === 'string'
-          ? item.category
-          : item.category?.name || item.category?.nameAr || '--') as string,
-        price: (typeof item.minPrice === 'number'
-          ? item.minPrice
-          : typeof item.price === 'number'
-          ? item.price
-          : typeof item.minPrice?.amount === 'number'
-          ? item.minPrice.amount
-          : 0) as number,
-        status: (item.isActive && !item.isDisabled ? 'active' : 'inactive') as 'active' | 'inactive',
-      }));
+      return rawItems.map((item: any) => {
+        const prodName = isRtl && (item.nameAr || item.name_ar) ? (item.nameAr || item.name_ar) : item.name || item.title || '--';
+        const catObj = typeof item.category === 'object' && item.category !== null ? item.category : null;
+        const catName = isRtl && (catObj?.nameAr || catObj?.name_ar || item.categoryAr || item.category_ar)
+          ? (catObj?.nameAr || catObj?.name_ar || item.categoryAr || item.category_ar)
+          : (catObj?.name || (typeof item.category === 'string' ? item.category : '--'));
+
+        return {
+          id: (item.id || '') as string,
+          name: prodName as string,
+          category: catName as string,
+          price: (typeof item.minPrice === 'number'
+            ? item.minPrice
+            : typeof item.price === 'number'
+            ? item.price
+            : typeof item.minPrice?.amount === 'number'
+            ? item.minPrice.amount
+            : 0) as number,
+          status: (item.isActive && !item.isDisabled ? 'active' : 'inactive') as 'active' | 'inactive',
+        };
+      });
     }
     return [] as Array<{
       id?: string;
@@ -147,7 +153,7 @@ export default function VendorDetails() {
       price: number;
       status: string;
     }>;
-  }, [apiProductsData]);
+  }, [apiProductsData, isRtl]);
 
   const payouts = useMemo(() => {
     const rawData = apiPayoutsData as any;

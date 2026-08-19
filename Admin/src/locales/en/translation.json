@@ -729,7 +729,8 @@
       "reviewPhoto": "{{author}} review photo {{index}}",
       "previousPage": "Previous page",
       "nextPage": "Next page",
-      "showingRange": "Showing {{start}}–{{end}} of {{total}} reviews"
+      "showingRange": "Showing {{start}}–{{end}} of {{total}} reviews",
+      "noReviewsMatchingFilter": "No reviews found matching this filter."
     }
   },
   "Add Product": "Add Product",
@@ -1476,6 +1477,10 @@
         "status": "Status",
         "dateAdded": "Date Added",
         "actions": "Actions"
+      },
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive"
       }
     },
     "quickActions": {
@@ -1625,6 +1630,8 @@
     "footerNote": "* Vendor rates are managed by vendors from their dashboard. Admin view only."
   },
   "common": {
+    "active": "Active",
+    "inactive": "Inactive",
     "cancel": "Cancel",
     "tryAgain": "Try Again",
     "understood": "Understood",

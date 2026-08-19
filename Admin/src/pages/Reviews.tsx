@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   REVIEWS_PER_PAGE,
@@ -34,6 +34,10 @@ const Reviews = () => {
   const setCurrentPage = useReviewStore((s) => s.setCurrentPage);
   const openDeleteModal = useReviewStore((s) => s.openDeleteModal);
   const closeDeleteModal = useReviewStore((s) => s.closeDeleteModal);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   // ── Extract Unique Filter Options ──
   const availableVendors = useMemo(() => {
