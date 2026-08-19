@@ -1,11 +1,9 @@
 import { ArrowRight, Lock } from 'lucide-react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
 
 import { SectionCard, TextInput } from '../shared';
-import { cn } from '../utils';
+import { cn, formatSaudiPhone } from '../utils';
 import type { AccountSettingsData, PasswordData } from '../types';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
 
@@ -110,29 +108,49 @@ export function PersonalInfoSection() {
             control={control}
             rules={{
               required: t('settings.errors.invalidPhone'),
-              validate: (v) => (v ? true : t('settings.errors.invalidPhone')),
+              validate: (v) => {
+                if (!v) return t('settings.errors.invalidPhone');
+                const { full } = formatSaudiPhone(v);
+                return (
+                  (full.length === 13 && full.startsWith('+9665')) ||
+                  t('settings.errors.invalidPhone')
+                );
+              },
             }}
             render={({ field, fieldState: { error } }) => (
               <>
-                <PhoneInput
-                  country="SA"
-                  countrySelectComponent={() => (
-                    <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
-                      <img
-                        src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
-                        alt="Saudi Arabia"
-                        className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
-                      />
-                      <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
-                    </div>
-                  )}
-                  value={field.value}
-                  onChange={(v) => field.onChange(v ?? '')}
+                <div
+                  dir="ltr"
                   className={cn(
-                    'phone-input-custom h-10 rounded-lg px-3',
+                    'phone-input-custom h-10 rounded-lg px-3 flex items-center',
                     error && 'phone-error'
                   )}
-                />
+                >
+                  <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
+                    <img
+                      src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
+                      alt="Saudi Arabia"
+                      className="w-5 h-3.5 rounded-xs object-cover shadow-sm"
+                    />
+                    <span className="text-xs font-semibold text-gray-700">
+                      +966
+                    </span>
+                  </div>
+                  <input
+                    type="tel"
+                    dir="ltr"
+                    placeholder="50 123 4567"
+                    value={formatSaudiPhone(field.value).formatted}
+                    onChange={(e) => {
+                      const { full } = formatSaudiPhone(e.target.value);
+                      field.onChange(full);
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                    className="PhoneInputInput"
+                  />
+                </div>
                 {error && (
                   <p className="settings-pop-enter mt-1 text-[12px] text-red-500">
                     {error.message}

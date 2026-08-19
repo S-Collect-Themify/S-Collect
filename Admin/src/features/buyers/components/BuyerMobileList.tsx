@@ -70,7 +70,7 @@ export default function BuyerMobileList({
           </label>
           {selectedCount > 0 && (
             <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
-              {selectedCount} selected
+              {t('buyers.table.selected', { count: selectedCount })}
             </span>
           )}
         </div>

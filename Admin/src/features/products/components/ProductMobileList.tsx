@@ -58,7 +58,7 @@ export const ProductMobileList = ({
                 {t('productsListing.mobile.price')}
               </span>
               <span className="font-semibold text-gray-900 text-sm">
-                {product.price.toLocaleString()} SAR
+                {product.price.toLocaleString()} {isAr ? '﷼' : 'SAR'}
               </span>
             </div>
 

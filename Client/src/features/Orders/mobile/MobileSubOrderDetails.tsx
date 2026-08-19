@@ -13,7 +13,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSubOrder, useUpdateSubOrder } from '../useSubOrders';
 import type { SubOrderStatus } from '../types/subOrder';
-import { STATUS_STYLES, NEXT_STATUS } from '../types/subOrder';
+import {
+  STATUS_STYLES,
+  NEXT_STATUS,
+  getOrderStatusLabel,
+} from '../types/subOrder';
 
 const TIMELINE_STEPS: SubOrderStatus[] = [
   'PENDING',
@@ -97,7 +101,7 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
         <span
           className={`ml-auto px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[order.status]}`}
         >
-          {order.status}
+          {getOrderStatusLabel(order.status, t)}
         </span>
       </div>
 
@@ -181,7 +185,7 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
           {order.status === 'CANCELLED' ? (
             <div className="flex items-center gap-2 text-red-500 text-sm">
               <Ban size={16} />
-              <span>Cancelled</span>
+              <span>{t('ordersPage.cancelled', 'Cancelled')}</span>
             </div>
           ) : (
             TIMELINE_STEPS.map((step, i) => {
@@ -219,7 +223,7 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
                   <p
                     className={`text-sm pb-4 ${done ? 'text-gray-900 font-medium' : 'text-gray-400'}`}
                   >
-                    {step}
+                    {getOrderStatusLabel(step, t)}
                   </p>
                 </div>
               );

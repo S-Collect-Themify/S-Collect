@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
   getAdminBuyers,
@@ -190,6 +191,7 @@ export function useAdminBuyerDetail(id?: string) {
 
 export function useUpdateBuyerStatus() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -198,10 +200,10 @@ export function useUpdateBuyerStatus() {
       queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
       queryClient.invalidateQueries({ queryKey: ['admin-buyer-detail'] });
       queryClient.invalidateQueries({ queryKey: ['admin-buyer-stats'] });
-      toast.success('Buyer status updated successfully');
+      toast.success(t('buyers.notifications.updateSuccess', 'Buyer status updated successfully'));
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Failed to update buyer status';
+      const message = error?.response?.data?.message || error?.message || t('buyers.notifications.updateError', 'Failed to update buyer status');
       toast.error(message);
     },
   });

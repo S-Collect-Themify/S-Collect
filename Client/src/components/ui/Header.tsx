@@ -7,6 +7,7 @@ import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 
 import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
+import { useAccountSettings } from '../../features/settings/hooks/useAccountSettings';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -89,16 +90,18 @@ const LanguageDropdown = () => {
 
 const Header = ({ onMenuClick }: HeaderProps) => {
   const { t, i18n } = useTranslation();
-  const { data: profile } = useStoreProfile();
+  const { data: profile, isLoading: isProfileLoading } = useStoreProfile();
+  const { data: account, isLoading: isAccountLoading } = useAccountSettings();
 
+  const isLoading = isProfileLoading || isAccountLoading;
   const logoUrl = profile?.storeLogoUrl;
-  console.log('Header Logo URL:', logoUrl);
-  console.log('Full Profile:', profile);
 
   const isArabic = i18n.language === 'ar';
-  const storeName = isArabic
-    ? profile?.storeNameAr || profile?.storeName || ''
-    : profile?.storeName || profile?.storeNameAr || '';
+
+  const vendorName = [account?.firstName, account?.lastName]
+    .filter(Boolean)
+    .join(' ');
+  const displayName = vendorName || (isArabic ? 'تاجر' : 'Vendor');
 
   const today = new Date().toLocaleDateString(
     isArabic ? 'ar-EG' : 'en-US',
@@ -112,8 +115,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
   return (
     <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
-      <div className="container mx-auto flex flex-col gap-4 sidebar:flex-row sidebar:justify-between sidebar:items-center">
-        <div className="flex items-center justify-between gap-4 sidebar:hidden">
+      <div className="container mx-auto flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+        <div className="flex items-center justify-between gap-4 md:hidden">
           <div className="flex items-center gap-3">
             <a href="/">
               <img src="/mobLogo.png" alt="Logo" className="h-10 w-10" />
@@ -128,14 +131,16 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             </button>
           </div>
           <div className="flex items-center">
-            <div className="sidebar:hidden block">
+            <div className="md:hidden block">
               <InputSearch />
             </div>
             <div
               aria-label={t('header.account')}
               className="inline-flex h-11 w-11 items-center justify-center text-gray-50"
             >
-              {logoUrl ? (
+              {isProfileLoading ? (
+                <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
+              ) : logoUrl ? (
                 <img
                   src={logoUrl}
                   alt="Store Logo"
@@ -150,31 +155,37 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           </div>
         </div>
 
-        <div className="hidden items-center justify-between gap-4 sidebar:flex">
+        <div className="hidden items-center justify-between gap-4 md:flex">
           <div>
-            <h1 className="text-2xl font-bold">
-              {isArabic
-                ? `مرحباً, ${storeName} 👋`
-                : `Hello, ${storeName} 👋`}
-            </h1>
+            {isLoading ? (
+              <div className="h-7 w-48 bg-white/20 rounded-md animate-pulse my-1" />
+            ) : (
+              <h1 className="text-2xl font-bold">
+                {isArabic
+                  ? `مرحباً, ${displayName}`
+                  : `Hello, ${displayName}`}
+              </h1>
+            )}
             <p className="text-sm text-gray-200">{today}</p>
           </div>
         </div>
 
-        <div className="items-center gap-3 sidebar:gap-4 sidebar:flex hidden">
-          <div className="flex-1 sidebar:flex-none sidebar:block hidden">
+        <div className="items-center gap-3 md:gap-4 md:flex hidden">
+          <div className="flex-1 md:flex-none md:block hidden">
             <InputSearch />
           </div>
 
-          <div className="hidden sidebar:flex">
+          <div className="hidden md:flex">
             <LanguageDropdown />
           </div>
 
           <div
             aria-label={t('header.account')}
-            className="hidden text-2xl sidebar:block"
+            className="hidden text-2xl md:block"
           >
-            {logoUrl ? (
+            {isProfileLoading ? (
+              <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
+            ) : logoUrl ? (
               <img
                 src={logoUrl}
                 alt="Store Logo"

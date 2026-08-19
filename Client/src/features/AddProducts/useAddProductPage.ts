@@ -186,6 +186,37 @@ export const useAddProductPage = () => {
 
   // Form submission handler -> transition to Review step
   const onSubmit = () => {
+    const values = methods.getValues();
+    const cards = values.varianceCards || [];
+
+    // Validate prices for variance cards
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      const baseNum = parseFloat(card.basePrice);
+      if (!card.basePrice || isNaN(baseNum) || baseNum <= 0) {
+        toast.error(
+          t(
+            'addProduct.errors.basePriceRequired',
+            'Base price is required for all variants and must be greater than 0'
+          )
+        );
+        return;
+      }
+
+      if (card.comparePrice && card.comparePrice.trim() !== '') {
+        const compareNum = parseFloat(card.comparePrice);
+        if (!isNaN(compareNum) && compareNum > 0 && compareNum <= baseNum) {
+          toast.error(
+            t(
+              'addProduct.errors.comparePriceMustBeGreater',
+              'Compare-at price must be greater than base price'
+            )
+          );
+          return;
+        }
+      }
+    }
+
     setStep('review');
   };
 

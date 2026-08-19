@@ -47,8 +47,7 @@ const PricingFields = () => {
 
         <div>
           <label className="mb-2 block text-xs font-semibold text-gray-800">
-            {t('addProduct.comparePrice', 'Compare-at Price')}{' '}
-            <span className="text-red-500">*</span>
+            {t('addProduct.comparePrice', 'Compare-at Price')}
           </label>
           <input
             type="number"
@@ -57,8 +56,19 @@ const PricingFields = () => {
             step="0.01"
             min="0"
             {...register('comparePrice', {
-              required: t('addProduct.errors.comparePriceRequired'),
               min: { value: 0, message: t('addProduct.errors.priceMinValue') },
+              validate: (val, formValues) => {
+                if (!val) return true;
+                const compare = parseFloat(val);
+                const base = parseFloat(formValues.basePrice);
+                if (!isNaN(compare) && !isNaN(base) && compare > 0 && compare <= base) {
+                  return t(
+                    'addProduct.errors.comparePriceMustBeGreater',
+                    'Compare-at price must be greater than base price'
+                  );
+                }
+                return true;
+              },
             })}
           />
           {errors.comparePrice && (

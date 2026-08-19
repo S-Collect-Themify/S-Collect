@@ -232,8 +232,17 @@
     "descriptionEn": "الوصف (بالإنجليزية)",
 
     "categories": "التصنيفات",
+    "category": "التصنيف",
+    "selectCategory": "اختر التصنيف",
+    "loadingCategories": "جاري تحميل التصنيفات...",
     "sizes": "المقاسات",
     "colors": "الألوان",
+    "size": "المقاس",
+    "color": "اللون",
+    "selectSize": "اختر المقاس",
+    "stockQuantity": "كمية المخزون",
+    "addVariance": "إضافة تنوع",
+    "removeVarianceCard": "حذف البطاقة",
 
     "addCategory": "إضافة تصنيف",
     "addSize": "إضافة مقاس",
@@ -270,9 +279,41 @@
     "imageUploadFailed": "فشل رفع الصورة",
     "imageDeleted": "تم حذف الصورة بنجاح",
     "imageDeleteFailed": "فشل حذف الصورة",
+    "maxImagesExceeded": "لا يمكنك إضافة أكثر من 6 صور للمنتج.",
 
     "active": "نشط",
     "inactive": "غير نشط",
+    "thumbnail": "الصورة المصغرة",
+    "updated": "تم التحديث",
+    "published": "تم النشر",
+    "publishing": "جاري النشر...",
+
+    "preview": {
+      "productName": "اسم المنتج",
+      "uncategorized": "غير مصنف",
+      "brand": "العلامة التجارية",
+      "generic": "عام",
+      "sku": "رمز المنتج",
+      "stock": "المخزون",
+      "units": "وحدة",
+      "status": "الحالة",
+      "discount": "الخصم",
+      "cost": "التكلفة",
+      "description": "الوصف",
+      "descriptionAr": "الوصف بالعربية",
+      "productVariances": "تنوعات المنتج",
+      "variance": "تنوع",
+      "size": "المقاس",
+      "color": "اللون"
+    },
+    "stepSummary": {
+      "title": "ملخص الخطوات",
+      "basicInfo": "المعلومات الأساسية",
+      "categorization": "التصنيف",
+      "pricing": "التسعير",
+      "inventory": "المخزون",
+      "review": "المراجعة"
+    },
 
     "addingProduct": "جاري إضافة المنتج...",
     "addingProductMessage": "يرجى الانتظار بينما نقوم بإضافة منتجك.",
@@ -283,14 +324,16 @@
     "productUpdatedMessage": "تم تحديث منتجك بنجاح.",
     "done": "تم",
     "errors": {
+      "categoryRequired": "التصنيف مطلوب",
       "nameArRequired": "اسم المنتج بالعربية مطلوب",
       "nameEnRequired": "اسم المنتج بالإنجليزية مطلوب",
       "descriptionRequired": "الوصف بالإنجليزية مطلوب",
       "descriptionArRequired": "الوصف بالعربية مطلوب",
       "basePriceRequired": "السعر الأساسي مطلوب",
       "comparePriceRequired": "السعر قبل الخصم مطلوب",
+      "comparePriceMustBeGreater": "السعر قبل الخصم يجب أن يكون أكبر من السعر الأساسي",
       "skuRequired": "رمز المنتج مطلوب",
-      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0"
+      "priceMinValue": "يجب أن يكون السعر أكبر من أو يساوي 0"
     },
     "mobile": {
       "addProduct": "إضافة منتج",
@@ -318,6 +361,7 @@
     "processing": "قيد المعالجة",
     "shipped": "تم الشحن",
     "delivered": "تم التسليم",
+    "cancelled": "ملغي",
 
     "sortBy": "ترتيب حسب",
     "newestFirst": "الأحدث أولاً",
@@ -374,7 +418,27 @@
     "updateButton": "تحديث حالة الطلب",
 
     "updatedSuccessfully": "تم تحديث الطلب بنجاح",
-    "pendingLabel": "بانتظار التنفيذ"
+    "pendingLabel": "بانتظار التنفيذ",
+    "paid": "مدفوع",
+    "orderCancelled": "تم إلغاء الطلب",
+    "reason": "السبب",
+    "items": {
+      "productName": "اسم المنتج",
+      "variant": "النوع / الخيار",
+      "qty": "الكمية",
+      "unitPrice": "سعر الوحدة",
+      "totalPrice": "الإجمالي"
+    },
+    "timeline": {
+      "orderPlaced": "تم تقديم الطلب",
+      "orderPlacedDesc": "تم استلام الطلب وتأكيده",
+      "processing": "قيد المعالجة",
+      "processingDesc": "تم التحقق من الدفع وجاري تجهيز الطلب",
+      "shipped": "تم الشحن",
+      "shippedDesc": "تم تسليم الطلب لشركة الشحن للتوصيل",
+      "delivered": "تم التسليم",
+      "deliveredDesc": "بانتظار تأكيد الاستلام من العميل"
+    }
   },
   "settings": {
     "title": "الإعدادات",
@@ -569,6 +633,9 @@
       "Youth clothes": "ملابس شبابية"
     },
     "statuses": {
+      "Published": "منشور",
+      "Unpublished": "غير منشور",
+      "Disabled": "معطل",
       "In Stock": "متوفر",
       "Low Stock": "مخزون منخفض",
       "Out Of Stock": "نفد المخزون"
@@ -652,6 +719,11 @@
   "receivables": {
     "title": "المستحقات",
     "description": "تتبع الأرباح والعمولات وسجل الدفع.",
+    "totalSales": "إجمالي المبيعات",
+    "pendingPayouts": "المدفوعات المعلقة",
+    "totalDues": "إجمالي المستحقات",
+    "totalOrders": "إجمالي الطلبات",
+    "ordersUnit": "طلبات",
     "date": "التاريخ",
     "referenceNumber": "رقم المرجع",
     "amount": "المبلغ",
@@ -674,9 +746,12 @@
   "returnsPage": {
     "title": "طلبات الإرجاع",
     "breadcrumb": "تفاصيل طلب الإرجاع",
-    "searchPlaceholder": "البحث  اسم المنتج أو اسم العميل...",
+    "searchPlaceholder": "البحث عن اسم المنتج أو اسم العميل...",
     "allStatuses": "كل الحالات",
+    "allTime": "كل التواريخ",
+    "last7Days": "آخر 7 أيام",
     "last30Days": "آخر 30 يومًا",
+    "last90Days": "آخر 90 يومًا",
     "returnId": "رقم الإرجاع",
     "customer": "العميل",
     "product": "المنتج",
@@ -686,31 +761,55 @@
     "action": "الإجراء",
     "review": "مراجعة",
     "showing": "عرض {{start}} - {{end}} من {{total}} طلب إرجاع",
+    "noRequests": "لا توجد طلبات إرجاع.",
     "returnSummary": "ملخص الإرجاع",
     "orderId": "رقم الطلب الأصلي",
     "productInformation": "معلومات المنتج",
     "returnReason": "سبب الإرجاع",
+    "rejectionReason": "سبب الرفض",
     "uploadedImages": "الصور المرفقة من العميل (حالة المنتج)",
     "internalNotes": "ملاحظات داخلية (مرئية لك فقط)",
     "notesPlaceholder": "أضف ملاحظات حول طلب الإرجاع هذا...",
     "customerInformation": "معلومات العميل",
+    "name": "الاسم",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
+    "variant": "النوع / الخيار",
+    "qty": "الكمية",
     "shippingAddress": "عنوان الشحن",
     "returnTimeline": "سجل الإرجاع",
     "rejectReturn": "رفض الإرجاع",
     "approveReturn": "الموافقة على الإرجاع",
     "approveModalTitle": "الموافقة على طلب الإرجاع",
-    "approveModalMessage": "هل أنت تأكد من موافقتك على طلب الإرجاع هذا؟ بمجرد الموافقة، ستتغير حالة الإرجاع إلى 'مقبول' وسيتم تحويل الطلب إلى الأدمن لمعالجة الاسترداد المالية.",
+    "approveModalMessage": "هل أنت متأكد من موافقتك على طلب الإرجاع هذا؟ بمجرد الموافقة، ستتغير حالة الإرجاع إلى 'مقبول' وسيتم تحويل الطلب إلى الأدمن لمعالجة الاسترداد المالية.",
     "rejectModalTitle": "رفض طلب الإرجاع",
     "rejectModalMessage": "يرجى تحديد سبب رفض طلب الإرجاع هذا.",
     "rejectReasonPlaceholder": "أدخل سبب الرفض...",
+    "statusApproved": "تمت الموافقة على هذا الطلب.",
+    "statusRejected": "تم رفض هذا الطلب.",
+    "statusCompleted": "تمت معالجة الاسترداد بنجاح.",
     "cancel": "إلغاء",
     "statuses": {
       "pendingReview": "قيد المراجعة",
       "approved": "مقبول",
       "rejected": "مرفوض",
       "awaitingItem": "بانتظار الشحنة",
+      "completed": "مكتمل"
+    },
+    "timeline": {
+      "requestSubmitted": "تم تقديم طلب الإرجاع",
+      "requestSubmittedSubtext": "قام العميل بتقديم طلب إرجاع",
+      "requestRejected": "تم رفض طلب الإرجاع",
+      "requestRejectedSubtext": "تم رفض الطلب من قبل البائع",
+      "requestApproved": "تمت الموافقة على طلب الإرجاع",
+      "requestApprovedSubtext": "تمت الموافقة على الطلب من قبل البائع",
+      "pendingVendorReview": "بانتظار مراجعة البائع",
+      "pendingVendorReviewSubtext": "في انتظار مراجعة البائع للطلب",
+      "refundProcessing": "معالجة الاسترداد المالي",
+      "refundCompletedSubtext": "تم تحويل المبلغ المسترد للعميل",
+      "noRefundProcessedSubtext": "لم تتم معالجة أي استرداد مالي",
+      "pendingAdminRefundSubtext": "بانتظار معالجة الاسترداد من قبل الإدارة",
+      "recorded": "تم التسجيل",
       "completed": "مكتمل"
     }
   }

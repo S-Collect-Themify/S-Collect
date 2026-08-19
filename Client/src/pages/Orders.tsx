@@ -7,7 +7,10 @@ import type {
   SubOrder,
   SubOrderStatus,
 } from '../features/Orders/types/subOrder';
-import { STATUS_STYLES } from '../features/Orders/types/subOrder';
+import {
+  STATUS_STYLES,
+  getOrderStatusLabel,
+} from '../features/Orders/types/subOrder';
 import { OrderFilters } from '../features/Orders/components/OrderFilters';
 import { Pagination } from '../features/Orders/components/Pagination';
 import { EmptyState } from '../features/Orders/components/ EmptyState';
@@ -23,15 +26,6 @@ const TAB_TO_STATUS: Record<string, SubOrderStatus | undefined> = {
   SHIPPED: 'SHIPPED',
   DELIVERED: 'DELIVERED',
   CANCELLED: 'CANCELLED',
-};
-
-// ── Status label map ───────────────────────────────────────────────────────
-const STATUS_LABEL: Record<SubOrderStatus, string> = {
-  PENDING: 'Pending',
-  PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
-  DELIVERED: 'Delivered',
-  CANCELLED: 'Cancelled',
 };
 
 // ── Skeleton loader ────────────────────────────────────────────────────────
@@ -61,7 +55,7 @@ const SubOrdersTable = ({
   orders: SubOrder[];
   onViewDetails: (o: SubOrder) => void;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="overflow-x-auto">
@@ -109,7 +103,7 @@ const SubOrdersTable = ({
 
                 {/* Date */}
                 <td className="py-4 px-4 text-gray-500 text-sm whitespace-nowrap">
-                  {new Date(order.createdAt).toLocaleDateString('en-US', {
+                  {new Date(order.createdAt).toLocaleDateString(i18n.language === 'ar' ? 'ar-EG' : 'en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -117,13 +111,13 @@ const SubOrdersTable = ({
                 </td>
 
                 {/* Customer Name */}
-                <td className="py-4 px-4 text-gray-700 text-sm max-w-[200px] truncate font-medium">
+                <td className="py-4 px-4 text-gray-700 text-sm max-w-50 truncate font-medium">
                   {customerName}
                 </td>
 
                 {/* Total */}
                 <td className="py-4 px-4 font-medium text-gray-900 text-sm whitespace-nowrap">
-                  {grandTotal.toLocaleString()} SAR
+                  {grandTotal.toLocaleString()} {t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' })}
                 </td>
 
                 {/* Status dropdown */}
@@ -131,7 +125,7 @@ const SubOrdersTable = ({
                   <span
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium ${STATUS_STYLES[order.status]}`}
                   >
-                    {STATUS_LABEL[order.status]}
+                    {getOrderStatusLabel(order.status, t)}
                   </span>
                 </td>
 

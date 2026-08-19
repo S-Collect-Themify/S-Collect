@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
   getVendors,
@@ -149,22 +150,24 @@ export function useVendorPayoutStats(vendorId: string) {
 
 export function useApproveVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (id: string) => approveVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor approved successfully');
+      toast.success(t('vendors.notifications.approveSuccess', 'Vendor approved successfully'));
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to approve vendor');
+      toast.error(error.message || t('vendors.notifications.approveError', 'Failed to approve vendor'));
     },
   });
 }
 
 export function useRejectVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
@@ -172,16 +175,17 @@ export function useRejectVendor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor rejected successfully');
+      toast.success(t('vendors.notifications.rejectSuccess', 'Vendor rejected successfully'));
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to reject vendor');
+      toast.error(error.message || t('vendors.notifications.rejectError', 'Failed to reject vendor'));
     },
   });
 }
 
 export function useDeactivateVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (param: string | { id: string; reason?: string }) => {
@@ -192,62 +196,65 @@ export function useDeactivateVendor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor deactivated successfully');
+      toast.success(t('vendors.notifications.deactivateSuccess', 'Vendor deactivated successfully'));
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to deactivate vendor');
+      toast.error(error.message || t('vendors.notifications.deactivateError', 'Failed to deactivate vendor'));
     },
   });
 }
 
 export function useReactivateVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (id: string) => reactivateVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor reactivated successfully');
+      toast.success(t('vendors.notifications.reactivateSuccess', 'Vendor reactivated successfully'));
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to reactivate vendor');
+      toast.error(error.message || t('vendors.notifications.reactivateError', 'Failed to reactivate vendor'));
     },
   });
 }
 
 export function useFeatureVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (id: string) => featureVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor marked as featured');
+      toast.success(t('vendors.notifications.featureSuccess', 'Vendor marked as featured'));
     },
     onError: (error: any) => {
       console.error('Failed to feature vendor:', error);
       const message = error?.response?.data?.message || error?.message;
-      toast.error(message || 'Failed to feature vendor');
+      toast.error(message || t('vendors.notifications.featureError', 'Failed to feature vendor'));
     },
   });
 }
 
 export function useUnfeatureVendor() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (id: string) => unfeatureVendor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
-      toast.success('Vendor unmarked as featured');
+      toast.success(t('vendors.notifications.unfeatureSuccess', 'Vendor unmarked as featured'));
     },
     onError: (error: any) => {
       console.error('Failed to unfeature vendor:', error);
       const message = error?.response?.data?.message || error?.message;
-      toast.error(message || 'Failed to unfeature vendor');
+      toast.error(message || t('vendors.notifications.unfeatureError', 'Failed to unfeature vendor'));
     },
   });
 }

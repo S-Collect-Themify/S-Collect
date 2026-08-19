@@ -1,5 +1,5 @@
-import type { ProductFormData } from './types';
-import type { VarianceCardItem } from './ReviewPage';
+import { useTranslation } from 'react-i18next';
+import type { ProductFormData, VarianceCardData } from './types';
 
 interface ProductPreviewCardProps {
   formData: ProductFormData;
@@ -7,7 +7,7 @@ interface ProductPreviewCardProps {
   sizes: string[];
   colors: string[];
   quantity: number;
-  varianceCards?: VarianceCardItem[];
+  varianceCards?: VarianceCardData[];
 }
 
 const TagList = ({ label, items }: { label: string; items: string[] }) => (
@@ -34,6 +34,9 @@ const ProductPreviewCard = ({
   quantity,
   varianceCards,
 }: ProductPreviewCardProps) => {
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
+
   const thumbnailImage =
     formData.existingImages?.find((img) => img.isThumbnail) ||
     formData.existingImages?.[0];
@@ -43,15 +46,20 @@ const ProductPreviewCard = ({
     thumbnailUrl ||
     (newImagePreview ? URL.createObjectURL(newImagePreview) : undefined);
 
-  const productName = formData.nameEn || formData.nameAr || 'Product Name';
-  const categoryName = categories[0] || 'Uncategorized';
-  const price = formData.basePrice ? `$${formData.basePrice}` : '$0.00';
+  const productName =
+    (isArabic
+      ? formData.nameAr || formData.nameEn
+      : formData.nameEn || formData.nameAr) ||
+    t('addProduct.preview.productName', 'Product Name');
+  const categoryName =
+    categories[0] || t('addProduct.preview.uncategorized', 'Uncategorized');
+  const price = formData.basePrice ? `${formData.basePrice} SAR` : '0.00 SAR';
   const discountPrice = formData.comparePrice
-    ? `$${formData.comparePrice}`
+    ? `${formData.comparePrice} SAR`
     : '—';
-  const costPrice = formData.basePrice ? `$${formData.basePrice}` : '—';
+  const costPrice = formData.basePrice ? `${formData.basePrice} SAR` : '—';
   const sku = formData.sku || '—';
-  const brand = categories[0] || 'Generic';
+  const brand = categories[0] || t('addProduct.preview.generic', 'Generic');
 
   return (
     <div className="rounded-2xl border border-gray-200 p-6 md:p-8 bg-white shadow-xs">
@@ -97,31 +105,45 @@ const ProductPreviewCard = ({
       {/* Middle Grid Section */}
       <div className="mt-6 border-t border-gray-100 pt-6 grid grid-cols-2 gap-x-8 gap-y-5">
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">Brand</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.brand', 'Brand')}
+          </p>
           <p className="text-sm font-bold text-gray-900">{brand}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">SKU</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.sku', 'SKU')}
+          </p>
           <p className="text-sm font-bold text-gray-900">{sku}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">Stock</p>
-          <p className="text-sm font-bold text-gray-900">{quantity} units</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.stock', 'Stock')}
+          </p>
+          <p className="text-sm font-bold text-gray-900">
+            {quantity} {t('addProduct.preview.units', 'units')}
+          </p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">Status</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.status', 'Status')}
+          </p>
           <div>
             <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-600">
-              Active
+              {t('addProduct.active', 'Active')}
             </span>
           </div>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">Discount</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.discount', 'Discount')}
+          </p>
           <p className="text-sm font-bold text-gray-900">{discountPrice}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium mb-1">Cost</p>
+          <p className="text-xs text-gray-400 font-medium mb-1">
+            {t('addProduct.preview.cost', 'Cost')}
+          </p>
           <p className="text-sm font-bold text-gray-900">{costPrice}</p>
         </div>
       </div>
@@ -131,7 +153,9 @@ const ProductPreviewCard = ({
         <div className="mt-6 border-t border-gray-100 pt-5 space-y-3">
           {formData.description && (
             <div>
-              <p className="text-xs text-gray-400 font-medium mb-1">Description</p>
+              <p className="text-xs text-gray-400 font-medium mb-1">
+                {t('addProduct.preview.description', 'Description')}
+              </p>
               <p className="text-sm text-gray-700 leading-relaxed">
                 {formData.description}
               </p>
@@ -139,7 +163,9 @@ const ProductPreviewCard = ({
           )}
           {formData.descriptionAr && (
             <div>
-              <p className="text-xs text-gray-400 font-medium mb-1">الوصف</p>
+              <p className="text-xs text-gray-400 font-medium mb-1">
+                {t('addProduct.preview.descriptionAr', 'الوصف')}
+              </p>
               <p
                 dir="rtl"
                 className="text-sm text-gray-700 leading-relaxed"
@@ -153,14 +179,18 @@ const ProductPreviewCard = ({
 
       {/* Categories & Tags */}
       {categories.length > 0 && (
-        <TagList label="Categories" items={categories} />
+        <TagList
+          label={t('addProduct.categories', 'Categories')}
+          items={categories}
+        />
       )}
 
       {/* Variance Cards List */}
       {varianceCards && varianceCards.length > 0 ? (
         <div className="mt-6 border-t border-gray-100 pt-5 space-y-3">
           <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
-            Product Variances ({varianceCards.length})
+            {t('addProduct.preview.productVariances', 'Product Variances')} (
+            {varianceCards.length})
           </p>
           <div className="grid grid-cols-1 gap-3">
             {varianceCards.map((card, idx) => (
@@ -169,30 +199,36 @@ const ProductPreviewCard = ({
                 className="rounded-xl border border-gray-150 bg-gray-50/70 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-gray-500 uppercase">
-                    Variance #{idx + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-500 uppercase">
+                      {t('addProduct.preview.variance', 'Variance')} #{idx + 1}
+                    </span>
+                    {card.sku && (
+                      <span className="font-mono text-xs text-gray-400">
+                        ({card.sku})
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {card.sizes.map((s, i) => (
-                      <span
-                        key={i}
-                        className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
-                      >
-                        Size: {s}
+                    {card.size && (
+                      <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
+                        {t('addProduct.size', 'Size')}: {card.size}
                       </span>
-                    ))}
-                    {card.colors.map((c, i) => (
-                      <span
-                        key={i}
-                        className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
-                      >
-                        Color: {c}
+                    )}
+                    {card.color && (
+                      <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
+                        {t('addProduct.color', 'Color')}: {card.color}
                       </span>
-                    ))}
+                    )}
+                    {typeof card.stock === 'number' && (
+                      <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {t('addProduct.stockQuantity', 'Stock')}: {card.stock}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {(card.basePrice || card.comparePrice) && (
-                  <div className="text-left sm:text-right">
+                  <div className="text-left sm:text-right rtl:sm:text-left rtl:text-right">
                     {card.basePrice && (
                       <p className="text-sm font-bold text-gray-900">
                         {card.basePrice} SAR
@@ -211,8 +247,12 @@ const ProductPreviewCard = ({
         </div>
       ) : (
         <>
-          {sizes.length > 0 && <TagList label="Sizes" items={sizes} />}
-          {colors.length > 0 && <TagList label="Colors" items={colors} />}
+          {sizes.length > 0 && (
+            <TagList label={t('addProduct.sizes', 'Sizes')} items={sizes} />
+          )}
+          {colors.length > 0 && (
+            <TagList label={t('addProduct.colors', 'Colors')} items={colors} />
+          )}
         </>
       )}
     </div>

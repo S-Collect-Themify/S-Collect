@@ -6,6 +6,7 @@ import {
 } from '../../../services/account';
 import { ACCOUNT_SETTINGS_QUERY_KEY } from './useAccountSettings';
 import { getErrorMessage } from '../../../types/api';
+import i18n from '../../../i18n';
 
 export const useUpdateAccountSettings = () => {
   const queryClient = useQueryClient();
@@ -22,6 +23,12 @@ export const useUpdateAccountSettings = () => {
         })
       );
       queryClient.invalidateQueries({ queryKey: ACCOUNT_SETTINGS_QUERY_KEY });
+      toast.success(
+        i18n.t(
+          'settings.toast.accountSettingsSaved',
+          'Account Settings updated successfully.'
+        )
+      );
     },
     onError: (err: unknown) => {
       console.error('Failed to update account settings:', err);

@@ -145,14 +145,9 @@ export const mapProductToFormData = async (
   const varianceCards: VarianceCardData[] = [];
 
   if (Array.isArray(raw.variants) && raw.variants.length > 0) {
-    const groupMap = new Map<string, VarianceCardData>();
-
     raw.variants.forEach((variant, index) => {
-      const vPrice = variant.price?.toString() || '';
-      const vCompare = variant.compareAtPrice?.toString() || '';
-
-      const vSizes: string[] = [];
-      const vColors: string[] = [];
+      let vSize = '';
+      let vColor = '';
 
       if (Array.isArray(variant.optionValues)) {
         variant.optionValues.forEach((ov: any) => {
@@ -160,52 +155,39 @@ export const mapProductToFormData = async (
           const val = ov.value || ov.valueAr || '';
           if (!val) return;
           if (optName === 'size' || optName === 'المقاس') {
-            if (!vSizes.includes(val)) vSizes.push(val);
+            vSize = val;
+            if (!sizes.includes(val)) sizes.push(val);
           } else if (optName === 'color' || optName === 'اللون') {
-            if (!vColors.includes(val)) vColors.push(val);
+            vColor = val;
+            if (!colors.includes(val)) colors.push(val);
           }
         });
       }
 
-      const colorKey = vColors.slice().sort().join(',');
-      const sizeKey = vSizes.slice().sort().join(',');
-      const key = colorKey
-        ? `${colorKey}_${vPrice}_${vCompare}`
-        : vPrice || vCompare
-          ? `${vPrice}_${vCompare}`
-          : sizeKey
-            ? `${sizeKey}_${vPrice}`
-            : index.toString();
-
-      if (!groupMap.has(key)) {
-        groupMap.set(key, {
-          id: (groupMap.size + 1).toString(),
-          sizes: vSizes,
-          colors: vColors,
-          basePrice: vPrice,
-          comparePrice: vCompare,
-        });
-      } else {
-        const existing = groupMap.get(key)!;
-        vSizes.forEach((s) => {
-          if (!existing.sizes.includes(s)) existing.sizes.push(s);
-        });
-        vColors.forEach((c) => {
-          if (!existing.colors.includes(c)) existing.colors.push(c);
-        });
-      }
+      varianceCards.push({
+        id: variant.id || (index + 1).toString(),
+        size: vSize,
+        color: vColor,
+        stock: typeof variant.stock === 'number' ? variant.stock : 0,
+        basePrice: variant.price != null ? variant.price.toString() : '',
+        comparePrice:
+          variant.compareAtPrice != null
+            ? variant.compareAtPrice.toString()
+            : '',
+        sku: variant.sku || '',
+      });
     });
-
-    varianceCards.push(...Array.from(groupMap.values()));
   }
 
   if (varianceCards.length === 0) {
     varianceCards.push({
       id: '1',
-      sizes,
-      colors,
+      size: sizes[0] || 'XS',
+      color: colors[0] || '',
+      stock: quantity > 0 ? quantity : 1,
       basePrice: firstVariant?.price?.toString() ?? '',
       comparePrice: firstVariant?.compareAtPrice?.toString() ?? '',
+      sku: firstVariant?.sku ?? '',
     });
   }
 
@@ -214,9 +196,12 @@ export const mapProductToFormData = async (
     nameEn: raw.nameEn || raw.name || '',
     description: raw.description || '',
     descriptionAr: raw.descriptionAr || raw.description || '',
-    basePrice: firstVariant?.price?.toString() ?? '',
-    comparePrice: firstVariant?.compareAtPrice?.toString() ?? '',
-    sku: firstVariant?.sku ?? '',
+    basePrice:
+      firstVariant?.price?.toString() ?? (varianceCards[0]?.basePrice || ''),
+    comparePrice:
+      firstVariant?.compareAtPrice?.toString() ??
+      (varianceCards[0]?.comparePrice || ''),
+    sku: firstVariant?.sku ?? (varianceCards[0]?.sku || ''),
     images: [],
     existingImages,
     optionsMeta,
@@ -259,16 +244,33 @@ export const syncProductOptions = async (
 ): Promise<ProductOption[]> => {
   const raw = unwrapApiData<RawProductResponse>(product) || {};
   const existingOptions = Array.isArray(raw.options) ? raw.options : [];
+
+  const extractedSizes = Array.from(
+    new Set(
+      formData.varianceCards && formData.varianceCards.length > 0
+        ? formData.varianceCards.map((c) => c.size?.trim()).filter(Boolean)
+        : formData.sizes || []
+    )
+  );
+
+  const extractedColors = Array.from(
+    new Set(
+      formData.varianceCards && formData.varianceCards.length > 0
+        ? formData.varianceCards.map((c) => c.color?.trim()).filter(Boolean)
+        : formData.colors || []
+    )
+  );
+
   const desiredOptions = [
     {
       name: 'Size',
       nameAr: 'المقاس',
-      values: formData.sizes || [],
+      values: extractedSizes,
     },
     {
       name: 'Color',
       nameAr: 'اللون',
-      values: formData.colors || [],
+      values: extractedColors,
     },
   ].filter((option) => option.values.length > 0);
 
@@ -348,11 +350,6 @@ export const buildProductVariantMutations = (
   const productVariants = products.flatMap((product) =>
     Array.isArray(product.variants) ? product.variants : []
   );
-  const price = parseFloat(formData.basePrice) || 0;
-  const compareAtPrice = formData.comparePrice
-    ? parseFloat(formData.comparePrice)
-    : 0;
-  const sku = formData.sku || '';
 
   const findOption = (name: string, nameAr: string) =>
     productOptions.find(
@@ -361,92 +358,60 @@ export const buildProductVariantMutations = (
         normalizeOptionText(option.nameAr) === normalizeOptionText(nameAr)
     );
 
-  const resolveValues = (
-    values: string[],
+  const findValueId = (
     option: (typeof productOptions)[number] | undefined,
-    optionName: string
-  ) =>
-    values
-      .map((value) => {
-        const normalizedValue = normalizeOptionText(value);
-        const matchedValue = option?.values?.find(
-          (optionValue) =>
-            normalizeOptionText(optionValue.value) === normalizedValue ||
-            normalizeOptionText(optionValue.valueAr) === normalizedValue
-        );
-        if (!matchedValue?.id) {
-          console.warn('Option value ID not found yet for:', {
-            optionName,
-            value,
-          });
-          return null;
-        }
-        return { id: matchedValue.id, value };
-      })
-      .filter((v): v is { id: string; value: string } => Boolean(v && v.id));
+    val: string
+  ) => {
+    if (!option || !val) return undefined;
+    const normalized = normalizeOptionText(val);
+    return option.values?.find(
+      (v) =>
+        normalizeOptionText(v.value) === normalized ||
+        normalizeOptionText(v.valueAr) === normalized
+    )?.id;
+  };
 
-  const sizeValues = resolveValues(
-    formData.sizes || [],
-    findOption('Size', 'المقاس'),
-    'Size'
-  );
-  const colorValues = resolveValues(
-    formData.colors || [],
-    findOption('Color', 'اللون'),
-    'Color'
-  );
-  const combinations =
-    sizeValues.length === 0 && colorValues.length === 0
-      ? [{ optionValueIds: [] as string[], skuParts: [] as string[] }]
-      : (sizeValues.length > 0 ? sizeValues : [null]).flatMap((sizeValue) =>
-          (colorValues.length > 0 ? colorValues : [null]).map((colorValue) => ({
-            optionValueIds: [sizeValue?.id, colorValue?.id].filter(
-              (id): id is string => Boolean(id)
-            ),
-            skuParts: [sizeValue?.value, colorValue?.value].filter(
-              (value): value is string => Boolean(value)
-            ),
-          }))
-        );
-  const totalStock =
-    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
-  const stockPerVariant =
-    combinations.length > 0
-      ? Math.max(1, Math.round(totalStock / combinations.length))
-      : totalStock;
+  const cards =
+    formData.varianceCards && formData.varianceCards.length > 0
+      ? formData.varianceCards
+      : [
+          {
+            id: '1',
+            size: formData.sizes?.[0] || '',
+            color: formData.colors?.[0] || '',
+            stock: formData.quantity || 100,
+            basePrice: formData.basePrice || '0',
+            comparePrice: formData.comparePrice || '',
+            sku: formData.sku || '',
+          },
+        ];
 
-  return combinations.map(({ optionValueIds, skuParts }) => {
-    let variantPrice = price;
-    let variantCompareAtPrice = compareAtPrice;
+  const sizeOption = findOption('Size', 'المقاس');
+  const colorOption = findOption('Color', 'اللون');
 
-    if (
-      Array.isArray(formData.varianceCards) &&
-      formData.varianceCards.length > 0
-    ) {
-      const matchingCard = formData.varianceCards.find((card) => {
-        const cardSizes = card.sizes || [];
-        const cardColors = card.colors || [];
-        const matchesSize =
-          cardSizes.length === 0 ||
-          skuParts.some((part) => cardSizes.includes(part));
-        const matchesColor =
-          cardColors.length === 0 ||
-          skuParts.some((part) => cardColors.includes(part));
-        return matchesSize && matchesColor;
-      });
+  return cards.map((card) => {
+    const sizeValId = card.size
+      ? findValueId(sizeOption, card.size)
+      : undefined;
+    const colorValId = card.color
+      ? findValueId(colorOption, card.color)
+      : undefined;
+    const optionValueIds = [sizeValId, colorValId].filter((id): id is string =>
+      Boolean(id)
+    );
 
-      if (matchingCard) {
-        if (matchingCard.basePrice) {
-          variantPrice = parseFloat(matchingCard.basePrice) || variantPrice;
-        }
-        if (matchingCard.comparePrice) {
-          variantCompareAtPrice =
-            parseFloat(matchingCard.comparePrice) || variantCompareAtPrice;
-        }
-      }
-    }
+    const price =
+      parseFloat(card.basePrice) || parseFloat(formData.basePrice) || 0;
+    const compareAtPrice = card.comparePrice
+      ? parseFloat(card.comparePrice)
+      : formData.comparePrice
+        ? parseFloat(formData.comparePrice)
+        : undefined;
 
     const existingVariant =
+      (card.id && !card.id.match(/^\d{13}$/)
+        ? productVariants.find((v) => v.id === card.id)
+        : undefined) ||
       productVariants.find((variant) => {
         const existingValueIds = Array.isArray(variant.optionValues)
           ? variant.optionValues
@@ -468,21 +433,23 @@ export const buildProductVariantMutations = (
           existingValueIds.length === optionValueIds.length &&
           existingValueIds.every((id) => optionValueIds.includes(id))
         );
-      }) ||
-      (optionValueIds.length === 0 && productVariants.length === 1
-        ? productVariants[0]
-        : undefined);
+      });
 
-    const generatedSku = [sku, ...skuParts].filter(Boolean).join('-');
+    const skuParts = [formData.sku, card.size, card.color].filter(Boolean);
+    const sku =
+      card.sku ||
+      existingVariant?.sku ||
+      skuParts.join('-') ||
+      `SKU-${Date.now()}`;
 
     return {
       id: existingVariant?.id,
       optionValueIds,
-      sku: existingVariant?.sku || generatedSku || `SKU-${Date.now()}`,
-      price: variantPrice,
+      sku,
+      price,
       compareAtPrice:
-        variantCompareAtPrice > 0 ? variantCompareAtPrice : undefined,
-      stock: stockPerVariant,
+        compareAtPrice && compareAtPrice > 0 ? compareAtPrice : undefined,
+      stock: Number(card.stock) || 0,
       isActive: true,
     };
   });
@@ -498,14 +465,37 @@ export const mapFormToMultipartFormData = (
   multipart.append('nameAr', formData.nameAr || formData.nameEn || '');
   multipart.append('categoryId', formData.categoryId || '');
 
-  const topStock =
-    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
-  multipart.append('stock', topStock.toString());
-  if (formData.basePrice) {
-    multipart.append('price', formData.basePrice);
+  // Calculate total stock from cards
+  const cards =
+    formData.varianceCards && formData.varianceCards.length > 0
+      ? formData.varianceCards
+      : [
+          {
+            id: '1',
+            size: formData.sizes?.[0] || '',
+            color: formData.colors?.[0] || '',
+            stock: formData.quantity || 100,
+            basePrice: formData.basePrice || '0',
+            comparePrice: formData.comparePrice || '',
+            sku: formData.sku || '',
+          },
+        ];
+
+  const totalStock = cards.reduce((sum, c) => sum + (Number(c.stock) || 0), 0);
+  multipart.append('stock', totalStock.toString());
+
+  const firstBasePrice =
+    cards.find((c) => c.basePrice)?.basePrice || formData.basePrice || '0';
+  const firstComparePrice =
+    cards.find((c) => c.comparePrice)?.comparePrice ||
+    formData.comparePrice ||
+    '';
+
+  if (firstBasePrice) {
+    multipart.append('price', firstBasePrice);
   }
-  if (formData.comparePrice) {
-    multipart.append('compareAtPrice', formData.comparePrice);
+  if (firstComparePrice) {
+    multipart.append('compareAtPrice', firstComparePrice);
   }
 
   // 2. Optional description fields
@@ -548,14 +538,25 @@ export const mapFormToMultipartFormData = (
   };
 
   // 3. Options structure (JSON-encoded array of options) — preserve real IDs
-  const options = [];
-  if (formData.sizes && formData.sizes.length > 0) {
+  const uniqueSizes = Array.from(
+    new Set(
+      cards.map((c) => c.size?.trim()).filter((s): s is string => Boolean(s))
+    )
+  );
+  const uniqueColors = Array.from(
+    new Set(
+      cards.map((c) => c.color?.trim()).filter((c): c is string => Boolean(c))
+    )
+  );
+
+  const options: any[] = [];
+  if (uniqueSizes.length > 0) {
     const sizeMeta = findOptionMeta('Size');
     options.push({
       ...(sizeMeta?.id ? { id: sizeMeta.id } : {}),
       name: 'Size',
       nameAr: sizeMeta?.nameAr || 'المقاس',
-      values: formData.sizes.map((size) => {
+      values: uniqueSizes.map((size) => {
         const valueId = sizeMeta ? findValueId(sizeMeta, size) : '';
         return {
           ...(valueId ? { id: valueId } : {}),
@@ -565,13 +566,13 @@ export const mapFormToMultipartFormData = (
       }),
     });
   }
-  if (formData.colors && formData.colors.length > 0) {
+  if (uniqueColors.length > 0) {
     const colorMeta = findOptionMeta('Color');
     options.push({
       ...(colorMeta?.id ? { id: colorMeta.id } : {}),
       name: 'Color',
       nameAr: colorMeta?.nameAr || 'اللون',
-      values: formData.colors.map((color) => {
+      values: uniqueColors.map((color) => {
         const valueId = colorMeta ? findValueId(colorMeta, color) : '';
         return {
           ...(valueId ? { id: valueId } : {}),
@@ -584,78 +585,73 @@ export const mapFormToMultipartFormData = (
   multipart.append('options', JSON.stringify(options));
 
   // 4. Variants structure (JSON-encoded array of variants) — preserve real IDs
-  const price = parseFloat(formData.basePrice) || 0;
-  const compareAtPrice = formData.comparePrice
-    ? parseFloat(formData.comparePrice)
-    : 0;
-  const stock =
-    formData.quantity && formData.quantity > 0 ? formData.quantity : 100;
-  const sku = formData.sku || '';
+  const variants = cards.map((card) => {
+    const optionValues = [];
+    const valueIds: string[] = [];
 
-  const variants = [];
-  if (options.length === 0) {
-    const existingVariantId = formData.variantsMeta?.[0]?.id || '';
-    variants.push({
-      id: existingVariantId,
-      sku,
-      price,
-      compareAtPrice,
-      stock,
-      isActive: true,
-      optionValues: [],
-    });
-  } else {
     const sizeOption = options.find((o) => o.name === 'Size');
     const colorOption = options.find((o) => o.name === 'Color');
 
-    const sizeValues = sizeOption?.values || [null];
-    const colorValues = colorOption?.values || [null];
-    const combinationsCount = sizeValues.length * colorValues.length || 1;
-    const variantStock = Math.max(1, Math.round(stock / combinationsCount));
-
-    sizeValues.forEach((sizeVal) => {
-      colorValues.forEach((colorVal) => {
-        const optionValues = [];
-        const variantSkuParts = [sku];
-        const valueIds: string[] = [];
-
-        if (sizeVal && sizeOption) {
-          optionValues.push({
-            optionId: sizeOption.id,
-            optionName: sizeOption.name,
-            optionNameAr: sizeOption.nameAr,
-            valueId: sizeVal.id,
-            value: sizeVal.value,
-            valueAr: sizeVal.valueAr,
-          });
-          variantSkuParts.push(sizeVal.value);
-          if (sizeVal.id) valueIds.push(sizeVal.id);
-        }
-        if (colorVal && colorOption) {
-          optionValues.push({
-            optionId: colorOption.id,
-            optionName: colorOption.name,
-            optionNameAr: colorOption.nameAr,
-            valueId: colorVal.id,
-            value: colorVal.value,
-            valueAr: colorVal.valueAr,
-          });
-          variantSkuParts.push(colorVal.value);
-          if (colorVal.id) valueIds.push(colorVal.id);
-        }
-
-        variants.push({
-          id: findVariantId(valueIds),
-          sku: variantSkuParts.join('-'),
-          price,
-          compareAtPrice,
-          stock: variantStock,
-          isActive: true,
-          optionValues,
+    if (card.size && card.size.trim()) {
+      const sizeVal = sizeOption?.values.find(
+        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.size)
+      );
+      if (sizeOption) {
+        optionValues.push({
+          ...(sizeOption.id ? { optionId: sizeOption.id } : {}),
+          optionName: sizeOption.name,
+          optionNameAr: sizeOption.nameAr,
+          ...(sizeVal?.id ? { valueId: sizeVal.id } : {}),
+          value: card.size.trim(),
+          valueAr: card.size.trim(),
         });
-      });
-    });
-  }
+      }
+      if (sizeVal?.id) valueIds.push(sizeVal.id);
+    }
+
+    if (card.color && card.color.trim()) {
+      const colorVal = colorOption?.values.find(
+        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.color)
+      );
+      if (colorOption) {
+        optionValues.push({
+          ...(colorOption.id ? { optionId: colorOption.id } : {}),
+          optionName: colorOption.name,
+          optionNameAr: colorOption.nameAr,
+          ...(colorVal?.id ? { valueId: colorVal.id } : {}),
+          value: card.color.trim(),
+          valueAr: card.color.trim(),
+        });
+      }
+      if (colorVal?.id) valueIds.push(colorVal.id);
+    }
+
+    const cardPrice =
+      parseFloat(card.basePrice) || parseFloat(formData.basePrice) || 0;
+    const cardComparePrice = card.comparePrice
+      ? parseFloat(card.comparePrice)
+      : formData.comparePrice
+        ? parseFloat(formData.comparePrice)
+        : undefined;
+
+    const existingVariantId =
+      card.id && !card.id.match(/^\d{13}$/) ? card.id : findVariantId(valueIds);
+
+    const skuParts = [formData.sku, card.size, card.color].filter(Boolean);
+    const sku = card.sku || skuParts.join('-') || `SKU-${Date.now()}`;
+
+    return {
+      ...(existingVariantId ? { id: existingVariantId } : {}),
+      sku,
+      price: cardPrice,
+      compareAtPrice:
+        cardComparePrice && cardComparePrice > 0 ? cardComparePrice : undefined,
+      stock: Number(card.stock) || 0,
+      isActive: true,
+      optionValues,
+    };
+  });
+
   multipart.append('variants', JSON.stringify(variants));
 
   // 5. Existing images — send their IDs so backend keeps them

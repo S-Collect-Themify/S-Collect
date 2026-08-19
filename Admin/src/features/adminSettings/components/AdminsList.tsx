@@ -35,6 +35,13 @@ export const AdminsList: React.FC = () => {
     openDeleteAdminModal(admin);
   };
 
+  const getRoleLabel = (role: string) => {
+    const r = (role || '').toUpperCase();
+    if (r.includes('SUPER')) return t('adminSettings.adminAccounts.roles.superAdmin', { defaultValue: 'Super Admin' });
+    if (r.includes('ADMIN')) return t('adminSettings.adminAccounts.roles.admin', { defaultValue: 'Admin' });
+    return role;
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'Super Admin':
@@ -141,7 +148,7 @@ export const AdminsList: React.FC = () => {
                               admin.role
                             )}`}
                           >
-                            {admin.role}
+                            {getRoleLabel(admin.role)}
                           </span>
                         </td>
 
@@ -182,7 +189,7 @@ export const AdminsList: React.FC = () => {
                             type="button"
                             onClick={() => handleDelete(admin)}
                             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            title="Delete Admin"
+                            title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -194,7 +201,7 @@ export const AdminsList: React.FC = () => {
                   {admins.length === 0 && (
                     <tr>
                       <td colSpan={6} className="py-8 text-center text-gray-400">
-                        No admin accounts found.
+                        {t('adminSettings.adminAccounts.noAdmins', { defaultValue: 'No admin accounts found.' })}
                       </td>
                     </tr>
                   )}

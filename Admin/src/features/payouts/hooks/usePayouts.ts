@@ -292,23 +292,24 @@ export function usePayouts() {
   const exportMutation = useExportPayoutsMutation();
 
   const handleExportExcel = () => {
+    const currencySymbol = isAr ? '﷼' : 'SAR';
     const summaryStats = [
       {
         label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),
         value: summaryData?.totalPayoutsRegistered != null
-          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`
           : '--',
       },
       {
         label: t('payouts.pendingPayoutsTitle', 'Pending Payouts'),
         value: summaryData?.pendingPayouts != null
-          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`
           : '--',
       },
       {
         label: t('payouts.vendorsWithPendingTitle', 'Vendors with Pending'),
         value: summaryData?.vendorsWithPending != null
-          ? `${summaryData.vendorsWithPending.toLocaleString('en-US')} Vendors`
+          ? `${summaryData.vendorsWithPending.toLocaleString('en-US')} ${t('payouts.vendorsUnit', 'Vendors')}`
           : '--',
       },
     ];
@@ -331,17 +332,18 @@ export function usePayouts() {
   };
 
   const handleExportPDF = () => {
+    const currencySymbol = isAr ? '﷼' : 'SAR';
     const summaryStats = [
       {
         label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),
         value: summaryData?.totalPayoutsRegistered != null
-          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          ? `${summaryData.totalPayoutsRegistered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`
           : '--',
       },
       {
         label: t('payouts.pendingPayoutsTitle', 'Pending Payouts'),
         value: summaryData?.pendingPayouts != null
-          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SAR`
+          ? `${summaryData.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencySymbol}`
           : '--',
       },
       {

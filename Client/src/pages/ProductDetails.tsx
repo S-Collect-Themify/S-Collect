@@ -101,10 +101,6 @@ const ProductDetails = () => {
       result = result.filter((r) => r.rating === 2);
     } else if (activeFilter === '1') {
       result = result.filter((r) => r.rating === 1);
-    } else if (activeFilter === 'photos') {
-      result = result.filter(
-        (r) => Array.isArray(r.photoUrls) && r.photoUrls.length > 0
-      );
     } else if (activeFilter === 'newest') {
       result.sort((a, b) => {
         const tA = a.date ? new Date(a.date).getTime() : 0;

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   getSubOrders,
   getSubOrderById,
@@ -65,6 +66,7 @@ import { getErrorMessage } from '../../types/api';
 
 export const useUpdateSubOrder = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: UpdateSubOrderDto }) =>
@@ -74,7 +76,7 @@ export const useUpdateSubOrder = () => {
       queryClient.invalidateQueries({ queryKey: ['sub-orders'] });
       // Optimistically push the updated record into cache
       queryClient.setQueryData(['sub-orders', updated.id], updated);
-      toast.success('Order updated successfully!');
+      toast.success(t('ordersPage.notifications.updateSuccess', 'Order updated successfully!'));
     },
     onError: (err: unknown) => {
       const msg = getErrorMessage(err, 'Failed to update order.');

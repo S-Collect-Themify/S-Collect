@@ -24,7 +24,7 @@ export const CategoryFilterBar = () => {
           onChange={(e) => setSearch(e.target.value)}
           aria-label={t('categories.filter.search')}
           placeholder={t('categories.filter.search')}
-          className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white"
+          className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 p-[2px] rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white"
         />
       </div>
 
@@ -33,7 +33,7 @@ export const CategoryFilterBar = () => {
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
           aria-label={t('categories.filter.all')}
-          className="w-full sm:w-auto appearance-none pl-3 pr-8 rtl:pl-8 rtl:pr-3 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer"
+          className="w-full sm:w-auto appearance-none pl-3 pr-8 rtl:pl-8 rtl:pr-3 py-2.5 p-[2px] rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer"
         >
           <option value="all">{t('categories.filter.all')}</option>
           {categories.map((c) => (

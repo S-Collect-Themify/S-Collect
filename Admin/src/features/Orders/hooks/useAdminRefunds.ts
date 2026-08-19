@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
   getAdminRefunds,
@@ -63,12 +64,13 @@ export const useAdminRefundDetail = (id?: string) => {
  */
 export const useApproveAdminRefund = (refundId?: string) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: (id: string) => approveAdminRefund(id),
     onSuccess: (updatedRefund, targetId) => {
       const activeId = refundId || targetId;
-      toast.success('Refund request approved successfully');
+      toast.success(t('refunds.notifications.approveSuccess', 'Refund request approved successfully'));
 
       if (activeId) {
         queryClient.setQueryData(['admin-refund-detail', activeId], updatedRefund);
@@ -93,12 +95,13 @@ export const useApproveAdminRefund = (refundId?: string) => {
  */
 export const useRejectAdminRefund = (refundId?: string) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) => rejectAdminRefund(id, reason),
     onSuccess: (updatedRefund, variables) => {
       const activeId = refundId || variables.id;
-      toast.success('Refund request rejected successfully');
+      toast.success(t('refunds.notifications.rejectSuccess', 'Refund request rejected successfully'));
 
       if (activeId) {
         queryClient.setQueryData(['admin-refund-detail', activeId], updatedRefund);
@@ -123,12 +126,13 @@ export const useRejectAdminRefund = (refundId?: string) => {
  */
 export const useUpdateAdminRefundNotes = (refundId?: string) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, notes }: { id: string; notes: string }) => updateAdminRefundNotes(id, notes),
     onSuccess: (updatedRefund, variables) => {
       const activeId = refundId || variables.id;
-      toast.success('Internal notes updated');
+      toast.success(t('refunds.notifications.notesSuccess', 'Internal notes updated'));
 
       if (activeId) {
         queryClient.setQueryData(['admin-refund-detail', activeId], updatedRefund);

@@ -10,7 +10,15 @@ html,
   padding: 0;
   box-sizing: border-box;
   background-color: var(--gray-100);
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+[dir='rtl'],
+[dir='rtl'] body,
+[dir='rtl'] #root,
+html[dir='rtl'],
+body[dir='rtl'] {
+  font-family: 'Cairo', 'Inter', system-ui, sans-serif !important;
 }
 
 @keyframes settings-fade-up {

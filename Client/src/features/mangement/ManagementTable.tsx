@@ -84,16 +84,28 @@ export default function ProductTable() {
     );
   };
 
-  const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
-    setSelectedRows(e.target.checked ? paginatedProducts.map((p) => p.id) : []);
+  const hasSelectableProducts = paginatedProducts.some(
+    (p) => !p.isDisabled && p.status !== 'Disabled'
+  );
+
+  const toggleAll = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const selectableIds = paginatedProducts
+        .filter((p) => !p.isDisabled && p.status !== 'Disabled')
+        .map((p) => p.id);
+      setSelectedRows(selectableIds);
+    } else {
+      setSelectedRows([]);
+    }
+  };
 
   const tableHeaders = [
     t('managementTable.productName'),
     t('managementTable.category'),
     t('managementTable.price'),
     t('managementTable.rating'),
-    t('managementTable.inventory'),
     t('managementTable.status'),
+    t('managementTable.publish'),
     t('managementTable.procedures'),
   ];
 
@@ -139,18 +151,26 @@ export default function ProductTable() {
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100 select-none">
               <th className="w-12 px-3 py-3 text-start">
-                <label className="inline-flex items-center justify-center w-4 h-4 cursor-pointer">
+                <label
+                  className={`inline-flex items-center justify-center w-4 h-4 ${
+                    !hasSelectableProducts
+                      ? 'cursor-not-allowed opacity-40'
+                      : 'cursor-pointer'
+                  }`}
+                >
                   <input
                     type="checkbox"
                     checked={allChecked}
-                    onChange={toggleAll}
+                    onChange={hasSelectableProducts ? toggleAll : undefined}
+                    disabled={!hasSelectableProducts}
                     className="peer sr-only"
                   />
                   <span
-                    className="w-4 h-4 rounded-[4px] border border-gray-300 bg-white
-                                flex items-center justify-center
-                                peer-checked:bg-gray-900 peer-checked:border-gray-900
-                                transition-colors"
+                    className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition-colors ${
+                      !hasSelectableProducts
+                        ? 'border-gray-200 bg-gray-100'
+                        : 'border-gray-300 bg-white peer-checked:bg-gray-900 peer-checked:border-gray-900'
+                    }`}
                   >
                     {allChecked && (
                       <Check className="text-white" size={11} strokeWidth={3} />

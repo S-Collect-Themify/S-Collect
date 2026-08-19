@@ -54,7 +54,7 @@ export default function MobileTransactionCard({
           className={`text-sm font-semibold ${isNegative ? 'text-red-600' : 'text-gray-900'}`}
         >
           {isNegative ? '-' : ''}
-          {formatAmount(transaction.amount)} SAR
+          {formatAmount(transaction.amount)} {t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' })}
         </span>
       </div>
     </motion.div>

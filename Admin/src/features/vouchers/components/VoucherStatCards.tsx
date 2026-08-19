@@ -18,17 +18,23 @@ export const VoucherStatCards = ({
   totalCosts = 'SAR 0',
   redemptionsCount = 0,
 }: VoucherStatCardsProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const currencySymbol = isAr ? '﷼' : 'SAR';
+
+  const formatVal = (val: string | number) => {
+    if (typeof val === 'number') {
+      return `${val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${currencySymbol}`;
+    }
+    const str = String(val).replace(/SAR\s*/g, '').trim();
+    return `${str} ${currencySymbol}`;
+  };
 
   const formattedCostSaved =
     totalCostSavedThisMonth !== undefined
-      ? typeof totalCostSavedThisMonth === 'number'
-        ? `SAR ${totalCostSavedThisMonth.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
-        : String(totalCostSavedThisMonth).startsWith('SAR')
-        ? totalCostSavedThisMonth
-        : `SAR ${totalCostSavedThisMonth}`
-      : typeof totalCosts === 'number'
-      ? `SAR ${totalCosts.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+      ? formatVal(totalCostSavedThisMonth)
+      : typeof totalCosts === 'number' || typeof totalCosts === 'string'
+      ? formatVal(totalCosts)
       : totalCosts;
 
   const formattedUsages =

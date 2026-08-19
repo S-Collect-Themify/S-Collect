@@ -1,4 +1,4 @@
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 type ProductSale = {
   id: string;
@@ -11,6 +11,10 @@ type ProductSale = {
 };
 
 const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const currencySymbol = cardData.currency === 'SAR' ? (isAr ? '﷼' : 'SAR') : cardData.currency;
+
   return (
     <div className="flex items-center gap-2 rounded-lg bg-white p-3 w-full overflow-hidden">
       {/* Product Image */}
@@ -47,7 +51,7 @@ const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
       {/* Revenue */}
       <div className="flex flex-col items-end shrink-0">
         <span className="text-body-md  font-bold text-green-600 whitespace-nowrap">
-          {cardData.revenue.toLocaleString()} {cardData.currency}
+          {cardData.revenue.toLocaleString()} {currencySymbol}
         </span>
 
         <span className="text-xs xl:text-sm text-gray-400 mt-1">

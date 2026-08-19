@@ -1,6 +1,7 @@
 import { Search, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
+import { OrderBuyerDropdown } from './OrderBuyerDropdown';
 
 export interface OrderFiltersProps {
   activeMainTab: 'allOrders' | 'refunds';
@@ -11,6 +12,8 @@ export interface OrderFiltersProps {
   onStatusFilterChange: (val: string) => void;
   dateFilter: string;
   onDateFilterChange: (val: string) => void;
+  buyerAccountId?: string;
+  onBuyerAccountIdChange?: (val: string | undefined) => void;
 }
 
 export const OrderFilters = ({
@@ -22,6 +25,8 @@ export const OrderFilters = ({
   onStatusFilterChange,
   dateFilter,
   onDateFilterChange,
+  buyerAccountId,
+  onBuyerAccountIdChange,
 }: OrderFiltersProps) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
@@ -68,7 +73,10 @@ export const OrderFilters = ({
         </button>
         <button
           type="button"
-          onClick={() => onMainTabChange('refunds')}
+          onClick={() => {
+            if (onBuyerAccountIdChange) onBuyerAccountIdChange(undefined);
+            onMainTabChange('refunds');
+          }}
           className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
             activeMainTab === 'refunds'
               ? 'bg-black text-white shadow-2xs'
@@ -103,7 +111,7 @@ export const OrderFilters = ({
                 ? t('ordersPage.searchOrders', 'Search orders...')
                 : t('ordersPage.searchRefunds', 'Search refunds...')
             }
-            className={`w-full py-2 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
+            className={`w-full py-2 p-[2px] rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
               isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
             }`}
           />
@@ -111,6 +119,14 @@ export const OrderFilters = ({
 
         {/* Dropdowns Row */}
         <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-3 shrink-0">
+          {/* Buyer Dropdown (Only in All Orders tab) */}
+          {activeMainTab === 'allOrders' && onBuyerAccountIdChange && (
+            <OrderBuyerDropdown
+              selectedBuyerId={buyerAccountId}
+              onSelectBuyer={onBuyerAccountIdChange}
+            />
+          )}
+
           {/* Status Dropdown */}
           <PortalDropdown
             minWidth={150}
@@ -120,7 +136,7 @@ export const OrderFilters = ({
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 p-[2px] rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <span className="truncate">
                   {t('ordersPage.statusFilter', 'Status')}: {currentStatusDisplay}
@@ -147,11 +163,7 @@ export const OrderFilters = ({
                       onStatusFilterChange(st);
                       close();
                     }}
-                    className={`w-full text-start px-3.5 py-2 text-xs font-medium transition-colors hover:bg-gray-50 cursor-pointer ${
-                      statusFilter === st
-                        ? 'bg-gray-100 text-gray-900 font-semibold'
-                        : 'text-gray-700'
-                    }`}
+                    className="w-full text-start px-3.5 py-2 text-xs font-medium transition-colors hover:bg-gray-50 cursor-pointer"
                   >
                     {formatStatusDisplay(st)}
                   </button>
@@ -169,7 +181,7 @@ export const OrderFilters = ({
               <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
+                className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 p-[2px] rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
                 <span className="truncate">
                   {t('ordersPage.dateFilter', 'Date')}: {currentDateDisplay}

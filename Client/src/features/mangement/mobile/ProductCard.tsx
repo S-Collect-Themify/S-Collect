@@ -53,7 +53,10 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
     navigate(`/edit-product/${product.id}`);
   };
 
+  const isProductDisabled = product.isDisabled || product.status === 'Disabled';
+
   const handleToggle = () => {
+    if (isProductDisabled) return;
     if (product.enabled) {
       showDeleteConfirmation(
         'managementTable.toggleUnpublishConfirmMessage',
@@ -90,7 +93,11 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
           <StatusBadge status={product.status} />
         </div>
         <div className="flex items-center gap-2">
-          <Toggle checked={product.enabled} onChange={handleToggle} />
+          <Toggle
+            checked={product.enabled}
+            onChange={handleToggle}
+            disabled={isProductDisabled}
+          />
 
           {/* Inline dropdown — works on touch without portal positioning issues */}
           <div ref={menuRef} className="relative">

@@ -64,7 +64,7 @@ const MobilePricingStep = () => {
       {/* Compare-at Price */}
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700">
-          {t('addProduct.comparePrice')} <span className="text-red-500">*</span>
+          {t('addProduct.comparePrice')}
         </label>
         <div className="relative">
           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium">
@@ -77,13 +77,24 @@ const MobilePricingStep = () => {
             placeholder="849.00"
             className={`${inputCls(errors.comparePrice?.message)} pl-8`}
             {...register('comparePrice', {
-              required: t('addProduct.errors.comparePriceRequired', 'Required'),
               min: {
                 value: 0,
                 message: t(
                   'addProduct.errors.priceMinValue',
                   'Must be positive'
                 ),
+              },
+              validate: (val, formValues) => {
+                if (!val) return true;
+                const compare = parseFloat(val);
+                const base = parseFloat(formValues.basePrice);
+                if (!isNaN(compare) && !isNaN(base) && compare > 0 && compare <= base) {
+                  return t(
+                    'addProduct.errors.comparePriceMustBeGreater',
+                    'Compare-at price must be greater than base price'
+                  );
+                }
+                return true;
               },
             })}
           />

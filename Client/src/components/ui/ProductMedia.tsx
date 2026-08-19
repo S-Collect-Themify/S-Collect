@@ -1,4 +1,4 @@
-import { type ChangeEvent, useEffect, useState } from 'react';
+import { type ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
@@ -24,7 +24,6 @@ const ProductMedia = () => {
   const queryClient = useQueryClient();
   const files = watch('images') || [];
   const existingImages = watch('existingImages') || [];
-  const [previews, setPreviews] = useState<PreviewImage[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [isUploadingApi, setIsUploadingApi] = useState(false);
@@ -50,8 +49,8 @@ const ProductMedia = () => {
     onSettled: () => setDeletingId(null),
   });
 
-  useEffect(() => {
-    const newPreviews: PreviewImage[] = [
+  const previews: PreviewImage[] = useMemo(() => {
+    return [
       ...existingImages.map((img) => ({
         id: `existing-${img.id}`,
         preview: img.url,
@@ -59,25 +58,23 @@ const ProductMedia = () => {
         imageId: img.id,
       })),
       ...files.map((file) => ({
-        id:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : Math.random().toString(36).substring(2, 9) + Date.now(),
+        id: `${file.name}-${file.size}`,
         file,
         preview: URL.createObjectURL(file),
       })),
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filesKey, existingKey]);
 
-    setPreviews(newPreviews);
-
+  useEffect(() => {
     return () => {
-      newPreviews.forEach((image) => {
+      previews.forEach((image) => {
         if (!image.isExisting) {
           URL.revokeObjectURL(image.preview);
         }
       });
     };
-  }, [filesKey, existingKey]);
+  }, [previews]);
 
   useEffect(() => {
     files.forEach((file) => {
@@ -96,11 +93,27 @@ const ProductMedia = () => {
         }, 150);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filesKey]);
+
+  const MAX_IMAGES = 6;
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = Array.from(e.target.files || []);
     if (uploadedFiles.length === 0) return;
+
+    const currentCount = existingImages.length + files.length;
+    if (currentCount + uploadedFiles.length > MAX_IMAGES) {
+      toast.error(
+        t(
+          'addProduct.maxImagesExceeded',
+          'You cannot upload more than 6 images for a product.'
+        )
+      );
+      e.target.value = '';
+      return;
+    }
+
     setIsCompressing(true);
     try {
       const compressed = await Promise.all(
@@ -223,7 +236,7 @@ const ProductMedia = () => {
 
               {isThumbnail && (
                 <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                  Thumbnail
+                  {t('addProduct.thumbnail', 'Thumbnail')}
                 </span>
               )}
 
@@ -267,8 +280,23 @@ const ProductMedia = () => {
         )}
 
         <label
-          htmlFor="images"
-          className="flex h-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 sm:h-24 bg-[#E9E9E9]"
+          htmlFor={previews.length >= MAX_IMAGES ? undefined : 'images'}
+          onClick={(e) => {
+            if (previews.length >= MAX_IMAGES) {
+              e.preventDefault();
+              toast.error(
+                t(
+                  'addProduct.maxImagesExceeded',
+                  'You cannot upload more than 6 images for a product.'
+                )
+              );
+            }
+          }}
+          className={`flex h-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 sm:h-24 bg-[#E9E9E9] transition ${
+            previews.length >= MAX_IMAGES
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-gray-200/70'
+          }`}
         >
           <Plus />
         </label>

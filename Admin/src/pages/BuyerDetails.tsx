@@ -21,12 +21,12 @@ const containerVariants: Variants = {
   show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
-const formatLastActive = (val?: unknown): string => {
+const formatLastActive = (val?: unknown, locale = 'en-US'): string => {
   if (val === undefined || val === null || val === '' || val === '---') return '---';
   if (typeof val === 'string') {
     const d = new Date(val);
     if (!isNaN(d.getTime())) {
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
     }
     return val;
   }
@@ -38,7 +38,7 @@ const formatLastActive = (val?: unknown): string => {
     if (typeof dateStr === 'string') {
       const d = new Date(dateStr);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
       }
     }
   }
@@ -109,7 +109,7 @@ export default function BuyerDetails() {
   const finalTotalOrders = apiStats?.totalOrders ?? buyerData.ordersNum ?? '---';
   const finalTotalSpent = apiStats?.totalSpent ?? buyerData.totalSpent ?? '---';
   const finalAvgOrderValue = apiStats?.averageOrderValue ?? buyerData.avgOrderValue ?? '---';
-  const finalLastActive = formatLastActive(apiStats?.lastActive) || buyerData.lastActive || '---';
+  const finalLastActive = formatLastActive(apiStats?.lastActive, isRtl ? 'ar-SA' : 'en-US') || buyerData.lastActive || '---';
 
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>

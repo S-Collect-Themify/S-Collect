@@ -8,7 +8,9 @@ interface RevenueStatCardsProps {
 }
 
 export default function RevenueStatCards({ dateFrom, dateTo }: RevenueStatCardsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const currencyUnit = isAr ? '﷼' : 'SAR';
   const { data, isLoading } = useRevenueOverviewKpis({ dateFrom, dateTo });
 
   const formatCurrency = (val?: number | null) => {
@@ -34,7 +36,7 @@ export default function RevenueStatCards({ dateFrom, dateTo }: RevenueStatCardsP
             <span className="text-xl lg:text-2xl font-bold text-gray-900">
               {isLoading ? '...' : gmv}
             </span>
-            <span className="text-xs font-medium text-gray-500 ms-1">SAR</span>
+            <span className="text-xs font-medium text-gray-500 ms-1">{currencyUnit}</span>
           </div>
         </div>
       </div>
@@ -50,7 +52,7 @@ export default function RevenueStatCards({ dateFrom, dateTo }: RevenueStatCardsP
             <span className="text-xl lg:text-2xl font-bold text-gray-900">
               {isLoading ? '...' : netRevenue}
             </span>
-            <span className="text-xs font-medium text-gray-500 ms-1">SAR</span>
+            <span className="text-xs font-medium text-gray-500 ms-1">{currencyUnit}</span>
           </div>
         </div>
       </div>
@@ -66,7 +68,7 @@ export default function RevenueStatCards({ dateFrom, dateTo }: RevenueStatCardsP
             <span className="text-xl lg:text-2xl font-bold text-gray-900">
               {isLoading ? '...' : totalPayouts}
             </span>
-            <span className="text-xs font-medium text-gray-500 ms-1">SAR</span>
+            <span className="text-xs font-medium text-gray-500 ms-1">{currencyUnit}</span>
           </div>
         </div>
       </div>
@@ -82,7 +84,7 @@ export default function RevenueStatCards({ dateFrom, dateTo }: RevenueStatCardsP
             <span className="text-xl lg:text-2xl font-bold text-gray-900">
               {isLoading ? '...' : pendingPayouts}
             </span>
-            <span className="text-xs font-medium text-gray-500 ms-1">SAR</span>
+            <span className="text-xs font-medium text-gray-500 ms-1">{currencyUnit}</span>
           </div>
         </div>
       </div>
