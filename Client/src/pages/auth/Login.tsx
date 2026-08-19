@@ -63,7 +63,7 @@ const Login = ({ onGoToRegister }: LoginProps) => {
     initialState === 'locked'
       ? 'locked-out@company.com'
       : initialState === 'expired'
-        ? 'vendor@active-store.com'
+        ? ''
         : '';
   const initialPassword = initialState === 'locked' ? '••••••••' : '';
 
