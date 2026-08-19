@@ -42,6 +42,15 @@ export const MobileAdminsList: React.FC = () => {
     return role;
   };
 
+  const getStatusLabel = (status?: string) => {
+    const s = (status || '').toUpperCase();
+    if (s === 'ACTIVE') return t('adminSettings.adminAccounts.statuses.active', { defaultValue: 'Active' });
+    if (s === 'INACTIVE' || s === 'DEACTIVATED' || s === 'SUSPENDED') {
+      return t('adminSettings.adminAccounts.statuses.inactive', { defaultValue: 'Inactive' });
+    }
+    return status || '-';
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'Super Admin':
@@ -163,9 +172,7 @@ export const MobileAdminsList: React.FC = () => {
                             : 'bg-red-50 text-red-500 border border-red-100/50'
                         }`}
                       >
-                        {admin.status === 'Active'
-                          ? t('common.active', { defaultValue: 'Active' })
-                          : t('common.inactive', { defaultValue: 'Inactive' })}
+                        {getStatusLabel(admin.status)}
                       </span>
                     </div>
                   </div>

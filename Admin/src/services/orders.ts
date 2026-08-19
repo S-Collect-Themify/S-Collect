@@ -402,8 +402,22 @@ export function mapAdminOrderToTableItem(order: AdminOrderItem): TableItem {
     ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
 
-  const firstSubOrder = order.subOrders?.[0];
-  const vendorName = firstSubOrder?.vendorName || firstSubOrder?.vendor?.businessName || order.vendorName || '---';
+  const isAr = i18n.language === 'ar';
+  const firstSubOrder = order.subOrders?.[0] as any;
+  const vendorNameAr =
+    firstSubOrder?.storeNameAr ||
+    firstSubOrder?.storeName_ar ||
+    firstSubOrder?.vendorNameAr ||
+    firstSubOrder?.vendor?.storeNameAr ||
+    firstSubOrder?.vendor?.businessNameAr;
+  const vendorName = isAr && vendorNameAr
+    ? vendorNameAr
+    : firstSubOrder?.vendorName ||
+      firstSubOrder?.storeName ||
+      firstSubOrder?.vendor?.businessName ||
+      firstSubOrder?.vendor?.storeName ||
+      order.vendorName ||
+      '---';
   const vendorId = firstSubOrder?.vendorId || order.vendorId;
 
   const custFirstName = order.customer?.firstName?.trim() || '';
@@ -435,7 +449,8 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
   const code = sub.orderNumber ? `#SUB-${sub.orderNumber}` : `#SUB-${shortId}`;
 
   const total = sub.totalAmount ?? sub.items?.reduce((acc, i) => acc + (i.lineTotal ?? 0), 0) ?? 0;
-  const currency = i18n.language === 'ar' ? '﷼' : 'SAR';
+  const isAr = i18n.language === 'ar';
+  const currency = isAr ? '﷼' : 'SAR';
   const totalFormatted = `${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
 
   const rawStatus = (sub.status || 'PENDING').toUpperCase();
@@ -448,11 +463,22 @@ export function mapAdminSubOrderToTableItem(sub: AdminSubOrderItem): TableItem {
   const custLastName = sub.customer?.lastName?.trim() || '';
   const customerName = `${custFirstName} ${custLastName}`.trim() || '---';
 
+  const subAny = sub as any;
+  const vendorNameAr =
+    subAny.storeNameAr ||
+    subAny.storeName_ar ||
+    subAny.vendorNameAr ||
+    subAny.vendor?.storeNameAr ||
+    subAny.vendor?.businessNameAr;
+  const vendorName = isAr && vendorNameAr
+    ? vendorNameAr
+    : sub.storeName || sub.vendorName || '---';
+
   return {
     id: sub.id,
     code,
     customer: customerName,
-    vendor: sub.storeName || sub.vendorName || '---',
+    vendor: vendorName,
     vendorId: sub.vendorId,
     total,
     totalFormatted,

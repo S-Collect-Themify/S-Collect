@@ -18,6 +18,7 @@ export const ProductVariantsTable: React.FC<ProductVariantsTableProps> = ({
 }) => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const currencySymbol = isAr ? '﷼' : (currency || 'SAR');
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalItems = variants.length;
@@ -110,10 +111,10 @@ export const ProductVariantsTable: React.FC<ProductVariantsTableProps> = ({
                         : '-'}
                     </td>
                     <td className="py-3 px-4 font-semibold text-gray-900">
-                      {v.price.toLocaleString()} {currency}
+                      {v.price.toLocaleString()} {currencySymbol}
                       {v.compareAtPrice && v.compareAtPrice > v.price && (
                         <span className="text-[10px] text-gray-400 line-through ml-1.5 rtl:mr-1.5 font-normal">
-                          {v.compareAtPrice.toLocaleString()} {currency}
+                          {v.compareAtPrice.toLocaleString()} {currencySymbol}
                         </span>
                       )}
                     </td>

@@ -45,7 +45,6 @@ export const SubOrderCard = ({
   onUpdateStatus,
   isUpdating = false,
   StatusBadge,
-  getProductThumbnail,
 }: SubOrderCardProps) => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -299,9 +298,12 @@ export const SubOrderCard = ({
 
       {/* Sub-order Items List */}
       <div className="space-y-3 pt-2 border-t border-gray-100">
-        {currentItems.map((it) => {
+        {currentItems.map((it: any) => {
           const itemProdId = (it.productId || it.id) as string | undefined;
           const thumbUrl = getItemThumbnail(it);
+          const prodDisplayName = isRtl && (it.productNameAr || it.productName_ar || it.product?.nameAr || it.product?.name_ar)
+            ? (it.productNameAr || it.productName_ar || it.product?.nameAr || it.product?.name_ar)
+            : it.productName;
           return (
             <div key={it.id} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
@@ -310,7 +312,7 @@ export const SubOrderCard = ({
                   className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center text-base cursor-pointer hover:bg-gray-200 transition-colors overflow-hidden"
                 >
                   {thumbUrl ? (
-                    <img src={thumbUrl} alt={it.productName} className="w-full h-full object-cover" />
+                    <img src={thumbUrl} alt={prodDisplayName} className="w-full h-full object-cover" />
                   ) : (
                     <Package className="text-gray-400" size={16} />
                   )}
@@ -320,7 +322,7 @@ export const SubOrderCard = ({
                     onClick={() => itemProdId && handleViewProduct(itemProdId)}
                     className="font-bold text-gray-900 cursor-pointer hover:underline hover:text-blue-600 transition-colors"
                   >
-                    {it.productName}
+                    {prodDisplayName}
                   </p>
                   <p className="text-gray-400 text-[11px]">
                     {t('ordersPage.qtyColon', 'Qty:')} {it.quantity}

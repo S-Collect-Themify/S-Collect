@@ -22,6 +22,20 @@ export const VoucherFilterBar = ({
   const setTypeFilter = useVoucherStore((s) => s.setTypeFilter);
   const setStatusFilter = useVoucherStore((s) => s.setStatusFilter);
 
+  const getTypeLabel = (type: string) => {
+    const lower = type.toLowerCase();
+    if (lower === 'percentage') {
+      return t('vouchersListing.types.percentage', { defaultValue: 'Percentage' });
+    }
+    if (lower === 'amount' || lower === 'fixed' || lower === 'fixed_amount') {
+      return t('vouchersListing.types.amount', { defaultValue: 'Amount' });
+    }
+    if (lower.includes('shipping')) {
+      return t('vouchersListing.types.freeShipping', { defaultValue: 'Free Shipping' });
+    }
+    return type;
+  };
+
   return (
     <div className="space-y-4 mb-6">
       {/* Mobile Tabs Bar (Active | Expired | All) */}
@@ -100,7 +114,7 @@ export const VoucherFilterBar = ({
               </option>
               {availableTypes.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {getTypeLabel(type)}
                 </option>
               ))}
             </select>

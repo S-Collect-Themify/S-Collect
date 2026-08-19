@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useVendorProductsStore } from '../../../store/vendorProductsStore';
+import { useVendorProducts } from '../hooks/useVendors';
 import type { Vendor } from '../types/vendors';
 
 const ITEMS_PER_PAGE = 5;
@@ -13,8 +14,13 @@ const cardVariants: Variants = {
 };
 
 export interface VendorProductItem {
+  id?: string;
   name: string;
+  nameAr?: string;
+  nameEn?: string;
   category: string;
+  categoryAr?: string;
+  categoryEn?: string;
   price: number;
   status: 'active' | 'inactive';
   date: string;
@@ -28,18 +34,57 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  const allProducts: VendorProductItem[] = useMemo(
-    () => [
-      { name: 'Premium Cotton T-Shirt', category: 'Apparel', price: 120, status: 'active', date: 'Oct 24, 2026' },
-      { name: 'Minimalist Sneakers', category: 'Footwear', price: 450, status: 'active', date: 'Oct 22, 2026' },
-      { name: 'Denim Jacket', category: 'Apparel', price: 380, status: 'inactive', date: 'Oct 20, 2026' },
-      { name: 'Casual Hoodie', category: 'Apparel', price: 210, status: 'active', date: 'Oct 18, 2026' },
-      { name: 'Leather Wallet', category: 'Accessories', price: 150, status: 'active', date: 'Oct 15, 2026' },
-      { name: 'Classic Sunglasses', category: 'Accessories', price: 290, status: 'active', date: 'Oct 12, 2026' },
-      { name: 'Running Shoes', category: 'Footwear', price: 520, status: 'inactive', date: 'Oct 10, 2026' },
-    ],
-    []
-  );
+  const { data: apiProductsData, isLoading: isQueryLoading } = useVendorProducts(vendor.id, 1, 100);
+
+  const allProducts: VendorProductItem[] = useMemo(() => {
+    const rawData = apiProductsData as any;
+    const rawItems: any[] = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.items)
+      ? rawData.items
+      : Array.isArray(rawData?.data)
+      ? rawData.data
+      : Array.isArray(rawData?.data?.items)
+      ? rawData.data.items
+      : [];
+
+    return rawItems.map((item: any) => {
+      const prodName = isRtl && (item.nameAr || item.name_ar) ? (item.nameAr || item.name_ar) : item.name || item.title || '--';
+      const catObj = typeof item.category === 'object' && item.category !== null ? item.category : null;
+      const catName = isRtl && (catObj?.nameAr || catObj?.name_ar || item.categoryAr || item.category_ar)
+        ? (catObj?.nameAr || catObj?.name_ar || item.categoryAr || item.category_ar)
+        : (catObj?.name || (typeof item.category === 'string' ? item.category : '--'));
+
+      const dateStr = item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : '--';
+
+      const priceNum = typeof item.minPrice === 'number'
+        ? item.minPrice
+        : typeof item.price === 'number'
+        ? item.price
+        : typeof item.minPrice?.amount === 'number'
+        ? item.minPrice.amount
+        : 0;
+
+      return {
+        id: item.id || '',
+        name: prodName,
+        nameAr: item.nameAr || item.name_ar,
+        nameEn: item.name,
+        category: catName,
+        categoryAr: catObj?.nameAr || catObj?.name_ar || item.categoryAr,
+        categoryEn: catObj?.name || (typeof item.category === 'string' ? item.category : ''),
+        price: priceNum,
+        status: (item.isActive && !item.isDisabled ? 'active' : 'inactive') as 'active' | 'inactive',
+        date: dateStr,
+      };
+    });
+  }, [apiProductsData, isRtl]);
 
   // ── Zustand state ──
   const appliedFrom  = useVendorProductsStore((s) => s.appliedFrom);
@@ -86,7 +131,11 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
         const q = search.toLowerCase();
         const match =
           p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q);
+          (p.nameAr && p.nameAr.toLowerCase().includes(q)) ||
+          (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
+          p.category.toLowerCase().includes(q) ||
+          (p.categoryAr && p.categoryAr.toLowerCase().includes(q)) ||
+          (p.categoryEn && p.categoryEn.toLowerCase().includes(q));
         if (!match) return false;
       }
 
@@ -110,6 +159,8 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
     setToDate(DEFAULT_TO);
     resetStore();
   };
+
+  const currencySymbol = isRtl ? '﷼' : 'SAR';
 
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'}>
@@ -213,13 +264,13 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
             <thead>
               <tr className="bg-gray-100/70 border-b border-gray-100">
                 <th className="px-5 py-3.5 text-start font-semibold text-gray-800">
-                  {t('vendors.productsLog.colName', 'Product Name')}
+                  {t('vendors.productsLog.colProductName', t('vendors.productsLog.colName', 'Product Name'))}
                 </th>
                 <th className="px-5 py-3.5 text-start font-semibold text-gray-800">
                   {t('vendors.productsLog.colCategory', 'Category')}
                 </th>
                 <th className="px-5 py-3.5 text-start font-semibold text-gray-800">
-                  {t('vendors.productsLog.colPrice', 'Price (SAR)')}
+                  {t('vendors.productsLog.colPrice', 'Price')} ({currencySymbol})
                 </th>
                 <th className="px-5 py-3.5 text-start font-semibold text-gray-800">
                   {t('vendors.productsLog.colStatus', 'Status')}
@@ -230,7 +281,7 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
+              {isLoading || isQueryLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={idx} className="bg-white">
                     <td className="px-5 py-4"><div className="w-32 h-4 rounded bg-gray-200 animate-pulse" /></td>
@@ -260,7 +311,7 @@ export default function VendorProductsLog({ vendor }: VendorProductsLogProps) {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{' '}
-                      SAR
+                      {currencySymbol}
                     </td>
                     <td className="px-5 py-4">
                       <span

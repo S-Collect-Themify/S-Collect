@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdminSettingsStore } from '../features/adminSettings/store';
 import { PlatformSettingsForm } from '../features/adminSettings/components/PlatformSettingsForm';
@@ -25,6 +25,10 @@ import { MobileShippingZonesList } from '../features/adminSettings/mobile/Mobile
 const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
   const { viewMode, setViewMode } = useAdminSettingsStore();
+
+  useEffect(() => {
+    setViewMode('settings');
+  }, [setViewMode]);
 
   return (
     <div className="sidebar-page-container p-4 sm:p-6 lg:p-8 w-full min-h-screen">

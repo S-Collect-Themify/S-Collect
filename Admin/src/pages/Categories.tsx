@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'motion/react';
@@ -25,6 +25,10 @@ import {
 const Categories = () => {
   const { t, i18n } = useTranslation();
   const { isMobile } = useBreakpoint();
+
+  useEffect(() => {
+    useCategoryStore.getState().setCurrentPage(1);
+  }, []);
 
   // ── React Query Hook (Data Fetching & Mutations) ──
   const {

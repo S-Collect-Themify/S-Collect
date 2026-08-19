@@ -119,11 +119,31 @@ const OrderTimeline = ({ overallStatus, date }: { overallStatus?: string; date: 
 
 const resolveVendorName = (
   sub: any,
-  fallbackRecipientName?: string
+  fallbackRecipientName?: string,
+  isRtl?: boolean
 ): string => {
+  if (isRtl) {
+    const arName =
+      (sub?.storeNameAr as string) ||
+      (sub?.storeName_ar as string) ||
+      (sub?.store_name_ar as string) ||
+      (sub?.vendorNameAr as string) ||
+      (sub?.vendorName_ar as string) ||
+      (sub?.vendor?.storeNameAr as string) ||
+      (sub?.vendor?.storeName_ar as string) ||
+      (sub?.vendor?.store_name_ar as string) ||
+      (sub?.vendor?.businessNameAr as string) ||
+      (sub?.vendor?.businessName_ar as string) ||
+      (sub?.vendor?.business_name_ar as string) ||
+      (sub?.vendor?.nameAr as string) ||
+      (sub?.vendor?.name_ar as string);
+    if (arName) return arName;
+  }
+
   const fromApi =
-    (sub?.vendorName as string) ||
     (sub?.storeName as string) ||
+    (sub?.vendorName as string) ||
+    (sub?.vendor?.storeName as string) ||
     (sub?.vendor?.businessName as string) ||
     (sub?.vendor?.name as string);
   if (fromApi) return fromApi;
@@ -138,6 +158,7 @@ export default function OrderDetailsPage() {
   const { isMobile } = useBreakpoint();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+  const currencySymbol = isRtl ? '﷼' : 'SAR';
 
   const { data: orderData, isLoading, isError } = useAdminOrderDetail(id);
   const updateSubOrderStatusMutation = useUpdateAdminSubOrderStatus(id);
@@ -317,27 +338,27 @@ export default function OrderDetailsPage() {
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between text-gray-500">
                   <span>{t('ordersPage.subtotal', 'Subtotal')}</span>
-                  <span>{orderData.subtotalAmount.toFixed(2)} SAR</span>
+                  <span>{orderData.subtotalAmount.toFixed(2)} {currencySymbol}</span>
                 </div>
                 <div className="flex justify-between text-gray-500">
                   <span>{t('ordersPage.shippingFee', 'Shipping Fee')}</span>
-                  <span>{orderData.shippingTotalAmount.toFixed(2)} SAR</span>
+                  <span>{orderData.shippingTotalAmount.toFixed(2)} {currencySymbol}</span>
                 </div>
                 {estimatedVat > 0 && (
                   <div className="flex justify-between text-gray-500">
                     <span>{t('ordersPage.estimatedTax', 'Estimated Tax (15% VAT)')}</span>
-                    <span>{estimatedVat.toFixed(2)} SAR</span>
+                    <span>{estimatedVat.toFixed(2)} {currencySymbol}</span>
                   </div>
                 )}
                 {orderData.discountAmount > 0 && (
                   <div className="flex justify-between text-gray-500">
                     <span>{t('ordersPage.discount', 'Discount')}</span>
-                    <span className="text-emerald-600">-{orderData.discountAmount.toFixed(2)} SAR</span>
+                    <span className="text-emerald-600">-{orderData.discountAmount.toFixed(2)} {currencySymbol}</span>
                   </div>
                 )}
                 <div className="pt-2 border-t border-gray-100 flex justify-between items-center font-bold">
                   <span className="text-gray-900 text-sm">{t('ordersPage.grandTotal', 'Grand Total')}</span>
-                  <span className="text-rose-500 text-sm">{orderData.grandTotalAmount.toFixed(2)} SAR</span>
+                  <span className="text-rose-500 text-sm">{orderData.grandTotalAmount.toFixed(2)} {currencySymbol}</span>
                 </div>
               </div>
             </div>
@@ -357,7 +378,7 @@ export default function OrderDetailsPage() {
                   <SubOrderCard
                     key={sub.id}
                     subOrder={sub}
-                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName)}
+                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName, isRtl)}
                     orderId={id}
                     onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
                     isUpdating={
@@ -372,73 +393,78 @@ export default function OrderDetailsPage() {
           </div>
         ) : (
           /* ── Desktop Grid Layout ────────────────────────────────────────── */
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Order Items Table */}
-              <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-2xs">
-                <h2 className="font-bold text-gray-900 text-base mb-4">
-                  {t('ordersPage.orderItems', 'Order Items')}
-                </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Left Column (2 Cols): Products Table + Sub Orders */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Ordered Products Table */}
+              <div className="bg-white rounded-2xl border border-gray-200/70 p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-bold text-gray-900 text-base">
+                    {t('ordersPage.orderedProducts', 'Ordered Products')}
+                  </h2>
+                  <span className="text-xs text-gray-400 font-medium">
+                    {allOrderItems.length} {t('ordersPage.itemsCount', 'items')}
+                  </span>
+                </div>
+
                 <div className="overflow-x-auto">
                   <table className="w-full text-start text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-gray-100 text-gray-400 font-medium pb-2">
-                        <th className="text-start pb-3 font-medium">{t('ordersPage.product', 'Product')}</th>
-                        <th className="text-center pb-3 font-medium">{t('ordersPage.qty', 'Qty')}</th>
-                        <th className="text-end pb-3 font-medium">{t('ordersPage.price', 'Price')}</th>
-                        <th className="text-end pb-3 font-medium">{t('ordersPage.subtotal', 'Subtotal')}</th>
+                      <tr className="border-b border-gray-100 text-gray-400 font-semibold">
+                        <th className="pb-3 text-start">{t('ordersPage.product', 'Product')}</th>
+                        <th className="pb-3 text-center">{t('ordersPage.qty', 'Qty')}</th>
+                        <th className="pb-3 text-end">{t('ordersPage.price', 'Price')}</th>
+                        <th className="pb-3 text-end">{t('ordersPage.total', 'Total')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {allOrderItems.length === 0 ? (
-                        <tr>
-                          <td colSpan={4} className="py-4 text-center text-gray-400">
-                            {t('ordersPage.noItemsFound', 'No items found')}
-                          </td>
-                        </tr>
-                      ) : (
-                        allOrderItems.map((it) => {
-                          const itemProdId = (it.productId || it.id) as string | undefined;
-                          const thumbUrl = getItemThumbnail(it);
-                          return (
-                            <tr key={it.id}>
-                              <td className="py-4 text-start">
-                                <div className="flex items-center gap-3">
-                                  <div
-                                    onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
-                                    className="w-11 h-11 rounded-lg bg-gray-100 border border-gray-100 shrink-0 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors overflow-hidden"
-                                  >
-                                    {thumbUrl ? (
-                                      <img src={thumbUrl} alt={it.productName} className="w-full h-full object-cover" />
-                                    ) : (
-                                      <Package className="text-gray-400" size={18} />
-                                    )}
-                                  </div>
-                                  <div>
-                                    <p
-                                      onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
-                                      className="font-bold text-gray-900 text-sm cursor-pointer hover:underline hover:text-blue-600 transition-colors"
-                                    >
-                                      {it.productName}
-                                    </p>
-                                    {Boolean(it.variantLabel) && (
-                                      <p className="text-gray-400 text-xs">{String(it.variantLabel)}</p>
-                                    )}
-                                  </div>
+                      {allOrderItems.map((it: any, idx) => {
+                        const thumb = getItemThumbnail(it);
+                        const itemProdId = (it.productId || it.id) as string | undefined;
+                        const prodDisplayName = isRtl && (it.productNameAr || it.productName_ar || it.product?.nameAr || it.product?.name_ar)
+                          ? (it.productNameAr || it.productName_ar || it.product?.nameAr || it.product?.name_ar)
+                          : it.productName;
+                        return (
+                          <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="size-11 rounded-lg border border-gray-100 bg-gray-50 shrink-0 overflow-hidden flex items-center justify-center">
+                                  {thumb ? (
+                                    <img
+                                      src={thumb}
+                                      alt={prodDisplayName}
+                                      className="size-full object-cover"
+                                      onError={(e) => {
+                                        (e.target as HTMLElement).style.display = 'none';
+                                      }}
+                                    />
+                                  ) : (
+                                    <Package className="text-gray-400" size={18} />
+                                  )}
                                 </div>
-                              </td>
+                                <div>
+                                  <p
+                                    onClick={() => itemProdId && navigate(`/products/${itemProdId}`)}
+                                    className="font-bold text-gray-900 text-sm cursor-pointer hover:underline hover:text-blue-600 transition-colors"
+                                  >
+                                    {prodDisplayName}
+                                  </p>
+                                  {Boolean(it.variantLabel) && (
+                                    <p className="text-gray-400 text-xs">{String(it.variantLabel)}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
                             <td className="py-4 text-center text-gray-700 font-medium text-xs">{it.quantity}</td>
                             <td className="py-4 text-end text-gray-700 font-medium text-xs">
-                              {it.unitPrice.toFixed(2)} SAR
+                              {it.unitPrice.toFixed(2)} {currencySymbol}
                             </td>
                             <td className="py-4 text-end font-bold text-gray-900 text-sm">
-                              {it.lineTotal.toFixed(2)} SAR
+                              {it.lineTotal.toFixed(2)} {currencySymbol}
                             </td>
                           </tr>
-                         );
-                        })
-                      )}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -452,23 +478,23 @@ export default function OrderDetailsPage() {
                 <div className="space-y-2.5 text-xs text-gray-600">
                   <div className="flex justify-between">
                     <span>{t('ordersPage.subtotal', 'Subtotal')}</span>
-                    <span className="font-medium text-gray-900">{orderData.subtotalAmount.toFixed(2)} SAR</span>
+                    <span className="font-medium text-gray-900">{orderData.subtotalAmount.toFixed(2)} {currencySymbol}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>{t('ordersPage.shippingFee', 'Shipping Fee')}</span>
-                    <span className="font-medium text-gray-900">{orderData.shippingTotalAmount.toFixed(2)} SAR</span>
+                    <span className="font-medium text-gray-900">{orderData.shippingTotalAmount.toFixed(2)} {currencySymbol}</span>
                   </div>
                   {estimatedVat > 0 && (
                     <div className="flex justify-between">
                       <span>{t('ordersPage.estimatedTax', 'Estimated Tax (15% VAT)')}</span>
-                      <span className="font-medium text-gray-900">{estimatedVat.toFixed(2)} SAR</span>
+                      <span className="font-medium text-gray-900">{estimatedVat.toFixed(2)} {currencySymbol}</span>
                     </div>
                   )}
                   {orderData.discountAmount > 0 && (
                     <div className="flex justify-between">
                       <span>{t('ordersPage.discount', 'Discount')}</span>
                       <span className="font-medium text-emerald-600">
-                        -{orderData.discountAmount.toFixed(2)} SAR
+                        -{orderData.discountAmount.toFixed(2)} {currencySymbol}
                       </span>
                     </div>
                   )}
@@ -477,7 +503,7 @@ export default function OrderDetailsPage() {
                       {t('ordersPage.grandTotal', 'Grand Total')}
                     </span>
                     <span className="font-bold text-rose-500 text-base">
-                      {orderData.grandTotalAmount.toFixed(2)} SAR
+                      {orderData.grandTotalAmount.toFixed(2)} {currencySymbol}
                     </span>
                   </div>
                 </div>
@@ -498,7 +524,7 @@ export default function OrderDetailsPage() {
                   <SubOrderCard
                     key={sub.id}
                     subOrder={sub}
-                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName)}
+                    vendorName={resolveVendorName(sub, orderData?.recipientName || customerName, isRtl)}
                     orderId={id}
                     onUpdateStatus={(payload) => handleSubOrderUpdate(sub.id, payload)}
                     isUpdating={
@@ -527,19 +553,19 @@ export default function OrderDetailsPage() {
                   <p className="text-gray-500 flex justify-between">
                     {t('ordersPage.totalItemsColon', 'Total Items:')}{' '}
                     <span className="font-bold text-gray-900">
-                      {orderData.subtotalAmount.toFixed(2)} SAR
+                      {orderData.subtotalAmount.toFixed(2)} {currencySymbol}
                     </span>
                   </p>
                   <p className="text-gray-500 flex justify-between">
                     {t('ordersPage.totalShippingColon', 'Total Shipping:')}{' '}
                     <span className="font-bold text-gray-900">
-                      {orderData.shippingTotalAmount.toFixed(2)} SAR
+                      {orderData.shippingTotalAmount.toFixed(2)} {currencySymbol}
                     </span>
                   </p>
                   <p className="text-sm font-bold text-gray-900 pt-1 flex justify-between">
                     {t('ordersPage.grandTotalColon', 'Grand Total:')}{' '}
                     <span className="text-gray-900">
-                      {orderData.grandTotalAmount.toFixed(2)} SAR
+                      {orderData.grandTotalAmount.toFixed(2)} {currencySymbol}
                     </span>
                   </p>
                 </div>

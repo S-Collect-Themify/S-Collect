@@ -725,7 +725,8 @@
       "reviewPhoto": "صورة مراجعة {{author}} {{index}}",
       "previousPage": "الصفحة السابقة",
       "nextPage": "الصفحة التالية",
-      "showingRange": "عرض {{start}}–{{end}} من {{total}} مراجعة"
+      "showingRange": "عرض {{start}}–{{end}} من {{total}} مراجعة",
+      "noReviewsMatchingFilter": "لم يتم العثور على مراجعات تطابق هذا الفلتر."
     }
   },
   "Add Product": "إضافة منتج",
@@ -1466,6 +1467,10 @@
         "status": "الحالة",
         "dateAdded": "تاريخ الإضافة",
         "actions": "الإجراءات"
+      },
+      "statuses": {
+        "active": "نشط",
+        "inactive": "غير نشط"
       }
     },
     "quickActions": {
@@ -1615,6 +1620,8 @@
     "footerNote": "* يتم إدارة أسعار الموردين من قبل الموردين من لوحة تحكمهم. عرض للمسؤولين فقط."
   },
   "common": {
+    "active": "نشط",
+    "inactive": "غير نشط",
     "cancel": "إلغاء",
     "tryAgain": "حاول مرة أخرى",
     "understood": "فهمت",

@@ -3,9 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useProductStore } from '../productStore';
 import type { StatusFilter } from '../types';
 
+export interface CategoryFilterOption {
+  key: string;
+  label: string;
+}
+
 interface ProductFilterBarProps {
   availableVendors?: string[];
-  availableCategories?: string[];
+  availableCategories?: (string | CategoryFilterOption)[];
 }
 
 export const ProductFilterBar = ({
@@ -72,11 +77,15 @@ export const ProductFilterBar = ({
             className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-[2px] pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
           >
             <option value="all">{t('productsListing.category')}</option>
-            {availableCategories.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
+            {availableCategories.map((c) => {
+              const key = typeof c === 'string' ? c : c.key;
+              const label = typeof c === 'string' ? c : c.label;
+              return (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
           <ChevronDown
             size={16}
