@@ -98,3 +98,35 @@ export function normalizeSaudiPhone(val?: string | null): string {
   if (cleaned.startsWith('5')) return '+966' + cleaned;
   return '+966' + cleaned;
 }
+
+export function formatSaudiPhone(value?: string | null): {
+  formatted: string;
+  full: string;
+} {
+  if (!value) return { formatted: '', full: '' };
+
+  let digits = String(value).replace(/\D/g, '');
+
+  if (digits.startsWith('966')) {
+    digits = digits.slice(3);
+  }
+  if (digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+
+  digits = digits.slice(0, 9);
+
+  let formatted = '';
+  if (digits.length > 0) {
+    formatted = digits.slice(0, 2);
+    if (digits.length > 2) {
+      formatted += ' ' + digits.slice(2, 5);
+    }
+    if (digits.length > 5) {
+      formatted += ' ' + digits.slice(5, 9);
+    }
+  }
+
+  const full = digits ? `+966${digits}` : '';
+  return { formatted, full };
+}
