@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const TOTAL_STEPS = 4;
+export const TOTAL_STEPS = 3;
 
 export interface Visibility {
   homepage: boolean;

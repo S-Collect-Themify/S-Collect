@@ -10,10 +10,8 @@ import VariantsPreviewCard from '../VariantsPreviewCard';
 
 const STEPS = [
   { key: 'basicInfo', label: 'Basic Info' },
-  { key: 'categorization', label: 'Categorization' },
-  { key: 'pricing', label: 'Pricing' },
-  { key: 'inventory', label: 'Inventory' },
-  { key: 'review', label: 'Review' },
+  { key: 'inventory', label: 'Variants' },
+  { key: 'review', label: 'Review & Publish' },
 ];
 
 interface MobileReviewStepProps {
@@ -202,6 +200,7 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
           basePrice={formData.basePrice}
           sku={formData.sku}
           quantity={quantity}
+          varianceCards={formData.varianceCards}
         />
       </div>
 
