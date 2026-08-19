@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -95,33 +95,56 @@ export default function ProductInfo({
     typeof totalReviews === 'number' && !isNaN(totalReviews) ? totalReviews : 0;
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [mainSwiper, setMainSwiper] = useState<SwiperClass | null>(null);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperClass | null>(null);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleThumbnailClick = (index: number) => {
+    setActiveIndex(index);
+    if (mainSwiper && !mainSwiper.destroyed) {
+      mainSwiper.slideTo(index);
+    }
+  };
 
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-6">
       <div className="flex gap-6 flex-col lg:flex-row">
         {/* Swiper Image Gallery */}
-        <div className="w-full lg:w-[480px] shrink-0">
+        <div className="w-full lg:w-120 shrink-0">
           {imageUrls.length > 0 ? (
-            <div className="flex gap-3 flex-row">
-              {/* Vertical Thumbnails Swiper */}
+            <div className="flex flex-col-reverse lg:flex-row gap-3">
+              {/* Thumbnails Swiper (Horizontal on mobile under main image, Vertical on desktop) */}
               {imageUrls.length > 1 && (
-                <div className="h-80 lg:h-96 w-16 md:w-20 shrink-0">
+                <div className="w-full lg:w-20 h-16 sm:h-20 lg:h-96 shrink-0">
                   <Swiper
+                    key={isDesktop ? 'desktop-thumbs' : 'mobile-thumbs'}
                     onSwiper={setThumbsSwiper}
-                    direction="vertical"
+                    direction={isDesktop ? 'vertical' : 'horizontal'}
                     modules={[FreeMode, Thumbs]}
-                    slidesPerView={4}
+                    slidesPerView={isDesktop ? 4 : 'auto'}
                     spaceBetween={10}
                     freeMode
                     watchSlidesProgress
                     className="h-full w-full"
                   >
                     {imageUrls.map((url, i) => (
-                      <SwiperSlide key={i} className="!h-16 md:!h-20 w-full">
+                      <SwiperSlide
+                        key={i}
+                        className="h-16! w-16! sm:h-20! sm:w-20! lg:w-full! lg:h-20!"
+                      >
                         <button
                           type="button"
-                          onClick={() => setActiveIndex(i)}
+                          onClick={() => handleThumbnailClick(i)}
                           className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${
                             i === activeIndex
                               ? 'border-gray-900 ring-2 ring-gray-900/30 opacity-100 shadow-sm scale-[0.98]'
@@ -143,17 +166,23 @@ export default function ProductInfo({
               {/* Main Swiper (No arrows, No dots) */}
               <div className="flex-1 min-w-0">
                 <Swiper
+                  onSwiper={setMainSwiper}
                   modules={[Thumbs, FreeMode]}
                   navigation={false}
                   pagination={false}
-                  onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+                  onSlideChange={(swiper) => {
+                    setActiveIndex(swiper.activeIndex);
+                    if (thumbsSwiper && !thumbsSwiper.destroyed) {
+                      thumbsSwiper.slideTo(swiper.activeIndex);
+                    }
+                  }}
                   thumbs={{
                     swiper:
                       thumbsSwiper && !thumbsSwiper.destroyed
                         ? thumbsSwiper
                         : null,
                   }}
-                  className="rounded-xl overflow-hidden bg-gray-100 h-80 lg:h-96 w-full"
+                  className="rounded-xl overflow-hidden bg-gray-100 h-72 sm:h-80 lg:h-96 w-full"
                 >
                   {imageUrls.map((url, i) => (
                     <SwiperSlide key={i} className="flex items-center justify-center">
@@ -168,7 +197,7 @@ export default function ProductInfo({
               </div>
             </div>
           ) : (
-            <div className="h-80 lg:h-96 w-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
+            <div className="h-72 sm:h-80 lg:h-96 w-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
               <svg
                 className="h-12 w-12"
                 fill="none"
