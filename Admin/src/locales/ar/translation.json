@@ -1419,17 +1419,11 @@
     },
     "backToSettings": "العودة للإعدادات",
     "currencies": {
-      "sar": "﷼ - ريال سعودي",
-      "usd": "USD - دولار أمريكي",
-      "aed": "AED - درهم إماراتي",
-      "kwd": "KWD - دينار كويتي"
+      "sar": "﷼ - ريال سعودي"
     },
     "languages": {
       "arabic": "العربية",
       "english": "English"
-    },
-    "errors": {
-      "nameRequired": "اسم المنصة مطلوب"
     },
     "adminAccounts": {
       "title": "حسابات الأدمن",

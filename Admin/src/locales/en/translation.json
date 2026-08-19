@@ -1413,7 +1413,7 @@
     "currency": "Currency",
     "defaultLanguage": "Default Language",
     "viewOnly": "View Only",
-    "adminCannotChangeLanguage": "Only Super Administrators can change the default platform language.",
+    "adminCannotChangeLanguage": "Only Super Admin can change the default platform language.",
     "saveSettings": "Save Settings",
     "confirmLanguageModal": {
       "title": "Change Platform Default Language?",
@@ -1423,17 +1423,11 @@
     },
     "backToSettings": "Back to Settings",
     "currencies": {
-      "sar": "SAR - Saudi Riyal",
-      "usd": "USD - US Dollar",
-      "aed": "AED - UAE Dirham",
-      "kwd": "KWD - Kuwaiti Dinar"
+      "sar": "SAR - Saudi Riyal"
     },
     "languages": {
       "arabic": "Arabic",
       "english": "English"
-    },
-    "errors": {
-      "nameRequired": "Platform name is required"
     },
     "adminAccounts": {
       "title": "Admins",
@@ -1441,7 +1435,7 @@
       "button": "Manage Admins",
       "addBtn": "Add New Admin",
       "restrictedAccessTitle": "Super Admin Access Required",
-      "restrictedAccessMessage": "Only Super Administrators have permission to view, create, and manage the full list of admin accounts.",
+      "restrictedAccessMessage": "Only Super Admin has permission to view, create, and manage the full list of admin accounts.",
       "addTitle": "Add New Admin",
       "editTitle": "Edit Admin",
       "profileImage": "Admin Profile Image (Optional, Max 2MB)",
