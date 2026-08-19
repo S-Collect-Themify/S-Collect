@@ -82,8 +82,15 @@ export function handleServiceError(
   return new ServiceError(message, statusCode, error, details, isNetworkError);
 }
 
+export const getApiBaseUrl = (): string => {
+  if (import.meta.env.DEV && import.meta.env.VITE_API_URL?.startsWith('http')) {
+    return '/api/v1';
+  }
+  return import.meta.env.VITE_API_URL;
+};
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -161,7 +168,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
+        const baseURL = getApiBaseUrl();
         const cleanBaseURL = baseURL.endsWith('/')
           ? baseURL.slice(0, -1)
           : baseURL;
