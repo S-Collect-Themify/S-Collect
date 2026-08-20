@@ -264,12 +264,10 @@ export function useManagementActions() {
   const bulkStatusMutation = useMutation({
     mutationFn: (params: {
       productIds: string[];
-      status: 'PUBLISH' | 'UNPUBLISH' | 'DELETE';
+      status: 'PUBLISH' | 'UNPUBLISH';
     }) => bulkUpdateProductStatus(params),
     onSuccess: (_, variables) => {
-      if (variables.status === 'DELETE') {
-        toast.success('Deleted successfully!');
-      } else if (variables.status === 'PUBLISH') {
+      if (variables.status === 'PUBLISH') {
         toast.success('Published successfully!');
       } else {
         toast.success('Unpublished successfully!');
@@ -296,7 +294,7 @@ export function useManagementActions() {
 
   const safeMutate = (params: {
     productIds: string[];
-    status: 'PUBLISH' | 'UNPUBLISH' | 'DELETE';
+    status: 'PUBLISH' | 'UNPUBLISH';
   }) => {
     const now = Date.now();
     if (bulkStatusMutation.isPending || now - lastClickRef.current < 600) {
@@ -316,16 +314,6 @@ export function useManagementActions() {
       safeMutate({
         productIds: selectedRows.map(String),
         status: 'UNPUBLISH',
-      }),
-    deleteSelected: () =>
-      safeMutate({
-        productIds: selectedRows.map(String),
-        status: 'DELETE',
-      }),
-    deleteSingle: (id: string | number) =>
-      safeMutate({
-        productIds: [String(id)],
-        status: 'DELETE',
       }),
     toggleSingle: (id: string | number, currentEnabled: boolean) =>
       safeMutate({

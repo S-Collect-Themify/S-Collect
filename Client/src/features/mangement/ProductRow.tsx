@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { SquarePen, Trash, Check, Star } from 'lucide-react';
+import { SquarePen, Check, Star } from 'lucide-react';
 import Toggle from './Toggle';
 import StatusBadge from './StatusBadge';
 import { showDeleteConfirmation } from './deleteConfirmation';
@@ -11,7 +11,6 @@ type Props = {
   product: Product;
   selected: boolean;
   onSelect: () => void;
-  onDelete: () => void;
   onToggle: () => void;
 };
 
@@ -19,7 +18,6 @@ export default function ProductRow({
   product,
   selected,
   onSelect,
-  onDelete,
   onToggle,
 }: Props) {
   const { t } = useTranslation();
@@ -27,14 +25,6 @@ export default function ProductRow({
   const thumb = THUMB_STYLES[product.category] ?? {
     bg: 'bg-gray-100',
     icon: 'text-gray-500',
-  };
-
-  const handleDelete = () => {
-    showDeleteConfirmation(
-      'managementTable.deleteConfirmMessage',
-      { name: product.name },
-      onDelete
-    );
   };
 
   const isProductDisabled = product.isDisabled || product.status === 'Disabled';
@@ -161,18 +151,9 @@ export default function ProductRow({
         />
       </td>
 
-      <td className="px-3 py-3 border-b border-gray-100">
+      <td className="px-3 py-3 border-b border-gray-100 text-center">
         {/* Action buttons maintain correct alignment through natural flow */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={handleDelete}
-            aria-label={t('managementTable.deleteProduct', {
-              name: product.name,
-            })}
-            className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200  hover:bg-red-50 hover:border-red-200 transition-colors rounded-full"
-          >
-            <Trash className="text-red-500" size={16} />
-          </button>
+        <div className="flex items-center justify-center">
           <button
             onClick={() => navigate(`/edit-product/${product.id}`)}
             aria-label={t('managementTable.editProduct', {
