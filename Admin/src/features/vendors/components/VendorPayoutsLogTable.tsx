@@ -85,7 +85,8 @@ export default function VendorPayoutsLogTable({
             to={`/vendors/${vendorId}/payouts`}
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            {t('vendors.details.viewAllPayouts', 'View All Payouts')} →
+            <span>{t('vendors.details.viewAllPayouts', 'View All Payouts')}</span>
+            <span className="inline-block rtl:rotate-180">→</span>
           </Link>
         </div>
       </div>
@@ -133,7 +134,8 @@ export default function VendorPayoutsLogTable({
                 to={`/vendors/${vendorId}/payouts`}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
-                {t('vendors.details.viewAllPayouts', 'View All Payouts')} →
+                <span>{t('vendors.details.viewAllPayouts', 'View All Payouts')}</span>
+                <span className="inline-block rtl:rotate-180">→</span>
               </Link>
             </div>
           </div>

@@ -91,7 +91,8 @@ export default function VendorRecentOrdersTable({
             to={ordersUrl}
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            {t('vendors.details.viewAllOrders', 'View All Orders')} →
+            <span>{t('vendors.details.viewAllOrders', 'View All Orders')}</span>
+            <span className="inline-block rtl:rotate-180">→</span>
           </Link>
         </div>
       </div>
@@ -144,7 +145,8 @@ export default function VendorRecentOrdersTable({
                 to={ordersUrl}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
-                {t('vendors.details.viewAllOrders', 'View All Orders')} →
+                <span>{t('vendors.details.viewAllOrders', 'View All Orders')}</span>
+                <span className="inline-block rtl:rotate-180">→</span>
               </Link>
             </div>
           </div>

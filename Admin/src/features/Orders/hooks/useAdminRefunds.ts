@@ -14,10 +14,12 @@ import {
  * Fetch list of admin refunds with caching and next-page prefetching
  */
 export const useAdminRefunds = (params?: GetAdminRefundsParams, enabled: boolean = true) => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryClient = useQueryClient();
 
   const queryResult = useQuery({
-    queryKey: ['admin-refunds', params],
+    queryKey: ['admin-refunds', params, isAr ? 'ar' : 'en'],
     queryFn: () => getAdminRefunds(params),
     enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes cache stale time

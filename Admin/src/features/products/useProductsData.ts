@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import {
   getAdminProducts,
@@ -84,6 +85,8 @@ const isProductActive = (p: any): boolean => {
 };
 
 export const useProductsData = () => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryClient = useQueryClient();
   const setProducts = useProductStore((s) => s.setProducts);
   const toggleProductStatusInStore = useProductStore(
@@ -93,7 +96,7 @@ export const useProductsData = () => {
 
   // ── Fetch Products Query ──
   const productsQuery = useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', isAr ? 'ar' : 'en'],
     queryFn: async () => {
       try {
         const [productsRes, vendorsRes, categoriesRes] = await Promise.allSettled([
