@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import i18n from '../../i18n';
 import {
   getVouchersList,
   getVoucherByIdApi,
@@ -137,6 +137,8 @@ const extractVouchersArray = (response: any): BackendVoucherItem[] => {
 };
 
 export const useVouchersData = () => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryClient = useQueryClient();
   const setVouchers = useVoucherStore((s) => s.setVouchers);
   const addVoucherToStore = useVoucherStore((s) => s.addVoucher);
@@ -146,7 +148,7 @@ export const useVouchersData = () => {
 
   // ── Fetch Vouchers Query ──
   const vouchersQuery = useQuery({
-    queryKey: ['admin-vouchers'],
+    queryKey: ['admin-vouchers', isAr ? 'ar' : 'en'],
     queryFn: async () => {
       try {
         const response = await getVouchersList();

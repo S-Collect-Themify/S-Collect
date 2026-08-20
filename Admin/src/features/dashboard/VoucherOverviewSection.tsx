@@ -34,17 +34,32 @@ function getVoucherStatusBadge(v: BackendVoucherItem, t: any) {
   };
 }
 
+function getVoucherTypeLabel(type: string | undefined, t: any) {
+  if (!type) return '—';
+  const lower = type.toLowerCase();
+  if (lower === 'percentage') {
+    return t('dashboardOverview.tableHeaders.percentage', { defaultValue: t('vouchersListing.types.percentage', 'Percentage') });
+  }
+  if (lower === 'amount' || lower === 'fixed' || lower === 'fixed_amount') {
+    return t('dashboardOverview.tableHeaders.amount', { defaultValue: t('vouchersListing.types.amount', 'Amount') });
+  }
+  if (lower.includes('shipping')) {
+    return t('dashboardOverview.tableHeaders.freeShipping', { defaultValue: t('vouchersListing.types.freeShipping', 'Free Shipping') });
+  }
+  return type;
+}
+
 export default function VoucherOverviewSection() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
   const { data: stats, isLoading: isLoadingStats } = useQuery({
-    queryKey: ['admin-vouchers-stats'],
+    queryKey: ['admin-vouchers-stats', isAr ? 'ar' : 'en'],
     queryFn: getVoucherStatsApi,
   });
 
   const { data: vouchersResponse, isLoading: isLoadingVouchers } = useQuery({
-    queryKey: ['admin-vouchers-dashboard'],
+    queryKey: ['admin-vouchers-dashboard', isAr ? 'ar' : 'en'],
     queryFn: () => getVouchersList({ pageNum: 1, pageSize: 5 }),
   });
 
@@ -145,7 +160,7 @@ export default function VoucherOverviewSection() {
         {isLoadingVouchers ? (
           <div className="p-8 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
             <Loader2 className="animate-spin text-gray-500" size={20} />
-            <span className="text-xs font-medium">Loading vouchers...</span>
+            <span className="text-xs font-medium">{t('dashboardOverview.loadingVouchers', 'Loading vouchers...')}</span>
           </div>
         ) : (
           <>
@@ -178,12 +193,12 @@ export default function VoucherOverviewSection() {
                   {vouchers.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-6 py-8 text-center text-gray-500 text-xs">
-                        No vouchers found.
+                        {t('vouchersListing.emptyState.title', 'No vouchers found.')}
                       </td>
                     </tr>
                   ) : (
                     vouchers.map((v) => {
-                      const isPercentage = v.type === 'PERCENTAGE';
+                      const isPercentage = v.type?.toLowerCase() === 'percentage';
                       const discountStr = isPercentage ? `${v.value ?? 0}%` : `${v.value ?? 0} ${isAr ? '﷼' : 'SAR'}`;
                       const usageStr = `${v.usesCount ?? 0}/${v.maxTotalUses ? v.maxTotalUses : '∞'}`;
                       const expiryStr = v.endsAt ? String(v.endsAt).split('T')[0] : '--';
@@ -195,9 +210,7 @@ export default function VoucherOverviewSection() {
                             {v.code || '--'}
                           </td>
                           <td className="px-6 py-4 text-gray-500 font-normal text-xs text-end">
-                            {isPercentage
-                              ? t('dashboardOverview.tableHeaders.percentage', 'Percentage')
-                              : t('dashboardOverview.tableHeaders.fixedAmount', 'Amount')}
+                            {getVoucherTypeLabel(v.type, t)}
                           </td>
                           <td className="px-6 py-4 font-bold text-gray-900 text-xs text-end">
                             {discountStr}
@@ -227,11 +240,11 @@ export default function VoucherOverviewSection() {
             <div className="md:hidden space-y-3 p-3 bg-gray-50/30">
               {vouchers.length === 0 ? (
                 <div className="p-6 text-center text-gray-500 text-xs bg-white rounded-2xl border border-gray-100">
-                  No vouchers found.
+                  {t('vouchersListing.emptyState.title', 'No vouchers found.')}
                 </div>
               ) : (
                 vouchers.map((v) => {
-                  const isPercentage = v.type === 'PERCENTAGE';
+                  const isPercentage = v.type?.toLowerCase() === 'percentage';
                   const discountStr = isPercentage ? `${v.value ?? 0}%` : `${v.value ?? 0} ${isAr ? '﷼' : 'SAR'}`;
                   const usageStr = `${v.usesCount ?? 0}/${v.maxTotalUses ? v.maxTotalUses : '∞'}`;
                   const expiryStr = v.endsAt ? String(v.endsAt).split('T')[0] : '--';
@@ -259,9 +272,7 @@ export default function VoucherOverviewSection() {
                             {t('dashboardOverview.tableHeaders.discountType', 'Discount Type')}
                           </p>
                           <p className="text-xs font-semibold text-gray-700 mt-0.5">
-                            {isPercentage
-                              ? t('dashboardOverview.tableHeaders.percentage', 'Percentage')
-                              : t('dashboardOverview.tableHeaders.fixedAmount', 'Amount')}
+                            {getVoucherTypeLabel(v.type, t)}
                           </p>
                         </div>
                         <div>

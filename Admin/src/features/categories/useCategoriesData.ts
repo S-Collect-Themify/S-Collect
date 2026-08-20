@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -15,11 +16,13 @@ import { mapApiCategoryToCategory } from './utils';
 export const CATEGORIES_QUERY_KEY = ['admin-categories'];
 
 export const useCategoriesData = () => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryClient = useQueryClient();
 
   // ── Fetch Categories Query ──
   const categoriesQuery = useQuery({
-    queryKey: CATEGORIES_QUERY_KEY,
+    queryKey: [...CATEGORIES_QUERY_KEY, isAr ? 'ar' : 'en'],
     queryFn: async () => {
       const rawList = await getAdminCategories();
       const mapped = rawList.map(mapApiCategoryToCategory);

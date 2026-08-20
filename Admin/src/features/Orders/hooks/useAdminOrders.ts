@@ -13,12 +13,14 @@ export const useAdminOrders = (
   params?: GetAdminOrdersParams,
   enabled: boolean = true
 ) => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryClient = useQueryClient();
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 20;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['admin-orders', params],
+    queryKey: ['admin-orders', params, isAr ? 'ar' : 'en'],
     queryFn: () => getAdminOrders(params),
     enabled,
     staleTime: 5 * 60 * 1000,
@@ -32,7 +34,7 @@ export const useAdminOrders = (
 
     if (pageNum + 1 <= totalPages) {
       queryClient.prefetchQuery({
-        queryKey: ['admin-orders', { ...params, pageNum: pageNum + 1, pageSize }],
+        queryKey: ['admin-orders', { ...params, pageNum: pageNum + 1, pageSize }, isAr ? 'ar' : 'en'],
         queryFn: () => getAdminOrders({ ...params, pageNum: pageNum + 1, pageSize }),
         staleTime: 5 * 60 * 1000,
       });
@@ -43,8 +45,11 @@ export const useAdminOrders = (
 };
 
 export const useAdminOrderDetail = (id?: string) => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['admin-order-detail', id],
+    queryKey: ['admin-order-detail', id, isAr ? 'ar' : 'en'],
     queryFn: () => getAdminOrderDetail(id!),
     enabled: Boolean(id),
     staleTime: 5 * 60 * 1000,

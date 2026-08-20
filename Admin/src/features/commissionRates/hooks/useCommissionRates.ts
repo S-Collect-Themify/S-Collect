@@ -110,12 +110,12 @@ async function fetchVendorCommissions(): Promise<VendorCommissionItem[]> {
   });
 }
 
-async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
+async function fetchCategoryCommissions(isAr?: boolean): Promise<CategoryCommissionItem[]> {
   const categories = await getAdminCategories({ pageSize: 100 });
   const customMap = getCustomRatesMap(CATEGORY_CUSTOM_RATES_KEY);
 
   return Promise.all(
-    categories.map(async (cat) => {
+    categories.map(async (cat: any) => {
       let customRate: number | null = null;
       const catDate = cat.createdAt
         ? new Date(cat.createdAt).toLocaleDateString('en-US', {
@@ -144,7 +144,9 @@ async function fetchCategoryCommissions(): Promise<CategoryCommissionItem[]> {
       }
 
       const hasCustomRate = customRate !== null;
-      const categoryName = cat.nameEn || cat.name || cat.nameAr || '----';
+      const categoryName = isAr
+        ? cat.nameAr || cat.name_ar || cat.name || cat.nameEn || '----'
+        : cat.nameEn || cat.name || cat.nameAr || cat.name_ar || '----';
 
       return {
         id: cat.id,
@@ -176,6 +178,8 @@ export function useUpdatePlatformCommission() {
       };
       queryClient.setQueryData<PlatformCommissionData>(commissionKeys.platform, formattedData);
       queryClient.invalidateQueries({ queryKey: commissionKeys.platform });
+      queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
+      queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
       toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
     },
     onError: (error: Error | unknown) => {
@@ -192,19 +196,36 @@ export function useSetVendorCommission() {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: ({ id, rate }: { id: string; rate: number }) => setVendorCommission(id, rate),
-    onSuccess: (_, { id, rate }) => {
-      setCustomRate(VENDOR_CUSTOM_RATES_KEY, id, rate);
+    mutationFn: async ({ id, rate, defaultRate }: { id: string; rate: number; defaultRate?: number }) => {
+      const isDefault = defaultRate !== undefined && Math.abs(rate - defaultRate) < 0.001;
+      if (isDefault) {
+        await deleteVendorCommission(id);
+        return { isReset: true, id, rate: null };
+      }
+      await setVendorCommission(id, rate);
+      return { isReset: false, id, rate };
+    },
+    onSuccess: (res, { id }) => {
       const todayStr = new Date().toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric',
       });
-      queryClient.setQueryData<VendorCommissionItem[]>(commissionKeys.vendors, (old) => {
+      const newRate = res.isReset ? null : res.rate;
+      const newStatus = res.isReset ? 'Default' : 'Custom';
+
+      setCustomRate(VENDOR_CUSTOM_RATES_KEY, id, newRate, todayStr);
+      queryClient.setQueriesData<VendorCommissionItem[]>({ queryKey: commissionKeys.vendors }, (old) => {
         if (!old) return [];
         return old.map((item) =>
-          item.id === id ? { ...item, rate, status: 'Custom', lastUpdated: todayStr } : item
+          item.id === id ? { ...item, rate: newRate, status: newStatus, lastUpdated: todayStr } : item
         );
       });
-      toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
+      queryClient.invalidateQueries({ queryKey: commissionKeys.vendors });
+
+      if (res.isReset) {
+        toast.success(t('commissionRates.matchedDefaultSuccess', 'The entered rate matches the platform default rate. It has been set as Default.'));
+      } else {
+        toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
+      }
     },
     onError: (error: Error | unknown) => {
       console.error('Failed to update vendor commission:', error);
@@ -226,7 +247,7 @@ export function useResetVendorCommission() {
         month: 'short', day: 'numeric', year: 'numeric',
       });
       setCustomRate(VENDOR_CUSTOM_RATES_KEY, id, null, todayStr);
-      queryClient.setQueryData<VendorCommissionItem[]>(commissionKeys.vendors, (old) => {
+      queryClient.setQueriesData<VendorCommissionItem[]>({ queryKey: commissionKeys.vendors }, (old) => {
         if (!old) return [];
         return old.map((item) =>
           item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: todayStr } : item
@@ -249,19 +270,36 @@ export function useSetCategoryCommission() {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: ({ id, rate }: { id: string; rate: number }) => setCategoryCommission(id, rate),
-    onSuccess: (_, { id, rate }) => {
-      setCustomRate(CATEGORY_CUSTOM_RATES_KEY, id, rate);
+    mutationFn: async ({ id, rate, defaultRate }: { id: string; rate: number; defaultRate?: number }) => {
+      const isDefault = defaultRate !== undefined && Math.abs(rate - defaultRate) < 0.001;
+      if (isDefault) {
+        await deleteCategoryCommission(id);
+        return { isReset: true, id, rate: null };
+      }
+      await setCategoryCommission(id, rate);
+      return { isReset: false, id, rate };
+    },
+    onSuccess: (res, { id }) => {
       const todayStr = new Date().toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric',
       });
-      queryClient.setQueryData<CategoryCommissionItem[]>(commissionKeys.categories, (old) => {
+      const newRate = res.isReset ? null : res.rate;
+      const newStatus = res.isReset ? 'Default' : 'Custom';
+
+      setCustomRate(CATEGORY_CUSTOM_RATES_KEY, id, newRate, todayStr);
+      queryClient.setQueriesData<CategoryCommissionItem[]>({ queryKey: commissionKeys.categories }, (old) => {
         if (!old) return [];
         return old.map((item) =>
-          item.id === id ? { ...item, rate, status: 'Custom', lastUpdated: todayStr } : item
+          item.id === id ? { ...item, rate: newRate, status: newStatus, lastUpdated: todayStr } : item
         );
       });
-      toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
+      queryClient.invalidateQueries({ queryKey: commissionKeys.categories });
+
+      if (res.isReset) {
+        toast.success(t('commissionRates.matchedDefaultSuccess', 'The entered rate matches the platform default rate. It has been set as Default.'));
+      } else {
+        toast.success(t('commissionRates.updateSuccess', 'Commission rate updated successfully!'));
+      }
     },
     onError: (error: Error | unknown) => {
       console.error('Failed to update category commission:', error);
@@ -283,7 +321,7 @@ export function useResetCategoryCommission() {
         month: 'short', day: 'numeric', year: 'numeric',
       });
       setCustomRate(CATEGORY_CUSTOM_RATES_KEY, id, null, todayStr);
-      queryClient.setQueryData<CategoryCommissionItem[]>(commissionKeys.categories, (old) => {
+      queryClient.setQueriesData<CategoryCommissionItem[]>({ queryKey: commissionKeys.categories }, (old) => {
         if (!old) return [];
         return old.map((item) =>
           item.id === id ? { ...item, rate: null, status: 'Default', lastUpdated: todayStr } : item
@@ -345,8 +383,8 @@ export function useCommissionRates() {
     data: categoryCommissions = [],
     isLoading: isCategoriesLoading,
   } = useQuery({
-    queryKey: commissionKeys.categories,
-    queryFn: fetchCategoryCommissions,
+    queryKey: [...commissionKeys.categories, isRtl ? 'ar' : 'en'],
+    queryFn: () => fetchCategoryCommissions(isRtl),
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -440,12 +478,14 @@ export function useCommissionRates() {
     if (!pendingChange) return;
     const { id, type, newRate } = pendingChange;
 
+    const defaultRate = platformCommission.rate;
+
     if (type === 'platform') {
       updatePlatformMutation.mutate(newRate);
     } else if (type === 'vendor') {
-      setVendorMutation.mutate({ id, rate: newRate });
+      setVendorMutation.mutate({ id, rate: newRate, defaultRate });
     } else if (type === 'category') {
-      setCategoryMutation.mutate({ id, rate: newRate });
+      setCategoryMutation.mutate({ id, rate: newRate, defaultRate });
     }
 
     setIsConfirmOpen(false);

@@ -26,13 +26,20 @@ import {
 } from '../utils/vendorMapper';
 
 export function useVendorCategories() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['vendor-categories'],
+    queryKey: ['vendor-categories', isAr ? 'ar' : 'en'],
     queryFn: async () => {
       try {
         const items = await getAdminCategories({ pageNum: 1, pageSize: 100 });
         return (items || [])
-          .map((c) => c.nameEn || c.name || c.nameAr)
+          .map((c: any) =>
+            isAr
+              ? c.nameAr || c.name_ar || c.name || c.nameEn
+              : c.nameEn || c.name || c.nameAr || c.name_ar
+          )
           .filter((name): name is string => Boolean(name));
       } catch (err) {
         console.error('Failed to fetch categories:', err);
@@ -44,14 +51,16 @@ export function useVendorCategories() {
 }
 
 export function useVendors(params?: string | GetVendorsParams) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const queryParams: GetVendorsParams =
     typeof params === 'string' ? { status: params } : params || {};
 
   return useQuery({
-    queryKey: ['vendors', queryParams],
+    queryKey: ['vendors', queryParams, isAr ? 'ar' : 'en'],
     queryFn: async () => {
       const data = await getVendors(queryParams);
-      const items = (data.items || []).map(mapBackendVendorToVendor);
+      const items = (data.items || []).map((v) => mapBackendVendorToVendor(v, isAr));
       return Object.assign(items, {
         items,
         pagination: data.pagination || {
@@ -70,12 +79,15 @@ export function useVendors(params?: string | GetVendorsParams) {
 }
 
 export function useVendorDetails(id: string) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['vendor', id],
+    queryKey: ['vendor', id, isAr ? 'ar' : 'en'],
     queryFn: async () => {
       if (!id) return null;
       const data = await getVendorById(id);
-      return mapBackendVendorDetailToVendor(data);
+      return mapBackendVendorDetailToVendor(data, isAr);
     },
     enabled: !!id,
     retry: 2,

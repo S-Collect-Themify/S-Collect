@@ -105,8 +105,11 @@ export function extractBuyersPayload(resData: unknown): { items: Record<string, 
 }
 
 export function useAdminBuyers(params: BuyerQueryParams) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['admin-buyers', params],
+    queryKey: ['admin-buyers', params, isAr ? 'ar' : 'en'],
     queryFn: () => getAdminBuyers(params),
     select: (resData) => {
       const { items, pagination } = extractBuyersPayload(resData);
