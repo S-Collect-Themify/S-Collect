@@ -34,7 +34,7 @@ export default function MobileManagementTable() {
   );
   const setPage = useManagementStore((state) => state.setPage);
 
-  const { deleteSingle, toggleSingle } = useManagementActions();
+  const { toggleSingle } = useManagementActions();
 
   return (
     <div className="font-sans text-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
@@ -85,7 +85,6 @@ export default function MobileManagementTable() {
             <ProductCard
               key={product.id}
               product={product}
-              onDelete={() => deleteSingle(product.id)}
               onToggle={() => toggleSingle(product.id, product.enabled)}
             />
           ))}

@@ -1,20 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MoreVertical, SquarePen, Trash, Star } from 'lucide-react';
+import { MoreVertical, SquarePen, Star } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import Toggle from '../Toggle';
-import { showDeleteConfirmation } from '../deleteConfirmation';
 import { THUMB_STYLES } from '../constant';
 import type { Product } from '../mangement';
 
 type Props = {
   product: Product;
-  onDelete: () => void;
   onToggle: () => void;
 };
 
-const ProductCard = ({ product, onDelete, onToggle }: Props) => {
+const ProductCard = ({ product, onToggle }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,15 +36,6 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [menuOpen]);
-
-  const handleDelete = () => {
-    setMenuOpen(false);
-    showDeleteConfirmation(
-      'managementTable.deleteConfirmMessage',
-      { name: product.name },
-      onDelete
-    );
-  };
 
   const handleEdit = () => {
     setMenuOpen(false);
@@ -121,17 +110,7 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
                   <SquarePen size={16} />
                   {t('managementTable.edit')}
                 </button>
-                <div className="h-px bg-gray-100" />
-                <button
-                  onClick={handleDelete}
-                  aria-label={t('managementTable.deleteProduct', {
-                    name: product.name,
-                  })}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm cursor-pointer hover:bg-red-50 w-full text-start text-red-600"
-                >
-                  <Trash size={16} />
-                  {t('managementTable.delete')}
-                </button>
+
               </div>
             )}
           </div>

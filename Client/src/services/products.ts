@@ -329,7 +329,7 @@ export const searchVendorProducts = async (query: {
 
 export const bulkUpdateProductStatus = async (params: {
   productIds: string[];
-  status: 'PUBLISH' | 'UNPUBLISH' | 'DELETE';
+  status: 'PUBLISH' | 'UNPUBLISH';
 }) => {
   try {
     const { data } = await api.post('/vendor/products/bulk-status', params);

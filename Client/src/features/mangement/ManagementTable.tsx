@@ -42,19 +42,9 @@ export default function ProductTable() {
   const {
     publishSelected,
     unpublishSelected,
-    deleteSelected,
-    deleteSingle,
     toggleSingle,
     isPending,
   } = useManagementActions();
-
-  const handleDeleteSelected = () => {
-    showDeleteConfirmation(
-      'managementTable.deleteSelectedConfirmMessage',
-      { count: selectedCount },
-      deleteSelected
-    );
-  };
 
   const handlePublishSelected = () => {
     showDeleteConfirmation(
@@ -178,10 +168,12 @@ export default function ProductTable() {
                   </span>
                 </label>
               </th>
-              {tableHeaders.map((header) => (
+              {tableHeaders.map((header, index) => (
                 <th
                   key={header}
-                  className="px-3 py-3 text-body-sm font-bold text-gray-500 uppercase tracking-wider text-start"
+                  className={`px-3 py-3 text-body-sm font-bold text-gray-500 uppercase tracking-wider ${
+                    index === tableHeaders.length - 1 ? 'text-center' : 'text-start'
+                  }`}
                 >
                   {header}
                 </th>
@@ -215,7 +207,6 @@ export default function ProductTable() {
                   product={product}
                   selected={selectedRows.includes(product.id)}
                   onSelect={() => toggleRow(product.id)}
-                  onDelete={() => deleteSingle(product.id)}
                   onToggle={() => toggleSingle(product.id, product.enabled)}
                 />
               ))
@@ -312,15 +303,6 @@ export default function ProductTable() {
             aria-label={t('managementTable.unpublishSelected')}
           >
             {t('managementTable.unpublish')}
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={handleDeleteSelected}
-            className="flex px-3.5 py-1.5 items-center justify-center rounded-lg border border-red-600 text-white bg-red-600 transition-all duration-200 hover:bg-red-700 shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            aria-label={t('managementTable.deleteSelected')}
-          >
-            {t('managementTable.delete')}
           </button>
           <button
             type="button"
