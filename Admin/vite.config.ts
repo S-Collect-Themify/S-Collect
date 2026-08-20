@@ -7,10 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v1': {
-        target: 'https://api.collects.ihkam.tech',
+        target: process.env.VITE_PROXY_TARGET || 'https://api.collects.ihkam.tech',
         changeOrigin: true,
       },
     },
   },
 });
-// trigger restart
