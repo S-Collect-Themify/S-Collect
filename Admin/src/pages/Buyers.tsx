@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { BuyerTable } from '../features/buyers';
+import { useBuyerStore } from '../features/buyers/store/buyerStore';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -22,6 +24,10 @@ const itemVariants: Variants = {
 
 const Buyers = () => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    useBuyerStore.getState().setPage(1);
+  }, []);
 
   return (
     <>

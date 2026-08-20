@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   ITEMS_PER_PAGE,
@@ -18,6 +19,8 @@ import {
 const Products = () => {
   const { isMobile } = useBreakpoint();
   const [searchParams] = useSearchParams();
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
 
   // ── Query & Mutation Hook ──
   const { productsQuery, statusMutation } = useProductsData();
@@ -36,6 +39,11 @@ const Products = () => {
   const setCurrentPage = useProductStore((s) => s.setCurrentPage);
   const openDisableModal = useProductStore((s) => s.openDisableModal);
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
+
+  // ── Reset Page on Mount ──
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   // ── URL Vendor Filter Auto-selection ──
   useEffect(() => {
@@ -63,9 +71,17 @@ const Products = () => {
   }, [products]);
 
   const availableCategories = useMemo(() => {
-    const list = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
-    return list.sort();
-  }, [products]);
+    const map = new Map<string, { key: string; label: string }>();
+    products.forEach((p) => {
+      if (p.category) {
+        const label = isAr && p.categoryAr ? p.categoryAr : p.category;
+        if (!map.has(p.category)) {
+          map.set(p.category, { key: p.category, label });
+        }
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [products, isAr]);
 
   // ── Filtering Logic ──
   const filteredProducts = useMemo(() => {
@@ -77,7 +93,8 @@ const Products = () => {
         const matchNameAr = item.nameAr ? item.nameAr.toLowerCase().includes(q) : false;
         const matchVendor = item.vendor.toLowerCase().includes(q);
         const matchCategory = item.category.toLowerCase().includes(q);
-        if (!matchName && !matchNameAr && !matchVendor && !matchCategory) {
+        const matchCategoryAr = item.categoryAr ? item.categoryAr.toLowerCase().includes(q) : false;
+        if (!matchName && !matchNameAr && !matchVendor && !matchCategory && !matchCategoryAr) {
           return false;
         }
       }
@@ -93,8 +110,13 @@ const Products = () => {
       }
 
       // Category Filter
-      if (categoryFilter !== 'all' && item.category !== categoryFilter) {
-        return false;
+      if (categoryFilter !== 'all') {
+        const filterLower = categoryFilter.toLowerCase();
+        const matchCat = item.category.toLowerCase() === filterLower;
+        const matchCatAr = item.categoryAr ? item.categoryAr.toLowerCase() === filterLower : false;
+        if (!matchCat && !matchCatAr) {
+          return false;
+        }
       }
 
       // Status Filter

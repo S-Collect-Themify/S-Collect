@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
   VOUCHERS_PER_PAGE,
@@ -34,6 +35,14 @@ const Vouchers = () => {
   const openDeleteModal = useVoucherStore((s) => s.openDeleteModal);
   const closeDeleteModal = useVoucherStore((s) => s.closeDeleteModal);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [setCurrentPage]);
+
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const currencySymbol = isAr ? '﷼' : 'SAR';
+
   // ── Stats Calculations ──
   const activeCount = useMemo(() => {
     return vouchers.filter((v) => v.status === 'Active').length;
@@ -41,9 +50,9 @@ const Vouchers = () => {
 
   const totalCostSavedThisMonth = useMemo(() => {
     const val = statsQuery.data?.totalCostSavedThisMonth;
-    if (val === undefined || val === null) return 'SAR 0';
-    return `SAR ${Number(val).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-  }, [statsQuery.data]);
+    if (val === undefined || val === null) return `${currencySymbol} 0`;
+    return `${currencySymbol} ${Number(val).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  }, [statsQuery.data, currencySymbol]);
 
   const totalUsagesThisMonth = useMemo(() => {
     const val = statsQuery.data?.totalUsagesThisMonth;

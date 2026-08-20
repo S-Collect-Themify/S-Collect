@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import ManagementTable from '../features/mangement/ManagementTable';
 import MobileManagementTable from '../features/mangement/mobile/MobileManagementTable';
+import { useManagementStore } from '../features/mangement/managementStore';
 import { Link } from 'react-router-dom';
 import { PlusIcon } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -27,6 +29,10 @@ const itemVariants: Variants = {
 const Management = () => {
   const { t } = useTranslation();
   const { isMobile } = useBreakpoint();
+
+  useEffect(() => {
+    useManagementStore.getState().setPage(1);
+  }, []);
 
   return (
     <>

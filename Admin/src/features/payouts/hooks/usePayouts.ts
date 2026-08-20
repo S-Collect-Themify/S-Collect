@@ -292,7 +292,7 @@ export function usePayouts() {
   const exportMutation = useExportPayoutsMutation();
 
   const handleExportExcel = () => {
-    const currencySymbol = isAr ? '﷼' : 'SAR';
+    const currencySymbol = isRtl ? '﷼' : 'SAR';
     const summaryStats = [
       {
         label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),
@@ -332,7 +332,7 @@ export function usePayouts() {
   };
 
   const handleExportPDF = () => {
-    const currencySymbol = isAr ? '﷼' : 'SAR';
+    const currencySymbol = isRtl ? '﷼' : 'SAR';
     const summaryStats = [
       {
         label: t('payouts.totalRegisteredTitle', 'Total Payouts Registered'),

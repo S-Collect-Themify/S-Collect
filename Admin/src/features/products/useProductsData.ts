@@ -96,28 +96,51 @@ export const useProductsData = () => {
     queryKey: ['products'],
     queryFn: async () => {
       try {
-        const [productsRes, vendorsRes] = await Promise.allSettled([
+        const [productsRes, vendorsRes, categoriesRes] = await Promise.allSettled([
           getAdminProducts(),
           getAdminVendors(),
+          getCategories(),
         ]);
 
         const prodData =
           productsRes.status === 'fulfilled' ? productsRes.value : null;
         const vendData =
           vendorsRes.status === 'fulfilled' ? vendorsRes.value : null;
+        const catData =
+          categoriesRes.status === 'fulfilled' ? categoriesRes.value : null;
 
         const itemsArray = extractProductsArray(prodData);
         const vendorsList = extractVendorsArray(vendData);
+        const categoriesList: any[] = Array.isArray(catData)
+          ? catData
+          : (catData as any)?.data || (catData as any)?.items || [];
 
         const mapped: ProductItem[] = itemsArray.map((p: any) => {
           const vId = p.vendorId || p.vendor?.id;
           const vName = getVendorDisplayName(vId, vendorsList, p.vendor);
 
-          const catObj = typeof p.category === 'object' ? p.category : null;
+          const catObj = typeof p.category === 'object' && p.category !== null ? p.category : null;
+          const catId = p.categoryId || p.category_id || catObj?.id || catObj?._id || (typeof p.category === 'string' ? p.category : '');
+
+          const matchedCat = categoriesList.find((c: any) =>
+            (catId && (String(c.id || c._id) === String(catId) || String(c.slug) === String(catId))) ||
+            (c.name && catObj?.name && String(c.name).toLowerCase() === String(catObj.name).toLowerCase()) ||
+            (typeof p.category === 'string' && (String(c.id || c._id) === p.category || String(c.name).toLowerCase() === p.category.toLowerCase()))
+          );
+
           const categoryName =
             catObj?.name ||
+            matchedCat?.name ||
             (typeof p.category === 'string' ? p.category : 'General');
-          const categoryNameAr = catObj?.nameAr || p.categoryAr || '';
+          const categoryNameAr =
+            catObj?.nameAr ||
+            catObj?.name_ar ||
+            p.categoryAr ||
+            p.category_ar ||
+            p.categoryNameAr ||
+            matchedCat?.nameAr ||
+            matchedCat?.name_ar ||
+            '';
 
           return {
             id: p.id || p._id,

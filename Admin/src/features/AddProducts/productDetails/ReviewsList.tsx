@@ -286,7 +286,11 @@ export default function ReviewsList({
           ))
         ) : (
           <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400">
-            <p className="text-sm font-medium">No reviews found matching this filter.</p>
+            <p className="text-sm font-medium">
+              {t("productDetails.reviews.noReviewsMatchingFilter", {
+                defaultValue: "No reviews found matching this filter.",
+              })}
+            </p>
           </div>
         )}
       </div>

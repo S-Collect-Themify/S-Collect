@@ -27,6 +27,16 @@ import PortalDropdown from './PortalDropdown';
 import toast from 'react-hot-toast';
 import { logout, clearTokens } from '../../services/auth';
 
+import { useVendorStore } from '../../features/vendors/store/vendorStore';
+import { useBuyerStore } from '../../features/buyers/store/buyerStore';
+import { useProductStore } from '../../features/products/productStore';
+import { useTransactionStore } from '../../store/transactionStore';
+import { useCategoryStore } from '../../store/categoryStore';
+import { useReviewStore } from '../../features/reviews/reviewStore';
+import { useVoucherStore } from '../../features/vouchers/voucherStore';
+import { useManagementStore } from '../../features/mangement/managementStore';
+import { useAdminSettingsStore } from '../../features/adminSettings/store';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NavItemProps {
   icon: ReactNode;
@@ -47,6 +57,19 @@ interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const resetPageForRoute = (path?: string) => {
+  if (!path) return;
+  if (path === '/vendors') useVendorStore.getState().setPage(1);
+  else if (path === '/buyers') useBuyerStore.getState().setPage(1);
+  else if (path === '/products') useProductStore.getState().setCurrentPage(1);
+  else if (path === '/transactions') useTransactionStore.getState().setPage(1);
+  else if (path === '/categories') useCategoryStore.getState().setCurrentPage(1);
+  else if (path === '/reviews') useReviewStore.getState().setCurrentPage(1);
+  else if (path === '/vouchers') useVoucherStore.getState().setCurrentPage(1);
+  else if (path === '/management') useManagementStore.getState().setPage(1);
+  else if (path === '/admin-settings') useAdminSettingsStore.getState().setViewMode('settings');
+};
 
 // ─── Language Dropdown ────────────────────────────────────────────────────────
 const LANGUAGES = [
@@ -134,11 +157,16 @@ const NavItem = ({
 }: NavItemProps) => {
   const { t } = useTranslation();
 
+  const handleClick = () => {
+    resetPageForRoute(to);
+    if (onClick) onClick();
+  };
+
   return (
     <div>
       <NavLink
         to={to ?? '#'}
-        onClick={onClick}
+        onClick={handleClick}
         className={({ isActive }) =>
           `group flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-label-md
           ${isActive

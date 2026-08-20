@@ -41,6 +41,7 @@ export default function ProductInfo({
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const currencySymbol = isAr ? '﷼' : (currency || 'SAR');
 
   // Compute values from productDetail if provided
   const images = productDetail?.images || [];
@@ -203,11 +204,11 @@ export default function ProductInfo({
             <div className="my-4 lg:my-6 flex flex-col gap-2 sm:flex-row items-baseline sm:gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-2xl lg:text-3xl font-bold text-gray-900">
-                  {minPrice.toLocaleString()} {currency}
+                  {minPrice.toLocaleString()} {currencySymbol}
                 </span>
                 {comparePrice && (
                   <span className="text-sm text-gray-400 line-through">
-                    {comparePrice.toLocaleString()} {currency}
+                    {comparePrice.toLocaleString()} {currencySymbol}
                   </span>
                 )}
               </div>
@@ -215,7 +216,7 @@ export default function ProductInfo({
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-400">{t("productDetails.productInfo.cost", { defaultValue: "Cost:" })}</span>
                   <span className="text-xs font-semibold text-gray-700">
-                    {cost.toLocaleString()} {currency}
+                    {cost.toLocaleString()} {currencySymbol}
                   </span>
                 </div>
               )}
@@ -277,7 +278,7 @@ export default function ProductInfo({
       </div>
 
       {/* Product Variants Table with Skeleton & 20-item Pagination */}
-      <ProductVariantsTable variants={variants} currency={currency} />
+      <ProductVariantsTable variants={variants} currency={currencySymbol} />
     </div>
   );
 }

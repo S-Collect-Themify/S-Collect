@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useTransactionStore } from '../store/transactionStore';
 import {
   useAdminTransactions,
@@ -35,6 +35,9 @@ function getDateParamsFromRangeKey(rangeKey: string): { dateFrom?: string; dateT
 }
 
 export default function Transactions() {
+  useEffect(() => {
+    useTransactionStore.getState().setPage(1);
+  }, []);
   const search = useTransactionStore((s) => s.search);
   const statusFilter = useTransactionStore((s) => s.statusFilter);
   const minAmount = useTransactionStore((s) => s.minAmount);
