@@ -1,5 +1,20 @@
 export const DEFAULT_IMAGE = './placeholder.jpg';
 
+export const getServerBaseUrl = (): string => {
+  if (import.meta.env.VITE_SERVER_URL) {
+    return import.meta.env.VITE_SERVER_URL;
+  }
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
+    try {
+      return new URL(apiUrl).origin;
+    } catch {
+      return apiUrl.replace(/\/api\/v1\/?$/, '');
+    }
+  }
+  return '';
+};
+
 export const resolveImageUrl = (
   rawUrl: any,
   defaultImage: string = DEFAULT_IMAGE
@@ -21,5 +36,7 @@ export const resolveImageUrl = (
   ) {
     return urlStr;
   }
-  return `https://api.collect-s.com${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
+  const baseUrl = getServerBaseUrl();
+  if (!baseUrl) return urlStr;
+  return `${baseUrl}${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
 };

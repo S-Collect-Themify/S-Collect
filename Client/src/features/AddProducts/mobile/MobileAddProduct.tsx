@@ -7,7 +7,6 @@ import type { ProductFormData } from '../types';
 import { useProduct } from '../useProduct';
 import MobileStepIndicator from './MobileStepIndicator';
 import MobileBasicInfoStep from './MobileBasicInfoStep';
-import MobilePricingStep from './MobilePricingStep';
 import MobileInventoryStep from './MobileInventoryStep';
 import MobileReviewStep from './MobileReviewStep';
 import { MobileLoadingPopup, MobileSuccessPopup } from './MobilePublishPopups';
@@ -73,10 +72,9 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
   };
 
   const stepTitles: Record<number, string> = {
-    1: t('addProduct.mobile.basicInfo'),
-    2: t('addProduct.mobile.pricing'),
-    3: t('addProduct.mobile.inventory'),
-    4: t('addProduct.mobile.reviewPublish'),
+    1: t('addProduct.mobile.basicInfo', 'Basic Information'),
+    2: t('addProduct.mobile.inventory', 'Variants & Inventory'),
+    3: t('addProduct.mobile.reviewPublish', 'Review & Publish'),
   };
 
   if (isEdit && isProductLoading) {
@@ -127,7 +125,7 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
           <MobileStepIndicator />
 
           {/* Step title */}
-          {step < 4 && (
+          {step < 3 && (
             <h2 className="mb-5 text-lg font-bold text-gray-900">
               {stepTitles[step]}
             </h2>
@@ -136,11 +134,9 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
           {/* Step content */}
           {step === 1 && <MobileBasicInfoStep />}
 
-          {step === 2 && <MobilePricingStep />}
+          {step === 2 && <MobileInventoryStep />}
 
-          {step === 3 && <MobileInventoryStep />}
-
-          {step === 4 && <MobileReviewStep productId={productId} />}
+          {step === 3 && <MobileReviewStep productId={productId} />}
         </div>
 
         {/* Popups */}

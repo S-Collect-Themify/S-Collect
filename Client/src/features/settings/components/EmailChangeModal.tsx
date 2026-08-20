@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { CheckCircle2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -81,9 +82,15 @@ export function EmailChangeModal() {
     );
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-xl relative animate-fade-in-up">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={closeEmailModal}
+    >
+      <div
+        className="w-full max-w-md bg-white rounded-2xl p-6 shadow-xl relative animate-fade-in-up"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           onClick={closeEmailModal}
@@ -163,6 +170,7 @@ export function EmailChangeModal() {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
