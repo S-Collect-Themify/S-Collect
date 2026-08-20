@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api/v1': {
-          target: env.VITE_PROXY_TARGET || 'https://api.collects.ihkam.tech',
+          target: env.VITE_PROXY_TARGET,
           changeOrigin: true,
         },
       },
