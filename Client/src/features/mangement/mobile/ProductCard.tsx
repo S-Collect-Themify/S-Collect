@@ -5,6 +5,7 @@ import { MoreVertical, SquarePen, Star } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import Toggle from '../Toggle';
 import { THUMB_STYLES } from '../constant';
+import { showDeleteConfirmation } from '../deleteConfirmation';
 import type { Product } from '../mangement';
 
 type Props = {
