@@ -43,13 +43,27 @@ export default function EditCommissionModal({
   const parsedRate = parseFloat(cleanedRate);
   const isExceedsLimit = !isNaN(parsedRate) && parsedRate > 100;
   const isInvalidRate = !isNaN(parsedRate) && parsedRate <= 0;
-  const isHasError = isExceedsLimit || isInvalidRate || isNaN(parsedRate);
+  const isSameRate =
+    !isNaN(parsedRate) &&
+    target.currentRate !== undefined &&
+    Math.abs(parsedRate - target.currentRate) < 0.001;
+  const isHasError = isExceedsLimit || isInvalidRate || isNaN(parsedRate) || isSameRate;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isSuperAdmin) {
       toast.error(t('commissionRates.superAdminOnly', 'Restricted: Only Super Admin can change platform commission.'));
+      return;
+    }
+
+    if (isSameRate) {
+      toast.error(
+        t(
+          'commissionRates.sameRateError',
+          'The entered rate is the same as the current rate. Please enter a different value.'
+        )
+      );
       return;
     }
 
@@ -125,7 +139,15 @@ export default function EditCommissionModal({
               </span>
               <span className="font-bold text-gray-900">
                 {target.currentRate.toFixed(2)}%
-                {target.currentStatus ? ` (${target.currentStatus})` : ''}
+                {target.currentStatus
+                  ? ` (${
+                      target.currentStatus === 'Custom'
+                        ? t('commissionRates.statusCustom', 'Custom')
+                        : target.currentStatus === 'Default'
+                        ? t('commissionRates.statusDefault', 'Default')
+                        : target.currentStatus
+                    })`
+                  : ''}
               </span>
             </div>
           </div>
@@ -157,10 +179,15 @@ export default function EditCommissionModal({
               <div className="flex items-center gap-1.5 mt-1.5 text-xs font-semibold text-rose-600 animate-fade-in-up">
                 <AlertCircle size={14} className="shrink-0 text-rose-600" />
                 <span>
-                  {t(
-                    'commissionRates.rateValidationError',
-                    'Commission rate must be greater than 0% and up to 100%'
-                  )}
+                  {isSameRate
+                    ? t(
+                        'commissionRates.sameRateError',
+                        'The entered rate is the same as the current rate. Please enter a different value.'
+                      )
+                    : t(
+                        'commissionRates.rateValidationError',
+                        'Commission rate must be greater than 0% and up to 100%'
+                      )}
                 </span>
               </div>
             )}

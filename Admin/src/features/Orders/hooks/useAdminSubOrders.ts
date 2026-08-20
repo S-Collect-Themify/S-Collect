@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   getAdminSubOrders,
   type GetAdminSubOrdersParams,
@@ -13,8 +14,11 @@ export const useAdminSubOrders = (
   params?: GetAdminSubOrdersParams,
   enabled: boolean = true
 ) => {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['admin-sub-orders', params],
+    queryKey: ['admin-sub-orders', params, isAr ? 'ar' : 'en'],
     queryFn: () => getAdminSubOrders(params),
     enabled,
     staleTime: 5 * 60 * 1000,

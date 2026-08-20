@@ -98,7 +98,8 @@ export default function VendorRecentProductsTable({
             to={productsUrl}
             className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            {t('vendors.details.viewAllProducts', 'View All Products')} →
+            <span>{t('vendors.details.viewAllProducts', 'View All Products')}</span>
+            <span className="inline-block rtl:rotate-180">→</span>
           </Link>
         </div>
       </div>
@@ -151,7 +152,8 @@ export default function VendorRecentProductsTable({
                 to={productsUrl}
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
-                {t('vendors.details.viewAllProducts', 'View All Products')} →
+                <span>{t('vendors.details.viewAllProducts', 'View All Products')}</span>
+                <span className="inline-block rtl:rotate-180">→</span>
               </Link>
             </div>
           </div>

@@ -3,6 +3,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        var lang = localStorage.getItem('lang') || 'en';
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      })();
+    </script>
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preload" as="image" href="/logo.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/mobLogo.png" fetchpriority="high" />

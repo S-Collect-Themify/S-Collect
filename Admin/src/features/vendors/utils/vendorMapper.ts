@@ -14,7 +14,7 @@ function extractIsFeatured(v: any): boolean {
  * Maps a backend vendor object from list API to the UI Vendor data structure.
  * Missing or empty fields fallback to '--' per requirements.
  */
-export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
+export function mapBackendVendorToVendor(v: BackendVendor, isAr?: boolean): Vendor {
   const ownerName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim() || '--';
   const businessName = v.storeName || ownerName || '--';
 
@@ -75,13 +75,34 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
 
   const isFeatured = extractIsFeatured(v);
 
+  let categoryName = '--';
+  if (isFeatured) {
+    categoryName = 'Featured';
+  } else {
+    const catObj = (v as any).category || (v as any).categoryObj || (v as any).storeCategory;
+    if (typeof catObj === 'object' && catObj !== null) {
+      categoryName = isAr
+        ? (catObj.nameAr || catObj.name_ar || catObj.name || catObj.nameEn || '--')
+        : (catObj.nameEn || catObj.name || catObj.nameAr || catObj.name_ar || '--');
+    } else if (typeof catObj === 'string' && catObj.trim()) {
+      categoryName = catObj.trim();
+    } else {
+      const rawCatAr = (v as any).categoryAr || (v as any).category_ar || (v as any).categoryNameAr || (v as any).categoryName_ar;
+      const rawCatEn = (v as any).categoryEn || (v as any).category_en || (v as any).categoryName || (v as any).categoryNameEn;
+      const rawCat = isAr ? (rawCatAr || rawCatEn) : (rawCatEn || rawCatAr);
+      if (typeof rawCat === 'string' && rawCat.trim()) {
+        categoryName = rawCat.trim();
+      }
+    }
+  }
+
   return {
     id: v.id,
     businessName,
     owner: ownerName,
     email,
     submittedDate,
-    category: isFeatured ? 'Featured' : '--',
+    category: categoryName,
     status,
     rawStatus: v.status,
     active,
@@ -98,7 +119,7 @@ export function mapBackendVendorToVendor(v: BackendVendor): Vendor {
  * Maps a backend single vendor detail response to the UI Vendor data structure.
  * Missing or empty fields fallback to '--'.
  */
-export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
+export function mapBackendVendorDetailToVendor(v: BackendVendorDetail, isAr?: boolean): Vendor {
   const target: Partial<BackendVendorDetail> =
     (v as unknown as { data?: BackendVendorDetail })?.data || v || {};
 
@@ -199,6 +220,27 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
 
   const isFeatured = extractIsFeatured(target);
 
+  let categoryName = '--';
+  if (isFeatured) {
+    categoryName = 'Featured';
+  } else {
+    const catObj = (target as any).category || (target as any).categoryObj || (target as any).storeCategory;
+    if (typeof catObj === 'object' && catObj !== null) {
+      categoryName = isAr
+        ? (catObj.nameAr || catObj.name_ar || catObj.name || catObj.nameEn || '--')
+        : (catObj.nameEn || catObj.name || catObj.nameAr || catObj.name_ar || '--');
+    } else if (typeof catObj === 'string' && catObj.trim()) {
+      categoryName = catObj.trim();
+    } else {
+      const rawCatAr = (target as any).categoryAr || (target as any).category_ar || (target as any).categoryNameAr || (target as any).categoryName_ar;
+      const rawCatEn = (target as any).categoryEn || (target as any).category_en || (target as any).categoryName || (target as any).categoryNameEn;
+      const rawCat = isAr ? (rawCatAr || rawCatEn) : (rawCatEn || rawCatAr);
+      if (typeof rawCat === 'string' && rawCat.trim()) {
+        categoryName = rawCat.trim();
+      }
+    }
+  }
+
   return {
     id: target.id || '',
     businessName,
@@ -207,7 +249,7 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail): Vendor {
     phone: phoneDisplay,
     submittedDate,
     joinedDate,
-    category: isFeatured ? 'Featured' : '--',
+    category: categoryName,
     status,
     rawStatus: (rawStatus as Vendor['rawStatus']) || 'PENDING_APPROVAL',
     active,

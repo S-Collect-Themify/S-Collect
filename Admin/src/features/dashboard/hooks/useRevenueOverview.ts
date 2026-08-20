@@ -1,4 +1,5 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import {
   getRevenueOverviewKpis,
   getRevenueOverviewSales,
@@ -9,8 +10,11 @@ import {
 } from '../../../services/revenueOverview';
 
 export function useRevenueOverviewKpis(params: RevenueOverviewKpisParams) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['revenue-overview-kpis', params],
+    queryKey: ['revenue-overview-kpis', params, isAr ? 'ar' : 'en'],
     queryFn: () => getRevenueOverviewKpis(params),
     enabled: Boolean(params.dateFrom && params.dateTo),
     staleTime: 2 * 60 * 1000,
@@ -19,8 +23,11 @@ export function useRevenueOverviewKpis(params: RevenueOverviewKpisParams) {
 }
 
 export function useRevenueOverviewSales(params: RevenueOverviewSalesParams) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['revenue-overview-sales', params],
+    queryKey: ['revenue-overview-sales', params, isAr ? 'ar' : 'en'],
     queryFn: () => getRevenueOverviewSales(params),
     enabled: Boolean(params.dateFrom && params.dateTo && params.groupBy),
     staleTime: 2 * 60 * 1000,
@@ -29,8 +36,11 @@ export function useRevenueOverviewSales(params: RevenueOverviewSalesParams) {
 }
 
 export function useRevenueOverviewOrdersSummary(params: RevenueOverviewOrdersSummaryParams) {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
   return useQuery({
-    queryKey: ['revenue-overview-orders-summary', params],
+    queryKey: ['revenue-overview-orders-summary', params, isAr ? 'ar' : 'en'],
     queryFn: () => getRevenueOverviewOrdersSummary(params),
     enabled: Boolean(params.dateFrom && params.dateTo),
     staleTime: 2 * 60 * 1000,
