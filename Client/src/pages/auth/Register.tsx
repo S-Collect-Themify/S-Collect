@@ -474,7 +474,7 @@ const Step3 = () => {
   const password = watch('password');
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col md:gap-5 gap-3">
       {/* Password */}
       <div>
         <label className="block text-label-sm text-gray-700 mb-1.5">

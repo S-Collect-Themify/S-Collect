@@ -70,6 +70,7 @@ export function PasswordChangeSection() {
                 control={control}
                 rules={{
                   validate: (val, formValues) => {
+                    if (!pwOpen) return true;
                     const hasPw = Boolean(
                       val ||
                       formValues.newPassword ||
@@ -86,6 +87,7 @@ export function PasswordChangeSection() {
                     value={field.value ?? ''}
                     error={error?.message}
                     onChange={field.onChange}
+                    autoComplete="current-password"
                   />
                 )}
               />
@@ -96,12 +98,13 @@ export function PasswordChangeSection() {
                   control={control}
                   rules={{
                     validate: (val, formValues) => {
+                      if (!pwOpen) return true;
                       const hasPw = Boolean(
                         val ||
                         formValues.currentPassword ||
                         formValues.confirmPassword
                       );
-                      if (hasPw && getPasswordStrength(val) < 4)
+                      if (hasPw && (!val || getPasswordStrength(val) < 4))
                         return t('settings.errors.newPasswordWeak');
                       return true;
                     },
@@ -112,6 +115,7 @@ export function PasswordChangeSection() {
                       value={field.value ?? ''}
                       error={error?.message}
                       onChange={field.onChange}
+                      autoComplete="new-password"
                     />
                   )}
                 />
@@ -126,6 +130,7 @@ export function PasswordChangeSection() {
                 control={control}
                 rules={{
                   validate: (val, formValues) => {
+                    if (!pwOpen) return true;
                     const hasPw = Boolean(
                       val ||
                       formValues.currentPassword ||
@@ -142,6 +147,7 @@ export function PasswordChangeSection() {
                     value={field.value ?? ''}
                     error={error?.message}
                     onChange={field.onChange}
+                    autoComplete="new-password"
                   />
                 )}
               />

@@ -176,12 +176,12 @@ export default function ShippingSettingsForm({
       </div>
 
       {/* Actions */}
-      <div className="mt-3 md:mt-6 flex justify-end gap-3">
+      <div className="mt-3 md:mt-6 flex md:justify-end justify-center gap-3">
         <button
           type="button"
           onClick={handleReset}
           disabled={isPending}
-          className="flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-1.5 md:rounded-xl rounded-lg border border-gray-300 bg-white md:px-4 px-3 py-1.5 md:py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
         >
           <RotateCcw size={15} />
           {t('settings.shippingForm.reset', { defaultValue: 'Reset' })}
@@ -190,7 +190,7 @@ export default function ShippingSettingsForm({
         <button
           type="submit"
           disabled={!isValid || isPending}
-          className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors cursor-pointer ${
+          className={`md:rounded-xl rounded-lg px-3 py-1 md:px-5 md:py-2.5 text-sm font-semibold transition-colors cursor-pointer ${
             isValid && !isPending
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'cursor-not-allowed bg-gray-100 text-gray-400'

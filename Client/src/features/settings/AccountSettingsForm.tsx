@@ -27,6 +27,7 @@ export function AccountSettingsForm({
   const changePasswordMutation = useChangePassword();
   const updateAccountSettingsMutation = useUpdateAccountSettings();
 
+  const pwOpen = useAccountSettingsStore((s) => s.pwOpen);
   const setPwOpen = useAccountSettingsStore((s) => s.setPwOpen);
   const currentEmailDisplay = useAccountSettingsStore(
     (s) => s.currentEmailDisplay
@@ -54,7 +55,7 @@ export function AccountSettingsForm({
   const onSubmit = (data: AccountSettingsFormValues) => {
     startTransition(async () => {
       try {
-        if (data.currentPassword && data.newPassword) {
+        if (pwOpen && data.currentPassword && data.newPassword) {
           await changePasswordMutation.mutateAsync({
             currentPassword: data.currentPassword,
             newPassword: data.newPassword,
@@ -89,9 +90,10 @@ export function AccountSettingsForm({
 
   const onInvalid = (errors: any) => {
     if (
-      errors.currentPassword ||
-      errors.newPassword ||
-      errors.confirmPassword
+      pwOpen &&
+      (errors.currentPassword ||
+        errors.newPassword ||
+        errors.confirmPassword)
     ) {
       setPwOpen(true);
     }

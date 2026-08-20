@@ -120,13 +120,13 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-4 py-5">
+        <div className="flex-1 overflow-y-auto md:px-4 px-2 md:py-5 py-3">
           {/* Step indicator */}
           <MobileStepIndicator />
 
           {/* Step title */}
           {step < 3 && (
-            <h2 className="mb-5 text-lg font-bold text-gray-900">
+            <h2 className="md:mb-5 mb-2 text-lg font-bold text-gray-900">
               {stepTitles[step]}
             </h2>
           )}

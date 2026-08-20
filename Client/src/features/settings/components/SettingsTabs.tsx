@@ -21,7 +21,7 @@ function TabBtn({
       aria-selected={active}
       onClick={onClick}
       className={cn(
-        'py-2.5 px-6 w-full md:w-fit rounded-lg text-xs whitespace-nowrap md:text-sm font-semibold transition-all duration-300 ease-out active:scale-95 cursor-pointer',
+        'py-2 md:py-2.5 px-3 sm:px-4 md:px-6 shrink-0 w-auto md:w-fit rounded-lg text-xs whitespace-nowrap md:text-sm font-semibold transition-all duration-300 ease-out active:scale-95 cursor-pointer',
         active ? 'bg-gray-950 text-white' : 'bg-transparent text-[#545454]'
       )}
     >
@@ -41,7 +41,7 @@ export function SettingsTabs({
 
   return (
     <div
-      className="flex mb-4 md:mb-6 justify-center py-1.5 px-2 w-full md:w-fit bg-[#E9E9E9] rounded-lg transition-all duration-300 ease-out"
+      className="flex mb-4 md:mb-6 items-center justify-start md:justify-center py-1 px-1.5 md:py-1.5 md:px-2 max-w-full overflow-x-auto w-full md:w-fit bg-[#E9E9E9] rounded-lg transition-all duration-300 ease-out"
       role="tablist"
     >
       <TabBtn

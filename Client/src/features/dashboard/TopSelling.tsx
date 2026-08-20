@@ -144,7 +144,7 @@ const TopSelling = () => {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-4 overflow-hidden bg-white p-4 rounded-xl shadow h-[550px]"
+      className="flex flex-col gap-4 overflow-hidden bg-white md:p-4 p-2 rounded-xl shadow h-[550px]"
     >
       <motion.div
         variants={itemVariants}

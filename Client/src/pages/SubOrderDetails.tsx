@@ -105,7 +105,7 @@ const SubOrderDetails = () => {
       {/* ── Two-column grid ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-5 mt-5">
         {/* ══ LEFT ════════════════════════════════════════════════════════ */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col md:gap-5 gap-3">
           <motion.div variants={cardVariants}>
             <SubOrderItems items={order.items} />
           </motion.div>
@@ -122,7 +122,7 @@ const SubOrderDetails = () => {
         </div>
 
         {/* ══ RIGHT ═══════════════════════════════════════════════════════ */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col md:gap-5 gap-3">
           <motion.div variants={cardVariants}>
             <SubOrderInfo
               id={order.id}

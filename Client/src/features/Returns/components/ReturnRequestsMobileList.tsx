@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { type ReturnItem } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { DEFAULT_IMAGE } from '../../../utils/image';
 
 interface ReturnRequestsMobileListProps {
   items: ReturnItem[];
@@ -24,7 +25,7 @@ export function ReturnRequestsMobileList({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15, delay: idx * 0.03 }}
-            className="bg-white rounded-2xl border border-gray-200 p-4.5 shadow-xs space-y-3.5"
+            className="bg-white rounded-2xl border border-gray-200 md:p-4.5 p-2 shadow-xs space-y-3.5"
           >
             {/* Top row: ID + Status */}
             <div className="flex items-center justify-between">
@@ -37,8 +38,11 @@ export function ReturnRequestsMobileList({
             {/* Middle row: Thumbnail + Title + Customer */}
             <div className="flex items-start gap-3.5">
               <img
-                src={item.productImage}
+                src={item.productImage || DEFAULT_IMAGE}
                 alt={item.productTitle}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = DEFAULT_IMAGE;
+                }}
                 className="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0"
               />
               <div className="min-w-0 flex-1">

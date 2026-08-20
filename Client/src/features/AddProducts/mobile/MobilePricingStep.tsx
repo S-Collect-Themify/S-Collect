@@ -26,7 +26,7 @@ const MobilePricingStep = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col md:gap-5 gap-3">
       {/* Base Price */}
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700">

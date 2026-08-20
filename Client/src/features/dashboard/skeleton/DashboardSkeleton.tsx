@@ -14,7 +14,7 @@ const DashboardSkeleton = () => {
 
       <main className="sidebar-page-container pb-6">
         <DashboardGridSkeleton />
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-stretch mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-stretch md:mb-6 mb-3">
           <div className="col-span-1 lg:col-span-3">
             <SalesChartSkeleton />
           </div>

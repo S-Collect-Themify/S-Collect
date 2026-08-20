@@ -75,7 +75,7 @@ export const OrderDetails = ({
         {/* Left column */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-col gap-5 min-w-0"
+          className="flex flex-col md:gap-5 gap-3 min-w-0"
         >
           {/* Order Items */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5">
@@ -249,7 +249,7 @@ export const OrderDetails = ({
         {/* Right column */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-col gap-5 min-w-0"
+          className="flex flex-col md:gap-5 gap-3 min-w-0"
         >
           {/* Order Information */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 text-sm">

@@ -88,8 +88,8 @@ const ProductCard = ({ product, onDelete, onToggle }: Props) => {
     <div
       className={`p-4 bg-white rounded-lg shadow-sm transition-all ${!product.enabled ? 'opacity-50' : ''}`}
     >
-      <div className="pb-4 border-t border-gray-100 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="pb-2 md:pb-4 flex items-center justify-between md:gap-4 gap-2">
+        <div className="flex items-center md:gap-3 gap-2">
           <StatusBadge status={product.status} />
         </div>
         <div className="flex items-center gap-2">

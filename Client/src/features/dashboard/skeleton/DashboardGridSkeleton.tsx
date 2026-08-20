@@ -1,6 +1,6 @@
 const DashboardGridSkeleton = () => {
   return (
-    <div className="mb-10">
+    <div className="md:mb-10 mb-5">
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {Array.from({ length: 4 }).map((_, index) => (
           <div

@@ -30,7 +30,7 @@ function LogoNormal({
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-[#090909]">{fileName}</p>
+        <p className="text-sm font-semibold text-[#090909] truncate">{fileName}</p>
         <div className="flex md:items-center justify-end md:justify-start gap-2 mt-0.5">
           <label
             htmlFor={id}

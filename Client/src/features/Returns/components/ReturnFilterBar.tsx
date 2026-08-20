@@ -26,7 +26,7 @@ export function ReturnFilterBar({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 }}
-      className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5"
+      className="bg-white rounded-2xl border border-gray-200 md:p-4 p-2 md:mb-6 mb-3 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5"
     >
       {/* Search Input */}
       <div className="relative flex-1 max-w-md">
