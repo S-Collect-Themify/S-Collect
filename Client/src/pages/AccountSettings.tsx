@@ -54,8 +54,8 @@ export default function AccountSettingsPage({
           </span>
         </nav>
       </div>
-      <div className="settings-page-enter min-h-screen bg-gray-100">
-        <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180">
+      <div className="settings-page-enter min-h-screen bg-gray-100 overflow-x-hidden">
+        <div className="settings-surface-enter settings-stagger-1 sidebar-page-container max-w-180 w-full min-w-0">
           {loading ? (
             <AccountSettingsFormSkeleton />
           ) : (

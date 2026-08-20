@@ -35,11 +35,11 @@ export default function SettingsPage() {
           <span className="text-[#737373]">{breadcrumb}</span>
         </nav>
       </div>
-      <div className="settings-page-enter min-h-screen bg-gray-100">
-        <div className="settings-surface-enter settings-stagger-1 p-2 md:p-4 md:px-8 md:py-7 max-w-180">
+      <div className="settings-page-enter min-h-screen bg-gray-100 overflow-x-hidden">
+        <div className="settings-surface-enter settings-stagger-1 p-2 md:p-4 md:px-8 md:py-7 max-w-180 w-full min-w-0">
           <SettingsTabs tab={tab} onChange={setTab} />
 
-          <div key={tab} className="settings-surface-enter">
+          <div key={tab} className="settings-surface-enter w-full min-w-0">
             {tab === 'store-details' && <StoreDetailsTab />}
             {tab === 'bank-account' && <BankAccountTab />}
             {tab === 'shipping' && <ShippingTab />}

@@ -107,9 +107,8 @@ export function PersonalInfoSection() {
             name="phoneNumber"
             control={control}
             rules={{
-              required: t('settings.errors.invalidPhone'),
               validate: (v) => {
-                if (!v) return t('settings.errors.invalidPhone');
+                if (!v || v.trim() === '') return true;
                 const { full } = formatSaudiPhone(v);
                 return (
                   (full.length === 13 && full.startsWith('+9665')) ||

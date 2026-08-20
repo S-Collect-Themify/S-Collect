@@ -16,7 +16,7 @@ const TopSellingCard = ({ cardData }: { cardData: ProductSale }) => {
   const productLink = `/product-details/${cardData.id}`;
   
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-white p-3 w-full overflow-hidden hover:bg-gray-50 transition-colors">
+    <div className="flex items-center gap-2 rounded-xl bg-white md:p-3 p-2 w-full overflow-hidden hover:bg-gray-50 transition-colors">
       {/* Product Image Link */}
       <Link
         to={productLink}

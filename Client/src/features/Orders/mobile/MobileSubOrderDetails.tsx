@@ -105,7 +105,7 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+      <div className="flex-1 overflow-y-auto md:px-4 px-2 md:py-5 py-3 space-y-4">
         {/* Items */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
           <h6 className="font-semibold text-gray-900 mb-3 text-sm">

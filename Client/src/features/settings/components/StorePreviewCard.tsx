@@ -41,16 +41,16 @@ export function StorePreviewCard() {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-base font-medium text-[#090909]">
+            <p className="text-base font-medium text-[#090909] truncate">
               {displayName || t('settings.storeNameFallback')}
             </p>
-            <p className="text-sm font-medium text-[#969696] mt-0.5 line-clamp-1 md:line-clamp-2">
+            <p className="text-sm font-medium text-[#969696] mt-0.5 line-clamp-1 md:line-clamp-2 break-words">
               {storeDescription || t('settings.storeDescriptionFallback')}
             </p>
-            <p className="text-xs text-[#969696] mt-1 flex items-center gap-1.5 flex-wrap font-normal">
-              {publicEmail && <span>{publicEmail}</span>}
+            <p className="text-xs text-[#969696] mt-1 flex items-center gap-1.5 flex-wrap font-normal break-all">
+              {publicEmail && <span className="truncate max-w-full">{publicEmail}</span>}
               {publicEmail && phoneNumber && <span>•</span>}
-              {phoneNumber && <span>{phoneNumber}</span>}
+              {phoneNumber && <span className="truncate max-w-full">{phoneNumber}</span>}
             </p>
           </div>
         </div>

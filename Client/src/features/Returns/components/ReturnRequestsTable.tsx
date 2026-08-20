@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { type ReturnItem } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { DEFAULT_IMAGE } from '../../../utils/image';
 
 interface ReturnRequestsTableProps {
   items: ReturnItem[];
@@ -64,8 +65,11 @@ export function ReturnRequestsTable({
                 <td className="py-4 px-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={item.productImage || "./placeholder.jpg"}
+                      src={item.productImage || DEFAULT_IMAGE}
                       alt={item.productTitle}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = DEFAULT_IMAGE;
+                      }}
                       className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
                     />
                     <span className="font-semibold text-gray-900 truncate max-w-55">

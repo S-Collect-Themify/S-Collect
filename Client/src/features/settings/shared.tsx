@@ -99,9 +99,9 @@ export function FieldWrap({
         </p>
       ) : helperText ? (
         <div className="flex justify-between mt-1">
-          <p className="text-[11px] text-gray-400">{helperText}</p>
+          <p className="text-xs text-gray-400">{helperText}</p>
           {helperRight && (
-            <p className="text-[11px] text-gray-400">{helperRight}</p>
+            <p className="text-xs text-gray-400">{helperRight}</p>
           )}
         </div>
       ) : null}
@@ -115,12 +115,14 @@ export function PasswordInput({
   error,
   helperText,
   onChange,
+  autoComplete = 'off',
 }: {
   label: string;
   value: string;
   error?: string;
   helperText?: string;
   onChange: (v: string) => void;
+  autoComplete?: string;
 }) {
   const [show, setShow] = useState(false);
   const { t } = useTranslation();
@@ -136,6 +138,7 @@ export function PasswordInput({
           type={show ? 'text' : 'password'}
           value={value}
           error={error}
+          autoComplete={autoComplete}
           className="pr-10"
           onChange={(e) => onChange(e.target.value)}
         />
@@ -196,7 +199,7 @@ export function PasswordStrengthBar({
       <div className="flex justify-between items-center mt-1">
         <p
           className={cn(
-            'text-[11px]',
+            'text-xs',
             error ? 'text-red-500' : 'text-gray-400'
           )}
         >
@@ -204,7 +207,7 @@ export function PasswordStrengthBar({
         </p>
         {label && (
           <p
-            className={cn('text-[11px] font-medium ml-2 shrink-0', labelColor)}
+            className={cn('text-xs font-medium ml-2 shrink-0', labelColor)}
           >
             {label}
           </p>
