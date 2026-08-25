@@ -4,12 +4,11 @@ import { FormProvider, useForm, useFormContext, Controller } from 'react-hook-fo
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { useAuthStore } from '../../store/authStore';
 import { motion } from 'framer-motion';
 import { useRegister } from '../../hooks/useRegister';
+import { formatSaudiPhone } from '../../features/settings/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -233,37 +232,56 @@ const Step1 = () => {
         })}
       />
       <div>
-        <label className="block text-xs lg:text-sm font-medium text-gray-700 mb-1">
-          {t('register.phoneLabel')} <span className="text-red-500">*</span>
+        <label className="block text-label-sm text-gray-700 mb-1.5">
+          {t('register.phoneLabel')} <span className="text-red ml-0.5">*</span>
         </label>
         <Controller
           name="phone"
           control={control}
           rules={{
             required: t('register.errors.phoneRequired'),
+            validate: (v) => {
+              if (!v || !v.trim()) return t('register.errors.phoneRequired');
+              const { full } = formatSaudiPhone(v);
+              return (
+                (full.length === 13 && full.startsWith('+9665')) ||
+                t('register.errors.phoneInvalid')
+              );
+            },
           }}
           render={({ field, fieldState: { error } }) => (
             <>
-              <PhoneInput
-                country="SA"
-                countrySelectComponent={() => (
-                  <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
-                    <img
-                      src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
-                      alt="Saudi Arabia"
-                      className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
-                    />
-                    <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
-                  </div>
-                )}
-                value={field.value}
-                onChange={(v) => field.onChange(v ?? '')}
-                className={`phone-input-custom h-10 rounded-lg px-3 ${
-                  error ? 'phone-error' : ''
+              <div
+                dir="ltr"
+                className={`phone-input-custom h-[42px] rounded-lg px-3 flex items-center border transition-colors ${
+                  error ? 'border-red bg-red-light phone-error' : 'border-gray-300 bg-gray-50'
                 }`}
-              />
+              >
+                <div className="flex items-center gap-1.5 pe-2.5 me-2.5 border-e border-gray-200 shrink-0 select-none pointer-events-none">
+                  <img
+                    src="https://purecatamphetamine.github.io/country-flag-icons/3x2/SA.svg"
+                    alt="Saudi Arabia"
+                    className="w-5 h-3.5 rounded-[2px] object-cover shadow-sm"
+                  />
+                  <span className="text-xs font-semibold text-gray-700 dir-ltr">+966</span>
+                </div>
+                <input
+                  type="tel"
+                  dir="ltr"
+                  placeholder="50 123 4567"
+                  value={formatSaudiPhone(field.value).formatted}
+                  onChange={(e) => {
+                    const { full } = formatSaudiPhone(e.target.value);
+                    field.onChange(full);
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  className="PhoneInputInput"
+                />
+              </div>
               {error && (
-                <p className="mt-1 text-xs text-red-500">{error.message}</p>
+                <p className="text-red text-caption-sm mt-1 animate-fade-in-up">{error.message}</p>
               )}
             </>
           )}
