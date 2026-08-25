@@ -8,7 +8,7 @@ import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
 import { useAuthStore } from '../../store/authStore';
 import { motion } from 'framer-motion';
 import { useRegister } from '../../hooks/useRegister';
-import { formatSaudiPhone } from '../../features/settings/utils';
+import { formatSaudiPhone, isValidSaudiPhone } from '../../features/settings/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -242,9 +242,8 @@ const Step1 = () => {
             required: t('register.errors.phoneRequired'),
             validate: (v) => {
               if (!v || !v.trim()) return t('register.errors.phoneRequired');
-              const { full } = formatSaudiPhone(v);
               return (
-                (full.length === 13 && full.startsWith('+9665')) ||
+                isValidSaudiPhone(v) ||
                 t('register.errors.phoneInvalid')
               );
             },

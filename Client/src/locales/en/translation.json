@@ -171,7 +171,7 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Enter a valid email address",
       "phoneRequired": "Phone number is required",
-      "phoneInvalid": "Please enter a valid 9-digit Saudi phone number (e.g. 50 123 4567)",
+      "phoneInvalid": "Please enter a valid 9-digit Saudi phone number (e.g. 50 123 4567 or 11 503 4366)",
       "storeNameRequired": "Store name is required",
       "categoryRequired": "Please select a category",
       "descriptionRequired": "Store description is required",

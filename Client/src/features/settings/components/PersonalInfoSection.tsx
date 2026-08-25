@@ -3,7 +3,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { SectionCard, TextInput } from '../shared';
-import { cn, formatSaudiPhone } from '../utils';
+import { cn, formatSaudiPhone, isValidSaudiPhone } from '../utils';
 import type { AccountSettingsData, PasswordData } from '../types';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
 
@@ -109,9 +109,8 @@ export function PersonalInfoSection() {
             rules={{
               validate: (v) => {
                 if (!v || v.trim() === '') return true;
-                const { full } = formatSaudiPhone(v);
                 return (
-                  (full.length === 13 && full.startsWith('+9665')) ||
+                  isValidSaudiPhone(v) ||
                   t('settings.errors.invalidPhone')
                 );
               },
