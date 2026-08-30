@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -31,67 +31,62 @@ export default function ReceivablesTable() {
     pageSize: ITEMS_PER_PAGE,
   });
 
-  const transactions: Transaction[] = useMemo(() => {
-    if (!data?.items) return [];
-    const sortedSubOrders = [...data.items].sort((a, b) => {
-      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      const safeA = isNaN(timeA) ? 0 : timeA;
-      const safeB = isNaN(timeB) ? 0 : timeB;
-      return safeB - safeA;
-    });
+  const sortedSubOrders = (data?.items ? [...data.items] : []).sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    const safeA = isNaN(timeA) ? 0 : timeA;
+    const safeB = isNaN(timeB) ? 0 : timeB;
+    return safeB - safeA;
+  });
 
-    return sortedSubOrders.map((subOrder) => {
-      const totalAmt =
-        typeof (subOrder as any).totalAmount === 'number'
-          ? (subOrder as any).totalAmount
-          : (subOrder.items?.reduce(
-              (acc, item) => acc + (item.lineTotal || 0),
-              0
-            ) || 0) + (subOrder.shippingRateApplied || 0);
-      let statusMapped: TransactionStatus = 'pending';
-      if (subOrder.status === 'DELIVERED') statusMapped = 'paid';
-      else if (
-        subOrder.status === 'PROCESSING' ||
-        subOrder.status === 'SHIPPED'
-      )
-        statusMapped = 'processing';
-      else if (subOrder.status === 'CANCELLED') statusMapped = 'failed';
-      else statusMapped = 'pending';
+  const transactions: Transaction[] = sortedSubOrders.map((subOrder) => {
+    const totalAmt =
+      typeof (subOrder as any).totalAmount === 'number'
+        ? (subOrder as any).totalAmount
+        : (subOrder.items?.reduce(
+            (acc, item) => acc + (item.lineTotal || 0),
+            0
+          ) || 0) + (subOrder.shippingRateApplied || 0);
+    let statusMapped: TransactionStatus = 'pending';
+    if (subOrder.status === 'DELIVERED') statusMapped = 'paid';
+    else if (
+      subOrder.status === 'PROCESSING' ||
+      subOrder.status === 'SHIPPED'
+    )
+      statusMapped = 'processing';
+    else if (subOrder.status === 'CANCELLED') statusMapped = 'failed';
+    else statusMapped = 'pending';
 
-      const d = new Date(subOrder.createdAt);
-      const formattedDate = isNaN(d.getTime())
-        ? subOrder.createdAt
-        : d.toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          });
+    const d = new Date(subOrder.createdAt);
+    const formattedDate = isNaN(d.getTime())
+      ? subOrder.createdAt
+      : d.toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
 
-      return {
-        date: formattedDate,
-        referenceNumber: `#${subOrder.id.slice(-8).toUpperCase()}`,
-        status: statusMapped,
-        amount: totalAmt,
-      };
-    });
-  }, [data?.items, isArabic]);
+    return {
+      date: formattedDate,
+      referenceNumber: `#${subOrder.id.slice(-8).toUpperCase()}`,
+      status: statusMapped,
+      amount: totalAmt,
+    };
+  });
 
-  const filtered = useMemo(() => {
-    return transactions.filter((tx) => {
-      // Status filter
-      if (selectedStatus !== 'all' && tx.status !== selectedStatus)
-        return false;
+  const filtered = transactions.filter((tx) => {
+    // Status filter
+    if (selectedStatus !== 'all' && tx.status !== selectedStatus)
+      return false;
 
-      // Date filter
-      if (selectedDate !== 'all') {
-        const txDateKey = getDateKey(tx.date);
-        if (txDateKey !== selectedDate) return false;
-      }
+    // Date filter
+    if (selectedDate !== 'all') {
+      const txDateKey = getDateKey(tx.date);
+      if (txDateKey !== selectedDate) return false;
+    }
 
-      return true;
-    });
-  }, [transactions, selectedStatus, selectedDate]);
+    return true;
+  });
 
   const totalItems = data?.pagination?.totalItems ?? filtered.length;
   const totalPages =
