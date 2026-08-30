@@ -63,6 +63,8 @@ export interface GetAdminRefundsParams {
   vendorId?: string;
   buyerAccountId?: string;
   orderId?: string;
+  orderNumber?: string;
+  refundNumber?: string;
   search?: string;
   startDate?: string;
   endDate?: string;
@@ -91,40 +93,26 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
     cleanParams.status = params.status;
   }
   if (params?.vendorId) cleanParams.vendorId = params.vendorId;
-  if (params?.buyerAccountId) {
-    cleanParams.buyerAccountId = params.buyerAccountId;
-    cleanParams.buyerId = params.buyerAccountId;
-  }
+  if (params?.buyerAccountId) cleanParams.buyerAccountId = params.buyerAccountId;
   if (params?.orderId) cleanParams.orderId = params.orderId;
-  if (params?.search) {
-    const trimmed = params.search.trim();
-    if (trimmed) {
-      cleanParams.search = trimmed;
-      cleanParams.q = trimmed;
-      cleanParams.query = trimmed;
-    }
+
+  const refundSearchVal = params?.refundNumber || params?.search;
+  if (refundSearchVal && refundSearchVal.trim()) {
+    const stripped = refundSearchVal.trim().replace(/^(#?REF-|#)/i, '').trim();
+    cleanParams.refundNumber = stripped || refundSearchVal.trim();
   }
-  if (params?.dateFilter && params.dateFilter !== 'all' && params.dateFilter !== 'custom') {
-    cleanParams.dateFilter = params.dateFilter;
-    cleanParams.date_filter = params.dateFilter;
-    cleanParams.period = params.dateFilter;
+
+  if (params?.dateFrom) {
+    cleanParams.dateFrom = params.dateFrom;
+  } else if (params?.startDate) {
+    cleanParams.dateFrom = params.startDate.split('T')[0];
   }
-  if (params?.startDate) {
-    const ymd = params.startDate.split('T')[0];
-    cleanParams.startDate = params.startDate;
-    cleanParams.dateFrom = ymd;
-    cleanParams.createdFrom = params.startDate;
-    cleanParams.from = ymd;
+
+  if (params?.dateTo) {
+    cleanParams.dateTo = params.dateTo;
+  } else if (params?.endDate) {
+    cleanParams.dateTo = params.endDate.split('T')[0];
   }
-  if (params?.endDate) {
-    const ymd = params.endDate.split('T')[0];
-    cleanParams.endDate = params.endDate;
-    cleanParams.dateTo = ymd;
-    cleanParams.createdTo = params.endDate;
-    cleanParams.to = ymd;
-  }
-  if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
-  if (params?.dateTo) cleanParams.dateTo = params.dateTo;
 
   const response = await api.get('/admin/refunds', {
     params: cleanParams,
@@ -250,13 +238,10 @@ export async function updateAdminRefundNotes(id: string, notes: string): Promise
  */
 export function mapAdminRefundToTableItem(refund: AdminRefund): TableItem {
   const shortId = refund.id ? (refund.id.length > 8 ? refund.id.slice(-6).toUpperCase() : refund.id) : 'N/A';
-  const code = `#REF-${shortId}`;
-  const orderIdShort = refund.orderId
-    ? refund.orderId.length > 8
-      ? refund.orderId.slice(-6).toUpperCase()
-      : refund.orderId
-    : 'N/A';
-  const orderCode = `#ORD-${orderIdShort}`;
+  const refundNo = (refund as any).refundNumber ?? (refund as any).refundNo ?? shortId;
+  const code = `#REF-${refundNo}`;
+  const orderNo = (refund as any).orderNumber ?? (refund as any).order?.orderNumber ?? (refund.orderId ? (refund.orderId.length > 8 ? refund.orderId.slice(-6).toUpperCase() : refund.orderId) : 'N/A');
+  const orderCode = `#ORD-${orderNo}`;
 
   const customerName = refund.customer
     ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || '--'

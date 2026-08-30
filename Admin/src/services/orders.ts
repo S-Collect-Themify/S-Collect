@@ -157,30 +157,27 @@ export async function getAdminOrders(params?: GetAdminOrdersParams): Promise<Adm
 
   if (params?.buyerAccountId) cleanParams.buyerAccountId = params.buyerAccountId;
   if (params?.vendorId) cleanParams.vendorId = params.vendorId;
-  if (params?.status && params.status !== 'All' && params.status !== 'all') cleanParams.status = params.status;
-  if (params?.search) cleanParams.search = params.search;
-  if (params?.dateFilter && params.dateFilter !== 'all') {
-    cleanParams.dateFilter = params.dateFilter;
-    cleanParams.date_filter = params.dateFilter;
-    cleanParams.period = params.dateFilter;
+  if (params?.status && params.status !== 'All' && params.status !== 'all') {
+    cleanParams.status = params.status;
   }
-  if (params?.startDate) {
-    const ymd = params.startDate.split('T')[0];
-    cleanParams.startDate = params.startDate;
-    cleanParams.dateFrom = ymd;
-    cleanParams.createdFrom = params.startDate;
-    cleanParams.from = ymd;
+
+  const orderSearchVal = params?.orderNumber || params?.search;
+  if (orderSearchVal && orderSearchVal.trim()) {
+    const stripped = orderSearchVal.trim().replace(/^(#?ORD-|#)/i, '').trim();
+    cleanParams.orderNumber = stripped || orderSearchVal.trim();
   }
-  if (params?.endDate) {
-    const ymd = params.endDate.split('T')[0];
-    cleanParams.endDate = params.endDate;
-    cleanParams.dateTo = ymd;
-    cleanParams.createdTo = params.endDate;
-    cleanParams.to = ymd;
+
+  if (params?.dateFrom) {
+    cleanParams.dateFrom = params.dateFrom;
+  } else if (params?.startDate) {
+    cleanParams.dateFrom = params.startDate.split('T')[0];
   }
-  if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
-  if (params?.dateTo) cleanParams.dateTo = params.dateTo;
-  if (params?.orderNumber) cleanParams.orderNumber = params.orderNumber;
+
+  if (params?.dateTo) {
+    cleanParams.dateTo = params.dateTo;
+  } else if (params?.endDate) {
+    cleanParams.dateTo = params.endDate.split('T')[0];
+  }
 
   const response = await api.get('/admin/orders', {
     params: cleanParams,
@@ -256,6 +253,7 @@ export interface GetAdminSubOrdersParams {
   endDate?: string;
   dateFrom?: string;
   dateTo?: string;
+  orderNumber?: string;
 }
 
 export interface AdminSubOrderItem {
@@ -321,8 +319,9 @@ export async function getAdminSubOrders(
         perPage: pageSize,
         per_page: pageSize,
         status: params?.status && params.status !== 'All' ? params.status : undefined,
-        search: params?.search || undefined,
-        q: params?.search || undefined,
+        search: params?.search?.trim() || undefined,
+        q: params?.search?.trim() || undefined,
+        orderNumber: params?.orderNumber || undefined,
         startDate: params?.startDate,
         endDate: params?.endDate,
         dateFrom: params?.dateFrom || params?.startDate,

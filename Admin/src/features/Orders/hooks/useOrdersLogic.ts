@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from '../../../hooks/useBreakpoint';
 import {
@@ -29,6 +29,15 @@ export const useOrdersLogic = () => {
 
   // Filters State
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('all');
   const [customRange, setCustomRange] = useState<{ dateFrom: string; dateTo: string }>(() => {
@@ -81,7 +90,7 @@ export const useOrdersLogic = () => {
   }, [dateFilter, customRange]);
 
   const statusParam = statusFilter !== 'All' ? statusFilter.toUpperCase() : undefined;
-  const searchParam = search.trim() || undefined;
+  const searchParam = debouncedSearch.trim() || undefined;
 
   // ─── Mode: vendor-filtered sub-orders vs. all orders ─────────────────────────
   // When a vendorId is in the URL, we switch to /admin/sub-orders?vendorId=xxx
@@ -101,6 +110,7 @@ export const useOrdersLogic = () => {
       pageSize: itemsPerPage,
       status: statusParam,
       search: searchParam,
+      orderNumber: searchParam ? searchParam.trim().replace(/^(#?ORD-|#)/i, '').trim() : undefined,
       startDate: startDateParam,
       endDate: endDateParam,
     },
@@ -119,6 +129,7 @@ export const useOrdersLogic = () => {
       buyerAccountId: buyerAccountIdFilter,
       status: statusParam,
       search: searchParam,
+      orderNumber: searchParam ? searchParam.trim().replace(/^(#?ORD-|#)/i, '').trim() : undefined,
       dateFilter: dateFilter !== 'all' && dateFilter !== 'custom' ? dateFilter : undefined,
       startDate: startDateParam,
       endDate: endDateParam,
@@ -138,6 +149,7 @@ export const useOrdersLogic = () => {
       vendorId: vendorIdFilter,
       buyerAccountId: buyerAccountIdFilter,
       search: searchParam,
+      refundNumber: searchParam ? searchParam.trim().replace(/^(#?REF-|#)/i, '').trim() : undefined,
       dateFilter: dateFilter !== 'all' && dateFilter !== 'custom' ? dateFilter : undefined,
       startDate: startDateParam,
       endDate: endDateParam,

@@ -135,13 +135,13 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
             onChange={(e) => onSearchChange(e.target.value)}
             aria-label={
               activeMainTab === 'allOrders'
-                ? t('ordersPage.searchOrders', 'Search orders...')
-                : t('ordersPage.searchRefunds', 'Search refunds...')
+                ? t('ordersPage.searchOrders', 'Search by order number...')
+                : t('ordersPage.searchRefunds', 'Search by refund number...')
             }
             placeholder={
               activeMainTab === 'allOrders'
-                ? t('ordersPage.searchOrders', 'Search orders...')
-                : t('ordersPage.searchRefunds', 'Search refunds...')
+                ? t('ordersPage.searchOrders', 'Search by order number...')
+                : t('ordersPage.searchRefunds', 'Search by refund number...')
             }
             className={`w-full py-2 p-0.5 rounded-lg border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white ${
               isRtl ? 'pr-10 pl-4' : 'pl-10 pr-4'
