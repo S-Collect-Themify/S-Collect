@@ -22,10 +22,13 @@ const RecentOrdersTable = () => {
   }
 
   const recentOrders = [...(data?.items ?? [])]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
+    .sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
+    })
     .slice(0, 5);
 
   const getStatusLabel = (status: SubOrderStatus) => {

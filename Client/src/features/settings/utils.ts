@@ -130,3 +130,11 @@ export function formatSaudiPhone(value?: string | null): {
   const full = digits ? `+966${digits}` : '';
   return { formatted, full };
 }
+
+export function isValidSaudiPhone(phone?: string | null): boolean {
+  if (!phone) return false;
+  const { full } = formatSaudiPhone(phone);
+  return full.length === 13 && /^\+9665\d{8}$/.test(full);
+}
+
+

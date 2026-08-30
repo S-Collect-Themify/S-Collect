@@ -33,7 +33,15 @@ export default function ReceivablesTable() {
 
   const transactions: Transaction[] = useMemo(() => {
     if (!data?.items) return [];
-    return data.items.map((subOrder) => {
+    const sortedSubOrders = [...data.items].sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
+    });
+
+    return sortedSubOrders.map((subOrder) => {
       const totalAmt =
         typeof (subOrder as any).totalAmount === 'number'
           ? (subOrder as any).totalAmount

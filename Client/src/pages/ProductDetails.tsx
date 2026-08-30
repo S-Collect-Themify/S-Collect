@@ -54,7 +54,7 @@ const ProductDetails = () => {
 
   const { data: reviewsData } = useQuery({
     queryKey: ['product-reviews', id],
-    queryFn: () => getVendorReviews({ productId: id }),
+    queryFn: () => getVendorReviews({ productId: id, sortBy: 'createdAt' }),
     enabled: Boolean(id),
   });
 
@@ -64,7 +64,15 @@ const ProductDetails = () => {
   );
 
   const mappedReviews: Review[] = useMemo(() => {
-    return reviewsList.map((rev) => {
+    const sorted = [...reviewsList].sort((a, b) => {
+      const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
+    });
+
+    return sorted.map((rev) => {
       const fName = rev?.buyer?.firstName || '';
       const lName = rev?.buyer?.lastName || '';
       const fullName = `${fName} ${lName}`.trim();

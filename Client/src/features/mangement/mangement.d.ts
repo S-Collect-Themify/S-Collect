@@ -13,4 +13,6 @@ export interface Product {
   enabled: boolean;
   isDisabled?: boolean;
   icon: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

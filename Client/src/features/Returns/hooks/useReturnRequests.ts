@@ -201,6 +201,14 @@ export function useReturnRequests() {
       });
     }
 
+    itemsList.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
+    });
+
     return itemsList;
   }, [refundsData, subOrdersData]);
 

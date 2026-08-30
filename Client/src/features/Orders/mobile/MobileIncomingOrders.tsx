@@ -1,5 +1,5 @@
 // features/Orders/mobile/MobileIncomingOrders.tsx
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Package, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -44,7 +44,17 @@ const MobileIncomingOrders = () => {
     status: statusFilter,
   });
 
-  const orders = data?.items ?? [];
+  const orders = useMemo(() => {
+    const raw = data?.items ?? [];
+    return [...raw].sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
+    });
+  }, [data?.items]);
+
   const totalPages = data?.pagination?.totalPages ?? 0;
   const totalItems = data?.pagination?.totalItems ?? 0;
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
