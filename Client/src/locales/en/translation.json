@@ -652,7 +652,7 @@
     "table": {
       "id": "ID",
       "date": "Date",
-      "customer": "Customer",
+      "items": "Items",
       "amount": "Amount",
       "status": "Status",
       "action": "Action",
