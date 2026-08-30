@@ -186,7 +186,7 @@ export function useManagementTable() {
       }
 
       return {
-        id: p.id,
+        id: p.id || p._id || p.productId || '',
         name: isArabic ? p.nameAr || p.name || '' : p.name || p.nameAr || '',
         category: categoryId,
         categoryName,
@@ -241,6 +241,20 @@ export function useManagementTable() {
     startIndex + ITEMS_PER_PAGE
   );
 
+  const selectablePaginatedProducts = paginatedProducts.filter(
+    (p) => !p.isDisabled && p.status !== 'Disabled'
+  );
+  const allChecked =
+    selectablePaginatedProducts.length > 0 &&
+    selectablePaginatedProducts.every((product) =>
+      selectedRows.some((rowId) => String(rowId) === String(product.id))
+    );
+  const isIndeterminate =
+    !allChecked &&
+    selectablePaginatedProducts.some((product) =>
+      selectedRows.some((rowId) => String(rowId) === String(product.id))
+    );
+
   return {
     itemsPerPage: ITEMS_PER_PAGE,
     isLoading,
@@ -255,11 +269,8 @@ export function useManagementTable() {
     totalItems,
     totalPages,
     selectedCount: selectedRows.length,
-    allChecked:
-      paginatedProducts.some((p) => !p.isDisabled && p.status !== 'Disabled') &&
-      paginatedProducts
-        .filter((p) => !p.isDisabled && p.status !== 'Disabled')
-        .every((product) => selectedRows.includes(product.id)),
+    allChecked,
+    isIndeterminate,
   };
 }
 

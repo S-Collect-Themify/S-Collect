@@ -23,7 +23,9 @@ export function useReturnRequests() {
   // Search parameters from URL (Single source of truth)
   const search = searchParams.get('search') || '';
   const statusFilter = searchParams.get('status') || 'ALL';
-  const dateFilter = searchParams.get('date') || 'ALL';
+  const dateFilter = searchParams.get('date') || 'all';
+  const customStartDate = searchParams.get('startDate') || '';
+  const customEndDate = searchParams.get('endDate') || '';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   // Fetch refund requests from backend /vendor/refunds
@@ -223,19 +225,43 @@ export function useReturnRequests() {
         statusFilter === 'ALL' || item.status === statusFilter;
 
       let matchDate = true;
-      if (dateFilter !== 'ALL') {
-        const days = parseInt(dateFilter, 10);
-        if (!isNaN(days)) {
-          const itemDate = new Date(item.createdAt || '');
-          const limitDate = new Date();
-          limitDate.setDate(limitDate.getDate() - days);
-          matchDate = itemDate >= limitDate;
+      const normalizedDate = (dateFilter || 'all').toLowerCase();
+      if (normalizedDate !== 'all') {
+        const itemDate = new Date(item.createdAt || '');
+        if (!isNaN(itemDate.getTime())) {
+          if (normalizedDate === 'custom') {
+            if (customStartDate) {
+              const startD = new Date(`${customStartDate}T00:00:00`);
+              if (!isNaN(startD.getTime()) && itemDate < startD) matchDate = false;
+            }
+            if (customEndDate) {
+              const endD = new Date(`${customEndDate}T23:59:59.999`);
+              if (!isNaN(endD.getTime()) && itemDate > endD) matchDate = false;
+            }
+          } else if (normalizedDate === 'thismonth') {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+            matchDate = itemDate >= monthStart;
+          } else if (normalizedDate === 'lastmonth') {
+            const now = new Date();
+            const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+            const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+            matchDate = itemDate >= lastMonthStart && itemDate <= lastMonthEnd;
+          } else {
+            const days = parseInt(normalizedDate, 10);
+            if (!isNaN(days)) {
+              const limitDate = new Date();
+              limitDate.setDate(limitDate.getDate() - days);
+              limitDate.setHours(0, 0, 0, 0);
+              matchDate = itemDate >= limitDate;
+            }
+          }
         }
       }
 
       return matchSearch && matchStatus && matchDate;
     });
-  }, [allItems, search, statusFilter, dateFilter]);
+  }, [allItems, search, statusFilter, dateFilter, customStartDate, customEndDate]);
 
   // Pagination calculations
   const ITEMS_PER_PAGE = 7;
@@ -271,10 +297,28 @@ export function useReturnRequests() {
     });
   };
 
-  const handleDateFilterChange = (val: string) => {
+  const handleDateFilterChange = (
+    val: string,
+    customRange?: { startDate?: string; endDate?: string }
+  ) => {
     setSearchParams((prev) => {
-      if (val) prev.set('date', val);
-      else prev.delete('date');
+      const normalized = (val || 'all').toLowerCase();
+      if (normalized !== 'all') {
+        prev.set('date', val);
+        if (normalized === 'custom' && customRange) {
+          if (customRange.startDate) prev.set('startDate', customRange.startDate);
+          else prev.delete('startDate');
+          if (customRange.endDate) prev.set('endDate', customRange.endDate);
+          else prev.delete('endDate');
+        } else {
+          prev.delete('startDate');
+          prev.delete('endDate');
+        }
+      } else {
+        prev.delete('date');
+        prev.delete('startDate');
+        prev.delete('endDate');
+      }
       prev.set('page', '1');
       return prev;
     });
@@ -343,6 +387,8 @@ export function useReturnRequests() {
     search,
     statusFilter,
     dateFilter,
+    customStartDate,
+    customEndDate,
     activePage,
     currentItems,
     filteredItems,
