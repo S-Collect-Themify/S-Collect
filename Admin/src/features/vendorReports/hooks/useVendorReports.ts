@@ -10,9 +10,20 @@ import {
 import { exportToCSV, exportToPDF, type ExportSummaryStat } from '../../../utils/exportUtils';
 import type { DateRangeKey, DetailedOrder, OrderStatus } from '../types';
 
-export function getDateRangeStrings(rangeKey: DateRangeKey): { dateFrom: string; dateTo: string } {
+export function getDateRangeStrings(
+  rangeKey: DateRangeKey,
+  customRange?: { dateFrom?: string; dateTo?: string }
+): { dateFrom: string; dateTo: string } {
   const now = new Date();
   const dateTo = now.toISOString().split('T')[0];
+
+  if (rangeKey === 'custom' && customRange?.dateFrom && customRange?.dateTo) {
+    return {
+      dateFrom: customRange.dateFrom,
+      dateTo: customRange.dateTo,
+    };
+  }
+
   let fromDate = new Date();
 
   switch (rangeKey) {

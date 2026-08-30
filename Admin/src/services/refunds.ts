@@ -63,8 +63,14 @@ export interface GetAdminRefundsParams {
   vendorId?: string;
   buyerAccountId?: string;
   orderId?: string;
+  orderNumber?: string;
+  refundNumber?: string;
   search?: string;
   startDate?: string;
+  endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  dateFilter?: string;
 }
 
 /**
@@ -74,50 +80,82 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 20;
 
+  const cleanParams: Record<string, unknown> = {
+    pageNum,
+    page: pageNum,
+    pageSize,
+    limit: pageSize,
+    perPage: pageSize,
+    per_page: pageSize,
+  };
+
+  if (params?.status && params.status !== 'ALL' && params.status !== 'All' && params.status !== 'all') {
+    cleanParams.status = params.status;
+  }
+  if (params?.vendorId) cleanParams.vendorId = params.vendorId;
+  if (params?.buyerAccountId) cleanParams.buyerAccountId = params.buyerAccountId;
+  if (params?.orderId) cleanParams.orderId = params.orderId;
+
+  const refundSearchVal = params?.refundNumber || params?.search;
+  if (refundSearchVal && refundSearchVal.trim()) {
+    const stripped = refundSearchVal.trim().replace(/^(#?REF-|#)/i, '').trim();
+    cleanParams.refundNumber = stripped || refundSearchVal.trim();
+  }
+
+  if (params?.dateFrom) {
+    cleanParams.dateFrom = params.dateFrom;
+  } else if (params?.startDate) {
+    cleanParams.dateFrom = params.startDate.split('T')[0];
+  }
+
+  if (params?.dateTo) {
+    cleanParams.dateTo = params.dateTo;
+  } else if (params?.endDate) {
+    cleanParams.dateTo = params.endDate.split('T')[0];
+  }
+
   const response = await api.get('/admin/refunds', {
-    params: {
-      pageNum,
-      page: pageNum,
-      pageSize,
-      limit: pageSize,
-      perPage: pageSize,
-      per_page: pageSize,
-      status: params?.status,
-      vendorId: params?.vendorId,
-      buyerAccountId: params?.buyerAccountId,
-      buyerId: params?.buyerAccountId,
-      orderId: params?.orderId,
-      search: params?.search || undefined,
-      q: params?.search || undefined,
-      query: params?.search || undefined,
-      startDate: params?.startDate,
-    },
+    params: cleanParams,
   });
 
   const resData = response.data;
   let items: AdminRefund[] = [];
   let pagination = {
-    currentPage: params?.pageNum ?? 1,
-    pageSize: params?.pageSize ?? 25,
+    currentPage: pageNum,
+    pageSize,
     totalItems: 0,
     totalPages: 1,
   };
 
   if (resData) {
-    if (Array.isArray(resData.items)) {
+    const d = resData.data || resData;
+    if (Array.isArray(d.items)) {
+      items = d.items;
+    } else if (Array.isArray(d)) {
+      items = d;
+    } else if (Array.isArray(resData.items)) {
       items = resData.items;
-      if (resData.pagination) {
-        pagination = { ...pagination, ...resData.pagination };
-      }
-    } else if (resData.data && Array.isArray(resData.data.items)) {
-      items = resData.data.items;
-      if (resData.data.pagination) {
-        pagination = { ...pagination, ...resData.data.pagination };
-      }
-    } else if (Array.isArray(resData.data)) {
-      items = resData.data;
     } else if (Array.isArray(resData)) {
       items = resData;
+    }
+
+    const p = d.pagination || resData.pagination;
+    if (p && typeof p === 'object' && ('totalItems' in p || 'total' in p || 'totalCount' in p || 'totalPages' in p)) {
+      const totalItems = Number(p.totalItems ?? p.total ?? p.totalCount ?? p.count ?? items.length);
+      const totalPages = Number(p.totalPages ?? p.pageCount ?? Math.max(1, Math.ceil(totalItems / pageSize)));
+      pagination = {
+        currentPage: Number(p.currentPage ?? p.page ?? pageNum),
+        pageSize: Number(p.pageSize ?? p.limit ?? p.perPage ?? pageSize),
+        totalItems,
+        totalPages,
+      };
+    } else {
+      pagination = {
+        currentPage: pageNum,
+        pageSize,
+        totalItems: items.length,
+        totalPages: items.length > 0 ? Math.max(1, Math.ceil(items.length / pageSize)) : 1,
+      };
     }
   }
 
@@ -200,13 +238,10 @@ export async function updateAdminRefundNotes(id: string, notes: string): Promise
  */
 export function mapAdminRefundToTableItem(refund: AdminRefund): TableItem {
   const shortId = refund.id ? (refund.id.length > 8 ? refund.id.slice(-6).toUpperCase() : refund.id) : 'N/A';
-  const code = `#REF-${shortId}`;
-  const orderIdShort = refund.orderId
-    ? refund.orderId.length > 8
-      ? refund.orderId.slice(-6).toUpperCase()
-      : refund.orderId
-    : 'N/A';
-  const orderCode = `#ORD-${orderIdShort}`;
+  const refundNo = (refund as any).refundNumber ?? (refund as any).refundNo ?? shortId;
+  const code = `#REF-${refundNo}`;
+  const orderNo = (refund as any).orderNumber ?? (refund as any).order?.orderNumber ?? (refund.orderId ? (refund.orderId.length > 8 ? refund.orderId.slice(-6).toUpperCase() : refund.orderId) : 'N/A');
+  const orderCode = `#ORD-${orderNo}`;
 
   const customerName = refund.customer
     ? `${refund.customer.firstName || ''} ${refund.customer.lastName || ''}`.trim() || '--'

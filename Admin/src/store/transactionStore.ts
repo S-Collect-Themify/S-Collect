@@ -9,6 +9,8 @@ interface TransactionState {
   tempMin: string;
   tempMax: string;
   dateRangeKey: string;
+  customFrom: string;
+  customTo: string;
   page: number;
   pageSize: number;
 
@@ -20,6 +22,7 @@ interface TransactionState {
   setTempMin: (min: string) => void;
   setTempMax: (max: string) => void;
   setDateRangeKey: (key: string) => void;
+  setCustomRange: (from: string, to: string) => void;
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
   initTempAmount: () => void;
@@ -28,58 +31,67 @@ interface TransactionState {
   resetFilters: () => void;
 }
 
-export const useTransactionStore = create<TransactionState>((set) => ({
-  search: '',
-  statusFilter: 'ALL',
-  minAmount: '',
-  maxAmount: '',
-  tempMin: '',
-  tempMax: '',
-  dateRangeKey: 'all',
-  page: 1,
-  pageSize: 20,
+export const useTransactionStore = create<TransactionState>((set) => {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  setSearch: (search) => set({ search, page: 1 }),
-  setStatusFilter: (statusFilter) => set({ statusFilter, page: 1 }),
-  setMinAmount: (minAmount) => set({ minAmount, page: 1 }),
-  setMaxAmount: (maxAmount) => set({ maxAmount, page: 1 }),
-  setTempMin: (tempMin) => set({ tempMin }),
-  setTempMax: (tempMax) => set({ tempMax }),
-  setDateRangeKey: (dateRangeKey) => set({ dateRangeKey, page: 1 }),
-  setPage: (page) => set({ page }),
-  setPageSize: (pageSize) => set({ pageSize, page: 1 }),
+  return {
+    search: '',
+    statusFilter: 'ALL',
+    minAmount: '',
+    maxAmount: '',
+    tempMin: '',
+    tempMax: '',
+    dateRangeKey: 'all',
+    customFrom: thirtyDaysAgo.toISOString().split('T')[0],
+    customTo: now.toISOString().split('T')[0],
+    page: 1,
+    pageSize: 20,
 
-  initTempAmount: () =>
-    set((state) => ({
-      tempMin: state.minAmount,
-      tempMax: state.maxAmount,
-    })),
+    setSearch: (search) => set({ search, page: 1 }),
+    setStatusFilter: (statusFilter) => set({ statusFilter, page: 1 }),
+    setMinAmount: (minAmount) => set({ minAmount, page: 1 }),
+    setMaxAmount: (maxAmount) => set({ maxAmount, page: 1 }),
+    setTempMin: (tempMin) => set({ tempMin }),
+    setTempMax: (tempMax) => set({ tempMax }),
+    setDateRangeKey: (dateRangeKey) => set({ dateRangeKey, page: 1 }),
+    setCustomRange: (customFrom, customTo) =>
+      set({ customFrom, customTo, dateRangeKey: 'custom', page: 1 }),
+    setPage: (page) => set({ page }),
+    setPageSize: (pageSize) => set({ pageSize, page: 1 }),
 
-  applyTempAmount: () =>
-    set((state) => ({
-      minAmount: state.tempMin,
-      maxAmount: state.tempMax,
-      page: 1,
-    })),
+    initTempAmount: () =>
+      set((state) => ({
+        tempMin: state.minAmount,
+        tempMax: state.maxAmount,
+      })),
 
-  clearAmountFilter: () =>
-    set({
-      tempMin: '',
-      tempMax: '',
-      minAmount: '',
-      maxAmount: '',
-      page: 1,
-    }),
+    applyTempAmount: () =>
+      set((state) => ({
+        minAmount: state.tempMin,
+        maxAmount: state.tempMax,
+        page: 1,
+      })),
 
-  resetFilters: () =>
-    set({
-      search: '',
-      statusFilter: 'ALL',
-      minAmount: '',
-      maxAmount: '',
-      tempMin: '',
-      tempMax: '',
-      dateRangeKey: 'all',
-      page: 1,
-    }),
-}));
+    clearAmountFilter: () =>
+      set({
+        tempMin: '',
+        tempMax: '',
+        minAmount: '',
+        maxAmount: '',
+        page: 1,
+      }),
+
+    resetFilters: () =>
+      set({
+        search: '',
+        statusFilter: 'ALL',
+        minAmount: '',
+        maxAmount: '',
+        tempMin: '',
+        tempMax: '',
+        dateRangeKey: 'all',
+        page: 1,
+      }),
+  };
+});
