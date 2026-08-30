@@ -22,6 +22,8 @@ export default function Orders() {
     handleStatusFilterChange,
     dateFilter,
     handleDateFilterChange,
+    customRange,
+    handleApplyCustomDate,
     buyerAccountIdFilter,
     handleBuyerFilterChange,
     setPage,
@@ -66,6 +68,9 @@ export default function Orders() {
           onStatusFilterChange={handleStatusFilterChange}
           dateFilter={dateFilter}
           onDateFilterChange={handleDateFilterChange}
+          customFrom={customRange.dateFrom}
+          customTo={customRange.dateTo}
+          onApplyCustomDate={handleApplyCustomDate}
           buyerAccountId={buyerAccountIdFilter}
           onBuyerAccountIdChange={handleBuyerFilterChange}
         />

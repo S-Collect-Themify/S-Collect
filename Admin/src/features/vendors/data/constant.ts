@@ -1,8 +1,6 @@
 export const VENDOR_CATEGORIES: string[] = [];
 
-// ── Per-vendor mock detail data ────────────────────────────────────────────────
-
-export interface MockOrder {
+export interface VendorRecentOrder {
   id: string;
   submittedDate: string;
   customerName: string;
@@ -10,14 +8,14 @@ export interface MockOrder {
   price: number;
 }
 
-export interface MockProduct {
+export interface VendorRecentProduct {
   name: string;
   category: string;
   price: number;
   status: 'active' | 'inactive';
 }
 
-export interface MockPayout {
+export interface VendorRecentPayout {
   id: string;
   date: string;
   amount: number;
@@ -25,9 +23,3 @@ export interface MockPayout {
   adminName: string;
   status: 'completed' | 'accepted' | 'pending' | 'rejected';
 }
-
-export const VENDOR_MOCK_ORDERS: Record<number, MockOrder[]> = {};
-
-export const VENDOR_MOCK_PRODUCTS: Record<number, MockProduct[]> = {};
-
-export const VENDOR_MOCK_PAYOUTS: Record<number, MockPayout[]> = {};

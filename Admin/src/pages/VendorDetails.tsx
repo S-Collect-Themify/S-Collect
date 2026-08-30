@@ -10,7 +10,7 @@ import {
   useVendorSubOrders,
 } from '../features/vendors/hooks/useVendors';
 import {
-  type MockOrder,
+  type VendorRecentOrder,
 } from '../features/vendors/data/constant';
 import { containerVariants } from '../features/vendors/components/VendorDetailsCards';
 import VendorDetailsHeader from '../features/vendors/components/VendorDetailsHeader';
@@ -108,7 +108,7 @@ export default function VendorDetails() {
       });
     }
 
-    return [] as MockOrder[];
+    return [] as VendorRecentOrder[];
   }, [apiSubOrdersData]);
   
   const products = useMemo(() => {

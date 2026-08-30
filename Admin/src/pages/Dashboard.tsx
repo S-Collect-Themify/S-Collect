@@ -1,12 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, ChevronDown } from 'lucide-react';
 import RevenueStatCards from '../features/dashboard/RevenueStatCards';
 import RevenueSalesChart from '../features/dashboard/RevenueSalesChart';
 import OrdersStatusDonut from '../features/dashboard/OrdersStatusDonut';
 import VoucherOverviewSection from '../features/dashboard/VoucherOverviewSection';
 import TopPerformingVendorsSection from '../features/dashboard/TopPerformingVendorsSection';
-import PortalDropdown from '../components/ui/PortalDropdown';
+import DashboardDateFilter from '../features/dashboard/components/DashboardDateFilter';
 import { getDateFromToParams } from '../features/dashboard/hooks/useRevenueOverview';
 import { useAdminProfile } from '../hooks/useAdminProfile';
 
@@ -16,19 +15,29 @@ export default function Dashboard() {
   const { fullName } = useAdminProfile();
   const adminName = fullName;
 
-  const dateRanges = [
-    { key: 'last7Days', defaultLabel: 'Last 7 Days' },
-    { key: 'last30Days', defaultLabel: 'Last 30 Days' },
-    { key: 'thisMonth', defaultLabel: 'This Month' },
-    { key: 'thisYear', defaultLabel: 'This Year' },
-  ];
-
   const [dateRangeKey, setDateRangeKey] = useState('last30Days');
+  const [customRange, setCustomRange] = useState<{ dateFrom: string; dateTo: string }>(() => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return {
+      dateFrom: thirtyDaysAgo.toISOString().split('T')[0],
+      dateTo: now.toISOString().split('T')[0],
+    };
+  });
 
   const { dateFrom, dateTo } = useMemo(
-    () => getDateFromToParams(dateRangeKey),
-    [dateRangeKey]
+    () => getDateFromToParams(dateRangeKey, customRange),
+    [dateRangeKey, customRange]
   );
+
+  const handleSelectPreset = (key: string) => {
+    setDateRangeKey(key);
+  };
+
+  const handleApplyCustom = (from: string, to: string) => {
+    setCustomRange({ dateFrom: from, dateTo: to });
+    setDateRangeKey('custom');
+  };
 
   return (
     <div className="flex-1 flex flex-col font-sans bg-gray-50/50 min-h-screen" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -50,48 +59,14 @@ export default function Dashboard() {
             {t('dashboardOverview.revenueOverview', 'Revenue Overview')}
           </h1>
 
-          {/* Date Range Dropdown */}
-          <PortalDropdown
-            minWidth={140}
-            animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
-            trigger={({ isOpen, toggle }) => (
-              <button
-                onClick={toggle}
-                className="flex items-center gap-2 h-9 px-3.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                <Calendar size={14} className="text-gray-400" />
-                <span>
-                  {t(`dashboardOverview.${dateRangeKey}`, dateRanges.find((r) => r.key === dateRangeKey)?.defaultLabel ?? '')}
-                </span>
-                <ChevronDown
-                  size={13}
-                  className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-            )}
-          >
-            {({ close }) => (
-              <div className="py-1">
-                {dateRanges.map((r) => (
-                  <button
-                    key={r.key}
-                    onClick={() => {
-                      setDateRangeKey(r.key);
-                      close();
-                    }}
-                    className={`w-full text-start px-3.5 py-2 text-xs transition-colors cursor-pointer ${
-                      dateRangeKey === r.key
-                        ? 'bg-green-50 text-green-700 font-semibold'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t(`dashboardOverview.${r.key}`, r.defaultLabel)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </PortalDropdown>
+          {/* Date Range Selector with Custom Option */}
+          <DashboardDateFilter
+            dateRangeKey={dateRangeKey}
+            customFrom={customRange.dateFrom}
+            customTo={customRange.dateTo}
+            onSelectPreset={handleSelectPreset}
+            onApplyCustom={handleApplyCustom}
+          />
         </div>
       </div>
 

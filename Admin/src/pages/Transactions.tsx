@@ -9,8 +9,15 @@ import {
   TransactionsPagination,
 } from '../features/transactions';
 
-function getDateParamsFromRangeKey(rangeKey: string): { dateFrom?: string; dateTo?: string } {
+function getDateParamsFromRangeKey(
+  rangeKey: string,
+  customRange?: { dateFrom?: string; dateTo?: string }
+): { dateFrom?: string; dateTo?: string } {
   if (!rangeKey || rangeKey === 'all') return {};
+
+  if (rangeKey === 'custom' && customRange?.dateFrom && customRange?.dateTo) {
+    return { dateFrom: customRange.dateFrom, dateTo: customRange.dateTo };
+  }
 
   const now = new Date();
   const formatDate = (d: Date) => d.toISOString().split('T')[0];
@@ -43,12 +50,14 @@ export default function Transactions() {
   const minAmount = useTransactionStore((s) => s.minAmount);
   const maxAmount = useTransactionStore((s) => s.maxAmount);
   const dateRangeKey = useTransactionStore((s) => s.dateRangeKey);
+  const customFrom = useTransactionStore((s) => s.customFrom);
+  const customTo = useTransactionStore((s) => s.customTo);
   const page = useTransactionStore((s) => s.page);
   const pageSize = useTransactionStore((s) => s.pageSize);
 
   const { dateFrom, dateTo } = useMemo(
-    () => getDateParamsFromRangeKey(dateRangeKey),
-    [dateRangeKey]
+    () => getDateParamsFromRangeKey(dateRangeKey, { dateFrom: customFrom, dateTo: customTo }),
+    [dateRangeKey, customFrom, customTo]
   );
 
   const parsedMin = minAmount !== '' ? parseFloat(minAmount) : undefined;

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, ChevronDown, DollarSign, Calendar } from 'lucide-react';
+import { Search, ChevronDown, DollarSign, Calendar, Check } from 'lucide-react';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 import { useTransactionStore } from '../../../store/transactionStore';
 import type { TransactionStatusFilter } from '../types/transaction.types';
@@ -41,7 +41,39 @@ export const TransactionsFilterBar: React.FC = () => {
     clearAmountFilter,
     dateRangeKey,
     setDateRangeKey,
+    customFrom,
+    customTo,
+    setCustomRange,
   } = useTransactionStore();
+
+  const [showCustomDateInputs, setShowCustomDateInputs] = useState(dateRangeKey === 'custom');
+  const [tempDateFrom, setTempDateFrom] = useState(customFrom);
+  const [tempDateTo, setTempDateTo] = useState(customTo);
+  const [dateError, setDateError] = useState<string | null>(null);
+
+  const getDateTriggerLabel = () => {
+    if (dateRangeKey === 'custom' && customFrom && customTo) {
+      return `${customFrom} ${isRtl ? '←' : '→'} ${customTo}`;
+    }
+    const currentOpt = DATE_RANGES.find((r) => r.key === dateRangeKey);
+    return currentOpt
+      ? t(`dashboardOverview.${currentOpt.translationKey}`, currentOpt.defaultLabel)
+      : t('dashboardOverview.allDates', 'All Dates');
+  };
+
+  const handleApplyCustomDate = (close: () => void) => {
+    if (!tempDateFrom || !tempDateTo) {
+      setDateError(t('dashboardOverview.invalidDateRange', 'Please select both dates'));
+      return;
+    }
+    if (tempDateFrom > tempDateTo) {
+      setDateError(t('dashboardOverview.invalidDateRange', 'Start date must be before end date'));
+      return;
+    }
+    setDateError(null);
+    setCustomRange(tempDateFrom, tempDateTo);
+    close();
+  };
 
   let amountLabel = t('dashboardOverview.transactionsLog.amountLabel', 'Amount');
   if (minAmount && maxAmount) {
@@ -251,24 +283,26 @@ export const TransactionsFilterBar: React.FC = () => {
 
         {/* Date Range Dropdown */}
         <PortalDropdown
-          minWidth={140}
+          minWidth={280}
+          align={isRtl ? 'left' : 'right'}
           animate={false}
-          menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
+          menuClassName="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 p-2"
           trigger={({ isOpen, toggle }) => (
             <button
               type="button"
-              onClick={toggle}
+              onClick={() => {
+                setTempDateFrom(customFrom);
+                setTempDateTo(customTo);
+                setShowCustomDateInputs(dateRangeKey === 'custom');
+                setDateError(null);
+                toggle();
+              }}
               className="flex items-center justify-between md:justify-start gap-2 py-2.5 px-3 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
             >
               <div className="flex items-center gap-1.5 min-w-0">
                 <Calendar size={14} className="text-gray-400 shrink-0" />
-                <span className="truncate whitespace-nowrap leading-snug">
-                  {(() => {
-                    const currentOpt = DATE_RANGES.find((r) => r.key === dateRangeKey);
-                    return currentOpt
-                      ? t(`dashboardOverview.${currentOpt.translationKey}`, currentOpt.defaultLabel)
-                      : t('dashboardOverview.allDates', 'All Dates');
-                  })()}
+                <span className="truncate whitespace-nowrap leading-snug font-semibold text-gray-800">
+                  {getDateTriggerLabel()}
                 </span>
               </div>
               <ChevronDown
@@ -281,20 +315,114 @@ export const TransactionsFilterBar: React.FC = () => {
           )}
         >
           {({ close }) => (
-            <div className="py-1">
-              {DATE_RANGES.map((opt) => (
+            <div className="space-y-2">
+              {/* Preset Buttons */}
+              <div className="flex flex-col gap-0.5 pb-1.5 border-b border-gray-100">
+                {DATE_RANGES.map((opt) => {
+                  const isSelected = dateRangeKey === opt.key && !showCustomDateInputs;
+                  return (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => {
+                        setShowCustomDateInputs(false);
+                        setDateError(null);
+                        setDateRangeKey(opt.key);
+                        close();
+                      }}
+                      className={`w-full text-start px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-green-50 text-green-700 font-semibold'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span>{t(`dashboardOverview.${opt.translationKey}`, opt.defaultLabel)}</span>
+                      {isSelected && <Check size={14} className="text-green-600 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Date Option Toggle */}
+              <div>
                 <button
-                  key={opt.key}
                   type="button"
                   onClick={() => {
-                    setDateRangeKey(opt.key);
-                    close();
+                    setShowCustomDateInputs((prev) => !prev);
+                    setDateError(null);
                   }}
-                  className="w-full text-start px-3.5 py-2 text-xs transition-colors cursor-pointer whitespace-nowrap text-gray-700 hover:bg-gray-50"
+                  className={`w-full text-start px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
+                    dateRangeKey === 'custom' || showCustomDateInputs
+                      ? 'bg-gray-100 text-gray-900 font-semibold'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
-                  {t(`dashboardOverview.${opt.translationKey}`, opt.defaultLabel)}
+                  <span>{t('dashboardOverview.customRange', 'Custom Range')}</span>
+                  <ChevronDown
+                    size={12}
+                    className={`transition-transform duration-200 ${
+                      showCustomDateInputs ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
-              ))}
+
+                {/* Expandable Custom Date Inputs */}
+                {showCustomDateInputs && (
+                  <div className="mt-2.5 p-2.5 bg-gray-50/80 rounded-lg border border-gray-100 space-y-2.5">
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-medium text-gray-500">
+                        {t('dashboardOverview.fromDate', 'From Date')}
+                      </label>
+                      <input
+                        type="date"
+                        value={tempDateFrom}
+                        onChange={(e) => {
+                          setTempDateFrom(e.target.value);
+                          setDateError(null);
+                        }}
+                        className="w-full h-8 px-2.5 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[11px] font-medium text-gray-500">
+                        {t('dashboardOverview.toDate', 'To Date')}
+                      </label>
+                      <input
+                        type="date"
+                        value={tempDateTo}
+                        onChange={(e) => {
+                          setTempDateTo(e.target.value);
+                          setDateError(null);
+                        }}
+                        className="w-full h-8 px-2.5 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
+                      />
+                    </div>
+
+                    {dateError && <p className="text-[10px] font-medium text-rose-500">{dateError}</p>}
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCustomDate(close)}
+                        className="flex-1 h-7.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                      >
+                        {t('dashboardOverview.apply', 'Apply')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCustomDateInputs(false);
+                          setDateError(null);
+                        }}
+                        className="px-2.5 h-7.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                      >
+                        {t('dashboardOverview.cancel', 'Cancel')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </PortalDropdown>

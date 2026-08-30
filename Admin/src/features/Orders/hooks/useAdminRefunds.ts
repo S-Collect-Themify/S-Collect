@@ -36,7 +36,7 @@ export const useAdminRefunds = (params?: GetAdminRefundsParams, enabled: boolean
 
     if (!totalPages || pageNum + 1 <= totalPages) {
       queryClient.prefetchQuery({
-        queryKey: ['admin-refunds', { ...params, pageNum: pageNum + 1, pageSize }],
+        queryKey: ['admin-refunds', { ...params, pageNum: pageNum + 1, pageSize }, isAr ? 'ar' : 'en'],
         queryFn: () => getAdminRefunds({ ...params, pageNum: pageNum + 1, pageSize }),
         staleTime: 5 * 60 * 1000,
       });

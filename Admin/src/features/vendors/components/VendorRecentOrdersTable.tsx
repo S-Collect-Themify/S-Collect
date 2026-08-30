@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card } from './VendorDetailsCards';
-import type { MockOrder } from '../data/constant';
+import type { VendorRecentOrder } from '../data/constant';
 
 interface VendorRecentOrdersTableProps {
   vendorId: string;
   vendorName?: string;
-  orders: MockOrder[];
+  orders: VendorRecentOrder[];
   statusStyles: Record<string, { label: string; className: string }>;
 }
 

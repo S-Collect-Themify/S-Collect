@@ -1,5 +1,4 @@
 export type * from './types';
-export * from './data';
 export * from './hooks/usePayouts';
 
 export { default as PayoutsHeader } from './components/PayoutsHeader';

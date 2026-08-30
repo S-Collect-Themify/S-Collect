@@ -1,23 +1,8 @@
-import { useState } from 'react';
-import RevenueSalesChartHeader, {
-  type PeriodKey,
-  type PeriodOption,
-} from './components/RevenueSalesChartHeader';
+import { useState, useMemo, useEffect } from 'react';
+import RevenueSalesChartHeader from './components/RevenueSalesChartHeader';
 import RevenueSalesChartArea from './components/RevenueSalesChartArea';
 import type { ChartConfig } from '../../components/ui/chart';
-import { useRevenueOverviewSales } from './hooks/useRevenueOverview';
-
-const periods: PeriodOption[] = [
-  { key: 'monthly', defaultLabel: 'Monthly' },
-  { key: 'weekly', defaultLabel: 'Weekly' },
-  { key: 'daily', defaultLabel: 'Daily' },
-];
-
-const periodToGroupBy: Record<PeriodKey, 'day' | 'week' | 'month'> = {
-  monthly: 'month',
-  weekly: 'week',
-  daily: 'day',
-};
+import { useRevenueOverviewSales, getDateFromToParams } from './hooks/useRevenueOverview';
 
 const chartConfig = {
   sales: {
@@ -27,14 +12,44 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface RevenueSalesChartProps {
-  dateFrom: string;
-  dateTo: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
-export default function RevenueSalesChart({ dateFrom, dateTo }: RevenueSalesChartProps) {
-  const [periodKey, setPeriodKey] = useState<PeriodKey>('monthly');
+export default function RevenueSalesChart({
+  dateFrom: parentDateFrom,
+  dateTo: parentDateTo,
+}: RevenueSalesChartProps) {
+  const [dateRangeKey, setDateRangeKey] = useState('last30Days');
+  const [customRange, setCustomRange] = useState<{ dateFrom: string; dateTo: string }>(() => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return {
+      dateFrom: parentDateFrom || thirtyDaysAgo.toISOString().split('T')[0],
+      dateTo: parentDateTo || now.toISOString().split('T')[0],
+    };
+  });
 
-  const groupBy = periodToGroupBy[periodKey] || 'month';
+  // If parent dates change, update customRange to reflect parent if desired
+  useEffect(() => {
+    if (parentDateFrom && parentDateTo) {
+      setCustomRange({ dateFrom: parentDateFrom, dateTo: parentDateTo });
+    }
+  }, [parentDateFrom, parentDateTo]);
+
+  const { dateFrom, dateTo } = useMemo(
+    () => getDateFromToParams(dateRangeKey, customRange),
+    [dateRangeKey, customRange]
+  );
+
+  const groupBy = useMemo(() => {
+    const diffDays =
+      (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / (1000 * 3600 * 24);
+    if (diffDays <= 7) return 'day';
+    if (diffDays <= 35) return 'day';
+    if (diffDays <= 90) return 'week';
+    return 'month';
+  }, [dateFrom, dateTo]);
 
   const { data: salesData, isLoading } = useRevenueOverviewSales({
     dateFrom,
@@ -55,14 +70,25 @@ export default function RevenueSalesChart({ dateFrom, dateTo }: RevenueSalesChar
       ? '...'
       : '0';
 
+  const handleSelectPreset = (key: string) => {
+    setDateRangeKey(key);
+  };
+
+  const handleApplyCustom = (from: string, to: string) => {
+    setCustomRange({ dateFrom: from, dateTo: to });
+    setDateRangeKey('custom');
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-2xs flex flex-col justify-between h-full">
       {/* Component 1: Header + Filter Dropdown */}
       <RevenueSalesChartHeader
-        periodKey={periodKey}
-        periods={periods}
         totalDisplay={totalDisplay}
-        onPeriodChange={setPeriodKey}
+        dateRangeKey={dateRangeKey}
+        customFrom={customRange.dateFrom}
+        customTo={customRange.dateTo}
+        onSelectPreset={handleSelectPreset}
+        onApplyCustom={handleApplyCustom}
       />
 
       {/* Component 2: Recharts Area Renderer */}
