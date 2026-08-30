@@ -355,7 +355,8 @@
       "last7Days": "Last 7 Days",
       "last30Days": "Last 30 Days",
       "thisMonth": "This Month",
-      "thisYear": "This Year"
+      "thisYear": "This Year",
+      "custom": "Custom Range"
     },
     "orderId": "Order ID",
     "refundId": "Refund ID",
@@ -1849,6 +1850,10 @@
     "rejectionReasonPlaceholder": "e.g. Item shows normal wear, not a defect.",
     "rejectionReasonRequiredError": "Rejection reason is required before rejecting this refund request.",
     "customerLabel": "Customer",
-    "refundAmountLabel": "Refund Amount"
+    "refundAmountLabel": "Refund Amount",
+    "refundImages": "Refund Evidence Photos",
+    "noImages": "No photos attached with this refund request",
+    "photoCount": "{{count}} photo(s) submitted by customer",
+    "zoomImage": "View full"
   }
 }

@@ -1,5 +1,4 @@
 export type * from './types';
-export * from './data';
 export * from './hooks/useVendorReports';
 
 export { default as VendorReportHeader } from './components/VendorReportHeader';

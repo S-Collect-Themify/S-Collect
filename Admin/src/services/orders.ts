@@ -251,7 +251,11 @@ export interface GetAdminSubOrdersParams {
   pageSize?: number;
   status?: string;
   search?: string;
+  dateFilter?: string;
   startDate?: string;
+  endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export interface AdminSubOrderItem {
@@ -320,6 +324,10 @@ export async function getAdminSubOrders(
         search: params?.search || undefined,
         q: params?.search || undefined,
         startDate: params?.startDate,
+        endDate: params?.endDate,
+        dateFrom: params?.dateFrom || params?.startDate,
+        dateTo: params?.dateTo || params?.endDate,
+        dateFilter: params?.dateFilter,
       },
     });
 

@@ -65,6 +65,10 @@ export interface GetAdminRefundsParams {
   orderId?: string;
   search?: string;
   startDate?: string;
+  endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  dateFilter?: string;
 }
 
 /**
@@ -74,50 +78,96 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
   const pageNum = params?.pageNum ?? 1;
   const pageSize = params?.pageSize ?? 20;
 
+  const cleanParams: Record<string, unknown> = {
+    pageNum,
+    page: pageNum,
+    pageSize,
+    limit: pageSize,
+    perPage: pageSize,
+    per_page: pageSize,
+  };
+
+  if (params?.status && params.status !== 'ALL' && params.status !== 'All' && params.status !== 'all') {
+    cleanParams.status = params.status;
+  }
+  if (params?.vendorId) cleanParams.vendorId = params.vendorId;
+  if (params?.buyerAccountId) {
+    cleanParams.buyerAccountId = params.buyerAccountId;
+    cleanParams.buyerId = params.buyerAccountId;
+  }
+  if (params?.orderId) cleanParams.orderId = params.orderId;
+  if (params?.search) {
+    const trimmed = params.search.trim();
+    if (trimmed) {
+      cleanParams.search = trimmed;
+      cleanParams.q = trimmed;
+      cleanParams.query = trimmed;
+    }
+  }
+  if (params?.dateFilter && params.dateFilter !== 'all' && params.dateFilter !== 'custom') {
+    cleanParams.dateFilter = params.dateFilter;
+    cleanParams.date_filter = params.dateFilter;
+    cleanParams.period = params.dateFilter;
+  }
+  if (params?.startDate) {
+    const ymd = params.startDate.split('T')[0];
+    cleanParams.startDate = params.startDate;
+    cleanParams.dateFrom = ymd;
+    cleanParams.createdFrom = params.startDate;
+    cleanParams.from = ymd;
+  }
+  if (params?.endDate) {
+    const ymd = params.endDate.split('T')[0];
+    cleanParams.endDate = params.endDate;
+    cleanParams.dateTo = ymd;
+    cleanParams.createdTo = params.endDate;
+    cleanParams.to = ymd;
+  }
+  if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
+  if (params?.dateTo) cleanParams.dateTo = params.dateTo;
+
   const response = await api.get('/admin/refunds', {
-    params: {
-      pageNum,
-      page: pageNum,
-      pageSize,
-      limit: pageSize,
-      perPage: pageSize,
-      per_page: pageSize,
-      status: params?.status,
-      vendorId: params?.vendorId,
-      buyerAccountId: params?.buyerAccountId,
-      buyerId: params?.buyerAccountId,
-      orderId: params?.orderId,
-      search: params?.search || undefined,
-      q: params?.search || undefined,
-      query: params?.search || undefined,
-      startDate: params?.startDate,
-    },
+    params: cleanParams,
   });
 
   const resData = response.data;
   let items: AdminRefund[] = [];
   let pagination = {
-    currentPage: params?.pageNum ?? 1,
-    pageSize: params?.pageSize ?? 25,
+    currentPage: pageNum,
+    pageSize,
     totalItems: 0,
     totalPages: 1,
   };
 
   if (resData) {
-    if (Array.isArray(resData.items)) {
+    const d = resData.data || resData;
+    if (Array.isArray(d.items)) {
+      items = d.items;
+    } else if (Array.isArray(d)) {
+      items = d;
+    } else if (Array.isArray(resData.items)) {
       items = resData.items;
-      if (resData.pagination) {
-        pagination = { ...pagination, ...resData.pagination };
-      }
-    } else if (resData.data && Array.isArray(resData.data.items)) {
-      items = resData.data.items;
-      if (resData.data.pagination) {
-        pagination = { ...pagination, ...resData.data.pagination };
-      }
-    } else if (Array.isArray(resData.data)) {
-      items = resData.data;
     } else if (Array.isArray(resData)) {
       items = resData;
+    }
+
+    const p = d.pagination || resData.pagination;
+    if (p && typeof p === 'object' && ('totalItems' in p || 'total' in p || 'totalCount' in p || 'totalPages' in p)) {
+      const totalItems = Number(p.totalItems ?? p.total ?? p.totalCount ?? p.count ?? items.length);
+      const totalPages = Number(p.totalPages ?? p.pageCount ?? Math.max(1, Math.ceil(totalItems / pageSize)));
+      pagination = {
+        currentPage: Number(p.currentPage ?? p.page ?? pageNum),
+        pageSize: Number(p.pageSize ?? p.limit ?? p.perPage ?? pageSize),
+        totalItems,
+        totalPages,
+      };
+    } else {
+      pagination = {
+        currentPage: pageNum,
+        pageSize,
+        totalItems: items.length,
+        totalPages: items.length > 0 ? Math.max(1, Math.ceil(items.length / pageSize)) : 1,
+      };
     }
   }
 

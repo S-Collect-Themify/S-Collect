@@ -1,4 +1,5 @@
-import { Search, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, ChevronDown, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 import { OrderBuyerDropdown } from './OrderBuyerDropdown';
@@ -12,11 +13,14 @@ export interface OrderFiltersProps {
   onStatusFilterChange: (val: string) => void;
   dateFilter: string;
   onDateFilterChange: (val: string) => void;
+  customFrom?: string;
+  customTo?: string;
+  onApplyCustomDate?: (from: string, to: string) => void;
   buyerAccountId?: string;
   onBuyerAccountIdChange?: (val: string | undefined) => void;
 }
 
-export const OrderFilters = ({
+export const OrderFilters: React.FC<OrderFiltersProps> = ({
   activeMainTab,
   onMainTabChange,
   search,
@@ -25,11 +29,19 @@ export const OrderFilters = ({
   onStatusFilterChange,
   dateFilter,
   onDateFilterChange,
+  customFrom = '',
+  customTo = '',
+  onApplyCustomDate,
   buyerAccountId,
   onBuyerAccountIdChange,
-}: OrderFiltersProps) => {
+}) => {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
+
+  const [showCustomDateInputs, setShowCustomDateInputs] = useState(dateFilter === 'custom');
+  const [tempDateFrom, setTempDateFrom] = useState(customFrom);
+  const [tempDateTo, setTempDateTo] = useState(customTo);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const dateOptions = [
     { key: 'all', labelKey: 'ordersPage.dateOptions.all', defaultLabel: 'All Time' },
@@ -50,15 +62,35 @@ export const OrderFilters = ({
 
   const currentStatusDisplay = formatStatusDisplay(statusFilter);
 
-  const currentDateOption = dateOptions.find((d) => d.key === dateFilter);
-  const currentDateDisplay = currentDateOption
-    ? t(currentDateOption.labelKey, currentDateOption.defaultLabel)
-    : t('ordersPage.dateOptions.all', 'All Time');
+  const getDateTriggerLabel = () => {
+    if (dateFilter === 'custom' && customFrom && customTo) {
+      return `${customFrom} ${isRtl ? '←' : '→'} ${customTo}`;
+    }
+    const currentDateOption = dateOptions.find((d) => d.key === dateFilter);
+    return currentDateOption
+      ? t(currentDateOption.labelKey, currentDateOption.defaultLabel)
+      : t('ordersPage.dateOptions.all', 'All Time');
+  };
 
+  const handleApplyCustom = (close: () => void) => {
+    if (!tempDateFrom || !tempDateTo) {
+      setDateError(t('dashboardOverview.invalidDateRange', 'Please select both dates'));
+      return;
+    }
+    if (tempDateFrom > tempDateTo) {
+      setDateError(t('dashboardOverview.invalidDateRange', 'Start date must be before end date'));
+      return;
+    }
+    setDateError(null);
+    if (onApplyCustomDate) {
+      onApplyCustomDate(tempDateFrom, tempDateTo);
+    }
+    close();
+  };
 
   return (
     <div>
-      {/* Main Tab Toggle Pills Container (Matching Design Image) */}
+      {/* Main Tab Toggle Pills Container */}
       <div className="inline-flex items-center p-1 bg-[#EBEBEB] rounded-lg mb-5">
         <button
           type="button"
@@ -172,19 +204,26 @@ export const OrderFilters = ({
             )}
           </PortalDropdown>
 
-          {/* Date Dropdown */}
+          {/* Date Dropdown with Custom Range */}
           <PortalDropdown
-            minWidth={165}
+            minWidth={280}
+            align={isRtl ? 'left' : 'right'}
             animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50 py-1"
+            menuClassName="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50 p-2"
             trigger={({ isOpen, toggle }) => (
               <button
                 type="button"
-                onClick={toggle}
+                onClick={() => {
+                  setTempDateFrom(customFrom);
+                  setTempDateTo(customTo);
+                  setShowCustomDateInputs(dateFilter === 'custom');
+                  setDateError(null);
+                  toggle();
+                }}
                 className="flex items-center justify-between md:justify-start gap-2 py-2 px-3 p-0.5 rounded-lg border border-gray-200 text-body-sm text-gray-700 focus:outline-none hover:border-gray-300 transition-all bg-white cursor-pointer whitespace-nowrap w-full md:w-auto"
               >
-                <span className="truncate">
-                  {t('ordersPage.dateFilter', 'Date')}: {currentDateDisplay}
+                <span className="truncate font-semibold text-gray-800">
+                  {t('ordersPage.dateFilter', 'Date')}: {getDateTriggerLabel()}
                 </span>
                 <ChevronDown
                   size={14}
@@ -196,28 +235,117 @@ export const OrderFilters = ({
             )}
           >
             {({ close }) => (
-              <div>
-                {dateOptions.map((d) => (
+              <div className="space-y-2">
+                {/* Preset Buttons */}
+                <div className="flex flex-col gap-0.5 pb-1.5 border-b border-gray-100">
+                  {dateOptions.map((d) => {
+                    const isSelected = dateFilter === d.key && !showCustomDateInputs;
+                    return (
+                      <button
+                        key={d.key}
+                        type="button"
+                        onClick={() => {
+                          setShowCustomDateInputs(false);
+                          setDateError(null);
+                          onDateFilterChange(d.key);
+                          close();
+                        }}
+                        className={`w-full text-start px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-green-50 text-green-700 font-semibold'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <span>{t(d.labelKey, d.defaultLabel)}</span>
+                        {isSelected && <Check size={14} className="text-green-600 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Date Option Toggle */}
+                <div>
                   <button
-                    key={d.key}
                     type="button"
                     onClick={() => {
-                      onDateFilterChange(d.key);
-                      close();
+                      setShowCustomDateInputs((prev) => !prev);
+                      setDateError(null);
                     }}
-                    className={`w-full text-start px-3.5 py-2 text-xs font-medium transition-colors hover:bg-gray-50 cursor-pointer ${
-                      dateFilter === d.key
+                    className={`w-full text-start px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
+                      dateFilter === 'custom' || showCustomDateInputs
                         ? 'bg-gray-100 text-gray-900 font-semibold'
-                        : 'text-gray-700'
+                        : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    {t(d.labelKey, d.defaultLabel)}
+                    <span>{t('dashboardOverview.customRange', 'Custom Range')}</span>
+                    <ChevronDown
+                      size={12}
+                      className={`transition-transform duration-200 ${
+                        showCustomDateInputs ? 'rotate-180' : ''
+                      }`}
+                    />
                   </button>
-                ))}
+
+                  {/* Expandable Custom Date Inputs */}
+                  {showCustomDateInputs && (
+                    <div className="mt-2.5 p-2.5 bg-gray-50/80 rounded-lg border border-gray-100 space-y-2.5">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-medium text-gray-500">
+                          {t('dashboardOverview.fromDate', 'From Date')}
+                        </label>
+                        <input
+                          type="date"
+                          value={tempDateFrom}
+                          onChange={(e) => {
+                            setTempDateFrom(e.target.value);
+                            setDateError(null);
+                          }}
+                          className="w-full h-8 px-2.5 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-medium text-gray-500">
+                          {t('dashboardOverview.toDate', 'To Date')}
+                        </label>
+                        <input
+                          type="date"
+                          value={tempDateTo}
+                          onChange={(e) => {
+                            setTempDateTo(e.target.value);
+                            setDateError(null);
+                          }}
+                          className="w-full h-8 px-2.5 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
+                        />
+                      </div>
+
+                      {dateError && <p className="text-[10px] font-medium text-rose-500">{dateError}</p>}
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleApplyCustom(close)}
+                          className="flex-1 h-7.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-md transition-colors cursor-pointer flex items-center justify-center"
+                        >
+                          {t('dashboardOverview.apply', 'Apply')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCustomDateInputs(false);
+                            setDateError(null);
+                          }}
+                          className="px-2.5 h-7.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-xs font-medium rounded-md transition-colors cursor-pointer"
+                        >
+                          {t('dashboardOverview.cancel', 'Cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </PortalDropdown>
-
         </div>
       </div>
     </div>
