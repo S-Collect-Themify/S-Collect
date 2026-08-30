@@ -83,7 +83,7 @@ export const VoucherFilterBar = ({
       {/* Filter & Search Bar */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Search Input */}
-        <div className="relative flex-1 min-w-[220px] max-w-md">
+        <div className="relative flex-1 min-w-55 max-w-md">
           <Search
             size={18}
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none rtl:left-auto rtl:right-3.5"
@@ -93,7 +93,7 @@ export const VoucherFilterBar = ({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('vouchersListing.searchPlaceholder')}
-            className="w-full pl-10 pr-4 py-2 p-[2px] bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-all rtl:pl-4 rtl:pr-10"
+            className="w-full pl-10 pr-4 py-2 p-0.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 transition-all rtl:pl-4 rtl:pr-10"
           />
         </div>
 
@@ -104,7 +104,7 @@ export const VoucherFilterBar = ({
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-[2px] pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-0.5 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
             >
               <option value="all" className="hidden sm:inline">
                 {t('vouchersListing.filters.allTypes')}
@@ -129,7 +129,7 @@ export const VoucherFilterBar = ({
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-[2px] pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-0.5 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
             >
               <option value="all" className="hidden sm:inline">
                 {t('vouchersListing.filters.allStatuses')}
