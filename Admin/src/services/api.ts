@@ -118,85 +118,91 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
-    // If it's a 401 error and the request has not been retried yet
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry
-    ) {
-      // Don't intercept refresh token, login, or logout requests
-      if (
-        originalRequest.url?.includes('/admin/auth/refresh') ||
-        originalRequest.url?.includes('/admin/auth/login') ||
-        originalRequest.url?.includes('/admin/auth/logout')
-      ) {
-        if (originalRequest.url?.includes('/admin/auth/refresh')) {
-          logoutAndRedirect('expired');
+    // Handle 401 Unauthorized errors
+    if (status === 401) {
+      const isLoginRequest = originalRequest?.url?.includes('/admin/auth/login');
+      const isRefreshRequest = originalRequest?.url?.includes('/admin/auth/refresh');
+      const isLogoutRequest = originalRequest?.url?.includes('/admin/auth/logout');
+
+      // Do not redirect if it's the login request itself (let login page display invalid credentials error)
+      if (!isLoginRequest) {
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        // If refreshToken exists and this request hasn't been retried yet, attempt token refresh
+        if (
+          refreshToken &&
+          originalRequest &&
+          !originalRequest._retry &&
+          !isRefreshRequest &&
+          !isLogoutRequest
+        ) {
+          originalRequest._retry = true;
+
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              failedQueue.push({ resolve, reject });
+            })
+              .then((token) => {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+                return api(originalRequest);
+              })
+              .catch((err) => {
+                logoutAndRedirect();
+                return Promise.reject(err);
+              });
+          }
+
+          isRefreshing = true;
+
+          try {
+            const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
+            const cleanBaseURL = baseURL.endsWith('/')
+              ? baseURL.slice(0, -1)
+              : baseURL;
+
+            const response = await axios.post(
+              `${cleanBaseURL}/admin/auth/refresh`,
+              { refreshToken }
+            );
+
+            const data = response.data;
+            const newAccessToken =
+              data?.accessToken || data?.data?.accessToken || data?.token;
+            const newRefreshToken =
+              data?.refreshToken || data?.data?.refreshToken;
+            const expiresInSeconds =
+              data?.expiresInSeconds || data?.data?.expiresInSeconds;
+
+            if (newAccessToken) {
+              saveAuthSession(
+                newAccessToken,
+                newRefreshToken,
+                expiresInSeconds
+              );
+
+              processQueue(null, newAccessToken);
+              isRefreshing = false;
+
+              // Retry original request
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              return api(originalRequest);
+            } else {
+              throw new Error('Refresh failed: No access token returned');
+            }
+          } catch (refreshError) {
+            processQueue(refreshError, null);
+            isRefreshing = false;
+
+            // Clear credentials and redirect to login
+            logoutAndRedirect();
+            return Promise.reject(refreshError);
+          }
         }
-        return Promise.reject(error);
-      }
 
-      originalRequest._retry = true;
-
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) {
-        // No refresh token, clear storage and redirect
-        logoutAndRedirect('expired');
-        return Promise.reject(error);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
-      isRefreshing = true;
-
-      try {
-        const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
-        const cleanBaseURL = baseURL.endsWith('/')
-          ? baseURL.slice(0, -1)
-          : baseURL;
-
-        const response = await axios.post(
-          `${cleanBaseURL}/admin/auth/refresh`,
-          { refreshToken }
-        );
-
-        const data = response.data;
-        const newAccessToken = data?.accessToken || data?.data?.accessToken || data?.token;
-        const newRefreshToken = data?.refreshToken || data?.data?.refreshToken;
-        const expiresInSeconds =
-          data?.expiresInSeconds || data?.data?.expiresInSeconds;
-
-        if (newAccessToken) {
-          saveAuthSession(newAccessToken, newRefreshToken, expiresInSeconds);
-
-          processQueue(null, newAccessToken);
-          isRefreshing = false;
-
-          // Retry original request
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return api(originalRequest);
-        } else {
-          throw new Error('Refresh failed: No access token returned');
-        }
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-        isRefreshing = false;
-
-        // Clear credentials and redirect to login with expired state
-        logoutAndRedirect('expired');
-        return Promise.reject(refreshError);
+        // For any other 401 (no refresh token, retried request failed with 401, refresh/logout endpoint failed), redirect to login
+        logoutAndRedirect();
       }
     }
 

@@ -85,12 +85,12 @@ export const getTokenExpiration = (token: string): number | null => {
   return typeof payload?.exp === 'number' ? payload.exp * 1000 : null;
 };
 
-export const logoutAndRedirect = (state: string = 'expired'): void => {
+export const logoutAndRedirect = (state?: string): void => {
   clearTokens();
   if (typeof window !== 'undefined') {
     const currentPath = window.location.pathname;
     if (!currentPath.startsWith('/login')) {
-      window.location.href = `/login?state=${state}`;
+      window.location.href = state ? `/login?state=${state}` : '/login';
     }
   }
 };

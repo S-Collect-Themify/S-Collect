@@ -51,13 +51,8 @@ const Login = () => {
       : searchParams.get('state') === 'expired'
         ? 'expired'
         : 'default';
-  const initialEmail =
-    initialState === 'locked'
-      ? 'locked-out@company.com'
-      : initialState === 'expired'
-        ? 'admin@active-store.com'
-        : '';
-  const initialPassword = initialState === 'locked' ? '••••••••' : '';
+  const initialEmail = '';
+  const initialPassword = '';
 
   const {
     showLoginPassword,
