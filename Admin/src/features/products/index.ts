@@ -7,5 +7,6 @@ export * from './components/ProductFilterBar';
 export * from './components/ProductTable';
 export * from './components/ProductMobileList';
 export * from './components/ProductDisableModal';
+export * from './components/BulkDiscountModal';
 export * from './components/ProductPagination';
 export * from './components/ProductSkeleton';

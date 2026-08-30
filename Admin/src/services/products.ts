@@ -264,3 +264,15 @@ export const getAdminVendorById = async (id: string) => {
     return null;
   }
 };
+
+export interface BulkDiscountPayload {
+  productIds: (string | number)[];
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  expiryDate?: string;
+}
+
+export const applyBulkDiscountApi = async (payload: BulkDiscountPayload) => {
+  const { data } = await api.post('/admin/products/bulk-discount', payload);
+  return data;
+};
