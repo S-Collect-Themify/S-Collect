@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -167,7 +167,15 @@ const IncomingOrdersDesktop = () => {
   const totalItems = data?.pagination?.totalItems ?? 0;
   const totalPages = data?.pagination?.totalPages ?? 0;
 
-  const sorted = sortNewest ? orders : [...orders].reverse();
+  const sorted = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return sortNewest ? safeB - safeA : safeA - safeB;
+    });
+  }, [orders, sortNewest]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

@@ -62,7 +62,7 @@ export function useInventory() {
   // Convert raw product variants to flat rows
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
-    return items
+    return [...items]
       .filter((item) => {
         // Filter against original backend stock so rows stay in current tab while editing pending values
         const originalStock = typeof item.stock === 'number' ? item.stock : 0;
@@ -70,6 +70,13 @@ export function useInventory() {
         if (activeTab === 'Low Stock') return originalStock >= 1 && originalStock <= 5;
         if (activeTab === 'In Stock') return originalStock > 5;
         return true;
+      })
+      .sort((a, b) => {
+        const timeA = a.lastUpdatedAt ? new Date(a.lastUpdatedAt).getTime() : 0;
+        const timeB = b.lastUpdatedAt ? new Date(b.lastUpdatedAt).getTime() : 0;
+        const safeA = isNaN(timeA) ? 0 : timeA;
+        const safeB = isNaN(timeB) ? 0 : timeB;
+        return safeB - safeA;
       })
       .map((item) => {
         const uniqueId = `${item.productId}::${item.variantId}`;

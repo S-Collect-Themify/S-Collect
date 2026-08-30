@@ -197,9 +197,17 @@ export function useManagementTable() {
         enabled: status === 'Published',
         isDisabled: status === 'Disabled' || Boolean(p.isDisabled),
         icon: iconUrl || 'ti-package',
+        createdAt: p.createdAt || p.created_at || p.updatedAt || '',
+        updatedAt: p.updatedAt || p.updated_at || '',
       } as Product;
+    }).sort((a: Product, b: Product) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const safeA = isNaN(timeA) ? 0 : timeA;
+      const safeB = isNaN(timeB) ? 0 : timeB;
+      return safeB - safeA;
     });
-  }, [rawProducts, isArabic]);
+  }, [rawProducts, isArabic, reviewsMap]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
