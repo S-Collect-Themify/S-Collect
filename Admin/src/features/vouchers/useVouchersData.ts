@@ -18,13 +18,33 @@ import { getVoucherStatus } from './utils';
 import type { VoucherItem, VoucherType } from './types';
 
 export const mapBackendVoucherToItem = (v: any): VoucherItem => {
+  if (!v || typeof v !== 'object') {
+    return {
+      id: '',
+      code: '',
+      category: [],
+      scope: 'ALL_ORDERS',
+      type: 'Percentage',
+      discount: '0%',
+      discountValue: 0,
+      minOrder: 'SAR 0',
+      maxDiscount: '—',
+      usage: '0/100',
+      usedCount: 0,
+      maxUsage: 100,
+      expiryDate: '—',
+      status: 'Active',
+      limitOnePerCustomer: false,
+    };
+  }
+
   const rawType = v.type || 'PERCENTAGE';
   const type: VoucherType =
-    rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount'
+    rawType === 'FIXED_AMOUNT' || rawType === 'AMOUNT' || rawType === 'Amount' || rawType === 'FIXED'
       ? 'Amount'
       : 'Percentage';
 
-  const val = v.value !== undefined && v.value !== null ? v.value : v.discountValue;
+  const val = v.value !== undefined && v.value !== null ? v.value : (v.discountValue !== undefined ? v.discountValue : 0);
   const discountText =
     type === 'Percentage'
       ? `${val ?? 0}%`
@@ -37,7 +57,7 @@ export const mapBackendVoucherToItem = (v: any): VoucherItem => {
   const maxUsage = v.maxTotalUses ?? v.maxUsage ?? 100;
   const minOrderNum = v.minOrderAmount ?? v.minOrder;
   const minOrderStr =
-    minOrderNum !== undefined && minOrderNum !== null
+    minOrderNum !== undefined && minOrderNum !== null && minOrderNum !== ''
       ? String(minOrderNum).startsWith('SAR')
         ? String(minOrderNum)
         : `SAR ${minOrderNum}`
@@ -56,19 +76,21 @@ export const mapBackendVoucherToItem = (v: any): VoucherItem => {
       ? Boolean(v.oneUsePerUser)
       : Boolean(v.limitOnePerCustomer);
 
+  const categories = Array.isArray(v.categoryIds) && v.categoryIds.length > 0
+    ? v.categoryIds
+    : Array.isArray(v.categories) && v.categories.length > 0
+    ? v.categories.map((c: any) => (typeof c === 'object' ? c.id || c.name : c))
+    : Array.isArray(v.category)
+    ? v.category
+    : v.category
+    ? [typeof v.category === 'object' ? v.category.id || v.category.name : v.category]
+    : [];
+
   return {
-    id: v.id || v._id || '',
+    id: String(v.id || v._id || ''),
     code: v.code || '',
-    category: Array.isArray(v.categoryIds) && v.categoryIds.length > 0
-      ? v.categoryIds
-      : Array.isArray(v.categories) && v.categories.length > 0
-      ? v.categories
-      : Array.isArray(v.category)
-      ? v.category
-      : v.category
-      ? [v.category]
-      : [],
-    scope: v.scope || 'ALL_ORDERS',
+    category: categories,
+    scope: v.scope || (categories.length > 0 ? 'SPECIFIC_CATEGORIES' : 'ALL_ORDERS'),
     type,
     discount: discountText,
     discountValue: val,
@@ -78,13 +100,13 @@ export const mapBackendVoucherToItem = (v: any): VoucherItem => {
     usedCount,
     maxUsage,
     expiryDate,
-    status: getVoucherStatus(endsAtStr || expiryDate, v.isActive, usedCount, maxUsage),
+    status: getVoucherStatus(endsAtStr || expiryDate, v.isActive !== false, usedCount, maxUsage),
     limitOnePerCustomer: limitOne,
   };
 };
 
 export const useSingleVoucherQuery = (id?: string) => {
-  const vouchers = useVoucherStore((s) => s.vouchers);
+  const updateVoucherInStore = useVoucherStore((s) => s.updateVoucher);
 
   return useQuery({
     queryKey: ['admin-voucher', id],
@@ -92,15 +114,23 @@ export const useSingleVoucherQuery = (id?: string) => {
       if (!id) return null;
       try {
         const res = await getVoucherByIdApi(id);
-        if (res && typeof res === 'object' && (res.id || res._id || res.code)) {
-          return mapBackendVoucherToItem(res);
+        if (res && typeof res === 'object') {
+          const v = res.data?.data || res.data || res.voucher || res.item || res;
+          if (v && (v.id || v._id || v.code)) {
+            const mapped = mapBackendVoucherToItem(v);
+            updateVoucherInStore(mapped.id || id, mapped);
+            return mapped;
+          }
         }
       } catch (err) {
         console.warn('Single voucher query exception:', err);
       }
-      return vouchers.find((v) => v.id === id || v.code === id) || null;
+      return useVoucherStore.getState().vouchers.find((v) => v.id === id || v.code === id) || null;
     },
     enabled: Boolean(id),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 };
 
@@ -302,6 +332,7 @@ export const useVouchersData = () => {
         i18n.language === 'ar' ? 'تم تحديث القسيمة بنجاح' : 'Voucher updated successfully'
       );
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-voucher'] });
       queryClient.invalidateQueries({ queryKey: ['admin-vouchers-stats'] });
     },
     onError: (err: any) => {

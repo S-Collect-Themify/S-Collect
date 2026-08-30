@@ -63,11 +63,17 @@ export const VoucherForm = ({
         initialVoucher.type === 'Amount' || initialVoucher.type === 'FIXED_AMOUNT'
           ? 'FIXED_AMOUNT'
           : 'PERCENTAGE',
-      discountValue: initialVoucher.discountValue ? String(initialVoucher.discountValue) : '',
+      discountValue:
+        initialVoucher.discountValue !== undefined && initialVoucher.discountValue !== null
+          ? String(initialVoucher.discountValue)
+          : '',
       minOrder: initialVoucher.minOrder?.replace('SAR ', '') || '',
       maxDiscount: initialVoucher.maxDiscount?.replace('SAR ', '') || '',
       expiryDate: initialVoucher.expiryDate || '',
-      maxUsage: initialVoucher.maxUsage ? String(initialVoucher.maxUsage) : '',
+      maxUsage:
+        initialVoucher.maxUsage !== undefined && initialVoucher.maxUsage !== null
+          ? String(initialVoucher.maxUsage)
+          : '',
       limitOnePerCustomer: initialVoucher.limitOnePerCustomer ?? true,
     };
   }, [initialVoucher]);
