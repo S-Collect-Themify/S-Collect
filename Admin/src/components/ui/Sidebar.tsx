@@ -13,6 +13,7 @@ import {
   Handbag,
   Settings,
   LogOut,
+  Ticket,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -325,6 +326,11 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <Handbag size={18} />,
         labelKey: 'sidebar.items.buyers',
         to: '/buyers',
+      },
+      {
+        icon: <Ticket size={18} />,
+        labelKey: 'sidebar.items.vouchers',
+        to: '/vouchers',
       },
     ],
   },
