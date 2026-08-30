@@ -102,7 +102,7 @@ export const AdminsList: React.FC = () => {
 
       {/* Main Content: Centered message if not superadmin, or table if superadmin */}
       {!isSuperAdmin ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs p-12 min-h-[360px] flex flex-col items-center justify-center text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-xs p-12 min-h-90 flex flex-col items-center justify-center text-center">
           <div className="size-16 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center mb-4 text-amber-600">
             <ShieldAlert size={30} />
           </div>

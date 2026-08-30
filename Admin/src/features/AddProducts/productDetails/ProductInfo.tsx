@@ -93,8 +93,8 @@ export default function ProductInfo({
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:p-6 space-y-6">
       <div className="flex gap-6 flex-col lg:flex-row">
         {/* Gallery / Image Column */}
-        <div className="flex flex-col gap-3 lg:w-[400px] shrink-0">
-          <div className="h-[280px] w-full lg:h-[400px] overflow-hidden rounded-xl bg-gray-100 border border-gray-100 relative">
+        <div className="flex flex-col gap-3 lg:w-100 shrink-0">
+          <div className="h-70 w-full lg:h-100 overflow-hidden rounded-xl bg-gray-100 border border-gray-100 relative">
             <img
               src={selectedImage}
               alt={displayName}
