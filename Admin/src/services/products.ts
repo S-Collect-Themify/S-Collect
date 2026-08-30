@@ -6,36 +6,40 @@ export const getAllProducts = async () => {
 };
 
 export const createProductFull = async (formData: FormData) => {
-  const { data } = await api.post('/vendor/products/full', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-
-  return data;
+  try {
+    const { data } = await api.post('/admin/products/full', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  } catch (adminErr: any) {
+    const { data } = await api.post('/admin/products', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  }
 };
 
 export const setProductThumbnail = async (productId: string, imageId: string) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}/images/${imageId}/thumbnail`);
+    const { data } = await api.patch(`/admin/products/${productId}/images/${imageId}/thumbnail`);
     return data;
   } catch (err: any) {
-    const status = err?.response?.status;
-    if (status === 404 || status === 405) {
+    try {
+      const { data } = await api.put(`/admin/products/${productId}/images/${imageId}/thumbnail`);
+      return data;
+    } catch {
       try {
-        const { data } = await api.put(`/vendor/products/${productId}/images/${imageId}/thumbnail`);
+        const { data } = await api.post(`/admin/products/${productId}/images/${imageId}/thumbnail`);
         return data;
-      } catch (putErr: any) {
-        try {
-          const { data } = await api.post(`/vendor/products/${productId}/images/${imageId}/thumbnail`);
-          return data;
-        } catch (postErr: any) {
-          console.error('All thumbnail methods failed (PATCH, PUT, POST):', postErr);
-          throw postErr;
-        }
+      } catch (postErr: any) {
+        console.error('Thumbnail setting failed on admin endpoints:', postErr);
+        throw postErr;
       }
     }
-    throw err;
   }
 };
 
@@ -49,8 +53,21 @@ export interface Category {
 }
 
 export const getCategories = async (): Promise<Category[]> => {
-  const { data } = await api.get('/vendor/categories');
-  return data;
+  try {
+    const { data } = await api.get('/admin/categories', {
+      params: { pageSize: 100 },
+    });
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.categories)) return data.categories;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.data?.items)) return data.data.items;
+    if (Array.isArray(data?.data?.categories)) return data.data.categories;
+    return [];
+  } catch (err) {
+    console.warn('Failed to fetch admin categories in products service:', err);
+    return [];
+  }
 };
 
 export const enableProduct = async (id: string | number) => {
