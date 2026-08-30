@@ -204,6 +204,7 @@ export const useProductsData = () => {
     onSuccess: () => {
       toast.success('Product status updated successfully');
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-product-details'] });
     },
     onError: (_err, { id, isActive }) => {
       toggleProductStatusInStore(id, !isActive);

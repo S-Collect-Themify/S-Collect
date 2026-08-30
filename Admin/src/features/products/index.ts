@@ -10,3 +10,4 @@ export * from './components/ProductDisableModal';
 export * from './components/BulkDiscountModal';
 export * from './components/ProductPagination';
 export * from './components/ProductSkeleton';
+export type { SingleAdminProductDetail } from '../../services/products';
