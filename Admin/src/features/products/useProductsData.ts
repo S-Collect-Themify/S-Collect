@@ -6,6 +6,8 @@ import {
   getAdminVendors,
   getCategories,
   updateProductStatus,
+  applyBulkDiscountApi,
+  type BulkDiscountPayload,
 } from '../../services/products';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
@@ -202,6 +204,7 @@ export const useProductsData = () => {
     onSuccess: () => {
       toast.success('Product status updated successfully');
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-product-details'] });
     },
     onError: (_err, { id, isActive }) => {
       toggleProductStatusInStore(id, !isActive);
@@ -209,9 +212,25 @@ export const useProductsData = () => {
     },
   });
 
+  // ── Bulk Discount Mutation ──
+  const bulkDiscountMutation = useMutation({
+    mutationFn: (payload: BulkDiscountPayload) => applyBulkDiscountApi(payload),
+    onSuccess: () => {
+      toast.success(isAr ? 'تم تطبيق الخصم الجماعي بنجاح' : 'Bulk discount applied successfully');
+      useProductStore.getState().clearSelectedProducts();
+      useProductStore.getState().closeBulkDiscountModal();
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || err?.message || (isAr ? 'فشل تطبيق الخصم الجماعي' : 'Failed to apply bulk discount');
+      toast.error(msg);
+    },
+  });
+
   return {
     productsQuery,
     categoriesQuery,
     statusMutation,
+    bulkDiscountMutation,
   };
 };

@@ -19,3 +19,9 @@ export interface DisableModalState {
   product: ProductItem | null;
   targetStatus: boolean;
 }
+
+export interface BulkDiscountFormData {
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  expiryDate?: string;
+}

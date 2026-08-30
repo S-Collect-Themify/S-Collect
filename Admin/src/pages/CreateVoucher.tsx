@@ -1,4 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 import {
   VoucherHeader,
   VoucherForm,
@@ -11,13 +13,13 @@ import type { VoucherApiData } from '../services/vouchers';
 const CreateVoucher = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   const { createMutation, updateMutation } = useVouchersData();
   const voucherQuery = useSingleVoucherQuery(id);
 
   const isEditing = Boolean(id);
   const existingVoucher = voucherQuery.data;
-
 
   const handleSubmit = (formData: VoucherFormData) => {
     const isCategory =
@@ -44,7 +46,6 @@ const CreateVoucher = () => {
       oneUsePerUser: formData.limitOnePerCustomer,
       startsAt: new Date().toISOString(),
     };
-
 
     if (isEditing && id) {
       updateMutation.mutate(
@@ -76,11 +77,20 @@ const CreateVoucher = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto pt-6 pb-6 sidebar-page-container transition-all">
-        <VoucherForm
-          initialVoucher={existingVoucher}
-          onSubmit={handleSubmit}
-          isSubmitting={createMutation.isPending || updateMutation.isPending}
-        />
+        {isEditing && voucherQuery.isLoading ? (
+          <div className="bg-white rounded-2xl border border-gray-100 p-12 flex flex-col items-center justify-center text-gray-400 gap-3">
+            <Loader2 size={24} className="animate-spin text-gray-600" />
+            <span className="text-sm font-medium">
+              {i18n.language === 'ar' ? 'جاري تحميل بيانات القسيمة...' : 'Loading voucher details...'}
+            </span>
+          </div>
+        ) : (
+          <VoucherForm
+            initialVoucher={existingVoucher}
+            onSubmit={handleSubmit}
+            isSubmitting={createMutation.isPending || updateMutation.isPending}
+          />
+        )}
       </div>
     </>
   );

@@ -61,7 +61,8 @@ export const getVouchersList = async (params?: any) => {
 export const getVoucherByIdApi = async (id: string) => {
   try {
     const { data } = await api.get(`/admin/vouchers/${id}`);
-    return data?.data || data?.voucher || data?.item || data;
+    const item = data?.data?.data || data?.data || data?.voucher || data?.item || data;
+    return item;
   } catch (err) {
     console.warn(`API getVoucherByIdApi (${id}) fallback`, err);
     return null;

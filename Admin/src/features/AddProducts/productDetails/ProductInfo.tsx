@@ -3,6 +3,7 @@ import { Star, Pencil, CheckCircle, XCircle, Award, Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SingleAdminProductDetail } from "../../../services/products";
 import ProductVariantsTable from "./ProductVariantsTable";
+import Toggle from "../../../components/ui/Toggle";
 
 export interface ProductInfoProps {
   productDetail?: SingleAdminProductDetail | null;
@@ -20,6 +21,7 @@ export interface ProductInfoProps {
   averageRating?: number;
   totalReviews?: number;
   onEdit?: () => void;
+  onToggleStatus?: (product: SingleAdminProductDetail) => void;
 }
 
 export default function ProductInfo({
@@ -38,6 +40,7 @@ export default function ProductInfo({
   averageRating = 0,
   totalReviews = 0,
   onEdit,
+  onToggleStatus,
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -134,9 +137,9 @@ export default function ProductInfo({
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">{displayName}</h2>
                 
-                {/* Status Badges */}
+                {/* Status Badges & Toggle */}
                 {productDetail && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
                     <span
                       className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         productDetail.isActive && !productDetail.isDisabled
@@ -156,6 +159,20 @@ export default function ProductInfo({
                         </>
                       )}
                     </span>
+
+                    {onToggleStatus && (
+                      <div className="flex items-center gap-2 pl-2 border-l border-gray-200 rtl:border-l-0 rtl:border-r rtl:pr-2">
+                        <Toggle
+                          checked={Boolean(productDetail.isActive && !productDetail.isDisabled)}
+                          onChange={() => onToggleStatus(productDetail)}
+                        />
+                        <span className="text-xs text-gray-500 font-medium select-none">
+                          {productDetail.isActive && !productDetail.isDisabled
+                            ? isAr ? 'تعطيل المنتج' : 'Disable Product'
+                            : isAr ? 'تفعيل المنتج' : 'Enable Product'}
+                        </span>
+                      </div>
+                    )}
 
                     {productDetail.isFeatured && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
