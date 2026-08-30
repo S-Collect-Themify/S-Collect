@@ -1,7 +1,6 @@
-import type { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Check, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
 import { useManagementStore } from './managementStore';
@@ -25,6 +24,7 @@ export default function ProductTable() {
     totalPages,
     selectedCount,
     allChecked,
+    isIndeterminate,
     itemsPerPage,
   } = useManagementTable();
   const setSearch = useManagementStore((state) => state.setSearch);
@@ -36,7 +36,7 @@ export default function ProductTable() {
   );
   const setPage = useManagementStore((state) => state.setPage);
   const toggleRow = useManagementStore((state) => state.toggleRow);
-  const setSelectedRows = useManagementStore((state) => state.setSelectedRows);
+  const toggleSelectPage = useManagementStore((state) => state.toggleSelectPage);
   const clearSelection = useManagementStore((state) => state.clearSelection);
 
   const {
@@ -74,19 +74,14 @@ export default function ProductTable() {
     );
   };
 
-  const hasSelectableProducts = paginatedProducts.some(
+  const selectableProducts = paginatedProducts.filter(
     (p) => !p.isDisabled && p.status !== 'Disabled'
   );
+  const hasSelectableProducts = selectableProducts.length > 0;
 
-  const toggleAll = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      const selectableIds = paginatedProducts
-        .filter((p) => !p.isDisabled && p.status !== 'Disabled')
-        .map((p) => p.id);
-      setSelectedRows(selectableIds);
-    } else {
-      setSelectedRows([]);
-    }
+  const handleTogglePage = () => {
+    if (!hasSelectableProducts) return;
+    toggleSelectPage(selectableProducts.map((p) => p.id));
   };
 
   const tableHeaders = [
@@ -151,7 +146,10 @@ export default function ProductTable() {
                   <input
                     type="checkbox"
                     checked={allChecked}
-                    onChange={hasSelectableProducts ? toggleAll : undefined}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isIndeterminate;
+                    }}
+                    onChange={handleTogglePage}
                     disabled={!hasSelectableProducts}
                     className="peer sr-only"
                   />
@@ -159,11 +157,16 @@ export default function ProductTable() {
                     className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition-colors ${
                       !hasSelectableProducts
                         ? 'border-gray-200 bg-gray-100'
-                        : 'border-gray-300 bg-white peer-checked:bg-gray-900 peer-checked:border-gray-900'
+                        : allChecked || isIndeterminate
+                        ? 'border-gray-900 bg-gray-900 text-white'
+                        : 'border-gray-300 bg-white'
                     }`}
                   >
                     {allChecked && (
                       <Check className="text-white" size={11} strokeWidth={3} />
+                    )}
+                    {isIndeterminate && (
+                      <Minus className="text-white" size={11} strokeWidth={3} />
                     )}
                   </span>
                 </label>
@@ -205,7 +208,9 @@ export default function ProductTable() {
                 <ProductRow
                   key={product.id}
                   product={product}
-                  selected={selectedRows.includes(product.id)}
+                  selected={selectedRows.some(
+                    (rowId) => String(rowId) === String(product.id)
+                  )}
                   onSelect={() => toggleRow(product.id)}
                   onToggle={() => toggleSingle(product.id, product.enabled)}
                 />

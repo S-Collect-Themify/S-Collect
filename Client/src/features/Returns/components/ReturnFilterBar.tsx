@@ -1,20 +1,28 @@
 import { Search, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
+import DateFilterDropdown from '../../../components/ui/DateFilterDropdown';
 
 interface ReturnFilterBarProps {
   search: string;
   statusFilter: string;
   dateFilter: string;
+  customStartDate?: string;
+  customEndDate?: string;
   onSearchChange: (val: string) => void;
   onStatusFilterChange: (val: string) => void;
-  onDateFilterChange: (val: string) => void;
+  onDateFilterChange: (
+    val: string,
+    customRange?: { startDate?: string; endDate?: string }
+  ) => void;
 }
 
 export function ReturnFilterBar({
   search,
   statusFilter,
   dateFilter,
+  customStartDate,
+  customEndDate,
   onSearchChange,
   onStatusFilterChange,
   onDateFilterChange,
@@ -47,6 +55,7 @@ export function ReturnFilterBar({
 
       {/* Dropdowns */}
       <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+        {/* Status Dropdown */}
         <div className="relative flex-1 sm:flex-initial">
           <select
             value={statusFilter}
@@ -90,38 +99,14 @@ export function ReturnFilterBar({
           />
         </div>
 
-        <div className="relative flex-1 sm:flex-initial">
-          <select
-            value={dateFilter}
-            onChange={(e) => onDateFilterChange(e.target.value)}
-            className="w-full appearance-none bg-white border border-gray-200 rounded-xl py-2.5 pl-3.5 pr-9 text-xs sm:text-sm font-medium text-gray-700 outline-none focus:border-gray-900 cursor-pointer"
-          >
-            <option value="ALL">
-              {t('returnsPage.allTime', {
-                defaultValue: 'All Dates',
-              })}
-            </option>
-            <option value="7">
-              {t('returnsPage.last7Days', {
-                defaultValue: 'Last 7 Days',
-              })}
-            </option>
-            <option value="30">
-              {t('returnsPage.last30Days', {
-                defaultValue: 'Last 30 Days',
-              })}
-            </option>
-            <option value="90">
-              {t('returnsPage.last90Days', {
-                defaultValue: 'Last 90 Days',
-              })}
-            </option>
-          </select>
-          <ChevronDown
-            size={16}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-          />
-        </div>
+        {/* Date Filter Dropdown with Custom Period */}
+        <DateFilterDropdown
+          selected={dateFilter}
+          customStartDate={customStartDate}
+          customEndDate={customEndDate}
+          onChange={onDateFilterChange}
+          align="right"
+        />
       </div>
     </motion.div>
   );

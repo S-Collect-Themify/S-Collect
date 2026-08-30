@@ -19,6 +19,8 @@ export default function ReturnRequestsPage() {
     search,
     statusFilter,
     dateFilter,
+    customStartDate,
+    customEndDate,
     activePage,
     currentItems,
     filteredItems,
@@ -55,6 +57,8 @@ export default function ReturnRequestsPage() {
           search={search}
           statusFilter={statusFilter}
           dateFilter={dateFilter}
+          customStartDate={customStartDate}
+          customEndDate={customEndDate}
           onSearchChange={handleSearchChange}
           onStatusFilterChange={handleStatusFilterChange}
           onDateFilterChange={handleDateFilterChange}

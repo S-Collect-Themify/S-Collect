@@ -29,7 +29,7 @@ const RecentOrdersDesktopTable = ({
             {t('recentOrders.table.date', 'Date')}
           </th>
           <th className="px-8 py-4 text-left rtl:text-right text-sm font-medium text-gray-500">
-            {t('recentOrders.table.customer', 'Items')}
+            {t('recentOrders.table.items', 'Items')}
           </th>
           <th className="px-8 py-4 text-left rtl:text-right text-sm font-medium text-gray-500">
             {t('recentOrders.table.amount', 'Amount')}

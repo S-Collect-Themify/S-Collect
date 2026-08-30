@@ -7,6 +7,9 @@ import type { Product, ProductStatus } from './mangement';
 import {
   searchVendorProducts,
   bulkUpdateProductStatus,
+  downloadProductImportTemplate,
+  importProducts,
+  type ProductImportResponse,
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
@@ -186,7 +189,7 @@ export function useManagementTable() {
       }
 
       return {
-        id: p.id,
+        id: p.id || p._id || p.productId || '',
         name: isArabic ? p.nameAr || p.name || '' : p.name || p.nameAr || '',
         category: categoryId,
         categoryName,
@@ -241,6 +244,20 @@ export function useManagementTable() {
     startIndex + ITEMS_PER_PAGE
   );
 
+  const selectablePaginatedProducts = paginatedProducts.filter(
+    (p) => !p.isDisabled && p.status !== 'Disabled'
+  );
+  const allChecked =
+    selectablePaginatedProducts.length > 0 &&
+    selectablePaginatedProducts.every((product) =>
+      selectedRows.some((rowId) => String(rowId) === String(product.id))
+    );
+  const isIndeterminate =
+    !allChecked &&
+    selectablePaginatedProducts.some((product) =>
+      selectedRows.some((rowId) => String(rowId) === String(product.id))
+    );
+
   return {
     itemsPerPage: ITEMS_PER_PAGE,
     isLoading,
@@ -255,11 +272,8 @@ export function useManagementTable() {
     totalItems,
     totalPages,
     selectedCount: selectedRows.length,
-    allChecked:
-      paginatedProducts.some((p) => !p.isDisabled && p.status !== 'Disabled') &&
-      paginatedProducts
-        .filter((p) => !p.isDisabled && p.status !== 'Disabled')
-        .every((product) => selectedRows.includes(product.id)),
+    allChecked,
+    isIndeterminate,
   };
 }
 
@@ -331,3 +345,63 @@ export function useManagementActions() {
     isPending: bulkStatusMutation.isPending,
   };
 }
+
+export function useDownloadImportTemplate() {
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: () => downloadProductImportTemplate(),
+    onSuccess: () => {
+      toast.success(
+        t(
+          'managementTable.importModal.downloadSuccess',
+          'Template downloaded successfully'
+        )
+      );
+    },
+    onError: (err) => {
+      toast.error(
+        getErrorMessage(
+          err,
+          t(
+            'managementTable.importModal.downloadError',
+            'Failed to download template'
+          )
+        )
+      );
+    },
+  });
+}
+
+export function useImportProducts() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (file: File) => importProducts(file),
+    onSuccess: (data: ProductImportResponse) => {
+      if (data?.created > 0) {
+        queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['inventory'] });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardTopSellingProducts'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardInventoryAlerts'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardInventoryProductsMap'],
+        });
+      }
+    },
+    onError: (err) => {
+      toast.error(
+        getErrorMessage(
+          err,
+          t('managementTable.importModal.importError', 'Failed to import products')
+        )
+      );
+    },
+  });
+}
+

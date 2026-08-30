@@ -12,6 +12,7 @@ type ManagementStore = {
   setSelectedStatus: (status: StatusFilter) => void;
   setPage: (page: number) => void;
   toggleRow: (id: string | number) => void;
+  toggleSelectPage: (pageProductIds: (string | number)[]) => void;
   setSelectedRows: (ids: (string | number)[]) => void;
   clearSelection: () => void;
 };
@@ -28,12 +29,51 @@ export const useManagementStore = create<ManagementStore>((set) => ({
   setSelectedStatus: (selectedStatus) => set({ selectedStatus, page: 1 }),
   setPage: (page) => set({ page }),
   toggleRow: (id) =>
-    set((state) => ({
-      selectedRows: state.selectedRows.includes(id)
-        ? state.selectedRows.filter((rowId) => rowId !== id)
-        : [...state.selectedRows, id],
-    })),
-  setSelectedRows: (selectedRows) => set({ selectedRows }),
+    set((state) => {
+      const idStr = String(id);
+      const exists = state.selectedRows.some((rowId) => String(rowId) === idStr);
+      return {
+        selectedRows: exists
+          ? state.selectedRows.filter((rowId) => String(rowId) !== idStr)
+          : [...state.selectedRows, id],
+      };
+    }),
+  toggleSelectPage: (pageProductIds) =>
+    set((state) => {
+      const pageIdStrs = pageProductIds.map(String);
+      const isAllSelected =
+        pageIdStrs.length > 0 &&
+        pageIdStrs.every((pid) =>
+          state.selectedRows.some((rowId) => String(rowId) === pid)
+        );
+
+      if (isAllSelected) {
+        const pageIdSet = new Set(pageIdStrs);
+        return {
+          selectedRows: state.selectedRows.filter(
+            (rowId) => !pageIdSet.has(String(rowId))
+          ),
+        };
+      } else {
+        const existingStrSet = new Set(state.selectedRows.map(String));
+        const newIdsToAdd = pageProductIds.filter(
+          (pid) => !existingStrSet.has(String(pid))
+        );
+        return {
+          selectedRows: [...state.selectedRows, ...newIdsToAdd],
+        };
+      }
+    }),
+  setSelectedRows: (selectedRows) => {
+    const seen = new Set<string>();
+    const unique = selectedRows.filter((id) => {
+      const s = String(id);
+      if (seen.has(s)) return false;
+      seen.add(s);
+      return true;
+    });
+    return set({ selectedRows: unique });
+  },
   clearSelection: () => set({ selectedRows: [] }),
 }));
 
