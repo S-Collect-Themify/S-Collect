@@ -1,4 +1,4 @@
-export type DateRangeKey = 'last7Days' | 'last30Days' | 'thisMonth' | 'thisYear';
+export type DateRangeKey = 'last7Days' | 'last30Days' | 'thisMonth' | 'thisYear' | 'custom';
 
 export interface DateRangeOption {
   key: DateRangeKey;
