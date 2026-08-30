@@ -102,7 +102,7 @@ export const MobileAdminsList: React.FC = () => {
 
       {/* Main Content: Centered message if not superadmin, or card list if superadmin */}
       {!isSuperAdmin ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs p-8 min-h-[300px] flex flex-col items-center justify-center text-center">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs p-8 min-h-75 flex flex-col items-center justify-center text-center">
           <div className="size-14 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center mb-3.5 text-amber-600">
             <ShieldAlert size={26} />
           </div>

@@ -36,7 +36,7 @@ const Management = () => {
 
   return (
     <>
-      <div className="sidebar-page-container flex items-center justify-between mb-5 md:mb-10 mb-5 bg-gray-50">
+      <div className="sidebar-page-container flex items-center justify-between mb-5 md:mb-10 bg-gray-50">
         <h1 className="md:text-h4 text-h6 py-2 md:py-5">{t('managementTable.title')}</h1>
         {isMobile ? (
           <Link

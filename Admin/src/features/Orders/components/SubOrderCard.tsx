@@ -223,7 +223,7 @@ export const SubOrderCard = ({
 
         {/* Change Status */}
         <div>
-          <label className="block text-[11px] text-gray-400 mb-1 font-medium flex items-center justify-between">
+          <label className="text-[11px] text-gray-400 mb-1 font-medium flex items-center justify-between">
             <span>{t('ordersPage.changeStatus', 'Change Status')}</span>
             {!isSuperAdmin && (
               <span className="text-[10px] text-rose-500 font-semibold flex items-center gap-0.5">
