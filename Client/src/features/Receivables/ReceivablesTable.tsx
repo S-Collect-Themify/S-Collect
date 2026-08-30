@@ -132,6 +132,7 @@ export default function ReceivablesTable() {
     exportMutation.mutate({
       dateFrom: dateRange.dateFrom,
       dateTo: dateRange.dateTo,
+      status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
     });
   };
 

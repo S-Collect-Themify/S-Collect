@@ -1,4 +1,6 @@
 import { api, handleServiceError } from './api';
+import { generateProductImportTemplate } from '../utils/productImportTemplateGenerator';
+import { sanitizeProductImportFile } from '../utils/productImportSanitizer';
 
 export const getAllProducts = async () => {
   try {
@@ -370,3 +372,138 @@ export const deactivateProduct = async (productId: string) => {
     throw serviceErr;
   }
 };
+
+export interface ProductImportFailedItem {
+  rows: number[];
+  product?: string;
+  error?: string;
+}
+
+export interface ProductImportResponse {
+  created: number;
+  failed: ProductImportFailedItem[];
+  summary: string;
+}
+
+/**
+ * Download product import Excel template (.xlsx):
+ * 1. Attempts to fetch the official template directly from the backend (GET /vendor/products/import/template)
+ * 2. Falls back to generating the template locally with ExcelJS if server is offline or returns error
+ */
+export const downloadProductImportTemplate = async (): Promise<Blob> => {
+  try {
+    let blob: Blob;
+
+    try {
+      const response = await api.get('/vendor/products/import/template', {
+        responseType: 'blob',
+      });
+      blob = new Blob([response.data], {
+        type:
+          response.headers['content-type'] ||
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+    } catch (serverErr) {
+      console.warn(
+        'Server template download failed, falling back to local generator:',
+        serverErr
+      );
+      let categories: Category[] = [];
+      try {
+        categories = await getCategories();
+      } catch {
+        categories = [];
+      }
+      blob = await generateProductImportTemplate(categories);
+    }
+
+    // Trigger direct browser download
+    const filename = 'products_import_template.xlsx';
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return blob;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to download products template');
+  }
+};
+
+/**
+ * Upload and import products from a filled .xlsx template
+ */
+export const importProducts = async (
+  file: File
+): Promise<ProductImportResponse> => {
+  try {
+    const cleanFile = await sanitizeProductImportFile(file);
+    const formData = new FormData();
+    formData.append('file', cleanFile);
+
+    const { data } = await api.post('/vendor/products/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const unwrapped: ProductImportResponse =
+      data && typeof data === 'object' && 'data' in data
+        ? (data as any).data
+        : data;
+
+    return unwrapped;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to import products');
+  }
+};
+
+/**
+ * Export vendor products as Excel (.xlsx) file and trigger browser download
+ */
+export const exportProducts = async (params?: {
+  categoryId?: string;
+  isActive?: boolean;
+}): Promise<Blob> => {
+  try {
+    const cleanParams: Record<string, any> = {};
+    if (params?.categoryId) cleanParams.categoryId = params.categoryId;
+    if (params?.isActive !== undefined) cleanParams.isActive = params.isActive;
+
+    const response = await api.get('/vendor/products/export', {
+      params: cleanParams,
+      responseType: 'blob',
+    });
+
+    const contentType =
+      typeof response.headers['content-type'] === 'string'
+        ? response.headers['content-type']
+        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+    const blob = new Blob([response.data as BlobPart], {
+      type: contentType,
+    });
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `products_export_${dateStr}.xlsx`;
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return blob;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to export products');
+  }
+};
+
+

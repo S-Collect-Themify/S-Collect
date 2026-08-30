@@ -49,6 +49,7 @@ export interface PayoutListParams {
   pageSize?: number;
   dateFrom?: string;
   dateTo?: string;
+  status?: string;
 }
 
 // Helper: unwraps response if wrapped in { success, data }
@@ -94,6 +95,8 @@ export const getPayouts = async (
     if (params?.pageSize !== undefined) cleanParams.pageSize = params.pageSize;
     if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
     if (params?.dateTo) cleanParams.dateTo = params.dateTo;
+    if (params?.status && params.status !== 'ALL')
+      cleanParams.status = params.status;
 
     const { data } = await api.get('/vendor/payouts', {
       params: cleanParams,
@@ -118,7 +121,7 @@ export const getPayouts = async (
  * Export payout history as an Excel (.xlsx) file and trigger browser download
  */
 export const exportPayouts = async (
-  params?: PayoutListParams
+  params?: PayoutListParams & { status?: string }
 ): Promise<Blob> => {
   try {
     const cleanParams: Record<string, string | number> = {};
@@ -126,6 +129,7 @@ export const exportPayouts = async (
     if (params?.pageSize !== undefined) cleanParams.pageSize = params.pageSize;
     if (params?.dateFrom) cleanParams.dateFrom = params.dateFrom;
     if (params?.dateTo) cleanParams.dateTo = params.dateTo;
+    if (params?.status && params.status !== 'ALL') cleanParams.status = params.status;
 
     const response = await api.get('/vendor/payouts/export', {
       params: cleanParams,
@@ -141,9 +145,18 @@ export const exportPayouts = async (
       type: contentType,
     });
 
-    // Generate filename with current date
+    // Generate filename with current date or from content-disposition
     const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `payouts_export_${dateStr}.xlsx`;
+    let filename = `receivables_export_${dateStr}.xlsx`;
+    const contentDisposition = response.headers['content-disposition'];
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(
+        /filename\*?=(?:UTF-8'')?(['"]?)(.+?)\1(?:;|$)/i
+      );
+      if (filenameMatch && filenameMatch[2]) {
+        filename = decodeURIComponent(filenameMatch[2].replace(/['"]/g, ''));
+      }
+    }
 
     // Trigger browser download
     const url = window.URL.createObjectURL(blob);
@@ -160,3 +173,4 @@ export const exportPayouts = async (
     throw handleServiceError(err, 'Failed to export payouts');
   }
 };
+

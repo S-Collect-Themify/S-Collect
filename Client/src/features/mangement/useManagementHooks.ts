@@ -7,6 +7,9 @@ import type { Product, ProductStatus } from './mangement';
 import {
   searchVendorProducts,
   bulkUpdateProductStatus,
+  downloadProductImportTemplate,
+  importProducts,
+  type ProductImportResponse,
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
@@ -342,3 +345,63 @@ export function useManagementActions() {
     isPending: bulkStatusMutation.isPending,
   };
 }
+
+export function useDownloadImportTemplate() {
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: () => downloadProductImportTemplate(),
+    onSuccess: () => {
+      toast.success(
+        t(
+          'managementTable.importModal.downloadSuccess',
+          'Template downloaded successfully'
+        )
+      );
+    },
+    onError: (err) => {
+      toast.error(
+        getErrorMessage(
+          err,
+          t(
+            'managementTable.importModal.downloadError',
+            'Failed to download template'
+          )
+        )
+      );
+    },
+  });
+}
+
+export function useImportProducts() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (file: File) => importProducts(file),
+    onSuccess: (data: ProductImportResponse) => {
+      if (data?.created > 0) {
+        queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['inventory'] });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardTopSellingProducts'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardInventoryAlerts'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['dashboardInventoryProductsMap'],
+        });
+      }
+    },
+    onError: (err) => {
+      toast.error(
+        getErrorMessage(
+          err,
+          t('managementTable.importModal.importError', 'Failed to import products')
+        )
+      );
+    },
+  });
+}
+
