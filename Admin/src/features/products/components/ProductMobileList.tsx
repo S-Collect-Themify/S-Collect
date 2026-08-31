@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { Tag } from 'lucide-react';
 import Toggle from '../../../components/ui/Toggle';
 import type { ProductItem } from '../types';
 import { useProductStore } from '../productStore';
@@ -55,9 +56,17 @@ export const ProductMobileList = ({
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-black group-hover:underline transition-colors">
-                    {isAr && product.nameAr ? product.nameAr : product.name}
-                  </h3>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-black group-hover:underline transition-colors">
+                      {isAr && product.nameAr ? product.nameAr : product.name}
+                    </h3>
+                    {!!product.discountPercent && product.discountPercent > 0 && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 shrink-0">
+                        <Tag size={10} className="rotate-90" />
+                        <span>{isAr ? `%${product.discountPercent}-` : `-${product.discountPercent}%`}</span>
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400 mt-1 truncate">
                     {product.vendor} · {isAr && product.categoryAr ? product.categoryAr : product.category}
                   </p>

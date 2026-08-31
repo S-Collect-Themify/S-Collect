@@ -164,6 +164,12 @@ export const useProductsData = () => {
               p.image ||
               p.thumbnail ||
               '',
+            discountPercent:
+              typeof p.discountPercent === 'number'
+                ? p.discountPercent
+                : typeof p.discountPercent === 'string'
+                ? Number(p.discountPercent) || 0
+                : 0,
           };
         });
 
