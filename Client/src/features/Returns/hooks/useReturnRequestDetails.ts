@@ -197,7 +197,7 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         productPrice: `SAR ${(firstItem.refundAmount || refundDetail.totalRefundAmount || 0).toFixed(2)}`,
         productImage:
           firstItem.thumbnailUrl || refundDetail.imageUrls?.[0] || '',
-        reason: firstItem.reason || 'DAMAGED_DEFECTIVE',
+        reason: firstItem.reason || '',
         rejectionReason: refundDetail.rejectionReason || undefined,
         requestedDate: reqDateFormatted,
         status: currentStatus,
@@ -255,7 +255,7 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
         productQty: firstProduct.quantity || 1,
         productPrice: `SAR ${(firstProduct.unitPrice || firstProduct.lineTotal || 0).toFixed(2)}`,
         productImage: firstProduct.productImage || firstProduct.imageUrl || '',
-        reason: subDetail.statusOverrideReason || "Item doesn't fit",
+        reason: firstProduct.reason || subDetail.statusOverrideReason || '',
         requestedDate: reqDateFormatted,
         status: currentStatus,
         rawId: subDetail.id,
