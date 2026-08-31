@@ -17,7 +17,11 @@ const SIZE_OPTIONS = [
   'One Size',
 ];
 
-const MobileInventoryStep = () => {
+interface MobileInventoryStepProps {
+  isEdit?: boolean;
+}
+
+const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
   const { t } = useTranslation();
   const { watch, setValue } = useFormContext<ProductFormData>();
 
@@ -352,20 +356,22 @@ const MobileInventoryStep = () => {
       </div>
 
       {/* Product Status Toggle */}
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 bg-white">
-        <span className="text-sm font-medium text-gray-700">
-          {t('addProduct.mobile.productStatus', 'Product Status')}
-        </span>
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input
-            type="checkbox"
-            className="peer sr-only"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-          />
-          <div className="peer h-6 w-11 rounded-full bg-gray-200 transition peer-checked:bg-green-500 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition after:content-[''] peer-checked:after:translate-x-5" />
-        </label>
-      </div>
+      {isEdit && (
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 bg-white">
+          <span className="text-sm font-medium text-gray-700">
+            {t('addProduct.mobile.productStatus', 'Product Status')}
+          </span>
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
+            <div className="peer h-6 w-11 rounded-full bg-gray-200 transition peer-checked:bg-green-500 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition after:content-[''] peer-checked:after:translate-x-5" />
+          </label>
+        </div>
+      )}
 
       {/* Navigation Buttons */}
       <div className="flex gap-3 mt-2">

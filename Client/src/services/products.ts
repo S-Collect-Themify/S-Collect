@@ -400,7 +400,7 @@ export const downloadProductImportTemplate = async (): Promise<Blob> => {
       });
       blob = new Blob([response.data], {
         type:
-          response.headers['content-type'] ||
+          (response.headers['content-type'] as string) ||
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
     } catch (serverErr) {

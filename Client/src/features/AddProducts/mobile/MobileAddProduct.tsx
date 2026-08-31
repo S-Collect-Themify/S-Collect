@@ -134,7 +134,7 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
           {/* Step content */}
           {step === 1 && <MobileBasicInfoStep />}
 
-          {step === 2 && <MobileInventoryStep />}
+          {step === 2 && <MobileInventoryStep isEdit={isEdit} />}
 
           {step === 3 && <MobileReviewStep productId={productId} />}
         </div>

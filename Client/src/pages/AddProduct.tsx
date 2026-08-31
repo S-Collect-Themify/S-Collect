@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Plus, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, ChevronDown } from 'lucide-react';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
@@ -132,11 +132,6 @@ const AddProduct = () => {
     ]);
   };
 
-  const handleRemoveVarianceCard = (id: string) => {
-    if (varianceCards.length > 1) {
-      setVarianceCards((prev) => prev.filter((c) => c.id !== id));
-    }
-  };
 
   const handleUpdateCardField = (
     cardId: string,
@@ -239,19 +234,6 @@ const AddProduct = () => {
                                 ? `${t('addProduct.preview.variance', 'Variance')} #${cardIdx + 1}`
                                 : ''}
                             </span>
-                            {varianceCards.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveVarianceCard(card.id)}
-                                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer font-medium ml-auto"
-                                title={t(
-                                  'addProduct.removeVarianceCard',
-                                  'Remove Card'
-                                )}
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            )}
                           </div>
 
                           {/* Size Dropdown */}
@@ -461,13 +443,15 @@ const AddProduct = () => {
               {/* Right Column: Media & Status */}
               <motion.div variants={itemVariants}>
                 <ProductMedia />
-                <div className="mt-8">
-                  <ProductStatus
-                    enabled={enabled}
-                    setEnabled={(val) => methods.setValue('enabled', val)}
-                    productId={productId}
-                  />
-                </div>
+                {isEdit && (
+                  <div className="mt-8">
+                    <ProductStatus
+                      enabled={enabled}
+                      setEnabled={(val) => methods.setValue('enabled', val)}
+                      productId={productId}
+                    />
+                  </div>
+                )}
               </motion.div>
             </div>
 
