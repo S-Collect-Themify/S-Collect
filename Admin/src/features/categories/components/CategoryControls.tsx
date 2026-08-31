@@ -41,6 +41,8 @@ export const Pagination = ({
           type="button"
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
+          aria-label={isRtl ? 'الصفحة السابقة' : 'Previous page'}
+          title={isRtl ? 'الصفحة السابقة' : 'Previous page'}
           className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           {isRtl ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
@@ -64,6 +66,8 @@ export const Pagination = ({
               key={pageNum}
               type="button"
               onClick={() => onPageChange(pageNum)}
+              aria-label={isRtl ? `صفحة ${pageNum}` : `Page ${pageNum}`}
+              aria-current={pageNum === currentPage ? 'page' : undefined}
               className={`inline-flex items-center justify-center h-8 w-8 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 pageNum === currentPage
                   ? 'bg-gray-950 text-white shadow-sm'
@@ -79,6 +83,8 @@ export const Pagination = ({
           type="button"
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
+          aria-label={isRtl ? 'الصفحة التالية' : 'Next page'}
+          title={isRtl ? 'الصفحة التالية' : 'Next page'}
           className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           {isRtl ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}

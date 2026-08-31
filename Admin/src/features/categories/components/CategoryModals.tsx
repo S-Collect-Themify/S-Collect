@@ -50,6 +50,7 @@ export const StatusConfirmModal = ({
             <button
               type="button"
               onClick={onClose}
+              aria-label={t('common.close', 'Close')}
               className="absolute top-4 right-4 inline-flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X size={16} />
@@ -139,6 +140,7 @@ export const DeleteModal = ({ isOpen, categoryName, count, onClose, onConfirm }:
             <button
               type="button"
               onClick={onClose}
+              aria-label={t('common.close', 'Close')}
               className="absolute top-4 right-4 inline-flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X size={16} />
@@ -584,6 +586,7 @@ export const CannotDeleteModal = ({
             <button
               type="button"
               onClick={onClose}
+              aria-label={t('common.close', 'Close')}
               className="absolute top-4 right-4 inline-flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X size={16} />
