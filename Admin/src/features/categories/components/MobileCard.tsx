@@ -94,6 +94,7 @@ const MobileCard = ({
           <button
             type="button"
             onClick={() => onEdit(category)}
+            aria-label={i18n.language === 'ar' ? `تعديل ${category.nameAr || category.name}` : `Edit ${category.nameEn || category.name}`}
             className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95 transition-all cursor-pointer"
             title={t('categories.modal.editCategory')}
           >
@@ -103,6 +104,7 @@ const MobileCard = ({
           <button
             type="button"
             onClick={() => onDelete(category)}
+            aria-label={i18n.language === 'ar' ? `حذف ${category.nameAr || category.name}` : `Delete ${category.nameEn || category.name}`}
             className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-red-light text-red hover:bg-red-light/80 active:scale-95 transition-all cursor-pointer"
             title={t('categories.deleteModal.titleSingle')}
           >
