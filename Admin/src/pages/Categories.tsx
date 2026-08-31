@@ -20,6 +20,7 @@ import {
   BulkNavbar,
   type Category,
 } from '../features/categories';
+import { BulkDiscountModal, type BulkDiscountFormData } from '../features/products';
 
 // ─── Main Categories Page ──────────────────────────────────────────────────────
 const Categories = () => {
@@ -39,6 +40,7 @@ const Categories = () => {
     deactivateCategoryMutation,
     reactivateCategoryMutation,
     deleteCategoryMutation,
+    applyBulkDiscountMutation,
   } = useCategoriesData();
 
   // ── Store State (UI & Modals) ──
@@ -51,6 +53,7 @@ const Categories = () => {
   const deleteModal = useCategoryStore((s) => s.deleteModal);
   const statusModal = useCategoryStore((s) => s.statusModal);
   const cannotDeleteModal = useCategoryStore((s) => s.cannotDeleteModal);
+  const discountModal = useCategoryStore((s) => s.discountModal);
 
   // ── Store Actions ──
   const setCurrentPage = useCategoryStore((s) => s.setCurrentPage);
@@ -61,6 +64,8 @@ const Categories = () => {
   const openEdit = useCategoryStore((s) => s.openEdit);
   const openDelete = useCategoryStore((s) => s.openDelete);
   const openBulkDelete = useCategoryStore((s) => s.openBulkDelete);
+  const openDiscountModal = useCategoryStore((s) => s.openDiscountModal);
+  const closeDiscountModal = useCategoryStore((s) => s.closeDiscountModal);
   const closeForm = useCategoryStore((s) => s.closeForm);
   const closeDelete = useCategoryStore((s) => s.closeDelete);
   const closeStatusModal = useCategoryStore((s) => s.closeStatusModal);
@@ -149,6 +154,21 @@ const Categories = () => {
       await deleteCategoryMutation.mutateAsync(cat.id);
       closeDelete();
     }
+  };
+
+  const handleApplyDiscountSubmit = async (data: BulkDiscountFormData) => {
+    const selectedCatId = Array.from(selectedIds)[0];
+    if (!selectedCatId) return;
+
+    await applyBulkDiscountMutation.mutateAsync({
+      categoryId: selectedCatId,
+      discountType: data.discountType,
+      discountValue: data.discountValue,
+      expiryDate: data.expiryDate,
+    });
+
+    closeDiscountModal();
+    clearSelection();
   };
 
   // ── Filtering & Pagination ──
@@ -258,7 +278,23 @@ const Categories = () => {
         <BulkNavbar
           selectedCount={selectedIds.size}
           onDelete={openBulkDelete}
+          onApplyDiscount={openDiscountModal}
           onClearSelection={clearSelection}
+        />
+
+        {/* Bulk Discount Modal */}
+        <BulkDiscountModal
+          isOpen={discountModal.open}
+          selectedCount={selectedIds.size}
+          onClose={closeDiscountModal}
+          onSubmit={handleApplyDiscountSubmit}
+          isPending={applyBulkDiscountMutation.isPending}
+          title={i18n.language === 'ar' ? 'خصم جماعي للفئة' : 'Category Bulk Discount'}
+          subtitle={
+            i18n.language === 'ar'
+              ? 'تطبيق خصم على منتجات الفئة المحددة'
+              : 'Apply discount on products in selected category'
+          }
         />
 
         {/* Add / Edit Modal */}

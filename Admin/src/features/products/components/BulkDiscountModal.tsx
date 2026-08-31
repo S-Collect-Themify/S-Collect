@@ -10,6 +10,8 @@ interface BulkDiscountModalProps {
   onClose: () => void;
   onSubmit: (data: BulkDiscountFormData) => void;
   isPending: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 export const BulkDiscountModal = ({
@@ -18,8 +20,10 @@ export const BulkDiscountModal = ({
   onClose,
   onSubmit,
   isPending,
+  title,
+  subtitle,
 }: BulkDiscountModalProps) => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
   const {
@@ -88,12 +92,13 @@ export const BulkDiscountModal = ({
 
           {/* Title & Subtitle */}
           <h3 className="text-xl font-bold text-gray-900 mb-1">
-            {isAr ? 'خصم جماعي' : 'Bulk Discount'}
+            {title ?? (isAr ? 'خصم جماعي' : 'Bulk Discount')}
           </h3>
           <p className="text-xs text-gray-500 mb-6">
-            {isAr
-              ? `تطبيق خصم على ${selectedCount} من المنتجات المحددة`
-              : `Apply discount on ${selectedCount} selected products`}
+            {subtitle ??
+              (isAr
+                ? `تطبيق خصم على ${selectedCount} من المنتجات المحددة`
+                : `Apply discount on ${selectedCount} selected products`)}
           </p>
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">

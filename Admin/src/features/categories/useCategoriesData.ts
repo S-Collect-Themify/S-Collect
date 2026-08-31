@@ -8,8 +8,10 @@ import {
   deactivateAdminCategory,
   reactivateAdminCategory,
   deleteAdminCategory,
+  applyCategoryBulkDiscount,
   type CreateCategoryPayload,
   type UpdateCategoryPayload,
+  type CategoryBulkDiscountPayload,
 } from '../../services/categories';
 import { mapApiCategoryToCategory } from './utils';
 
@@ -109,6 +111,19 @@ export const useCategoriesData = () => {
     },
   });
 
+  // ── Apply Category Bulk Discount Mutation ──
+  const applyBulkDiscountMutation = useMutation({
+    mutationFn: (payload: CategoryBulkDiscountPayload) => applyCategoryBulkDiscount(payload),
+    onSuccess: () => {
+      toast.success(isAr ? 'تم تطبيق الخصم بنجاح' : 'Discount applied successfully');
+      queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || (isAr ? 'فشل تطبيق الخصم' : 'Failed to apply discount'));
+    },
+  });
+
   return {
     categories: categoriesQuery.data || [],
     isLoading: categoriesQuery.isLoading,
@@ -123,5 +138,6 @@ export const useCategoriesData = () => {
     deactivateCategoryMutation,
     reactivateCategoryMutation,
     deleteCategoryMutation,
+    applyBulkDiscountMutation,
   };
 };
