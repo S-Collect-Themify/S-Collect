@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Trash2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, X, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { getPaginationRange, DOTS } from '../../../utils/pagination';
@@ -92,11 +92,17 @@ export const Pagination = ({
 export interface BulkNavbarProps {
   selectedCount: number;
   onDelete: () => void;
+  onApplyDiscount?: () => void;
   onClearSelection: () => void;
 }
 
-export const BulkNavbar = ({ selectedCount, onDelete, onClearSelection }: BulkNavbarProps) => {
-  const { t } = useTranslation();
+export const BulkNavbar = ({
+  selectedCount,
+  onDelete,
+  onApplyDiscount,
+  onClearSelection,
+}: BulkNavbarProps) => {
+  const { t, i18n } = useTranslation();
 
   return (
     <AnimatePresence>
@@ -124,6 +130,17 @@ export const BulkNavbar = ({ selectedCount, onDelete, onClearSelection }: BulkNa
             <div className="w-px h-5 bg-white/20 shrink-0" />
 
             <div className="flex items-center gap-1.5 shrink-0">
+              {selectedCount === 1 && onApplyDiscount && (
+                <button
+                  type="button"
+                  onClick={onApplyDiscount}
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl bg-white text-gray-950 text-xs sm:text-sm font-semibold hover:bg-gray-100 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <Tag size={14} />
+                  <span>{i18n.language === 'ar' ? 'خصم جماعي' : 'Bulk Discount'}</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={onDelete}

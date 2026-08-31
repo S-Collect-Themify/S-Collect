@@ -35,6 +35,7 @@ interface CategoryStore {
   deleteModal: DeleteModalState;
   statusModal: StatusModalState;
   cannotDeleteModal: CannotDeleteModalState;
+  discountModal: { open: boolean };
 
   // Actions
   setSearch: (val: string) => void;
@@ -53,6 +54,8 @@ interface CategoryStore {
   closeStatusModal: () => void;
   closeCannotDeleteModal: () => void;
   openCannotDeleteModal: (payload: { isBulk: boolean; categoryName?: string; productsCount?: number }) => void;
+  openDiscountModal: () => void;
+  closeDiscountModal: () => void;
   handleToggleActiveRequest: (category: Category) => void;
 }
 
@@ -66,6 +69,7 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
   deleteModal: { open: false, category: null, isBulk: false },
   statusModal: { open: false, category: null },
   cannotDeleteModal: { open: false, isBulk: false },
+  discountModal: { open: false },
 
   setSearch: (val) => set({ search: val, currentPage: 1 }),
   setCategoryFilter: (val) => set({ categoryFilter: val, currentPage: 1 }),
@@ -105,5 +109,7 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
   closeStatusModal: () => set({ statusModal: { open: false, category: null } }),
   closeCannotDeleteModal: () => set({ cannotDeleteModal: { open: false, isBulk: false } }),
   openCannotDeleteModal: (payload) => set({ cannotDeleteModal: { open: true, ...payload } }),
+  openDiscountModal: () => set({ discountModal: { open: true } }),
+  closeDiscountModal: () => set({ discountModal: { open: false } }),
   handleToggleActiveRequest: (category) => set({ statusModal: { open: true, category } }),
 }));

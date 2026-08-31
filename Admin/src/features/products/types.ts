@@ -10,6 +10,7 @@ export interface ProductItem {
   stock?: number | string;
   isActive: boolean;
   image: string;
+  discountPercent?: number;
 }
 
 export type StatusFilter = 'all' | 'active' | 'disabled';
