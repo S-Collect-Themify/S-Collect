@@ -1,18 +1,13 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronsRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import {
-  useSubOrder,
-  useUpdateSubOrder,
-} from '../features/Orders/useSubOrders';
-import type { SubOrderStatus } from '../features/Orders/types/subOrder';
+import { useSubOrder } from '../features/Orders/useSubOrders';
 
 // Child components
 import { SubOrderItems } from '../features/SubOrder/SubOrderItems';
 import { SubOrderTimeline } from '../features/SubOrder/SubOrderTimeline';
 import { SubOrderInfo } from '../features/SubOrder/SubOrderInfo';
 import { SubOrderSummary } from '../features/SubOrder/SubOrderSummary';
-import { SubOrderStatusUpdate } from '../features/SubOrder/SubOrderStatusUpdate';
 import { useTranslation } from 'react-i18next';
 
 import { containerVariants, itemVariants as cardVariants } from '../utils/animations';
@@ -22,7 +17,6 @@ const SubOrderDetails = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { data: order, isLoading, isError, refetch } = useSubOrder(id ?? null);
-  const { mutate: updateOrder, isPending, isSuccess } = useUpdateSubOrder();
 
   const goBack = () => navigate('/incoming-orders');
 
@@ -51,21 +45,6 @@ const SubOrderDetails = () => {
 
   const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
   const grandTotal = itemsTotal + order.shippingRateApplied;
-
-  const handleUpdateStatus = (
-    newStatus: SubOrderStatus | null,
-    tracking: string
-  ) => {
-    const body: { status?: SubOrderStatus; trackingNumber?: string } = {};
-    if (newStatus && newStatus !== order.status) {
-      body.status = newStatus;
-    }
-    if (tracking.trim()) {
-      body.trackingNumber = tracking.trim();
-    }
-    if (Object.keys(body).length === 0) return;
-    updateOrder({ id: order.id, body });
-  };
 
   return (
     <motion.div
@@ -146,17 +125,6 @@ const SubOrderDetails = () => {
               grandTotal={grandTotal}
             />
           </motion.div>
-
-          {order.status !== 'CANCELLED' && (
-            <motion.div variants={cardVariants}>
-              <SubOrderStatusUpdate
-                currentStatus={order.status}
-                isPending={isPending}
-                isSuccess={isSuccess}
-                onUpdateStatus={handleUpdateStatus}
-              />
-            </motion.div>
-          )}
         </div>
       </div>
     </motion.div>

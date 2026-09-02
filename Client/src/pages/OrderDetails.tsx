@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
@@ -6,14 +5,11 @@ import {
   ChevronsRight,
   Check,
   Truck,
-  CircleCheckBig,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
   type Order,
-  type OrderStatus,
   STATUS_STYLES,
-  ALL_STATUSES,
 } from '../features/Orders/types/order';
 
 import { containerVariants, itemVariants } from '../utils/animations';
@@ -21,26 +17,13 @@ import { containerVariants, itemVariants } from '../utils/animations';
 interface OrderDetailsProps {
   order: Order;
   onBack: () => void;
-  onUpdateStatus: (id: string, status: OrderStatus, tracking: string) => void;
 }
 
 export const OrderDetails = ({
   order,
   onBack,
-  onUpdateStatus,
 }: OrderDetailsProps) => {
   const { t } = useTranslation();
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
-    order.status
-  );
-  const [tracking, setTracking] = useState(order.trackingNumber);
-  const [saved, setSaved] = useState(false);
-
-  const handleUpdate = () => {
-    onUpdateStatus(order.id, selectedStatus, tracking);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
 
   return (
     <motion.div
@@ -356,59 +339,7 @@ export const OrderDetails = ({
                 {order.grandTotal.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
-              </span>
             </div>
-          </div>
-
-          {/* Update Order Status */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 text-sm">
-            <h6 className="font-semibold text-gray-900 mb-1">
-              {t('ordersPage.updateOrderStatus')}
-            </h6>
-            <p className="text-xs text-gray-400 mb-3">
-              {t('ordersPage.updateOrderStatusDesc')}
-            </p>
-
-            <div className="flex flex-wrap gap-2 mb-4 ">
-              {ALL_STATUSES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSelectedStatus(s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                    selectedStatus === s
-                      ? 'bg-gray-900 text-white border-gray-900 last:flex-1 transition-colors duration-200'
-                      : 'border-gray-200 text-gray-500 hover:bg-gray-50 last:flex-1 transition-colors duration-200'
-                  }`}
-                >
-                  {t(`ordersPage.${s.toLowerCase()}`)}
-                </button>
-              ))}
-            </div>
-
-            <label className="block text-xs text-gray-500 mb-1.5">
-              {t('ordersPage.trackingOptional')}
-            </label>
-            <input
-              type="text"
-              value={tracking}
-              onChange={(e) => setTracking(e.target.value)}
-              placeholder="e.g. SA123456789AE"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm mb-4 focus:outline-none focus:border-gray-400"
-            />
-
-            <button
-              onClick={handleUpdate}
-              className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-700 transition-colors cursor-pointer"
-            >
-              {t('ordersPage.updateButton')}
-            </button>
-
-            {saved && (
-              <div className="mt-3 flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2.5 text-sm">
-                <CircleCheckBig className="w-6 h-6 text-green-700" />
-                {t('ordersPage.updatedSuccessfully')}
-              </div>
-            )}
           </div>
         </motion.div>
       </div>
