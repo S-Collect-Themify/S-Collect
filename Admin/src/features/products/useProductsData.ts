@@ -7,8 +7,11 @@ import {
   getCategories,
   updateProductStatus,
   applyBulkDiscountApi,
+  exportAdminProducts,
+  type ExportAdminProductsParams,
   type BulkDiscountPayload,
 } from '../../services/products';
+import { exportToCSV } from '../../utils/exportUtils';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
 
@@ -233,10 +236,48 @@ export const useProductsData = () => {
     },
   });
 
+  // ── Export Products Mutation ──
+  const exportMutation = useMutation({
+    mutationFn: async (params?: ExportAdminProductsParams) => {
+      try {
+        return await exportAdminProducts(params);
+      } catch (err) {
+        console.warn('Backend export /admin/products/export failed, trying fallback client export:', err);
+        const storeProducts = useProductStore.getState().products;
+        if (storeProducts.length > 0) {
+          const exportHeaders = [
+            { key: 'id', label: 'Product ID' },
+            { key: 'name', label: 'Product Name (EN)' },
+            { key: 'nameAr', label: 'Product Name (AR)' },
+            { key: 'vendor', label: 'Vendor' },
+            { key: 'category', label: 'Category' },
+            { key: 'price', label: 'Price (SAR)' },
+            { key: 'stock', label: 'Stock' },
+            { key: 'isActive', label: 'Is Active' },
+          ];
+          exportToCSV('products_export', exportHeaders, storeProducts);
+          return;
+        }
+        throw err;
+      }
+    },
+    onSuccess: () => {
+      toast.success(isAr ? 'تم تصدير المنتجات بنجاح' : 'Products exported successfully');
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        (isAr ? 'فشل تصدير المنتجات' : 'Failed to export products');
+      toast.error(msg);
+    },
+  });
+
   return {
     productsQuery,
     categoriesQuery,
     statusMutation,
     bulkDiscountMutation,
+    exportMutation,
   };
 };

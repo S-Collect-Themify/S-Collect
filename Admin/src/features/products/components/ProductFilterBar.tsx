@@ -1,4 +1,4 @@
-import { Search, ChevronDown, Tag } from 'lucide-react';
+import { Search, ChevronDown, Tag, Download, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProductStore } from '../productStore';
 import type { StatusFilter } from '../types';
@@ -11,11 +11,15 @@ export interface CategoryFilterOption {
 interface ProductFilterBarProps {
   availableVendors?: string[];
   availableCategories?: (string | CategoryFilterOption)[];
+  onExport?: () => void;
+  isExporting?: boolean;
 }
 
 export const ProductFilterBar = ({
   availableVendors = [],
   availableCategories = [],
+  onExport,
+  isExporting = false,
 }: ProductFilterBarProps) => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -119,17 +123,35 @@ export const ProductFilterBar = ({
         </div>
       </div>
 
-      {/* Bulk Discount Action Button */}
-      {selectedCount > 0 && (
-        <button
-          type="button"
-          onClick={openBulkDiscountModal}
-          className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer shrink-0 animate-fade-in"
-        >
-          <Tag size={16} />
-          <span>{isAr ? `خصم جماعي (${selectedCount})` : `Bulk Discount (${selectedCount})`}</span>
-        </button>
-      )}
+      {/* Action Buttons (Export & Bulk Discount) */}
+      <div className="flex items-center gap-2 shrink-0">
+        {onExport && (
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={onExport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            {isExporting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Download size={16} />
+            )}
+            <span>{isExporting ? t('productsListing.exporting') : t('productsListing.export')}</span>
+          </button>
+        )}
+
+        {selectedCount > 0 && (
+          <button
+            type="button"
+            onClick={openBulkDiscountModal}
+            className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer animate-fade-in"
+          >
+            <Tag size={16} />
+            <span>{isAr ? `خصم جماعي (${selectedCount})` : `Bulk Discount (${selectedCount})`}</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

@@ -1148,6 +1148,8 @@
     "allStatuses": "All Statuses",
     "active": "Active",
     "disabled": "Disabled",
+    "export": "Export",
+    "exporting": "Exporting...",
     "table": {
       "productName": "Product Name",
       "vendor": "Vendor",

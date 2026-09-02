@@ -276,3 +276,45 @@ export const applyBulkDiscountApi = async (payload: BulkDiscountPayload) => {
   const { data } = await api.post('/admin/products/bulk-discount', payload);
   return data;
 };
+
+export interface ExportAdminProductsParams {
+  vendorId?: string;
+  categoryId?: string;
+  isDisabled?: boolean;
+}
+
+export const exportAdminProducts = async (params?: ExportAdminProductsParams): Promise<Blob> => {
+  const cleanParams: Record<string, any> = {};
+  if (params?.vendorId && params.vendorId !== 'all') cleanParams.vendorId = params.vendorId;
+  if (params?.categoryId && params.categoryId !== 'all') cleanParams.categoryId = params.categoryId;
+  if (params?.isDisabled !== undefined) cleanParams.isDisabled = params.isDisabled;
+
+  const response = await api.get('/admin/products/export', {
+    params: cleanParams,
+    responseType: 'blob',
+  });
+
+  const contentType =
+    typeof response.headers['content-type'] === 'string'
+      ? response.headers['content-type']
+      : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+  const blob = new Blob([response.data as BlobPart], {
+    type: contentType,
+  });
+
+  const dateStr = new Date().toISOString().split('T')[0];
+  const filename = `products_export_${dateStr}.xlsx`;
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+
+  return blob;
+};
+

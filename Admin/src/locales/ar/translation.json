@@ -1144,6 +1144,8 @@
     "allStatuses": "جميع الحالات",
     "active": "نشط",
     "disabled": "معطل",
+    "export": "تصدير",
+    "exporting": "جاري التصدير...",
     "table": {
       "productName": "اسم المنتج",
       "vendor": "المورد",
