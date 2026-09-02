@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Plus, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, ChevronDown, ChevronsRight } from 'lucide-react';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
@@ -184,6 +185,18 @@ const AddProduct = () => {
           <h1 className="heading-page-title">
             {isEdit ? t('addProduct.editTitle') : t('addProduct.title')}
           </h1>
+          <nav aria-label="Breadcrumb" className="mt-2 flex items-center gap-1.5 text-sm">
+            <Link
+              to="/management"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+            >
+              {t('sidebar.items.management', 'Management')}
+            </Link>
+            <ChevronsRight size={16} className="text-gray-400 rtl:rotate-180 shrink-0" />
+            <span className="text-gray-900 font-semibold" aria-current="page">
+              {isEdit ? t('addProduct.editTitle') : t('addProduct.title')}
+            </span>
+          </nav>
         </div>
         <motion.div
           className="sidebar-page-container"

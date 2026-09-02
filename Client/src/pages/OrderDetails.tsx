@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   ChevronsRight,
@@ -63,11 +64,18 @@ export const OrderDetails = ({
             {t('ordersPage.orderDetails')}{' '}
             <span className="text-gray-500">#{order.id}</span>
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1 flex-wrap">
-            <span className="text-gray-900">{t('ordersPage.title')}</span>
-            <ChevronsRight size={12} />
-            <span>{t('ordersPage.orderDetails')}</span>
-          </p>
+          <nav aria-label="Breadcrumb" className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <Link
+              to="/incoming-orders"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+            >
+              {t('ordersPage.title')}
+            </Link>
+            <ChevronsRight size={12} className="text-gray-400 rtl:rotate-180 shrink-0" />
+            <span className="text-gray-900 font-semibold" aria-current="page">
+              {t('ordersPage.orderDetails')} #{order.id}
+            </span>
+          </nav>
         </div>
       </motion.div>
 

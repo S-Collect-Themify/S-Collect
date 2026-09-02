@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronsRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import {
@@ -92,13 +92,18 @@ const SubOrderDetails = () => {
               #{order.id.slice(0, 8).toUpperCase()}
             </span>
           </h1>
-          <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-            <span className="text-gray-800 font-medium">
+          <nav aria-label="Breadcrumb" className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
+            <Link
+              to="/incoming-orders"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+            >
               {t('ordersPage.title')}
+            </Link>
+            <ChevronsRight size={12} className="text-gray-400 rtl:rotate-180 shrink-0" />
+            <span className="text-gray-900 font-semibold" aria-current="page">
+              {t('ordersPage.orderDetails')} #{order.id.slice(0, 8).toUpperCase()}
             </span>
-            <ChevronsRight size={12} />
-            <span>{t('ordersPage.orderDetails')}</span>
-          </p>
+          </nav>
         </div>
       </motion.div>
 

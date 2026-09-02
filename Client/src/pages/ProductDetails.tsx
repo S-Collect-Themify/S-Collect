@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronsRight, ChevronsLeft, ArrowLeft } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getErrorMessage } from '../types/api';
@@ -267,16 +267,21 @@ const ProductDetails = () => {
           {t('productDetails.title', 'Product Details')}
         </h1>
 
-        <nav className="mt-3 flex items-center gap-1 text-sm">
-          <span className="text-[#090909]">
-            {t('productDetails.breadcrumb', 'Product Details')}
-          </span>
+        <nav aria-label="Breadcrumb" className="mt-3 flex items-center gap-1.5 text-sm">
+          <Link
+            to="/management"
+            className="text-gray-500 hover:text-gray-900 transition-colors font-medium"
+          >
+            {t('sidebar.items.management', 'Management')}
+          </Link>
 
-          <span className="text-[#737373]">
+          <span className="text-gray-400 flex items-center">
             <ChevronIcon size={16} />
           </span>
 
-          <span className="text-[#737373]">{productName}</span>
+          <span className="text-gray-900 font-semibold truncate max-w-md" aria-current="page">
+            {productName || t('productDetails.breadcrumb', 'Product Details')}
+          </span>
         </nav>
       </div>
 

@@ -55,21 +55,21 @@ export default function ReturnRequestDetailsPage() {
         <h1 className="heading-page-title font-bold text-gray-900">
           {t('returnsPage.title', { defaultValue: 'Return Requests' })}
         </h1>
-        <div className="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm text-gray-500 mt-1.5">
+        <nav aria-label="Breadcrumb" className="flex items-center flex-wrap gap-1.5 text-xs sm:text-sm text-gray-500 mt-1.5">
           <Link
             to="/returns"
-            className="hover:text-gray-900 transition-colors font-medium"
+            className="hover:text-gray-900 transition-colors font-medium text-gray-600"
           >
             {t('returnsPage.title', { defaultValue: 'Return Requests' })}
           </Link>
-          <ChevronRight size={16} className="text-gray-400 shrink-0" />
-          <span className="text-gray-800 font-semibold">
+          <ChevronRight size={16} className="text-gray-400 shrink-0 rtl:rotate-180" />
+          <span className="text-gray-900 font-semibold" aria-current="page">
             {t('returnsPage.breadcrumb', {
               defaultValue: 'Return Request Details',
             })}{' '}
             {item.id}
           </span>
-        </div>
+        </nav>
       </motion.div>
 
       <motion.div
