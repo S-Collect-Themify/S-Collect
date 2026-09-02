@@ -1263,8 +1263,7 @@
       "selected": "{{count}} selected",
       "activateSelected": "Activate Selected",
       "suspendSelected": "Suspend Selected",
-      "clearSelection": "Clear selection",
-      "statusFilter": "Status"
+      "clearSelection": "Clear selection"
     },
     "details": {
       "breadcrumbParent": "Buyers",
