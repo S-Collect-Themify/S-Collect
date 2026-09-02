@@ -32,6 +32,8 @@ export default function ReturnRequestDetailsPage() {
     setShowRejectModal,
     handleApprove,
     handleReject,
+    handleSaveNotes,
+    isSavingNotes,
     isUpdating,
   } = useReturnRequestDetails(rawId, decodedId);
 
@@ -99,6 +101,8 @@ export default function ReturnRequestDetailsPage() {
               item={item}
               internalNote={internalNote}
               setInternalNote={setInternalNote}
+              onSaveNotes={handleSaveNotes}
+              isSavingNotes={isSavingNotes}
             />
           </motion.div>
 
