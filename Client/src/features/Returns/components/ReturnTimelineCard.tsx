@@ -88,42 +88,54 @@ export function ReturnTimelineCard({ item }: ReturnTimelineCardProps) {
       <h2 className="text-base font-bold text-gray-900 mb-4">
         {t('returnsPage.returnTimeline', { defaultValue: 'Return Timeline' })}
       </h2>
-      <div className="space-y-5 relative before:absolute before:left-3.5 rtl:before:left-auto rtl:before:right-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
-        {item.timeline?.map((step, idx) => (
-          <div key={idx} className="flex items-start gap-3.5 relative z-10">
-            <div className="shrink-0 mt-0.5 bg-white rounded-full">
-              {step.completed ? (
-                <CheckCircle2
-                  size={22}
-                  className="text-emerald-600 fill-emerald-100"
-                />
-              ) : step.active ? (
-                <Clock size={22} className="text-amber-500 fill-amber-50" />
-              ) : (
-                <Circle size={22} className="text-gray-300 fill-gray-50" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between">
-                <p
-                  className={`text-xs sm:text-sm font-bold ${step.completed || step.active ? 'text-gray-900' : 'text-gray-400'}`}
-                >
-                  {getTimelineTitle(step.title)}
-                </p>
-                {step.date && (
-                  <span className="text-xs text-gray-400">
-                    {getTimelineDate(step.date)}
-                  </span>
+      <div>
+        {item.timeline?.map((step, idx) => {
+          const isLast = idx === (item.timeline?.length ?? 0) - 1;
+          return (
+            <div key={idx} className="flex gap-3.5">
+              <div className="flex flex-col items-center shrink-0">
+                <div className="bg-white rounded-full">
+                  {step.completed ? (
+                    <CheckCircle2
+                      size={22}
+                      className="text-emerald-600 fill-emerald-100"
+                    />
+                  ) : step.active ? (
+                    <Clock size={22} className="text-amber-500 fill-amber-50" />
+                  ) : (
+                    <Circle size={22} className="text-gray-300 fill-gray-50" />
+                  )}
+                </div>
+                {!isLast && (
+                  <div className="w-0.5 flex-1 my-1 bg-gray-200 min-h-[24px]" />
                 )}
               </div>
-              {step.subtext && (
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {getTimelineSubtext(step.subtext)}
-                </p>
-              )}
+              <div className={`min-w-0 flex-1 ${!isLast ? 'pb-5' : ''}`}>
+                <div className="flex items-center justify-between">
+                  <p
+                    className={`text-xs sm:text-sm font-bold ${
+                      step.completed || step.active
+                        ? 'text-gray-900'
+                        : 'text-gray-400'
+                    }`}
+                  >
+                    {getTimelineTitle(step.title)}
+                  </p>
+                  {step.date && (
+                    <span className="text-xs text-gray-400">
+                      {getTimelineDate(step.date)}
+                    </span>
+                  )}
+                </div>
+                {step.subtext && (
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {getTimelineSubtext(step.subtext)}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Star, Pencil } from 'lucide-react';
+import { Star, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Swiper as SwiperClass } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Thumbs, FreeMode } from 'swiper/modules';
+import { useDeleteProduct } from '../../mangement/useManagementHooks';
+import { showDeleteConfirmation } from '../../mangement/deleteConfirmation';
 
 import 'swiper/css';
 import 'swiper/css/thumbs';
@@ -28,6 +30,7 @@ interface VariantOptionValue {
 }
 
 export interface ProductInfoProps {
+  id?: string;
   images?: ProductImageInfo[];
   name?: string;
   description?: string;
@@ -46,9 +49,11 @@ export interface ProductInfoProps {
   options?: ProductOption[];
   variants?: ProductVariant[];
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function ProductInfo({
+  id: propId,
   images = [],
   name,
   description,
@@ -66,12 +71,47 @@ export default function ProductInfo({
   totalReviews,
   options = [],
   variants = [],
+  onEdit,
+  onDelete,
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { id } = useParams();
-  const onEdit = () => {
-    navigate(`/edit-product/${id}`);
+  const routeParams = useParams<{ id: string }>();
+  const deleteMutation = useDeleteProduct();
+
+  const productId = propId || routeParams.id || '';
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit();
+    } else if (productId) {
+      navigate(`/edit-product/${productId}`);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
+      return;
+    }
+    if (!productId) return;
+    showDeleteConfirmation(
+      'managementTable.deleteConfirmMessage',
+      { name: name || 'Product' },
+      () => {
+        deleteMutation.mutate(productId, {
+          onSuccess: () => {
+            navigate('/management');
+          },
+        });
+      },
+      {
+        titleKey: 'managementTable.deleteConfirmTitle',
+        confirmKey: 'managementTable.delete',
+        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        iconVariant: 'delete',
+      }
+    );
   };
 
   const isArabic = i18n.language === 'ar';
@@ -145,11 +185,10 @@ export default function ProductInfo({
                         <button
                           type="button"
                           onClick={() => handleThumbnailClick(i)}
-                          className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${
-                            i === activeIndex
+                          className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${i === activeIndex
                               ? 'border-gray-900 ring-2 ring-gray-900/30 opacity-100 shadow-sm scale-[0.98]'
                               : 'border-transparent opacity-50 hover:opacity-85'
-                          }`}
+                            }`}
                         >
                           <img
                             src={url}
@@ -221,14 +260,26 @@ export default function ProductInfo({
             <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">
               {name}
             </h2>
-            <button
-              type="button"
-              onClick={onEdit}
-              aria-label={t('productDetails.productInfo.editProduct')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer"
-            >
-              <Pencil size={16} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleEdit}
+                aria-label={t('productDetails.productInfo.editProduct')}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                aria-label={t('managementTable.deleteProduct', {
+                  name: name || 'Product',
+                })}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
 
           <div className="mt-1 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">
@@ -286,11 +337,10 @@ export default function ProductInfo({
               </p>
               <p className="mt-1">
                 <span
-                  className={`rounded-md px-2 py-1 text-xs font-medium ${
-                    inStock
+                  className={`rounded-md px-2 py-1 text-xs font-medium ${inStock
                       ? 'bg-green-50 text-green-600'
                       : 'bg-red-50 text-red-600'
-                  }`}
+                    }`}
                 >
                   {inStock
                     ? `${t('productDetails.productInfo.inStock')} (${stockCount} ${t('productDetails.productInfo.units')})`
@@ -370,7 +420,7 @@ export default function ProductInfo({
                           option.id
                             ? value.optionId === option.id
                             : value.optionName === option.name ||
-                              value.optionNameAr === option.nameAr
+                            value.optionNameAr === option.nameAr
                         );
 
                         return (
@@ -381,11 +431,11 @@ export default function ProductInfo({
                             {optionValue
                               ? isArabic
                                 ? optionValue.valueAr ||
-                                  optionValue.value ||
-                                  '-'
+                                optionValue.value ||
+                                '-'
                                 : optionValue.value ||
-                                  optionValue.valueAr ||
-                                  '-'
+                                optionValue.valueAr ||
+                                '-'
                               : '-'}
                           </td>
                         );
@@ -398,11 +448,10 @@ export default function ProductInfo({
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            variant.isActive
+                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${variant.isActive
                               ? 'bg-emerald-50 text-emerald-700'
                               : 'bg-gray-100 text-gray-500'
-                          }`}
+                            }`}
                         >
                           {variant.isActive
                             ? isArabic

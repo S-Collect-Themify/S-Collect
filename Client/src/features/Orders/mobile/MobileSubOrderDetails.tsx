@@ -1,21 +1,17 @@
 // features/Orders/mobile/MobileSubOrderDetails.tsx
-import { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Loader2,
-  Package,
   Check,
   Truck,
   Circle,
   Ban,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useSubOrder, useUpdateSubOrder } from '../useSubOrders';
+import { useSubOrder } from '../useSubOrders';
 import type { SubOrderStatus } from '../types/subOrder';
 import {
   STATUS_STYLES,
-  NEXT_STATUS,
   getOrderStatusLabel,
 } from '../types/subOrder';
 
@@ -34,8 +30,6 @@ interface Props {
 const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
   const { t } = useTranslation();
   const { data: order, isLoading, isError, refetch } = useSubOrder(subOrderId);
-  const { mutate: updateOrder, isPending } = useUpdateSubOrder();
-  const [trackingInput, setTrackingInput] = useState('');
 
   if (isLoading) {
     return (
@@ -59,26 +53,11 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
     );
   }
 
-  const nextStatus = NEXT_STATUS[order.status];
   const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
   const grandTotal = itemsTotal + order.shippingRateApplied;
   const currentStatusIndex = TIMELINE_STEPS.indexOf(
     order.status === 'CANCELLED' ? 'PENDING' : order.status
   );
-
-  const handleAdvance = () => {
-    if (!nextStatus) return;
-    updateOrder({
-      id: order.id,
-      body: {
-        status: nextStatus,
-        ...(trackingInput.trim()
-          ? { trackingNumber: trackingInput.trim() }
-          : {}),
-      },
-    });
-    setTrackingInput('');
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -230,37 +209,6 @@ const MobileSubOrderDetails = ({ subOrderId, onBack }: Props) => {
             })
           )}
         </div>
-
-        {/* Update status */}
-        {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 text-sm">
-            <h6 className="font-semibold text-gray-900 mb-3">
-              {t('ordersPage.updateOrderStatus')}
-            </h6>
-            <input
-              type="text"
-              value={trackingInput}
-              onChange={(e) => setTrackingInput(e.target.value)}
-              placeholder="Tracking number (optional)"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm mb-3 focus:outline-none focus:border-gray-400"
-            />
-            {nextStatus && (
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={handleAdvance}
-                disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-xl text-sm font-medium disabled:opacity-60"
-              >
-                {isPending ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Package size={15} />
-                )}
-                Mark as {nextStatus}
-              </motion.button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

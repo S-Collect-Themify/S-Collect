@@ -1,4 +1,4 @@
-import { Star, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getPaginationRange } from '../../../utils/pagination';
 
@@ -32,7 +32,6 @@ export interface ReviewsListProps {
   activeFilter: ReviewFilter;
   onFilterChange?: (filter: ReviewFilter) => void;
   onPageChange?: (page: number) => void;
-  onDelete?: (reviewId: string) => void;
 }
 
 const FILTERS: ReviewFilter[] = [
@@ -67,10 +66,8 @@ function StarRow({ rating }: { rating: number }) {
 
 function ReviewCard({
   review,
-  onDelete,
 }: {
   review: Review;
-  onDelete?: (id: string) => void;
 }) {
   const { t } = useTranslation();
   const author = review?.authorName || 'Customer';
@@ -105,14 +102,6 @@ function ReviewCard({
             <p className="text-xs text-gray-400">{review?.date || ''}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => onDelete?.(review?.id)}
-          aria-label={t('productDetails.reviews.deleteReview')}
-          className="text-red-400 hover:text-red-500"
-        >
-          <Trash2 size={16} />
-        </button>
       </div>
 
       <div className="mt-3">
@@ -219,7 +208,6 @@ export default function ReviewsList({
   activeFilter,
   onFilterChange,
   onPageChange,
-  onDelete,
 }: ReviewsListProps) {
   const { t } = useTranslation();
   const safeReviews = Array.isArray(reviews) ? reviews : [];
@@ -249,7 +237,7 @@ export default function ReviewsList({
       {/* Review cards */}
       <div className="space-y-4">
         {safeReviews.map((review) => (
-          <ReviewCard key={review?.id || Math.random().toString()} review={review} onDelete={onDelete} />
+          <ReviewCard key={review?.id || Math.random().toString()} review={review} />
         ))}
       </div>
 

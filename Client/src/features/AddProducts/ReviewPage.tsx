@@ -1,4 +1,5 @@
 // pages/AddProduct/ReviewPage.tsx
+import { Link } from 'react-router-dom';
 import { ChevronsRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
@@ -40,17 +41,26 @@ const ReviewPage = ({
         <h1 className="heading-page-title font-bold text-gray-900">
           {isEdit ? t('addProduct.editTitle', 'Edit Product') : t('addProduct.title', 'Add Product')}
         </h1>
-        <nav className="mt-2 flex items-center gap-2 text-sm font-medium text-gray-500">
+        <nav aria-label="Breadcrumb" className="mt-2 flex items-center gap-1.5 text-sm font-medium text-gray-500">
+          <Link
+            to="/management"
+            className="cursor-pointer text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            {t('sidebar.items.management', 'Management')}
+          </Link>
+          <span className="flex items-center text-gray-400 rtl:rotate-180 shrink-0">
+            <ChevronsRight size={16} />
+          </span>
           <span
             className="cursor-pointer text-gray-600 hover:text-gray-900 transition-colors"
             onClick={onPrevious}
           >
             {isEdit ? t('addProduct.editTitle', 'Edit Product') : t('addProduct.title', 'Add Product')}
           </span>
-          <span className="flex items-center text-gray-400">
+          <span className="flex items-center text-gray-400 rtl:rotate-180 shrink-0">
             <ChevronsRight size={16} />
           </span>
-          <span className="text-gray-900 font-medium">
+          <span className="text-gray-900 font-semibold" aria-current="page">
             {isEdit ? t('addProduct.updated', 'Updated') : t('addProduct.published', 'Published')}
           </span>
         </nav>

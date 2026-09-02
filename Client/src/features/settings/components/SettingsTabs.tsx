@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { cn } from '../utils';
 
-export type SettingsTab = 'store-details' | 'bank-account' | 'shipping';
+export type SettingsTab = 'store-details' | 'bank-account';
 
 function TabBtn({
   active,
@@ -55,9 +55,6 @@ export function SettingsTabs({
         onClick={() => onChange('bank-account')}
       >
         {t('settings.bankAccount')}
-      </TabBtn>
-      <TabBtn active={tab === 'shipping'} onClick={() => onChange('shipping')}>
-        {t('settings.shipping')}
       </TabBtn>
     </div>
   );
