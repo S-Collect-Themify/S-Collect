@@ -389,8 +389,8 @@ const AddProduct = () => {
                               <input
                                 type="number"
                                 className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none bg-white ${hasCompareError
-                                    ? 'border-red-500 focus:border-red-500'
-                                    : 'border-gray-300 focus:border-gray-950'
+                                  ? 'border-red-500 focus:border-red-500'
+                                  : 'border-gray-300 focus:border-gray-950'
                                   }`}
                                 placeholder="250 SAR"
                                 step="0.01"

@@ -185,11 +185,10 @@ export default function ProductInfo({
                         <button
                           type="button"
                           onClick={() => handleThumbnailClick(i)}
-                          className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${
-                            i === activeIndex
+                          className={`h-full w-full cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200 ${i === activeIndex
                               ? 'border-gray-900 ring-2 ring-gray-900/30 opacity-100 shadow-sm scale-[0.98]'
                               : 'border-transparent opacity-50 hover:opacity-85'
-                          }`}
+                            }`}
                         >
                           <img
                             src={url}
@@ -338,11 +337,10 @@ export default function ProductInfo({
               </p>
               <p className="mt-1">
                 <span
-                  className={`rounded-md px-2 py-1 text-xs font-medium ${
-                    inStock
+                  className={`rounded-md px-2 py-1 text-xs font-medium ${inStock
                       ? 'bg-green-50 text-green-600'
                       : 'bg-red-50 text-red-600'
-                  }`}
+                    }`}
                 >
                   {inStock
                     ? `${t('productDetails.productInfo.inStock')} (${stockCount} ${t('productDetails.productInfo.units')})`
@@ -422,7 +420,7 @@ export default function ProductInfo({
                           option.id
                             ? value.optionId === option.id
                             : value.optionName === option.name ||
-                              value.optionNameAr === option.nameAr
+                            value.optionNameAr === option.nameAr
                         );
 
                         return (
@@ -433,11 +431,11 @@ export default function ProductInfo({
                             {optionValue
                               ? isArabic
                                 ? optionValue.valueAr ||
-                                  optionValue.value ||
-                                  '-'
+                                optionValue.value ||
+                                '-'
                                 : optionValue.value ||
-                                  optionValue.valueAr ||
-                                  '-'
+                                optionValue.valueAr ||
+                                '-'
                               : '-'}
                           </td>
                         );
@@ -450,11 +448,10 @@ export default function ProductInfo({
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            variant.isActive
+                          className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${variant.isActive
                               ? 'bg-emerald-50 text-emerald-700'
                               : 'bg-gray-100 text-gray-500'
-                          }`}
+                            }`}
                         >
                           {variant.isActive
                             ? isArabic
