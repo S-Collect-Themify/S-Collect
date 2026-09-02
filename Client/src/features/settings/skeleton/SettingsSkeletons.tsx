@@ -74,66 +74,6 @@ export function StoreProfileFormSkeleton() {
   );
 }
 
-export function ShippingSettingsFormSkeleton() {
-  return (
-    <div className="w-full max-w-[720px] rounded-lg md:rounded-2xl border border-gray-200 bg-white p-3 md:p-6 animate-pulse">
-      <div className="h-6 w-40 bg-gray-200 rounded" />
-      <div className="mt-2 h-4 w-64 bg-gray-200 rounded" />
-
-      {/* Flat rate */}
-      <div className="mt-6">
-        <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
-        <div className="flex items-center overflow-hidden rounded-xl border border-gray-200">
-          <div className="border-r border-gray-200 bg-gray-50 px-3 py-2.5">
-            <div className="h-4 w-8 bg-gray-200 rounded" />
-          </div>
-          <div className="w-full px-3 py-2.5">
-            <div className="h-4 w-full bg-gray-200 rounded" />
-          </div>
-        </div>
-        <div className="mt-1.5 h-3 w-40 bg-gray-100 rounded" />
-      </div>
-
-      {/* Regional rates */}
-      <div className="mt-6">
-        <div className="h-4 w-36 bg-gray-200 rounded mb-2" />
-        <div className="overflow-hidden rounded-xl border border-gray-200">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className={`flex items-center justify-between px-4 py-2.5 ${
-                i % 2 === 1 ? 'bg-gray-50' : 'bg-white'
-              } ${i !== 0 ? 'border-t border-gray-100' : ''}`}
-            >
-              <div className="h-4 w-24 bg-gray-200 rounded" />
-              <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <div className="border-r border-gray-200 px-2 py-1.5">
-                  <div className="h-3 w-6 bg-gray-200 rounded" />
-                </div>
-                <div className="w-20 px-2 py-1.5">
-                  <div className="h-3 w-full bg-gray-200 rounded" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Info banner */}
-      <div className="mt-6 flex gap-2.5 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3.5">
-        <div className="h-4 w-4 bg-gray-200 rounded shrink-0 mt-0.5" />
-        <div className="h-4 w-72 bg-gray-200 rounded" />
-      </div>
-
-      {/* Actions */}
-      <div className="mt-6 flex justify-end gap-3">
-        <div className="h-10 w-24 bg-gray-200 rounded-xl" />
-        <div className="h-10 w-28 bg-gray-200 rounded-xl" />
-      </div>
-    </div>
-  );
-}
-
 export function AccountSettingsFormSkeleton() {
   return (
     <div className="space-y-3 settings-surface-enter">

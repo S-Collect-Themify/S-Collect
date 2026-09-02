@@ -11,7 +11,6 @@ import {
 } from '../features/settings/components/SettingsTabs';
 import { StoreDetailsTab } from '../features/settings/components/StoreDetailsTab';
 import { BankAccountTab } from '../features/settings/components/BankAccountTab';
-import { ShippingTab } from '../features/settings/components/ShippingTab';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
@@ -20,9 +19,7 @@ export default function SettingsPage() {
   const breadcrumb =
     tab === 'store-details'
       ? t('settings.storeProfile')
-      : tab === 'bank-account'
-        ? t('settings.bankAccount')
-        : t('settings.shipping');
+      : t('settings.bankAccount');
 
   return (
     <>
@@ -49,7 +46,6 @@ export default function SettingsPage() {
           <div key={tab} className="settings-surface-enter w-full min-w-0">
             {tab === 'store-details' && <StoreDetailsTab />}
             {tab === 'bank-account' && <BankAccountTab />}
-            {tab === 'shipping' && <ShippingTab />}
           </div>
         </div>
       </div>
