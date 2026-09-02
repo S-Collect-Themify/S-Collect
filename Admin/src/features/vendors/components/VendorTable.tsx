@@ -131,9 +131,10 @@ export default function VendorTable() {
     t('vendors.table.owner'),
     t('vendors.table.email'),
     t('vendors.table.submittedDate'),
-    t('vendors.table.category'),
     t('vendors.table.actions'),
   ];
+  
+  // t('vendors.table.category'),
 
   const allVendorHeaders = [
     t('vendors.table.vendorName'),
@@ -301,12 +302,12 @@ export default function VendorTable() {
         </div>
 
         {/* Category filter — only for non-all tabs */}
-        {!isAllTab && (
+        {/* {!isAllTab && (
           <VendorCategoryDropdown
             selected={selectedCategory}
             onChange={setSelectedCategory}
           />
-        )}
+        )} */}
 
         {/* Status filter — only for All Vendors tab */}
         {isAllTab && (

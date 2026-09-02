@@ -225,9 +225,9 @@ export default function VendorDesktopTable({
                   <td className="px-4 py-3.5 text-gray-700 whitespace-nowrap">
                     {vendor.submittedDate || '----'}
                   </td>
-                  <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
+                  {/* <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap">
                     {vendor.category || '----'}
-                  </td>
+                  </td> */}
                   <td className="px-4 py-3.5 whitespace-nowrap">
                     {vendor.status === 'pending' ? (
                       <div className="flex items-center gap-2">
