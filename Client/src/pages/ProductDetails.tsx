@@ -54,7 +54,7 @@ const ProductDetails = () => {
 
   const { data: reviewsData } = useQuery({
     queryKey: ['product-reviews', id],
-    queryFn: () => getVendorReviews({ productId: id, sortBy: 'createdAt' }),
+    queryFn: () => getVendorReviews({ productId: id, sortBy: 'RECENT', pageSize: 100 }),
     enabled: Boolean(id),
   });
 
@@ -72,16 +72,20 @@ const ProductDetails = () => {
       return safeB - safeA;
     });
 
-    return sorted.map((rev) => {
+    return sorted.map((rev: any) => {
       const fName = rev?.buyer?.firstName || '';
       const lName = rev?.buyer?.lastName || '';
       const fullName = `${fName} ${lName}`.trim();
       const parsedDate = rev?.createdAt ? new Date(rev.createdAt) : null;
       const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
+      const avatar =
+        rev?.buyer?.image?.url ||
+        (typeof rev?.buyer?.image === 'string' ? rev.buyer.image : undefined);
 
       return {
         id: rev?.id || Math.random().toString(),
         authorName: fullName || 'Customer',
+        authorAvatarUrl: avatar,
         date: isValidDate
           ? parsedDate.toLocaleDateString('en-US', {
               month: 'short',
@@ -209,15 +213,16 @@ const ProductDetails = () => {
 
   let computedAverage = summaryData?.averageRating ?? 0;
   let computedTotal =
-    summaryData?.totalReviews ??
+    summaryData?.totalRatings ??
+    (summaryData as any)?.totalReviews ??
     reviewsData?.pagination?.totalItems ??
     reviewsCount;
 
-  let s5 = summaryData?.counts?.stars5 ?? 0;
-  let s4 = summaryData?.counts?.stars4 ?? 0;
-  let s3 = summaryData?.counts?.stars3 ?? 0;
-  let s2 = summaryData?.counts?.stars2 ?? 0;
-  let s1 = summaryData?.counts?.stars1 ?? 0;
+  let s5 = summaryData?.distribution?.['5'] ?? (summaryData as any)?.counts?.stars5 ?? 0;
+  let s4 = summaryData?.distribution?.['4'] ?? (summaryData as any)?.counts?.stars4 ?? 0;
+  let s3 = summaryData?.distribution?.['3'] ?? (summaryData as any)?.counts?.stars3 ?? 0;
+  let s2 = summaryData?.distribution?.['2'] ?? (summaryData as any)?.counts?.stars2 ?? 0;
+  let s1 = summaryData?.distribution?.['1'] ?? (summaryData as any)?.counts?.stars1 ?? 0;
 
   // Defensive fallback: if summary endpoint returns 0 but reviews list has items
   if (computedTotal === 0 && reviewsCount > 0) {

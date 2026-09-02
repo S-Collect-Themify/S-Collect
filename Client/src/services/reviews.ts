@@ -1,21 +1,25 @@
 import { api } from './api';
 
+/** Matches ReviewCustomerResponseDto */
 export interface ReviewCustomer {
-  buyerAccountId: string;
+  id: string;
   firstName: string;
   lastName: string;
+  image: { url: string } | null;
 }
 
+/** Matches VendorReviewResponseDto */
 export interface VendorReview {
   id: string;
   productId: string;
   rating: number;
-  comment?: string | null;
+  comment: string | null;
   createdAt: string;
   updatedAt: string;
-  buyer?: ReviewCustomer | null;
+  buyer: ReviewCustomer;
 }
 
+/** Matches PaginatedVendorReviewListResponseDto */
 export interface PaginatedVendorReviews {
   items: VendorReview[];
   pagination: {
@@ -26,52 +30,50 @@ export interface PaginatedVendorReviews {
   };
 }
 
+/** Matches RatingDistributionBucketsDto */
+export interface RatingDistributionBuckets {
+  '1': number;
+  '2': number;
+  '3': number;
+  '4': number;
+  '5': number;
+}
+
+/** Matches ProductRatingDistributionResponseDto */
 export interface ProductRatingSummary {
+  productId: string;
   averageRating: number;
-  totalReviews: number;
-  counts: {
-    stars1: number;
-    stars2: number;
-    stars3: number;
-    stars4: number;
-    stars5: number;
-  };
+  totalRatings: number;
+  distribution: RatingDistributionBuckets;
 }
 
 export async function getVendorReviews(params?: {
   pageNum?: number;
   pageSize?: number;
-  limit?: number;
-  page?: number;
   productId?: string;
   rating?: number;
-  sortBy?: 'rating' | 'createdAt';
+  sortBy?: 'RATING_ASC' | 'RATING_DESC' | 'RECENT';
 }): Promise<PaginatedVendorReviews> {
   try {
-    const queryParams: Record<string, any> = { ...params };
-    if (params?.pageSize && !queryParams.limit) {
-      queryParams.limit = params.pageSize;
-    }
-    if (params?.pageNum && !queryParams.page) {
-      queryParams.page = params.pageNum;
-    }
-    const { data } = await api.get('/vendor/reviews', { params: queryParams });
-    const payload = data?.data || data;
+    const { data } = await api.get('/vendor/reviews', { params });
+    const payload = data?.data ?? data;
+    const items = payload?.items ?? (Array.isArray(payload) ? payload : []);
     return {
-      items: payload?.items || (Array.isArray(payload) ? payload : []),
-      pagination: payload?.pagination || {
+      items,
+      pagination: payload?.pagination ?? {
         currentPage: 1,
-        pageSize: 100,
-        totalItems: (payload?.items || (Array.isArray(payload) ? payload : [])).length,
+        pageSize: params?.pageSize ?? 25,
+        totalItems: items.length,
         totalPages: 1,
       },
     };
-  } catch (_err) {
+  } catch (err) {
+    console.error('getVendorReviews error:', err);
     return {
       items: [],
       pagination: {
         currentPage: 1,
-        pageSize: 100,
+        pageSize: params?.pageSize ?? 25,
         totalItems: 0,
         totalPages: 1,
       },
@@ -82,35 +84,52 @@ export async function getVendorReviews(params?: {
 export async function getProductRatingSummary(
   productId: string
 ): Promise<ProductRatingSummary> {
+  const empty: ProductRatingSummary = {
+    productId,
+    averageRating: 0,
+    totalRatings: 0,
+    distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+  };
+
   try {
     const { data } = await api.get(`/vendor/reviews/products/${productId}/summary`);
-    const payload = data?.data || data;
+    const payload = data?.data ?? data;
 
-    const dist = payload?.distribution || payload?.counts || {};
-    const total = payload?.totalRatings ?? payload?.totalReviews ?? payload?.total ?? 0;
+    if (!payload || typeof payload !== 'object') {
+      return empty;
+    }
+
+    const dist = payload.distribution ?? payload.counts ?? {};
+    const total =
+      typeof payload.totalRatings === 'number'
+        ? payload.totalRatings
+        : typeof payload.totalReviews === 'number'
+          ? payload.totalReviews
+          : typeof payload.total === 'number'
+            ? payload.total
+            : 0;
+
+    const avg =
+      typeof payload.averageRating === 'number'
+        ? payload.averageRating
+        : typeof payload.average === 'number'
+          ? payload.average
+          : 0;
 
     return {
-      averageRating: payload?.averageRating ?? payload?.average ?? 0,
-      totalReviews: total,
-      counts: {
-        stars1: dist?.['1'] ?? dist?.star1Count ?? dist?.stars1 ?? 0,
-        stars2: dist?.['2'] ?? dist?.star2Count ?? dist?.stars2 ?? 0,
-        stars3: dist?.['3'] ?? dist?.star3Count ?? dist?.stars3 ?? 0,
-        stars4: dist?.['4'] ?? dist?.star4Count ?? dist?.stars4 ?? 0,
-        stars5: dist?.['5'] ?? dist?.star5Count ?? dist?.stars5 ?? 0,
+      productId: payload.productId ?? productId,
+      averageRating: avg,
+      totalRatings: total,
+      distribution: {
+        '1': Number(dist['1'] ?? dist.stars1 ?? dist.star1Count ?? 0),
+        '2': Number(dist['2'] ?? dist.stars2 ?? dist.star2Count ?? 0),
+        '3': Number(dist['3'] ?? dist.stars3 ?? dist.star3Count ?? 0),
+        '4': Number(dist['4'] ?? dist.stars4 ?? dist.star4Count ?? 0),
+        '5': Number(dist['5'] ?? dist.stars5 ?? dist.star5Count ?? 0),
       },
     };
-  } catch (_err) {
-    return {
-      averageRating: 0,
-      totalReviews: 0,
-      counts: {
-        stars1: 0,
-        stars2: 0,
-        stars3: 0,
-        stars4: 0,
-        stars5: 0,
-      },
-    };
+  } catch (err) {
+    console.error('getProductRatingSummary error:', err);
+    return empty;
   }
 }
