@@ -11,7 +11,7 @@ import {
   type ExportAdminProductsParams,
   type BulkDiscountPayload,
 } from '../../services/products';
-import { exportToCSV } from '../../utils/exportUtils';
+import { exportToXLSX } from '../../utils/exportUtils';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
 
@@ -268,7 +268,7 @@ export const useProductsData = () => {
             { key: 'stock', label: 'Stock' },
             { key: 'isActive', label: 'Is Active' },
           ];
-          exportToCSV('products_export', exportHeaders, storeProducts);
+          exportToXLSX('products_export', exportHeaders, storeProducts);
           return;
         }
         throw err;
