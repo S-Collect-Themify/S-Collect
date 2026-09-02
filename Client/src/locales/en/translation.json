@@ -738,6 +738,8 @@
   "productDetails": {
     "title": "Product Details",
     "breadcrumb": "Product Details",
+    "backToManagement": "Back to Management",
+    "notFound": "Product not found",
     "productInfo": {
       "editProduct": "Edit product",
       "category": "Category:",

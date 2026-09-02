@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronsRight, ArrowLeft } from 'lucide-react';
+import { ChevronsRight, ChevronsLeft, ArrowLeft } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -20,7 +20,7 @@ import { useCategories } from '../hooks/useCategories';
 import { getVendorReviews, getProductRatingSummary } from '../services/reviews';
 
 const ProductDetails = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id: rawId = '' } = useParams();
   const id = useMemo(() => {
     const decoded = decodeURIComponent(rawId || '').trim();
@@ -134,7 +134,7 @@ const ProductDetails = () => {
     return (
       <div className="p-8 text-center space-y-4">
         <p className="text-red-500 font-semibold text-lg">
-          {getErrorMessage(productError, 'Failed to load product details')}
+          {getErrorMessage(productError, t('productDetails.error', 'Failed to load product details'))}
         </p>
         <button
           type="button"
@@ -142,7 +142,7 @@ const ProductDetails = () => {
           className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           <ArrowLeft size={16} />
-          Back to Management
+          {t('productDetails.backToManagement', 'Back to Management')}
         </button>
       </div>
     );
@@ -152,7 +152,7 @@ const ProductDetails = () => {
     return (
       <div className="p-8 text-center space-y-4">
         <p className="text-red-500 font-semibold text-lg">
-          {getErrorMessage(categoriesError, 'Failed to load categories')}
+          {getErrorMessage(categoriesError, t('productDetails.categoriesError', 'Failed to load categories'))}
         </p>
       </div>
     );
@@ -171,14 +171,16 @@ const ProductDetails = () => {
   if (!isValidProduct) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p className="text-gray-500 font-semibold text-lg">Product not found</p>
+        <p className="text-gray-500 font-semibold text-lg">
+          {t('productDetails.notFound', 'Product not found')}
+        </p>
         <button
           type="button"
           onClick={() => navigate('/management')}
           className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           <ArrowLeft size={16} />
-          Back to Management
+          {t('productDetails.backToManagement', 'Back to Management')}
         </button>
       </div>
     );
@@ -255,18 +257,23 @@ const ProductDetails = () => {
           ? product.stockCount
           : (variant?.stock ?? 0);
 
+  const isArabic = i18n.language === 'ar';
+  const ChevronIcon = isArabic ? ChevronsLeft : ChevronsRight;
+
   return (
     <>
       <div className="sidebar-page-container-header">
         <h1 className="heading-page-title font-semibold text-[#090909]">
-          Product Details
+          {t('productDetails.title', 'Product Details')}
         </h1>
 
         <nav className="mt-3 flex items-center gap-1 text-sm">
-          <span className="text-[#090909]">Product Details</span>
+          <span className="text-[#090909]">
+            {t('productDetails.breadcrumb', 'Product Details')}
+          </span>
 
           <span className="text-[#737373]">
-            <ChevronsRight size={16} />
+            <ChevronIcon size={16} />
           </span>
 
           <span className="text-[#737373]">{productName}</span>
@@ -275,6 +282,7 @@ const ProductDetails = () => {
 
       <div className="sidebar-page-container space-y-8">
         <ProductInfo
+          id={id}
           images={
             Array.isArray(product.images) && product.images.length > 0
               ? product.images

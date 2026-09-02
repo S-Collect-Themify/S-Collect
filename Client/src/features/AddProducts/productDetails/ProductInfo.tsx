@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Star, Pencil } from 'lucide-react';
+import { Star, Pencil, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Swiper as SwiperClass } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Thumbs, FreeMode } from 'swiper/modules';
+import { useDeleteProduct } from '../../mangement/useManagementHooks';
+import { showDeleteConfirmation } from '../../mangement/deleteConfirmation';
 
 import 'swiper/css';
 import 'swiper/css/thumbs';
@@ -28,6 +30,7 @@ interface VariantOptionValue {
 }
 
 export interface ProductInfoProps {
+  id?: string;
   images?: ProductImageInfo[];
   name?: string;
   description?: string;
@@ -46,9 +49,11 @@ export interface ProductInfoProps {
   options?: ProductOption[];
   variants?: ProductVariant[];
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function ProductInfo({
+  id: propId,
   images = [],
   name,
   description,
@@ -66,12 +71,47 @@ export default function ProductInfo({
   totalReviews,
   options = [],
   variants = [],
+  onEdit,
+  onDelete,
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { id } = useParams();
-  const onEdit = () => {
-    navigate(`/edit-product/${id}`);
+  const routeParams = useParams<{ id: string }>();
+  const deleteMutation = useDeleteProduct();
+
+  const productId = propId || routeParams.id || '';
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit();
+    } else if (productId) {
+      navigate(`/edit-product/${productId}`);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
+      return;
+    }
+    if (!productId) return;
+    showDeleteConfirmation(
+      'managementTable.deleteConfirmMessage',
+      { name: name || 'Product' },
+      () => {
+        deleteMutation.mutate(productId, {
+          onSuccess: () => {
+            navigate('/management');
+          },
+        });
+      },
+      {
+        titleKey: 'managementTable.deleteConfirmTitle',
+        confirmKey: 'managementTable.delete',
+        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        iconVariant: 'delete',
+      }
+    );
   };
 
   const isArabic = i18n.language === 'ar';
@@ -221,14 +261,26 @@ export default function ProductInfo({
             <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">
               {name}
             </h2>
-            <button
-              type="button"
-              onClick={onEdit}
-              aria-label={t('productDetails.productInfo.editProduct')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer"
-            >
-              <Pencil size={16} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleEdit}
+                aria-label={t('productDetails.productInfo.editProduct')}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 cursor-pointer"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                aria-label={t('managementTable.deleteProduct', {
+                  name: name || 'Product',
+                })}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-red-200 text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
 
           <div className="mt-1 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">

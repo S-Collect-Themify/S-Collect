@@ -43,6 +43,7 @@ export default function ProductTable() {
     publishSelected,
     unpublishSelected,
     toggleSingle,
+    deleteSingle,
     isPending,
   } = useManagementActions();
 
@@ -213,6 +214,7 @@ export default function ProductTable() {
                   )}
                   onSelect={() => toggleRow(product.id)}
                   onToggle={() => toggleSingle(product.id, product.enabled)}
+                  onDelete={() => deleteSingle(product.id)}
                 />
               ))
             )}

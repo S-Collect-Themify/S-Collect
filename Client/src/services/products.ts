@@ -373,6 +373,15 @@ export const deactivateProduct = async (productId: string) => {
   }
 };
 
+export const deleteProduct = async (productId: string) => {
+  try {
+    const { data } = await api.delete(`/vendor/products/${productId}`);
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to delete product ${productId}`);
+  }
+};
+
 export interface ProductImportFailedItem {
   rows: number[];
   product?: string;

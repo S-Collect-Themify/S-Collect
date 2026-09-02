@@ -7,6 +7,7 @@ import type { Product, ProductStatus } from './mangement';
 import {
   searchVendorProducts,
   bulkUpdateProductStatus,
+  deleteProduct,
   downloadProductImportTemplate,
   importProducts,
   type ProductImportResponse,
@@ -314,6 +315,28 @@ export function useManagementActions() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (productId: string) => deleteProduct(productId),
+    onSuccess: (_, productId) => {
+      toast.success('Product deleted successfully');
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['product-details'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
+      queryClient.invalidateQueries({ queryKey: ['header-search-products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
+      queryClient.invalidateQueries({ queryKey: ['product-details', productId] });
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Failed to delete product'));
+    },
+  });
+
   const safeMutate = (params: {
     productIds: string[];
     status: 'PUBLISH' | 'UNPUBLISH';
@@ -342,9 +365,52 @@ export function useManagementActions() {
         productIds: [String(id)],
         status: currentEnabled ? 'UNPUBLISH' : 'PUBLISH',
       }),
-    isPending: bulkStatusMutation.isPending,
+    deleteSingle: (id: string | number) => deleteMutation.mutate(String(id)),
+    isPending: bulkStatusMutation.isPending || deleteMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 }
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (productId: string) => deleteProduct(productId),
+    onSuccess: (_, productId) => {
+      toast.success(
+        t('managementTable.deleteSuccess', 'Product deleted successfully')
+      );
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['product-details'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardTopSellingProducts'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardInventoryAlerts'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardInventoryProductsMap'],
+      });
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
+      queryClient.invalidateQueries({
+        queryKey: ['product-details', productId],
+      });
+    },
+    onError: (err) => {
+      toast.error(
+        getErrorMessage(
+          err,
+          t('managementTable.deleteError', 'Failed to delete product')
+        )
+      );
+    },
+  });
+}
+
 
 export function useDownloadImportTemplate() {
   const { t } = useTranslation();

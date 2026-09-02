@@ -734,6 +734,8 @@
   "productDetails": {
     "title": "تفاصيل المنتج",
     "breadcrumb": "تفاصيل المنتج",
+    "backToManagement": "العودة إلى إدارة المنتجات",
+    "notFound": "المنتج غير موجود",
     "productInfo": {
       "editProduct": "تعديل المنتج",
       "category": "الفئة:",
