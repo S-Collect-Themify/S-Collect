@@ -1,5 +1,3 @@
-import ExcelJS from 'exceljs';
-
 export interface ExportSummaryStat {
   label: string;
   value: string;
@@ -15,6 +13,8 @@ export async function exportToXLSX<T extends Record<string, any>>(
 ) {
   if (!data.length) return;
 
+  const ExcelModule = await import('exceljs');
+  const ExcelJS = ExcelModule.default || ExcelModule;
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Export');
 
