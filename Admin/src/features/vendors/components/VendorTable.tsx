@@ -11,7 +11,6 @@ import {
   useFeatureVendor,
   useUnfeatureVendor,
 } from '../hooks/useVendors';
-import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
 import RejectVendorModal from '../modals/RejectVendorModal';
 import DeactivateVendorModal from '../modals/DeactivateVendorModal';
@@ -28,11 +27,9 @@ export default function VendorTable() {
 
   const activeTab = useVendorStore((s) => s.activeTab);
   const search = useVendorStore((s) => s.search);
-  const selectedCategory = useVendorStore((s) => s.selectedCategory);
   const activeFilter = useVendorStore((s) => s.activeFilter);
   const setActiveTab = useVendorStore((s) => s.setActiveTab);
   const setSearch = useVendorStore((s) => s.setSearch);
-  const setSelectedCategory = useVendorStore((s) => s.setSelectedCategory);
   const setActiveFilter = useVendorStore((s) => s.setActiveFilter);
   const setPage = useVendorStore((s) => s.setPage);
   const toggleRow = useVendorStore((s) => s.toggleRow);
