@@ -7,8 +7,11 @@ import {
   getCategories,
   updateProductStatus,
   applyBulkDiscountApi,
+  exportAdminProducts,
+  type ExportAdminProductsParams,
   type BulkDiscountPayload,
 } from '../../services/products';
+import { exportToXLSX } from '../../utils/exportUtils';
 import { useProductStore } from './productStore';
 import type { ProductItem } from './types';
 
@@ -44,13 +47,25 @@ const extractVendorsArray = (response: any): any[] => {
 const getVendorDisplayName = (
   vId: string | undefined,
   vendorsList: any[],
-  vendorProp: any
+  vendorProp: any,
+  item?: any,
+  isAr?: boolean
 ): string => {
+  if (item) {
+    if (isAr && item.vendorStoreNameAr) return item.vendorStoreNameAr;
+    if (item.vendorStoreName) return item.vendorStoreName;
+    if (isAr && item.vendorNameAr) return item.vendorNameAr;
+    if (item.vendorName) return item.vendorName;
+  }
   if (vendorProp) {
     if (typeof vendorProp === 'string') return vendorProp;
-    if (vendorProp.businessName) return vendorProp.businessName;
+    if (isAr && vendorProp.storeNameAr) return vendorProp.storeNameAr;
     if (vendorProp.storeName) return vendorProp.storeName;
+    if (vendorProp.businessName) return vendorProp.businessName;
     if (vendorProp.name) return vendorProp.name;
+    if (vendorProp.firstName || vendorProp.lastName) {
+      return `${vendorProp.firstName || ''} ${vendorProp.lastName || ''}`.trim();
+    }
   }
   if (vId && vendorsList.length > 0) {
     const matched = vendorsList.find(
@@ -58,8 +73,9 @@ const getVendorDisplayName = (
         String(v.id || v._id).toLowerCase() === String(vId).toLowerCase()
     );
     if (matched) {
-      if (matched.businessName) return matched.businessName;
+      if (isAr && matched.storeNameAr) return matched.storeNameAr;
       if (matched.storeName) return matched.storeName;
+      if (matched.businessName) return matched.businessName;
       if (matched.name) return matched.name;
       if (matched.owner) return matched.owner;
       if (matched.firstName || matched.lastName) {
@@ -122,7 +138,7 @@ export const useProductsData = () => {
 
         const mapped: ProductItem[] = itemsArray.map((p: any) => {
           const vId = p.vendorId || p.vendor?.id;
-          const vName = getVendorDisplayName(vId, vendorsList, p.vendor);
+          const vName = getVendorDisplayName(vId, vendorsList, p.vendor, p, isAr);
 
           const catObj = typeof p.category === 'object' && p.category !== null ? p.category : null;
           const catId = p.categoryId || p.category_id || catObj?.id || catObj?._id || (typeof p.category === 'string' ? p.category : '');
@@ -233,10 +249,48 @@ export const useProductsData = () => {
     },
   });
 
+  // ── Export Products Mutation ──
+  const exportMutation = useMutation({
+    mutationFn: async (params?: ExportAdminProductsParams) => {
+      try {
+        return await exportAdminProducts(params);
+      } catch (err) {
+        console.warn('Backend export /admin/products/export failed, trying fallback client export:', err);
+        const storeProducts = useProductStore.getState().products;
+        if (storeProducts.length > 0) {
+          const exportHeaders = [
+            { key: 'id', label: 'Product ID' },
+            { key: 'name', label: 'Product Name (EN)' },
+            { key: 'nameAr', label: 'Product Name (AR)' },
+            { key: 'vendor', label: 'Vendor' },
+            { key: 'category', label: 'Category' },
+            { key: 'price', label: 'Price (SAR)' },
+            { key: 'stock', label: 'Stock' },
+            { key: 'isActive', label: 'Is Active' },
+          ];
+          exportToXLSX('products_export', exportHeaders, storeProducts);
+          return;
+        }
+        throw err;
+      }
+    },
+    onSuccess: () => {
+      toast.success(isAr ? 'تم تصدير المنتجات بنجاح' : 'Products exported successfully');
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        (isAr ? 'فشل تصدير المنتجات' : 'Failed to export products');
+      toast.error(msg);
+    },
+  });
+
   return {
     productsQuery,
     categoriesQuery,
     statusMutation,
     bulkDiscountMutation,
+    exportMutation,
   };
 };

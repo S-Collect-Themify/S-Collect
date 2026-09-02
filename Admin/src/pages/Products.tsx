@@ -24,7 +24,7 @@ const Products = () => {
   const isAr = i18n.language === 'ar';
 
   // ── Query & Mutation Hook ──
-  const { productsQuery, statusMutation, bulkDiscountMutation } = useProductsData();
+  const { productsQuery, statusMutation, bulkDiscountMutation, exportMutation } = useProductsData();
 
   // ── Store State ──
   const products = useProductStore((s) => s.products);
@@ -43,6 +43,16 @@ const Products = () => {
   const openDisableModal = useProductStore((s) => s.openDisableModal);
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
   const closeBulkDiscountModal = useProductStore((s) => s.closeBulkDiscountModal);
+
+  // ── Export Handler ──
+  const handleExport = () => {
+    const isDisabled = statusFilter === 'all' ? undefined : statusFilter === 'disabled';
+    exportMutation.mutate({
+      vendorId: vendorFilter !== 'all' ? vendorFilter : undefined,
+      categoryId: categoryFilter !== 'all' ? categoryFilter : undefined,
+      isDisabled,
+    });
+  };
 
   // ── Reset Page on Mount ──
   useEffect(() => {
@@ -172,6 +182,8 @@ const Products = () => {
         <ProductFilterBar
           availableVendors={availableVendors}
           availableCategories={availableCategories}
+          onExport={handleExport}
+          isExporting={exportMutation.isPending}
         />
 
         {/* Product List Content */}

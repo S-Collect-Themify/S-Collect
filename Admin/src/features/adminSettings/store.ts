@@ -317,7 +317,7 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
       viewMode: 'banners',
     }));
     toast.success(
-      i18n.language === 'ar' ? 'تم إضافة البنر بنجاح' : 'Banner added successfully'
+      i18n.language === 'ar' ? 'تم إضافة البانر بنجاح' : 'Banner added successfully'
     );
     return true;
   },

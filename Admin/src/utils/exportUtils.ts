@@ -1,6 +1,59 @@
+import ExcelJS from 'exceljs';
+
 export interface ExportSummaryStat {
   label: string;
   value: string;
+}
+
+/**
+ * Export data array to native Excel XLSX file (.xlsx)
+ */
+export async function exportToXLSX<T extends Record<string, any>>(
+  filename: string,
+  headers: { key: keyof T | string; label: string }[],
+  data: T[]
+) {
+  if (!data.length) return;
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Export');
+
+  worksheet.columns = headers.map((h) => ({
+    header: h.label,
+    key: String(h.key),
+    width: Math.max(h.label.length + 5, 18),
+  }));
+
+  data.forEach((item) => {
+    const rowObj: Record<string, any> = {};
+    headers.forEach((h) => {
+      rowObj[String(h.key)] = item[h.key as keyof T] ?? '';
+    });
+    worksheet.addRow(rowObj);
+  });
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF1F2937' },
+  };
+  headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${filename}.xlsx`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 /**

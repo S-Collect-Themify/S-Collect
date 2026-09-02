@@ -1144,6 +1144,8 @@
     "allStatuses": "جميع الحالات",
     "active": "نشط",
     "disabled": "معطل",
+    "export": "تصدير",
+    "exporting": "جاري التصدير...",
     "table": {
       "productName": "اسم المنتج",
       "vendor": "المورد",
@@ -1257,8 +1259,7 @@
       "selected": "تم تحديد {{count}}",
       "activateSelected": "تفعيل المحدد",
       "suspendSelected": "إيقاف المحدد",
-      "clearSelection": "إلغاء التحديد",
-      "statusFilter": "الحالة"
+      "clearSelection": "إلغاء التحديد"
     },
     "details": {
       "breadcrumbParent": "المشترون",
