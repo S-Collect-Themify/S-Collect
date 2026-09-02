@@ -7,6 +7,7 @@ type ManagementStore = {
   search: string;
   page: number;
   selectedRows: (string | number)[];
+  isBulkDiscountModalOpen: boolean;
   setSearch: (search: string) => void;
   setSelectedCategories: (categories: string[]) => void;
   setSelectedStatus: (status: StatusFilter) => void;
@@ -15,6 +16,8 @@ type ManagementStore = {
   toggleSelectPage: (pageProductIds: (string | number)[]) => void;
   setSelectedRows: (ids: (string | number)[]) => void;
   clearSelection: () => void;
+  openBulkDiscountModal: () => void;
+  closeBulkDiscountModal: () => void;
 };
 
 export const useManagementStore = create<ManagementStore>((set) => ({
@@ -23,6 +26,7 @@ export const useManagementStore = create<ManagementStore>((set) => ({
   search: '',
   page: 1,
   selectedRows: [],
+  isBulkDiscountModalOpen: false,
   setSearch: (search) => set({ search, page: 1 }),
   setSelectedCategories: (selectedCategories) =>
     set({ selectedCategories, page: 1 }),
@@ -75,6 +79,8 @@ export const useManagementStore = create<ManagementStore>((set) => ({
     return set({ selectedRows: unique });
   },
   clearSelection: () => set({ selectedRows: [] }),
+  openBulkDiscountModal: () => set({ isBulkDiscountModalOpen: true }),
+  closeBulkDiscountModal: () => set({ isBulkDiscountModalOpen: false }),
 }));
 
 // Re-export hooks for convenience

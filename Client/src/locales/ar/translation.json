@@ -558,6 +558,21 @@
     "saveChanges": "حفظ التغييرات"
   },
   "managementTable": {
+    "bulkDiscount": "خصم جماعي",
+    "bulkDiscountCount": "خصم جماعي ({{count}})",
+    "bulkDiscountSubtitle": "تطبيق خصم على {{count}} من المنتجات المحددة",
+    "applyBulkDiscount": "تطبيق الخصم",
+    "bulkDiscountSuccess": "تم تطبيق الخصم الجماعي بنجاح",
+    "bulkDiscountError": "فشل تطبيق الخصم الجماعي",
+    "discountType": "نوع الخصم *",
+    "percentage": "نسبة (%)",
+    "fixedAmount": "ثابت (مبلغ)",
+    "discountPercentage": "نسبة الخصم *",
+    "discountValue": "قيمة الخصم *",
+    "discountValueRequired": "هذا الحقل مطلوب",
+    "discountValueMin": "يجب أن تكون القيمة أكبر من 0",
+    "expiryDateOptional": "تاريخ انتهاء الخصم (اختياري)",
+    "applying": "جاري الحفظ...",
     "importProducts": "استيراد منتجات",
     "importModal": {
       "title": "استيراد المنتجات عبر إكسيل",

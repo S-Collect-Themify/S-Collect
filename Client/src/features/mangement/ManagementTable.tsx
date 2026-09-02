@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Check, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Check, Minus, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
 import { useManagementStore } from './managementStore';
@@ -38,6 +38,9 @@ export default function ProductTable() {
   const toggleRow = useManagementStore((state) => state.toggleRow);
   const toggleSelectPage = useManagementStore((state) => state.toggleSelectPage);
   const clearSelection = useManagementStore((state) => state.clearSelection);
+  const openBulkDiscountModal = useManagementStore(
+    (state) => state.openBulkDiscountModal
+  );
 
   const {
     publishSelected,
@@ -130,6 +133,26 @@ export default function ProductTable() {
           selected={selectedStatus}
           onChange={setSelectedStatus}
         />
+
+        {selectedCount > 0 && (
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={openBulkDiscountModal}
+            className="flex items-center gap-2 px-3.5 h-9 bg-black hover:bg-gray-800 text-white rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer shrink-0 disabled:opacity-50"
+          >
+            <Tag size={15} />
+            <span>
+              {isArabic
+                ? `خصم جماعي (${selectedCount})`
+                : t(
+                    'managementTable.bulkDiscountCount',
+                    `Bulk Discount (${selectedCount})`,
+                    { count: selectedCount }
+                  )}
+            </span>
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-x-auto select-none bg-white rounded-xl border border-gray-100">
@@ -293,6 +316,16 @@ export default function ProductTable() {
           <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
             {t('managementTable.selectedProducts', { count: selectedCount })}
           </span>
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={openBulkDiscountModal}
+            className="flex px-3.5 py-1.5 items-center gap-1.5 justify-center rounded-lg bg-black text-white hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            aria-label={t('managementTable.bulkDiscount', 'Bulk Discount')}
+          >
+            <Tag size={14} />
+            <span>{isArabic ? 'خصم جماعي' : t('managementTable.bulkDiscount', 'Bulk Discount')}</span>
+          </button>
           <button
             type="button"
             disabled={isPending}

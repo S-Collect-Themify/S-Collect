@@ -9,6 +9,7 @@ import {
 import { motion } from 'motion/react';
 import {
   type Order,
+  type OrderStatus,
   STATUS_STYLES,
 } from '../features/Orders/types/order';
 
@@ -339,6 +340,7 @@ export const OrderDetails = ({
                 {order.grandTotal.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                 })}
+              </span>
             </div>
           </div>
         </motion.div>

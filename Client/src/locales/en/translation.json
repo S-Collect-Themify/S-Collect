@@ -558,6 +558,21 @@
     "saveChanges": "Save Changes"
   },
   "managementTable": {
+    "bulkDiscount": "Bulk Discount",
+    "bulkDiscountCount": "Bulk Discount ({{count}})",
+    "bulkDiscountSubtitle": "Apply discount on {{count}} selected products",
+    "applyBulkDiscount": "Apply Discount",
+    "bulkDiscountSuccess": "Bulk discount applied successfully",
+    "bulkDiscountError": "Failed to apply bulk discount",
+    "discountType": "Discount Type *",
+    "percentage": "Percentage (%)",
+    "fixedAmount": "Fixed Amount",
+    "discountPercentage": "Discount Percentage *",
+    "discountValue": "Discount Amount *",
+    "discountValueRequired": "Discount value is required",
+    "discountValueMin": "Value must be greater than 0",
+    "expiryDateOptional": "Discount Expiry Date (Optional)",
+    "applying": "Applying...",
     "importProducts": "Import Products",
     "importModal": {
       "title": "Import Products via Excel",

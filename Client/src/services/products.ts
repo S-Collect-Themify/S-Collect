@@ -341,6 +341,27 @@ export const bulkUpdateProductStatus = async (params: {
   }
 };
 
+export interface VendorBulkDiscountPayload {
+  productIds: string[];
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  discountEndsAt?: string;
+}
+
+export const applyVendorBulkDiscount = async (
+  payload: VendorBulkDiscountPayload
+) => {
+  try {
+    const { data } = await api.post('/vendor/products/bulk-discount', payload);
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to apply bulk discount');
+  }
+};
+
+export const applyBulkDiscountApi = applyVendorBulkDiscount;
+
+
 export const activateProduct = async (productId: string) => {
   try {
     const { data } = await api.patch(`/vendor/products/${productId}/activate`);

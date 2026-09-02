@@ -10,6 +10,8 @@ import {
   deleteProduct,
   downloadProductImportTemplate,
   importProducts,
+  applyVendorBulkDiscount,
+  type VendorBulkDiscountPayload,
   type ProductImportResponse,
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
@@ -349,6 +351,8 @@ export function useManagementActions() {
     bulkStatusMutation.mutate(params);
   };
 
+  const bulkDiscountMutation = useBulkDiscount();
+
   return {
     publishSelected: () =>
       safeMutate({
@@ -366,9 +370,72 @@ export function useManagementActions() {
         status: currentEnabled ? 'UNPUBLISH' : 'PUBLISH',
       }),
     deleteSingle: (id: string | number) => deleteMutation.mutate(String(id)),
-    isPending: bulkStatusMutation.isPending || deleteMutation.isPending,
+    bulkDiscountMutation,
+    isPending:
+      bulkStatusMutation.isPending ||
+      deleteMutation.isPending ||
+      bulkDiscountMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
+}
+
+export function useBulkDiscount() {
+  const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
+  const clearSelection = useManagementStore((s) => s.clearSelection);
+  const closeBulkDiscountModal = useManagementStore(
+    (s) => s.closeBulkDiscountModal
+  );
+
+  return useMutation({
+    mutationFn: (payload: VendorBulkDiscountPayload) =>
+      applyVendorBulkDiscount(payload),
+    onSuccess: (_, variables) => {
+      toast.success(
+        isArabic
+          ? 'تم تطبيق الخصم الجماعي بنجاح'
+          : t(
+              'managementTable.bulkDiscountSuccess',
+              'Bulk discount applied successfully'
+            )
+      );
+      clearSelection();
+      closeBulkDiscountModal();
+
+      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['product-details'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardTopSellingProducts'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardInventoryAlerts'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboardInventoryProductsMap'],
+      });
+
+      variables.productIds.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-details', id] });
+      });
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        (isArabic
+          ? 'فشل تطبيق الخصم الجماعي'
+          : t(
+              'managementTable.bulkDiscountError',
+              'Failed to apply bulk discount'
+            ));
+      toast.error(msg);
+    },
+  });
 }
 
 export function useDeleteProduct() {

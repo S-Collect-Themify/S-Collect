@@ -69,6 +69,7 @@ function ReviewCard({
 }: {
   review: Review;
 }) {
+  const { t } = useTranslation();
   const author = review?.authorName || 'Customer';
   const initials = author
     .split(' ')
