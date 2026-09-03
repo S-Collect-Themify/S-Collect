@@ -13,11 +13,9 @@ const Receivables = () => {
           <p className="text-gray-500 pb-2 ">{t('receivables.description')}</p>
         </div>
       </div>
-      <div className="sidebar-page-container">
+      <div className="sidebar-page-container space-y-6">
         <ReceivablesGrid />
-        <div className="rounded-2xl border border-gray-100 lg:bg-white  lg:p-6">
-          <ReceivablesTable />
-        </div>
+        <ReceivablesTable />
       </div>
     </>
   );

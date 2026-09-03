@@ -46,8 +46,9 @@ export default function ReceivablesTable() {
       pageSize: ITEMS_PER_PAGE,
       dateFrom: dateRange.dateFrom,
       dateTo: dateRange.dateTo,
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
     }),
-    [page, dateRange.dateFrom, dateRange.dateTo]
+    [page, dateRange.dateFrom, dateRange.dateTo, selectedStatus]
   );
 
   const { data, isLoading } = usePayouts(payoutParams);
@@ -69,10 +70,14 @@ export default function ReceivablesTable() {
         : rawDate || '-';
 
     const refDisplay = item.ref
-      ? `#${item.ref}`
-      : item.id
-        ? `#${item.id.slice(-8).toUpperCase()}`
-        : '-';
+      ? String(item.ref).startsWith('REF-') || String(item.ref).startsWith('#')
+        ? String(item.ref)
+        : `#${item.ref}`
+      : item.isAdjustment
+        ? 'REF-ADJ'
+        : item.id
+          ? `#${item.id.slice(-8).toUpperCase()}`
+          : '-';
 
     return {
       id: item.id,
@@ -93,7 +98,11 @@ export default function ReceivablesTable() {
     if (selectedStatus !== 'all') {
       const txStatusNorm = tx.status?.toUpperCase();
       const selectedNorm = selectedStatus.toUpperCase();
-      if (txStatusNorm !== selectedNorm) return false;
+      const isMatch =
+        txStatusNorm === selectedNorm ||
+        (selectedNorm === 'COMPLETED' && txStatusNorm === 'PAID') ||
+        (selectedNorm === 'PAID' && txStatusNorm === 'COMPLETED');
+      if (!isMatch) return false;
     }
     return true;
   });
@@ -132,13 +141,13 @@ export default function ReceivablesTable() {
     exportMutation.mutate({
       dateFrom: dateRange.dateFrom,
       dateTo: dateRange.dateTo,
-      status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
     });
   };
 
   const tableHeaders = [
     t('receivables.date', { defaultValue: 'Date' }),
-    t('receivables.referenceNumber', { defaultValue: 'Reference' }),
+    t('receivables.referenceNumber', { defaultValue: 'Reference Number' }),
     t('receivables.status', { defaultValue: 'Status' }),
     t('receivables.amount', { defaultValue: 'Amount' }),
   ];
@@ -209,130 +218,180 @@ export default function ReceivablesTable() {
               />
             ))
           )}
+
+          {/* Mobile Pagination */}
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span className="text-xs text-gray-400 font-medium">
+              {t('receivables.showing', {
+                start: rangeStart,
+                end: rangeEnd,
+                total: totalItems,
+                defaultValue: `Showing ${rangeStart} - ${rangeEnd} of ${totalItems} results`,
+              })}
+            </span>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage <= 1}
+                  aria-label="Previous page"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  {isArabic ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                </button>
+
+                {getPaginationRange(currentPage, totalPages).map((item, index) =>
+                  item === '...' ? (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      onClick={() => setPage(Number(item))}
+                      className={`w-8 h-8 rounded-md text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center ${
+                        item === currentPage
+                          ? 'bg-black text-white font-bold'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Next page"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  {isArabic ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="w-full overflow-x-auto rounded-xl border border-gray-100">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-100">
-                {tableHeaders.map((h, i) => (
-                  <th
-                    key={h}
-                    className={`px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap ${
-                      i === tableHeaders.length - 1 ? 'text-end' : 'text-start'
-                    }`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+        <div className="w-full bg-white rounded-2xl border border-gray-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] overflow-hidden">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-white border-b border-gray-100">
+                  {tableHeaders.map((h, i) => (
+                    <th
+                      key={h}
+                      className={`px-6 py-4 text-sm font-bold text-gray-900 whitespace-nowrap ${
+                        i === tableHeaders.length - 1 ? 'text-end' : 'text-start'
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
 
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="text-center py-12 text-gray-400"
-                  >
-                    <Loader2 size={24} className="animate-spin mx-auto mb-2 text-emerald-600" />
-                    <p className="text-sm font-medium">
-                      {t('settings.loading', { defaultValue: 'Loading transactions...' })}
-                    </p>
-                  </td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center py-12 text-gray-400">
-                    <i
-                      className="ti ti-receipt-off text-3xl block mb-2 text-gray-300"
-                      aria-hidden="true"
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={4} className="text-center py-12 text-gray-400">
+                      <Loader2 size={24} className="animate-spin mx-auto mb-2 text-emerald-600" />
+                      <p className="text-sm font-medium">
+                        {t('settings.loading', { defaultValue: 'Loading transactions...' })}
+                      </p>
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="text-center py-12 text-gray-400">
+                      <i
+                        className="ti ti-receipt-off text-3xl block mb-2 text-gray-300"
+                        aria-hidden="true"
+                      />
+                      <p className="text-sm font-medium text-gray-500">
+                        {t('receivables.noTransactions', { defaultValue: 'No payout transactions found' })}
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((tx, i) => (
+                    <TransactionRow
+                      key={tx.id || tx.referenceNumber || i}
+                      transaction={tx}
+                      index={i}
                     />
-                    <p className="text-sm font-medium text-gray-500">
-                      {t('receivables.noTransactions', { defaultValue: 'No payout transactions found' })}
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((tx, i) => (
-                  <TransactionRow
-                    key={tx.id || tx.referenceNumber || i}
-                    transaction={tx}
-                    index={i}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Desktop Pagination inside card footer */}
+          <div className="px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-100 bg-white">
+            <span className="text-xs sm:text-sm text-gray-400 font-medium">
+              {t('receivables.showing', {
+                start: rangeStart,
+                end: rangeEnd,
+                total: totalItems,
+                defaultValue: `Showing ${rangeStart} - ${rangeEnd} of ${totalItems} results`,
+              })}
+            </span>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage <= 1}
+                  aria-label="Previous page"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  {isArabic ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                </button>
+
+                {getPaginationRange(currentPage, totalPages).map((item, index) =>
+                  item === '...' ? (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      onClick={() => setPage(Number(item))}
+                      className={`w-8 h-8 rounded-md text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center ${
+                        item === currentPage
+                          ? 'bg-black text-white font-bold'
+                          : 'border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium'
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage >= totalPages}
+                  aria-label="Next page"
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                >
+                  {isArabic ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
-
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 pt-4 border-t border-gray-100">
-        <span className="text-xs sm:text-sm text-gray-500">
-          {t('receivables.showing', {
-            start: rangeStart,
-            end: rangeEnd,
-            total: totalItems,
-            defaultValue: `Showing ${rangeStart}–${rangeEnd} of ${totalItems} transactions`,
-          })}
-        </span>
-
-        {totalPages > 1 && (
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage <= 1}
-              aria-label="Previous page"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 cursor-pointer"
-            >
-              {isArabic ? (
-                <ChevronRight size={16} />
-              ) : (
-                <ChevronLeft size={16} />
-              )}
-            </button>
-
-            {getPaginationRange(currentPage, totalPages).map((item, index) =>
-              item === '...' ? (
-                <span
-                  key={`ellipsis-${index}`}
-                  className="w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium select-none"
-                >
-                  ...
-                </span>
-              ) : (
-                <button
-                  key={item}
-                  onClick={() => setPage(Number(item))}
-                  className={`w-8 h-8 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
-                    item === currentPage
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
-
-            <button
-              type="button"
-              onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage >= totalPages}
-              aria-label="Next page"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 cursor-pointer"
-            >
-              {isArabic ? (
-                <ChevronLeft size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              )}
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

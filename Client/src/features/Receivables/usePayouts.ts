@@ -32,9 +32,10 @@ export const usePayouts = (params?: PayoutListParams) => {
   const pageSize = params?.pageSize ?? 25;
   const dateFrom = params?.dateFrom ?? '';
   const dateTo = params?.dateTo ?? '';
+  const status = params?.status ?? '';
 
   const query = useQuery({
-    queryKey: ['payouts', pageNum, pageSize, dateFrom, dateTo],
+    queryKey: ['payouts', pageNum, pageSize, dateFrom, dateTo, status],
     queryFn: () => getPayouts(params),
     staleTime: 2 * 60 * 1000,
     retry: 1,
@@ -56,12 +57,13 @@ export const usePayouts = (params?: PayoutListParams) => {
           pageSize,
           dateFrom,
           dateTo,
+          status,
         ],
         queryFn: () => getPayouts(nextParams),
         staleTime: 2 * 60 * 1000,
       });
     }
-  }, [currentPage, totalPages, pageSize, dateFrom, dateTo, queryClient]);
+  }, [currentPage, totalPages, pageSize, dateFrom, dateTo, status, queryClient]);
 
   return query;
 };

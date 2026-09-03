@@ -15,6 +15,9 @@ export default function MobileTransactionCard({
 }: MobileTransactionCardProps) {
   const { t } = useTranslation();
   const isNegative = transaction.amount < 0 || transaction.isAdjustment;
+  const statusToDisplay = transaction.isAdjustment
+    ? 'ADJUSTED'
+    : transaction.status;
 
   const note =
     typeof transaction.referenceNote === 'string'
@@ -22,6 +25,8 @@ export default function MobileTransactionCard({
       : typeof transaction.clarifyingNote === 'string'
         ? transaction.clarifyingNote
         : null;
+
+  const formattedAmountValue = formatAmount(Math.abs(transaction.amount));
 
   return (
     <motion.div
@@ -32,7 +37,7 @@ export default function MobileTransactionCard({
         delay: index * 0.03,
         ease: [0.25, 0.1, 0.25, 1],
       }}
-      className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs"
+      className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs"
     >
       <div className="flex items-center justify-between py-2">
         <span className="text-xs text-gray-400">{t('receivables.date')}</span>
@@ -46,14 +51,9 @@ export default function MobileTransactionCard({
           {t('receivables.referenceNumber')}
         </span>
         <div className="text-end">
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-normal text-gray-400">
             {transaction.referenceNumber}
           </span>
-          {transaction.isAdjustment && (
-            <span className="ms-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
-              {t('receivables.adjustment', { defaultValue: 'Adjustment' })}
-            </span>
-          )}
           {note && (
             <p className="text-xs text-gray-400 mt-0.5 line-clamp-1 max-w-[180px]">
               {note}
@@ -64,21 +64,17 @@ export default function MobileTransactionCard({
 
       <div className="flex items-center justify-between py-2 border-t border-gray-100">
         <span className="text-xs text-gray-400">{t('receivables.status')}</span>
-        <StatusBadge status={transaction.status} />
+        <StatusBadge status={statusToDisplay} />
       </div>
 
       <div className="flex items-center justify-between py-2 border-t border-gray-100">
         <span className="text-xs text-gray-400">{t('receivables.amount')}</span>
         <span
           className={`text-sm font-bold ${
-            isNegative ? 'text-rose-600' : 'text-gray-900'
+            isNegative ? 'text-red-500' : 'text-gray-900'
           }`}
         >
-          {isNegative && transaction.amount > 0 ? '-' : ''}
-          {formatAmount(transaction.amount)}{' '}
-          <span className="text-xs font-normal text-gray-500">
-            {t('dashboardMetrics.unit.sar', { defaultValue: 'SAR' })}
-          </span>
+          {isNegative ? `-$${formattedAmountValue}` : `$${formattedAmountValue}`}
         </span>
       </div>
     </motion.div>

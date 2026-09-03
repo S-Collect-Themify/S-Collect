@@ -1,6 +1,8 @@
 import type { VendorPayoutItem } from '../../services/payouts';
 
 export type TransactionStatus =
+  | 'completed'
+  | 'COMPLETED'
   | 'paid'
   | 'PAID'
   | 'processing'
@@ -31,28 +33,30 @@ export interface Transaction {
 }
 
 export const STATUS_BADGE: Record<string, string> = {
-  paid: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  PAID: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  processing: 'bg-blue-50 text-blue-700 border border-blue-200',
-  PROCESSING: 'bg-blue-50 text-blue-700 border border-blue-200',
-  pending: 'bg-amber-50 text-amber-700 border border-amber-200',
-  PENDING: 'bg-amber-50 text-amber-700 border border-amber-200',
-  adjusted: 'bg-purple-50 text-purple-700 border border-purple-200',
-  ADJUSTED: 'bg-purple-50 text-purple-700 border border-purple-200',
-  failed: 'bg-rose-50 text-rose-700 border border-rose-200',
-  FAILED: 'bg-rose-50 text-rose-700 border border-rose-200',
-  rejected: 'bg-rose-50 text-rose-700 border border-rose-200',
-  REJECTED: 'bg-rose-50 text-rose-700 border border-rose-200',
-  cancelled: 'bg-gray-100 text-gray-700 border border-gray-200',
-  CANCELLED: 'bg-gray-100 text-gray-700 border border-gray-200',
+  completed: 'bg-[#E8F8EE] text-[#16A34A]',
+  COMPLETED: 'bg-[#E8F8EE] text-[#16A34A]',
+  paid: 'bg-[#E8F8EE] text-[#16A34A]',
+  PAID: 'bg-[#E8F8EE] text-[#16A34A]',
+  processing: 'bg-[#FEF6E7] text-[#B45309]',
+  PROCESSING: 'bg-[#FEF6E7] text-[#B45309]',
+  adjusted: 'bg-[#FEECEC] text-[#DC2626]',
+  ADJUSTED: 'bg-[#FEECEC] text-[#DC2626]',
+  pending: 'bg-amber-50 text-amber-700',
+  PENDING: 'bg-amber-50 text-amber-700',
+  failed: 'bg-rose-50 text-rose-600',
+  FAILED: 'bg-rose-50 text-rose-600',
+  rejected: 'bg-rose-50 text-rose-600',
+  REJECTED: 'bg-rose-50 text-rose-600',
+  cancelled: 'bg-gray-100 text-gray-600',
+  CANCELLED: 'bg-gray-100 text-gray-600',
 };
 
 export const STATUS_FILTERS = [
   'PENDING',
-  'PAID',
+  'COMPLETED',
   'PROCESSING',
   'FAILED',
   'CANCELLED',
 ] as const;
 
-export const ITEMS_PER_PAGE = 25;
+export const ITEMS_PER_PAGE = 6;
