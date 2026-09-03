@@ -805,7 +805,7 @@
     "exportSuccess": "تم تصدير ملف الإكسيل بنجاح",
     "exportError": "فشل في تصدير ملف الإكسيل",
     "adjustment": "تسوية",
-    "showing": "عرض {{start}}–{{end}} من {{total}} معاملة",
+    "showing": "عرض {{start}} - {{end}} من {{total}} نتيجة",
     "noTransactions": "لا توجد معاملات مدفوعات حالياً",
     "statuses": {
       "paid": "مدفوع",
@@ -912,3 +912,4 @@
     }
   }
 }
+

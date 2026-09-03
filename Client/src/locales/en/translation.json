@@ -809,7 +809,7 @@
     "exportSuccess": "Excel file exported successfully",
     "exportError": "Failed to export Excel file",
     "adjustment": "Adjustment",
-    "showing": "Showing {{start}}–{{end}} of {{total}} transactions",
+    "showing": "Showing {{start}} - {{end}} of {{total}} results",
     "noTransactions": "No payout transactions found",
     "statuses": {
       "paid": "Paid",
@@ -916,3 +916,4 @@
     }
   }
 }
+
