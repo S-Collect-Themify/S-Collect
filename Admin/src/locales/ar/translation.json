@@ -1246,7 +1246,7 @@
       "search": "البحث بالاسم أو البريد...",
       "statusAll": "الحالة: الكل",
       "statusActive": "نشط",
-      "statusPendingVerification": "توجل",
+      "statusPendingVerification": "بانتظار التحقق",
       "statusLocked": "مقفل",
       "statusDeactivated": "غير مفعل",
       "statusSuspended": "موقوف",
