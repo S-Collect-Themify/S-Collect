@@ -133,7 +133,7 @@ export default function ReturnRequestsPage() {
   }, [activePage, totalPages]);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 min-h-screen">
+    <div className="p-4 sm:p-6 md:p-8 flex-1">
       {/* Title */}
       <motion.h1
         initial={{ opacity: 0, y: -10 }}
