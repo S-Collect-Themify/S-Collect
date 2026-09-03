@@ -202,6 +202,10 @@ const ProductDetails = () => {
   const handleToggleStatus = (pDetail: SingleAdminProductDetail) => {
     const isActive = Boolean(pDetail.isActive && !pDetail.isDisabled);
     if (isActive) {
+      const computedStock = pDetail.variants?.length
+        ? pDetail.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+        : 0;
+
       openDisableModal({
         id: pDetail.id,
         name: pDetail.name,
@@ -209,6 +213,7 @@ const ProductDetails = () => {
         vendor: pDetail.vendor?.storeName || '',
         category: pDetail.category?.name || '',
         price: pDetail.variants?.[0]?.price || 0,
+        totalStock: computedStock,
         isActive: true,
         image: pDetail.images?.[0]?.url || '',
       });
