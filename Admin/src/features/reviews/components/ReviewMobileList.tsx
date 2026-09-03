@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ReviewItem } from '../types';
@@ -12,21 +13,34 @@ export const ReviewMobileList = ({
   reviews,
   onDeleteClick,
 }: ReviewMobileListProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const handleCardClick = (productId?: string) => {
+    if (productId) {
+      navigate(`/products/${productId}`);
+    }
+  };
 
   return (
     <div className="space-y-3">
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm"
+          onClick={() => handleCardClick(review.productId)}
+          className={`bg-white rounded-2xl border border-gray-100 p-4 shadow-sm transition-all ${
+            review.productId ? 'cursor-pointer hover:shadow-md hover:border-gray-200' : ''
+          }`}
         >
           {/* Top Row: Stars + Delete Icon */}
           <div className="flex items-center justify-between mb-2">
             <StarRating rating={review.rating} size={14} />
             <button
               type="button"
-              onClick={() => onDeleteClick(review)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteClick(review);
+              }}
               className="p-2 bg-gray-100 text-red-500 hover:bg-red-100 hover:text-red-600 rounded-full cursor-pointer transition-colors"
               aria-label="Delete review"
             >
