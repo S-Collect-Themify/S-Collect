@@ -341,27 +341,6 @@ export const bulkUpdateProductStatus = async (params: {
   }
 };
 
-export interface VendorBulkDiscountPayload {
-  productIds: string[];
-  discountType: 'PERCENT' | 'FIXED';
-  discountValue: number;
-  discountEndsAt?: string;
-}
-
-export const applyVendorBulkDiscount = async (
-  payload: VendorBulkDiscountPayload
-) => {
-  try {
-    const { data } = await api.post('/vendor/products/bulk-discount', payload);
-    return data;
-  } catch (err) {
-    throw handleServiceError(err, 'Failed to apply bulk discount');
-  }
-};
-
-export const applyBulkDiscountApi = applyVendorBulkDiscount;
-
-
 export const activateProduct = async (productId: string) => {
   try {
     const { data } = await api.patch(`/vendor/products/${productId}/activate`);
@@ -391,15 +370,6 @@ export const deactivateProduct = async (productId: string) => {
       return data;
     }
     throw serviceErr;
-  }
-};
-
-export const deleteProduct = async (productId: string) => {
-  try {
-    const { data } = await api.delete(`/vendor/products/${productId}`);
-    return data;
-  } catch (err) {
-    throw handleServiceError(err, `Failed to delete product ${productId}`);
   }
 };
 
@@ -492,17 +462,13 @@ export const importProducts = async (
   }
 };
 
-export interface ExportProductsParams {
-  categoryId?: string;
-  isActive?: boolean;
-}
-
 /**
  * Export vendor products as Excel (.xlsx) file and trigger browser download
  */
-export const exportProducts = async (
-  params?: ExportProductsParams
-): Promise<Blob> => {
+export const exportProducts = async (params?: {
+  categoryId?: string;
+  isActive?: boolean;
+}): Promise<Blob> => {
   try {
     const cleanParams: Record<string, any> = {};
     if (params?.categoryId) cleanParams.categoryId = params.categoryId;

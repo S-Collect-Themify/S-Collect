@@ -3,14 +3,10 @@ import { useTranslation } from 'react-i18next';
 import ManagementTable from '../features/mangement/ManagementTable';
 import MobileManagementTable from '../features/mangement/mobile/MobileManagementTable';
 import ImportProductsModal from '../features/mangement/components/ImportProductsModal';
-import BulkDiscountModal from '../features/mangement/components/BulkDiscountModal';
-import { useManagementStore } from '../features/mangement/managementStore';
-import { useBulkDiscount } from '../features/mangement/useManagementHooks';
 import { Link } from 'react-router-dom';
-import { PlusIcon, FileSpreadsheet, Download, Loader2 } from 'lucide-react';
+import { PlusIcon, FileSpreadsheet } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { motion } from 'motion/react';
-import { useManagementTable } from '../features/mangement/useManagementHooks';
 
 import { containerVariants, itemVariants } from '../utils/animations';
 
@@ -18,16 +14,6 @@ const Management = () => {
   const { t } = useTranslation();
   const { isMobile } = useBreakpoint();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const { handleExport, isExporting } = useManagementTable();
-
-  const isBulkDiscountModalOpen = useManagementStore(
-    (state) => state.isBulkDiscountModalOpen
-  );
-  const closeBulkDiscountModal = useManagementStore(
-    (state) => state.closeBulkDiscountModal
-  );
-  const selectedRows = useManagementStore((state) => state.selectedRows);
-  const bulkDiscountMutation = useBulkDiscount();
 
   return (
     <>
@@ -36,20 +22,6 @@ const Management = () => {
         <div className="flex items-center gap-2.5">
           {isMobile ? (
             <>
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={isExporting}
-                className="flex items-center justify-center bg-gray-900 text-white hover:bg-gray-800 transition-colors rounded-full p-2 cursor-pointer shadow-xs disabled:opacity-50"
-                title={t('managementTable.export', 'Export')}
-                aria-label={t('managementTable.export', 'Export')}
-              >
-                {isExporting ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <Download size={20} />
-                )}
-              </button>
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
@@ -72,23 +44,6 @@ const Management = () => {
             </>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={isExporting}
-                className="flex items-center gap-2 text-sm font-semibold bg-gray-900 hover:bg-gray-800 text-white active:bg-gray-950 transition-colors rounded-xl px-4 py-2.5 cursor-pointer shadow-xs disabled:opacity-50"
-              >
-                {isExporting ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  <Download size={18} />
-                )}
-                <span>
-                  {isExporting
-                    ? t('managementTable.exporting', 'Exporting...')
-                    : t('managementTable.export', 'Export')}
-                </span>
-              </button>
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(true)}
@@ -124,19 +79,6 @@ const Management = () => {
       <ImportProductsModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-      />
-
-      <BulkDiscountModal
-        isOpen={isBulkDiscountModalOpen}
-        selectedCount={selectedRows.length}
-        onClose={closeBulkDiscountModal}
-        isPending={bulkDiscountMutation.isPending}
-        onSubmit={(data) => {
-          bulkDiscountMutation.mutate({
-            productIds: selectedRows.map(String),
-            ...data,
-          });
-        }}
       />
     </>
   );
