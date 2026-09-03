@@ -39,7 +39,7 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
             <th className="py-4 px-6">{t('productsListing.table.vendor')}</th>
             <th className="py-4 px-6">{t('productsListing.table.category')}</th>
             <th className="py-4 px-6">{t('productsListing.table.price')}</th>
-            <th className="py-4 px-6">{t('productsListing.table.stock')}</th>
+            {/* <th className="py-4 px-6">{t('productsListing.table.stock')}</th> */}
             <th className="py-4 px-6">{t('productsListing.table.status')}</th>
           </tr>
         </thead>
@@ -109,13 +109,13 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
                 </td>
 
                 {/* Stock */}
-                <td className="py-4 px-6">
+                {/* <td className="py-4 px-6">
                   <span className="text-gray-700 font-medium">
                     {product.stock !== undefined && product.stock !== null && product.stock !== ''
                       ? product.stock
                       : '-'}
                   </span>
-                </td>
+                </td> */}
 
                 {/* Status Switch */}
                 <td className="py-4 px-6">

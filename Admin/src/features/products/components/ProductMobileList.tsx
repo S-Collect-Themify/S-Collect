@@ -87,7 +87,7 @@ export const ProductMobileList = ({
               </div>
 
               {/* Stock */}
-              <div>
+              {/* <div>
                 <span className="block text-gray-400 text-[11px]">
                   {t('productsListing.mobile.stock')}
                 </span>
@@ -96,7 +96,7 @@ export const ProductMobileList = ({
                     ? product.stock
                     : '-'}
                 </span>
-              </div>
+              </div> */}
 
               {/* Status Switch */}
               <div className="flex items-center">
