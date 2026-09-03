@@ -20,7 +20,7 @@ import type { ReactNode } from 'react';
 import Logo from '../ui/Logo';
 import LogoutModal from '../auth/LogoutModal';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Globe, Check } from 'lucide-react';
 import i18n from '../../i18n';
@@ -37,6 +37,7 @@ import { useReviewStore } from '../../features/reviews/reviewStore';
 import { useVoucherStore } from '../../features/vouchers/voucherStore';
 import { useManagementStore } from '../../features/mangement/managementStore';
 import { useAdminSettingsStore } from '../../features/adminSettings/store';
+import { useVendors } from '../../features/vendors/hooks/useVendors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NavItemProps {
@@ -46,6 +47,7 @@ interface NavItemProps {
   danger?: boolean;
   onClick?: () => void;
   isLogout?: boolean;
+  badge?: number | string;
 }
 
 interface NavSectionProps {
@@ -155,6 +157,7 @@ const NavItem = ({
   to,
   danger = false,
   onClick,
+  badge,
 }: NavItemProps) => {
   const { t } = useTranslation();
 
@@ -180,6 +183,11 @@ const NavItem = ({
       >
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{t(labelKey)}</span>
+        {badge !== undefined && badge !== null && Number(badge) > 0 && (
+          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+            {badge}
+          </span>
+        )}
       </NavLink>
     </div>
   );
@@ -257,8 +265,8 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
   );
 };
 
-// ─── Navigation Data ──────────────────────────────────────────────────────────
-const NAV_SECTIONS: NavSectionProps[] = [
+// ─── Navigation Data Helper ────────────────────────────────────────────────────
+const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
   {
     titleKey: 'sidebar.sections.main',
     items: [
@@ -276,6 +284,7 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <PackageOpen size={18} />,
         labelKey: 'sidebar.items.vendors',
         to: '/vendors',
+        badge: pendingVendorsCount,
       },
       {
         icon: <FileChartColumn size={18} />,
@@ -353,6 +362,16 @@ const NAV_SECTIONS: NavSectionProps[] = [
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { data: pendingVendorsData } = useVendors({ status: 'PENDING_APPROVAL' });
+  const pendingVendorsCount =
+    pendingVendorsData?.pagination?.totalItems ??
+    (Array.isArray(pendingVendorsData?.items) ? pendingVendorsData.items.length : Array.isArray(pendingVendorsData) ? pendingVendorsData.length : 0);
+
+  const navSections = useMemo(
+    () => getNavSections(pendingVendorsCount),
+    [pendingVendorsCount]
+  );
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -382,7 +401,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-800">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <NavSection
             key={section.titleKey}
             {...section}

@@ -153,6 +153,8 @@ export const useOrdersLogic = () => {
       dateFilter: dateFilter !== 'all' && dateFilter !== 'custom' ? dateFilter : undefined,
       startDate: startDateParam,
       endDate: endDateParam,
+      sortBy: 'createdAt',
+      sortOrder: 'DESC',
     },
     true
   );
@@ -170,7 +172,13 @@ export const useOrdersLogic = () => {
   }, [isVendorFiltered, subOrders, orders]);
 
   const displayRefunds = useMemo(() => {
-    return (refundsData?.items || []).map(mapAdminRefundToTableItem);
+    const list = (refundsData?.items || []).map(mapAdminRefundToTableItem);
+    return list.sort((a, b) => {
+      const timeA = a.rawCreatedAt ? new Date(a.rawCreatedAt).getTime() : 0;
+      const timeB = b.rawCreatedAt ? new Date(b.rawCreatedAt).getTime() : 0;
+      if (timeA !== timeB) return timeB - timeA;
+      return String(b.code || '').localeCompare(String(a.code || ''), undefined, { numeric: true });
+    });
   }, [refundsData?.items]);
 
   // ─── Pagination numbers (always from server) ─────────────────────────────────

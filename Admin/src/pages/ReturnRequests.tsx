@@ -69,6 +69,8 @@ export default function ReturnRequestsPage() {
     pageNum: currentPage,
     pageSize: ITEMS_PER_PAGE,
     status: statusParam,
+    sortBy: 'createdAt',
+    sortOrder: 'DESC',
   });
 
   const apiItems = useMemo(() => refundsResponse?.items || [], [refundsResponse?.items]);
@@ -77,7 +79,7 @@ export default function ReturnRequestsPage() {
   const activePage = Math.min(currentPage, totalPages);
 
   const mappedItems = useMemo(() => {
-    return apiItems.map((ref) => {
+    const list = apiItems.map((ref) => {
       const firstProduct = ref.items?.[0];
       const customerName = ref.customer
         ? `${ref.customer.firstName || ''} ${ref.customer.lastName || ''}`.trim() || '--'
@@ -93,6 +95,7 @@ export default function ReturnRequestsPage() {
 
       return {
         rawId: ref.id,
+        rawCreatedAt: ref.createdAt,
         id: `#REF-${shortId}`,
         orderId: `#ORD-${orderShortId}`,
         customerName,
@@ -110,6 +113,13 @@ export default function ReturnRequestsPage() {
         requestedDate: formattedDate,
         status: ref.status || 'PENDING',
       };
+    });
+
+    return list.sort((a, b) => {
+      const timeA = a.rawCreatedAt ? new Date(a.rawCreatedAt).getTime() : 0;
+      const timeB = b.rawCreatedAt ? new Date(b.rawCreatedAt).getTime() : 0;
+      if (timeA !== timeB) return timeB - timeA;
+      return String(b.id || '').localeCompare(String(a.id || ''), undefined, { numeric: true });
     });
   }, [apiItems]);
 
