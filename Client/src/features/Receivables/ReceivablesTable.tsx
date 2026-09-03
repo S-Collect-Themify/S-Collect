@@ -46,8 +46,9 @@ export default function ReceivablesTable() {
       pageSize: ITEMS_PER_PAGE,
       dateFrom: dateRange.dateFrom,
       dateTo: dateRange.dateTo,
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
     }),
-    [page, dateRange.dateFrom, dateRange.dateTo]
+    [page, dateRange.dateFrom, dateRange.dateTo, selectedStatus]
   );
 
   const { data, isLoading } = usePayouts(payoutParams);
@@ -97,7 +98,11 @@ export default function ReceivablesTable() {
     if (selectedStatus !== 'all') {
       const txStatusNorm = tx.status?.toUpperCase();
       const selectedNorm = selectedStatus.toUpperCase();
-      if (txStatusNorm !== selectedNorm) return false;
+      const isMatch =
+        txStatusNorm === selectedNorm ||
+        (selectedNorm === 'COMPLETED' && txStatusNorm === 'PAID') ||
+        (selectedNorm === 'PAID' && txStatusNorm === 'COMPLETED');
+      if (!isMatch) return false;
     }
     return true;
   });
@@ -136,7 +141,7 @@ export default function ReceivablesTable() {
     exportMutation.mutate({
       dateFrom: dateRange.dateFrom,
       dateTo: dateRange.dateTo,
-      status: selectedStatus !== 'ALL' ? selectedStatus : undefined,
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
     });
   };
 

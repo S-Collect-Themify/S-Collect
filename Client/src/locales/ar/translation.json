@@ -808,7 +808,8 @@
     "showing": "عرض {{start}} - {{end}} من {{total}} نتيجة",
     "noTransactions": "لا توجد معاملات مدفوعات حالياً",
     "statuses": {
-      "paid": "مدفوع",
+      "completed": "مكتمل",
+      "paid": "مكتمل",
       "processing": "قيد المعالجة",
       "pending": "قيد الانتظار",
       "adjusted": "معدّل",

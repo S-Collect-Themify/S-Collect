@@ -812,7 +812,8 @@
     "showing": "Showing {{start}} - {{end}} of {{total}} results",
     "noTransactions": "No payout transactions found",
     "statuses": {
-      "paid": "Paid",
+      "completed": "Completed",
+      "paid": "Completed",
       "processing": "Processing",
       "pending": "Pending",
       "adjusted": "Adjusted",

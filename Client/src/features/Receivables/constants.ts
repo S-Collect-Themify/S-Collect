@@ -1,6 +1,8 @@
 import type { VendorPayoutItem } from '../../services/payouts';
 
 export type TransactionStatus =
+  | 'completed'
+  | 'COMPLETED'
   | 'paid'
   | 'PAID'
   | 'processing'
@@ -31,6 +33,8 @@ export interface Transaction {
 }
 
 export const STATUS_BADGE: Record<string, string> = {
+  completed: 'bg-[#E8F8EE] text-[#16A34A]',
+  COMPLETED: 'bg-[#E8F8EE] text-[#16A34A]',
   paid: 'bg-[#E8F8EE] text-[#16A34A]',
   PAID: 'bg-[#E8F8EE] text-[#16A34A]',
   processing: 'bg-[#FEF6E7] text-[#B45309]',
@@ -49,7 +53,7 @@ export const STATUS_BADGE: Record<string, string> = {
 
 export const STATUS_FILTERS = [
   'PENDING',
-  'PAID',
+  'COMPLETED',
   'PROCESSING',
   'FAILED',
   'CANCELLED',
