@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Check, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Check, Minus, ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
 import { useManagementStore } from './managementStore';
@@ -26,6 +26,8 @@ export default function ProductTable() {
     allChecked,
     isIndeterminate,
     itemsPerPage,
+    handleExport,
+    isExporting,
   } = useManagementTable();
   const setSearch = useManagementStore((state) => state.setSearch);
   const setSelectedCategories = useManagementStore(
@@ -96,39 +98,62 @@ export default function ProductTable() {
 
   return (
     <div className="flex flex-col flex-1 pb-10" dir={isArabic ? 'rtl' : 'ltr'}>
-      <div className="flex items-center gap-2 mb-6 select-none flex-wrap">
-        <div className="relative w-full sm:w-auto">
-          <input
-            type="text"
-            className="w-full sm:w-48 pl-9 pr-3 h-9 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:border-gray-900 focus:bg-white placeholder:text-gray-400 transition-colors"
-            placeholder={t('managementTable.search')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+      <div className="flex items-center justify-between gap-3 mb-6 select-none flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative w-full sm:w-auto">
+            <input
+              type="text"
+              className="w-full sm:w-48 pl-9 pr-3 h-9 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:border-gray-900 focus:bg-white placeholder:text-gray-400 transition-colors"
+              placeholder={t('managementTable.search')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <span className="absolute left-3 top-2.5 text-gray-400">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </span>
+          </div>
+
+          <CategoryDropdown
+            selected={selectedCategories}
+            onChange={setSelectedCategories}
           />
-          <span className="absolute left-3 top-2.5 text-gray-400">
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-          </span>
+
+          <StatusDropdown
+            selected={selectedStatus}
+            onChange={setSelectedStatus}
+          />
         </div>
 
-        <CategoryDropdown
-          selected={selectedCategories}
-          onChange={setSelectedCategories}
-        />
-
-        <StatusDropdown
-          selected={selectedStatus}
-          onChange={setSelectedStatus}
-        />
+        {/* Action Button: Export */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            {isExporting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Download size={16} />
+            )}
+            <span>
+              {isExporting
+                ? t('managementTable.exporting')
+                : t('managementTable.export')}
+            </span>
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-x-auto select-none bg-white rounded-xl border border-gray-100">

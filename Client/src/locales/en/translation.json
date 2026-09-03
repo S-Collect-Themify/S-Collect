@@ -586,6 +586,11 @@
     "saveChanges": "Save Changes"
   },
   "managementTable": {
+    "export": "Export",
+    "exportProducts": "Export Products",
+    "exporting": "Exporting...",
+    "exportSuccess": "Products exported successfully",
+    "exportError": "Failed to export products",
     "importProducts": "Import Products",
     "importModal": {
       "title": "Import Products via Excel",
