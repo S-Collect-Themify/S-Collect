@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Pencil, Trash2 } from 'lucide-react';
+import { Star, Pencil, Trash2, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Swiper as SwiperClass } from 'swiper';
@@ -40,6 +40,7 @@ export interface ProductInfoProps {
   sku?: string;
   price?: number;
   compareAtPrice?: number;
+  discountPercent?: number;
   cost?: number;
   currency?: string;
   inStock?: boolean;
@@ -63,6 +64,7 @@ export default function ProductInfo({
   sku,
   price,
   compareAtPrice,
+  discountPercent,
   cost,
   currency = 'SAR',
   inStock,
@@ -313,7 +315,7 @@ export default function ProductInfo({
           )}
 
           <div className="my-3 lg:my-6 flex flex-col gap-2 sm:flex-row sm:gap-2 items-start">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[28px] font-bold text-gray-900">
                 {price} {currency}
               </span>
@@ -324,8 +326,31 @@ export default function ProductInfo({
                     {compareAtPrice} {currency}
                   </span>
                 )}
-            </div>
+              {(() => {
+                const effPercent =
+                  discountPercent && discountPercent > 0
+                    ? discountPercent
+                    : compareAtPrice != null &&
+                      price != null &&
+                      Number(compareAtPrice) > Number(price) &&
+                      Number(compareAtPrice) > 0
+                    ? Math.round(
+                        ((Number(compareAtPrice) - Number(price)) /
+                          Number(compareAtPrice)) *
+                          100
+                      )
+                    : undefined;
 
+                if (!effPercent || effPercent <= 0) return null;
+
+                return (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100 shadow-2xs">
+                    <Tag size={12} className="rotate-90" />
+                    <span>{isArabic ? `%${effPercent}-` : `-${effPercent}%`}</span>
+                  </span>
+                );
+              })()}
+            </div>
           </div>
 
           <hr className="mb-6 border-gray-100" />

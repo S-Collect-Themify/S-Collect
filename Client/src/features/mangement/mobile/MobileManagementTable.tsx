@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
 import ProductCard from './ProductCard';
 import { useManagementStore } from '../managementStore';
 import {
@@ -24,6 +24,8 @@ export default function MobileManagementTable() {
     totalItems,
     totalPages,
     itemsPerPage,
+    handleExport,
+    isExporting,
   } = useManagementTable();
   const setSearch = useManagementStore((state) => state.setSearch);
   const setSelectedCategories = useManagementStore(
@@ -53,15 +55,35 @@ export default function MobileManagementTable() {
           />
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <CategoryDropdown
-            selected={selectedCategories}
-            onChange={setSelectedCategories}
-          />
-          <StatusDropdown
-            selected={selectedStatus}
-            onChange={setSelectedStatus}
-          />
+        <div className="flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 flex-1 flex-wrap">
+            <CategoryDropdown
+              selected={selectedCategories}
+              onChange={setSelectedCategories}
+            />
+            <StatusDropdown
+              selected={selectedStatus}
+              onChange={setSelectedStatus}
+            />
+          </div>
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50 shrink-0"
+            title={t('managementTable.export', 'Export')}
+          >
+            {isExporting ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Download size={14} />
+            )}
+            <span>
+              {isExporting
+                ? t('managementTable.exporting', 'Exporting...')
+                : t('managementTable.export', 'Export')}
+            </span>
+          </button>
         </div>
       </div>
 

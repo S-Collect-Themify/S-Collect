@@ -11,12 +11,15 @@ import {
   downloadProductImportTemplate,
   importProducts,
   applyVendorBulkDiscount,
+  exportProducts,
   type VendorBulkDiscountPayload,
   type ProductImportResponse,
+  type ExportProductsParams,
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
 import { resolveImageUrl } from '../../utils/image';
+import { exportToXLSX } from '../../utils/exportUtils';
 
 const ITEMS_PER_PAGE = 8;
 const FETCH_PAGE_SIZE = 100;
@@ -132,10 +135,65 @@ export function useManagementTable() {
         parsedPrice = Number(
           (p.minPrice as any).amount || (p.minPrice as any).value || 0
         );
-      } else if (typeof p.compareAtPrice === 'number') {
-        parsedPrice = p.compareAtPrice;
       } else if (typeof p.price === 'number') {
         parsedPrice = p.price;
+      } else if (typeof p.compareAtPrice === 'number') {
+        parsedPrice = p.compareAtPrice;
+      }
+
+      // Parse discount information
+      let discountType: 'PERCENT' | 'FIXED' | undefined = undefined;
+      if (p.discountType === 'PERCENT' || p.discountType === 'FIXED') {
+        discountType = p.discountType;
+      } else if (p.discount?.type === 'PERCENT' || p.discount?.type === 'FIXED') {
+        discountType = p.discount.type;
+      }
+
+      let rawDiscountVal =
+        p.discountValue ??
+        p.discount?.value ??
+        p.discountAmount ??
+        p.discount?.amount ??
+        0;
+      const discountValue =
+        typeof rawDiscountVal === 'number'
+          ? rawDiscountVal
+          : Number(rawDiscountVal) || 0;
+
+      let rawDiscountPercent =
+        p.discountPercent ??
+        p.discount?.percent ??
+        p.discountPercentage ??
+        0;
+      let discountPercent =
+        typeof rawDiscountPercent === 'number'
+          ? rawDiscountPercent
+          : Number(rawDiscountPercent) || 0;
+
+      if (discountPercent === 0 && discountType === 'PERCENT' && discountValue > 0) {
+        discountPercent = discountValue;
+      }
+      if (
+        discountPercent === 0 &&
+        typeof p.discount === 'number' &&
+        p.discount > 0 &&
+        p.discount <= 100
+      ) {
+        discountPercent = p.discount;
+      }
+
+      let compareAtPrice: number | undefined = undefined;
+      if (typeof p.compareAtPrice === 'number' && p.compareAtPrice > parsedPrice) {
+        compareAtPrice = p.compareAtPrice;
+      } else if (p.compareAtPrice && typeof p.compareAtPrice === 'object') {
+        const cap = Number(
+          (p.compareAtPrice as any).amount || (p.compareAtPrice as any).value || 0
+        );
+        if (cap > parsedPrice) compareAtPrice = cap;
+      }
+
+      if (discountPercent === 0 && compareAtPrice && compareAtPrice > parsedPrice) {
+        discountPercent = Math.round(((compareAtPrice - parsedPrice) / compareAtPrice) * 100);
       }
 
       const pIdRaw = p.id || p._id || p.productId || '';
@@ -205,6 +263,10 @@ export function useManagementTable() {
         icon: iconUrl || 'ti-package',
         createdAt: p.createdAt || p.created_at || p.updatedAt || '',
         updatedAt: p.updatedAt || p.updated_at || '',
+        discountPercent: discountPercent > 0 ? discountPercent : undefined,
+        discountValue: discountValue > 0 ? discountValue : undefined,
+        discountType,
+        compareAtPrice,
       } as Product;
     }).sort((a: Product, b: Product) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -261,6 +323,28 @@ export function useManagementTable() {
       selectedRows.some((rowId) => String(rowId) === String(product.id))
     );
 
+  const exportMutation = useExportProducts();
+
+  const handleExport = () => {
+    const singleCat =
+      selectedCategories.length === 1 && selectedCategories[0] !== 'all'
+        ? selectedCategories[0]
+        : undefined;
+
+    const isActive =
+      selectedStatus === 'Published'
+        ? true
+        : selectedStatus === 'Unpublished' || selectedStatus === 'Disabled'
+        ? false
+        : undefined;
+
+    exportMutation.mutate({
+      categoryId: singleCat,
+      isActive,
+      fallbackProducts: filteredProducts.length > 0 ? filteredProducts : products,
+    });
+  };
+
   return {
     itemsPerPage: ITEMS_PER_PAGE,
     isLoading,
@@ -277,6 +361,9 @@ export function useManagementTable() {
     selectedCount: selectedRows.length,
     allChecked,
     isIndeterminate,
+    exportMutation,
+    handleExport,
+    isExporting: exportMutation.isPending,
   };
 }
 
@@ -537,4 +624,75 @@ export function useImportProducts() {
     },
   });
 }
+
+export function useExportProducts() {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+
+  return useMutation({
+    mutationFn: async (
+      params?: ExportProductsParams & { fallbackProducts?: Product[] }
+    ) => {
+      try {
+        return await exportProducts({
+          categoryId: params?.categoryId,
+          isActive: params?.isActive,
+        });
+      } catch (err) {
+        console.warn(
+          'Backend export /vendor/products/export failed, trying fallback client export:',
+          err
+        );
+        const fallbackList = (params?.fallbackProducts || []).map((p) => ({
+          id: p.id,
+          name: p.name,
+          categoryName: p.categoryName || p.category || '',
+          price: p.price,
+          discount:
+            p.discountPercent && p.discountPercent > 0
+              ? `${p.discountPercent}%`
+              : p.discountValue && p.discountValue > 0
+              ? `${p.discountValue} ${isAr ? 'ر.س' : 'SAR'}`
+              : '—',
+          rating: p.rating ?? 0,
+          status: p.status,
+          enabled: p.enabled ? (isAr ? 'نعم' : 'Yes') : (isAr ? 'لا' : 'No'),
+        }));
+
+        if (fallbackList.length > 0) {
+          const exportHeaders = [
+            { key: 'id', label: isAr ? 'معرف المنتج' : 'Product ID' },
+            { key: 'name', label: isAr ? 'اسم المنتج' : 'Product Name' },
+            { key: 'categoryName', label: isAr ? 'الفئة' : 'Category' },
+            { key: 'price', label: isAr ? 'السعر (ر.س)' : 'Price (SAR)' },
+            { key: 'discount', label: isAr ? 'الخصم' : 'Discount' },
+            { key: 'rating', label: isAr ? 'التقييم' : 'Rating' },
+            { key: 'status', label: isAr ? 'الحالة' : 'Status' },
+            { key: 'enabled', label: isAr ? 'مفعل' : 'Enabled' },
+          ];
+          await exportToXLSX('products_export', exportHeaders, fallbackList);
+          return;
+        }
+        throw err;
+      }
+    },
+    onSuccess: () => {
+      toast.success(
+        isAr
+          ? 'تم تصدير المنتجات بنجاح'
+          : t('managementTable.exportSuccess', 'Products exported successfully')
+      );
+    },
+    onError: (err: any) => {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        (isAr
+          ? 'فشل تصدير المنتجات'
+          : t('managementTable.exportError', 'Failed to export products'));
+      toast.error(msg);
+    },
+  });
+}
+
 

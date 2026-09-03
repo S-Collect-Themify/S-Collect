@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MoreVertical, SquarePen, Star, Trash2 } from 'lucide-react';
+import { MoreVertical, SquarePen, Star, Trash2, Tag } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import Toggle from '../Toggle';
 import { THUMB_STYLES } from '../constant';
@@ -15,10 +15,27 @@ type Props = {
 };
 
 const ProductCard = ({ product, onToggle, onDelete }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const hasDiscount = Boolean(
+    (product.discountPercent && product.discountPercent > 0) ||
+    (product.discountValue && product.discountValue > 0)
+  );
+
+  const discountLabel =
+    product.discountPercent && product.discountPercent > 0
+      ? isAr
+        ? `%${product.discountPercent}-`
+        : `-${product.discountPercent}%`
+      : product.discountValue && product.discountValue > 0
+      ? isAr
+        ? `-${product.discountValue} ${t('dashboardMetrics.unit.sar')}`
+        : `-${product.discountValue} ${t('dashboardMetrics.unit.sar')}`
+      : '';
 
   const thumb = THUMB_STYLES[product.category] ?? {
     bg: 'bg-gray-100',
@@ -163,7 +180,15 @@ const ProductCard = ({ product, onToggle, onDelete }: Props) => {
             )}
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="font-medium text-gray-900">{product.name}</span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-medium text-gray-900">{product.name}</span>
+              {hasDiscount && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100 shrink-0">
+                  <Tag size={10} className="rotate-90" />
+                  <span>{discountLabel}</span>
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap">
               <span>{product.categoryName || product.category}</span>
               {product.rating != null && (
@@ -176,9 +201,16 @@ const ProductCard = ({ product, onToggle, onDelete }: Props) => {
                 </div>
               )}
             </div>
-            <span className="font-medium text-gray-900">
-              {product.price} {t('dashboardMetrics.unit.sar')}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-medium text-gray-900">
+                {product.price} {t('dashboardMetrics.unit.sar')}
+              </span>
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <span className="text-xs text-gray-400 line-through font-normal">
+                  {product.compareAtPrice} {t('dashboardMetrics.unit.sar')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

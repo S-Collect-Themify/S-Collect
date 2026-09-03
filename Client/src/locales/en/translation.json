@@ -558,6 +558,11 @@
     "saveChanges": "Save Changes"
   },
   "managementTable": {
+    "export": "Export",
+    "exportProducts": "Export Products",
+    "exporting": "Exporting...",
+    "exportSuccess": "Products exported successfully",
+    "exportError": "Failed to export products",
     "bulkDiscount": "Bulk Discount",
     "bulkDiscountCount": "Bulk Discount ({{count}})",
     "bulkDiscountSubtitle": "Apply discount on {{count}} selected products",

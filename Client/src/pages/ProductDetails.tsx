@@ -323,6 +323,13 @@ const ProductDetails = () => {
           compareAtPrice={
             variant?.compareAtPrice ?? product.compareAtPrice ?? undefined
           }
+          discountPercent={
+            typeof product.discountPercent === 'number'
+              ? product.discountPercent
+              : typeof product.discountPercent === 'string'
+              ? Number(product.discountPercent) || undefined
+              : undefined
+          }
           cost={undefined}
           currency="SAR"
           inStock={displayStock > 0 || product.isActive === true}
