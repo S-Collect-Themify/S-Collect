@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { Menu, User } from 'lucide-react';
-import InputSearch from './InputSearch';
+// import { Link } from 'react-router-dom';
+import { Menu } from 'lucide-react';
+// import InputSearch from './InputSearch';
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -121,7 +121,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <Menu size={24} />
             </button>
           </div>
-          <div className="flex items-center">
+
+          {/* User icon & Search For Mobile View - Commented for now */}
+          {/* <div className="flex items-center">
             <div className="sidebar:hidden block">
               <InputSearch />
             </div>
@@ -132,7 +134,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             >
               <User size={24} />
             </Link>
-          </div>
+          </div> */}
         </div>
 
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
@@ -145,21 +147,21 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         </div>
 
         <div className="items-center gap-3 sidebar:gap-4 sidebar:flex hidden">
-          <div className="flex-1 sidebar:flex-none sidebar:block hidden">
+          {/* <div className="flex-1 sidebar:flex-none sidebar:block hidden">
             <InputSearch />
-          </div>
+          </div> */}
 
           <div className="hidden sidebar:flex">
             <LanguageDropdown />
           </div>
 
-          <Link
+          {/* <Link
             to="/login"
             className="hidden text-2xl hover:text-gray-300 sidebar:block"
             aria-label="Account"
           >
             <User />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </header>

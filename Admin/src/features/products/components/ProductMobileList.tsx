@@ -10,6 +10,9 @@ interface ProductMobileListProps {
   onToggleStatus: (product: ProductItem) => void;
 }
 
+const BROKEN_IMAGE_FALLBACK =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23F9FAFB' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/><line x1='2' x2='22' y1='2' y2='22'/><circle cx='9' cy='9' r='2'/></svg>";
+
 export const ProductMobileList = ({
   products,
   onToggleStatus,
@@ -19,20 +22,40 @@ export const ProductMobileList = ({
 
   const selectedProductIds = useProductStore((s) => s.selectedProductIds);
   const toggleSelectProduct = useProductStore((s) => s.toggleSelectProduct);
+  const selectAllProducts = useProductStore((s) => s.selectAllProducts);
+
+  const currentIds = products.map((p) => p.id);
+  const isAllSelected = currentIds.length > 0 && currentIds.every((id) => selectedProductIds.includes(id));
 
   return (
     <div className="space-y-3">
+      {/* Select All Mobile Bar */}
+      <div className="bg-white rounded-2xl p-3 border border-gray-100 shadow-2xs flex items-center justify-between">
+        <label className="flex items-center gap-2.5 text-xs font-semibold text-gray-700 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={isAllSelected}
+            onChange={() => selectAllProducts(currentIds)}
+            className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black cursor-pointer accent-black"
+          />
+          <span>{isAr ? 'تحديد الكل' : 'Select All'}</span>
+        </label>
+        <span className="text-[11px] text-gray-400 font-medium">
+          {selectedProductIds.length} {t('common.selected', { defaultValue: 'selected' })}
+        </span>
+      </div>
+
       {products.map((product) => {
         const isSelected = selectedProductIds.includes(product.id);
 
         return (
           <div
             key={product.id}
-            className={`bg-white rounded-2xl border border-gray-100 p-4 shadow-sm transition-all ${
-              isSelected ? 'ring-2 ring-black/10 bg-gray-50/50' : ''
+            className={`bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs space-y-3 transition-colors ${
+              isSelected ? 'bg-gray-50/80 border-gray-200' : ''
             }`}
           >
-            {/* Top Section: Checkbox + Image + Title & Vendor/Category */}
+            {/* Top Row: Checkbox + Thumbnail + Name */}
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
@@ -46,12 +69,11 @@ export const ProductMobileList = ({
               >
                 <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity">
                   <img
-                    src={product.image}
+                    src={product.image || BROKEN_IMAGE_FALLBACK}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150';
+                      (e.target as HTMLImageElement).src = BROKEN_IMAGE_FALLBACK;
                     }}
                   />
                 </div>
@@ -92,9 +114,7 @@ export const ProductMobileList = ({
                   {t('productsListing.mobile.stock')}
                 </span>
                 <span className="font-semibold text-sm text-gray-700">
-                  {product.stock !== undefined && product.stock !== null && product.stock !== ''
-                    ? product.stock
-                    : '-'}
+                  {product.totalStock}
                 </span>
               </div>
 

@@ -14,7 +14,7 @@ const renderCategoryBadges = (catData: any, categoriesList: any[], language: str
   const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
-    return <span className="text-gray-400 font-normal">—</span>;
+    return <span className="text-gray-600 font-normal">—</span>;
   }
 
   const resolvedNames = catArray
@@ -22,7 +22,7 @@ const renderCategoryBadges = (catData: any, categoriesList: any[], language: str
     .filter(Boolean);
 
   if (resolvedNames.length === 0) {
-    return <span className="text-gray-400 font-normal">—</span>;
+    return <span className="text-gray-600 font-normal">—</span>;
   }
 
   const firstCat = resolvedNames[0];
@@ -113,32 +113,32 @@ export const VoucherMobileList = ({
           </div>
 
           {/* Key-Value Details List */}
-          <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-500 items-center">
-            <span className="text-gray-400">{t('vouchersListing.table.category')}:</span>
+          <div className="grid grid-cols-[110px_1fr] gap-y-1.5 text-xs text-gray-600 items-center">
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.category')}:</span>
             <span className="font-medium text-gray-800">
               {renderCategoryBadges(voucher.category, categories, i18n.language)}
             </span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.scope')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.scope')}:</span>
             <span className="font-medium text-gray-800">{formatScope(voucher.scope)}</span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.type')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.type')}:</span>
             <span className="font-medium text-gray-800">{formatType(voucher.type)}</span>
 
 
-            <span className="text-gray-400">{t('vouchersListing.table.discount')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.discount')}:</span>
             <span className="font-medium text-gray-800">{voucher.discount}</span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.minOrder')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.minOrder')}:</span>
             <span className="font-medium text-gray-800">{voucher.minOrder}</span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.maxDiscount')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.maxDiscount')}:</span>
             <span className="font-medium text-gray-800">{voucher.maxDiscount}</span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.usage')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.usage')}:</span>
             <span className="font-medium text-gray-800">{voucher.usage}</span>
 
-            <span className="text-gray-400">{t('vouchersListing.table.expiryDate')}:</span>
+            <span className="text-gray-600 font-medium">{t('vouchersListing.table.expiryDate')}:</span>
             <span className="font-medium text-gray-800">{voucher.expiryDate}</span>
           </div>
 
@@ -172,7 +172,7 @@ export const VoucherMobileList = ({
       ))}
 
       {vouchers.length === 0 && (
-        <div className="py-12 text-center bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-400 text-sm">
+        <div className="py-12 text-center bg-white rounded-2xl border border-gray-100 shadow-sm text-gray-600 text-sm">
           {t('vouchersListing.emptyState.title')}
         </div>
       )}

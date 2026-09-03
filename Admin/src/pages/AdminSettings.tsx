@@ -31,7 +31,7 @@ const AdminSettings: React.FC = () => {
   }, [setViewMode]);
 
   return (
-    <div className="sidebar-page-container p-4 sm:p-6 lg:p-8 w-full min-h-screen">
+    <div className="sidebar-page-container p-4 sm:p-6 lg:p-8 w-full flex-1">
       {/* Platform Settings Main View */}
       {viewMode === 'settings' && (
         <>

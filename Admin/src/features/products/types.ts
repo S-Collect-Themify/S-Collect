@@ -7,7 +7,7 @@ export interface ProductItem {
   category: string;
   categoryAr?: string;
   price: number;
-  stock?: number | string;
+  totalStock: number;
   isActive: boolean;
   image: string;
   discountPercent?: number;
