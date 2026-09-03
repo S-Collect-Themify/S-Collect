@@ -31,7 +31,7 @@ const renderCategoryBadges = (catData: any, categoriesList: any[], language: str
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap" title={fullTooltip}>
-      <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gray-100 text-gray-800 text-[11px] font-medium border border-gray-200 truncate max-w-[120px]">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gray-100 text-gray-800 text-xs font-medium border border-gray-200 truncate max-w-30">
         {firstCat}
       </span>
       {extraCount > 0 && (
