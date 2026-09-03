@@ -18,7 +18,7 @@ const renderCategoryBadges = (
   const catArray = parseCategories(catData);
 
   if (catArray.length === 0) {
-    return <span className="text-gray-400 font-normal">—</span>;
+    return <span className="text-gray-600 font-normal">—</span>;
   }
 
   const resolvedNames = catArray
@@ -26,7 +26,7 @@ const renderCategoryBadges = (
     .filter(Boolean);
 
   if (resolvedNames.length === 0) {
-    return <span className="text-gray-400 font-normal">—</span>;
+    return <span className="text-gray-600 font-normal">—</span>;
   }
 
   const firstCat = resolvedNames[0];
@@ -156,10 +156,10 @@ export const VoucherTable = ({
                 <span
                   className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
                     voucher.status === 'Active'
-                      ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       : voucher.status === 'Limit Reached'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : 'bg-red-50 text-red-600 border-red-100'
+                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200'
                   }`}
                 >
                   {voucher.status === 'Active'
@@ -203,7 +203,7 @@ export const VoucherTable = ({
 
           {vouchers.length === 0 && (
             <tr>
-              <td colSpan={11} className="py-12 text-center text-gray-400 text-sm">
+              <td colSpan={11} className="py-12 text-center text-gray-600 text-sm">
                 {t('vouchersListing.emptyState.title')}
               </td>
             </tr>

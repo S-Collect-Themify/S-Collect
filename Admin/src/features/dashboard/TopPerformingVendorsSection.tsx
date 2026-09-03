@@ -36,13 +36,13 @@ function getStatusBadgeInfo(status: string, t: any) {
   }
   if (s === 'GROWTH' || s === 'ON_GROWTH') {
     return {
-      badgeClass: 'bg-amber-100/80 text-amber-700',
+      badgeClass: 'bg-amber-100 text-amber-800',
       label: t('dashboardOverview.tableHeaders.onGrowth', 'On Growth'),
     };
   }
   if (s === 'PENDING_APPROVAL' || s === 'PENDING') {
     return {
-      badgeClass: 'bg-amber-100/80 text-amber-700',
+      badgeClass: 'bg-amber-100 text-amber-800',
       label: t('dashboardOverview.tableHeaders.pending', 'Pending'),
     };
   }
@@ -68,7 +68,7 @@ export default function TopPerformingVendorsSection() {
         <h2 className="text-base sm:text-lg font-bold text-gray-900">
           {t('dashboardOverview.topPerformingVendors', 'Top Performing Vendors')}
         </h2>
-        <span className="text-xs font-semibold text-gray-500">
+        <span className="text-xs font-semibold text-gray-600">
           {t('dashboardOverview.tableHeaders.activeVendors', {
             defaultValue: `Active Vendors: ${isLoading ? '...' : totalActive}`,
             count: totalActive,
@@ -79,7 +79,7 @@ export default function TopPerformingVendorsSection() {
       {/* Table / Mobile Cards */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
+          <div className="p-8 text-center text-gray-600 flex flex-col items-center justify-center gap-2">
             <Loader2 className="animate-spin text-gray-500" size={20} />
             <span className="text-xs font-medium">Loading top performing vendors...</span>
           </div>
@@ -89,7 +89,7 @@ export default function TopPerformingVendorsSection() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-400 text-[11px]">
+                  <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-600 text-[11px]">
                     <th className="w-[45%] px-6 py-4 text-start font-semibold uppercase tracking-wider">
                       {t('dashboardOverview.tableHeaders.vendor', 'Vendor')}
                     </th>
@@ -138,7 +138,7 @@ export default function TopPerformingVendorsSection() {
                           <td className="px-6 py-4 font-bold text-gray-900 text-xs text-end">
                             {revenue.toLocaleString()} {isAr ? '﷼' : 'SAR'}
                           </td>
-                          <td className="px-6 py-4 text-gray-500 font-normal text-xs text-end">
+                          <td className="px-6 py-4 text-gray-600 font-normal text-xs text-end">
                             {orders.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 text-center">
