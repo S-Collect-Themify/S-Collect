@@ -492,13 +492,17 @@ export const importProducts = async (
   }
 };
 
+export interface ExportProductsParams {
+  categoryId?: string;
+  isActive?: boolean;
+}
+
 /**
  * Export vendor products as Excel (.xlsx) file and trigger browser download
  */
-export const exportProducts = async (params?: {
-  categoryId?: string;
-  isActive?: boolean;
-}): Promise<Blob> => {
+export const exportProducts = async (
+  params?: ExportProductsParams
+): Promise<Blob> => {
   try {
     const cleanParams: Record<string, any> = {};
     if (params?.categoryId) cleanParams.categoryId = params.categoryId;

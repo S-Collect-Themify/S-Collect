@@ -15,4 +15,8 @@ export interface Product {
   icon: string;
   createdAt?: string;
   updatedAt?: string;
+  discountPercent?: number;
+  discountValue?: number;
+  discountType?: 'PERCENT' | 'FIXED';
+  compareAtPrice?: number;
 }

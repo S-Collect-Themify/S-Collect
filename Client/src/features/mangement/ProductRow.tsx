@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { SquarePen, Check, Star, Trash2 } from 'lucide-react';
+import { SquarePen, Check, Star, Trash2, Tag } from 'lucide-react';
 import Toggle from './Toggle';
 import StatusBadge from './StatusBadge';
 import { showDeleteConfirmation } from './deleteConfirmation';
@@ -22,12 +22,29 @@ export default function ProductRow({
   onToggle,
   onDelete,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
   const thumb = THUMB_STYLES[product.category] ?? {
     bg: 'bg-gray-100',
     icon: 'text-gray-500',
   };
+
+  const hasDiscount = Boolean(
+    (product.discountPercent && product.discountPercent > 0) ||
+    (product.discountValue && product.discountValue > 0)
+  );
+
+  const discountLabel =
+    product.discountPercent && product.discountPercent > 0
+      ? isAr
+        ? `%${product.discountPercent}-`
+        : `-${product.discountPercent}%`
+      : product.discountValue && product.discountValue > 0
+      ? isAr
+        ? `-${product.discountValue} ${t('dashboardMetrics.unit.sar')}`
+        : `-${product.discountValue} ${t('dashboardMetrics.unit.sar')}`
+      : '';
 
   const isProductDisabled = product.isDisabled || product.status === 'Disabled';
 
@@ -130,9 +147,17 @@ export default function ProductRow({
               />
             )}
           </div>
-          <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
-            {product.name}
-          </span>
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+              {product.name}
+            </span>
+            {hasDiscount && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100 shadow-2xs shrink-0">
+                <Tag size={11} className="rotate-90" />
+                <span>{discountLabel}</span>
+              </span>
+            )}
+          </div>
         </div>
       </td>
 
@@ -141,7 +166,16 @@ export default function ProductRow({
       </td>
 
       <td className="px-3 py-3 border-b border-gray-100 font-semibold text-gray-900">
-        {product.price} {t('dashboardMetrics.unit.sar')}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span>
+            {product.price} {t('dashboardMetrics.unit.sar')}
+          </span>
+          {product.compareAtPrice && product.compareAtPrice > product.price && (
+            <span className="text-xs text-gray-400 line-through font-normal">
+              {product.compareAtPrice} {t('dashboardMetrics.unit.sar')}
+            </span>
+          )}
+        </div>
       </td>
 
       <td className="px-3 py-3 border-b border-gray-100">

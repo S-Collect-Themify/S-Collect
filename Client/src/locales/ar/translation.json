@@ -558,6 +558,11 @@
     "saveChanges": "حفظ التغييرات"
   },
   "managementTable": {
+    "export": "تصدير",
+    "exportProducts": "تصدير المنتجات",
+    "exporting": "جاري التصدير...",
+    "exportSuccess": "تم تصدير المنتجات بنجاح",
+    "exportError": "فشل تصدير المنتجات",
     "bulkDiscount": "خصم جماعي",
     "bulkDiscountCount": "خصم جماعي ({{count}})",
     "bulkDiscountSubtitle": "تطبيق خصم على {{count}} من المنتجات المحددة",
