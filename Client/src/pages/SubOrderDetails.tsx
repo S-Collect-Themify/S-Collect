@@ -1,18 +1,13 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronsRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import {
-  useSubOrder,
-  useUpdateSubOrder,
-} from '../features/Orders/useSubOrders';
-import type { SubOrderStatus } from '../features/Orders/types/subOrder';
+import { useSubOrder } from '../features/Orders/useSubOrders';
 
 // Child components
 import { SubOrderItems } from '../features/SubOrder/SubOrderItems';
 import { SubOrderTimeline } from '../features/SubOrder/SubOrderTimeline';
 import { SubOrderInfo } from '../features/SubOrder/SubOrderInfo';
 import { SubOrderSummary } from '../features/SubOrder/SubOrderSummary';
-import { SubOrderStatusUpdate } from '../features/SubOrder/SubOrderStatusUpdate';
 import { useTranslation } from 'react-i18next';
 
 import { containerVariants, itemVariants as cardVariants } from '../utils/animations';
@@ -22,7 +17,6 @@ const SubOrderDetails = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { data: order, isLoading, isError, refetch } = useSubOrder(id ?? null);
-  const { mutate: updateOrder, isPending, isSuccess } = useUpdateSubOrder();
 
   const goBack = () => navigate('/incoming-orders');
 
@@ -52,21 +46,6 @@ const SubOrderDetails = () => {
   const itemsTotal = order.items.reduce((s, i) => s + i.lineTotal, 0);
   const grandTotal = itemsTotal + order.shippingRateApplied;
 
-  const handleUpdateStatus = (
-    newStatus: SubOrderStatus | null,
-    tracking: string
-  ) => {
-    const body: { status?: SubOrderStatus; trackingNumber?: string } = {};
-    if (newStatus && newStatus !== order.status) {
-      body.status = newStatus;
-    }
-    if (tracking.trim()) {
-      body.trackingNumber = tracking.trim();
-    }
-    if (Object.keys(body).length === 0) return;
-    updateOrder({ id: order.id, body });
-  };
-
   return (
     <motion.div
       className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#f5f7fb]"
@@ -92,13 +71,18 @@ const SubOrderDetails = () => {
               #{order.id.slice(0, 8).toUpperCase()}
             </span>
           </h1>
-          <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-            <span className="text-gray-800 font-medium">
+          <nav aria-label="Breadcrumb" className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
+            <Link
+              to="/incoming-orders"
+              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
+            >
               {t('ordersPage.title')}
+            </Link>
+            <ChevronsRight size={12} className="text-gray-400 rtl:rotate-180 shrink-0" />
+            <span className="text-gray-900 font-semibold" aria-current="page">
+              {t('ordersPage.orderDetails')} #{order.id.slice(0, 8).toUpperCase()}
             </span>
-            <ChevronsRight size={12} />
-            <span>{t('ordersPage.orderDetails')}</span>
-          </p>
+          </nav>
         </div>
       </motion.div>
 
@@ -141,17 +125,6 @@ const SubOrderDetails = () => {
               grandTotal={grandTotal}
             />
           </motion.div>
-
-          {order.status !== 'CANCELLED' && (
-            <motion.div variants={cardVariants}>
-              <SubOrderStatusUpdate
-                currentStatus={order.status}
-                isPending={isPending}
-                isSuccess={isSuccess}
-                onUpdateStatus={handleUpdateStatus}
-              />
-            </motion.div>
-          )}
         </div>
       </div>
     </motion.div>

@@ -11,6 +11,7 @@ import {
   ProductTable,
   ProductMobileList,
   ProductDisableModal,
+  BulkDiscountModal,
   ProductPagination,
   ProductSkeleton,
   type ProductItem,
@@ -23,7 +24,7 @@ const Products = () => {
   const isAr = i18n.language === 'ar';
 
   // ── Query & Mutation Hook ──
-  const { productsQuery, statusMutation } = useProductsData();
+  const { productsQuery, statusMutation, bulkDiscountMutation } = useProductsData();
 
   // ── Store State ──
   const products = useProductStore((s) => s.products);
@@ -33,12 +34,15 @@ const Products = () => {
   const statusFilter = useProductStore((s) => s.statusFilter);
   const currentPage = useProductStore((s) => s.currentPage);
   const modal = useProductStore((s) => s.modal);
+  const selectedProductIds = useProductStore((s) => s.selectedProductIds);
+  const isBulkDiscountModalOpen = useProductStore((s) => s.isBulkDiscountModalOpen);
 
   // ── Store Actions ──
   const setVendorFilter = useProductStore((s) => s.setVendorFilter);
   const setCurrentPage = useProductStore((s) => s.setCurrentPage);
   const openDisableModal = useProductStore((s) => s.openDisableModal);
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
+  const closeBulkDiscountModal = useProductStore((s) => s.closeBulkDiscountModal);
 
   // ── Reset Page on Mount ──
   useEffect(() => {
@@ -217,6 +221,20 @@ const Products = () => {
           product={modal.product}
           onClose={closeDisableModal}
           onConfirm={handleConfirmDisable}
+        />
+
+        {/* Bulk Discount Modal */}
+        <BulkDiscountModal
+          isOpen={isBulkDiscountModalOpen}
+          selectedCount={selectedProductIds.length}
+          onClose={closeBulkDiscountModal}
+          isPending={bulkDiscountMutation.isPending}
+          onSubmit={(data) => {
+            bulkDiscountMutation.mutate({
+              productIds: selectedProductIds,
+              ...data,
+            });
+          }}
         />
       </div>
     </>

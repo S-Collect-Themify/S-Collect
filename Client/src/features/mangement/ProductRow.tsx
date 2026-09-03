@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { SquarePen, Check, Star } from 'lucide-react';
+import { SquarePen, Check, Star, Trash2 } from 'lucide-react';
 import Toggle from './Toggle';
 import StatusBadge from './StatusBadge';
 import { showDeleteConfirmation } from './deleteConfirmation';
@@ -12,6 +12,7 @@ type Props = {
   selected: boolean;
   onSelect: () => void;
   onToggle: () => void;
+  onDelete?: () => void;
 };
 
 export default function ProductRow({
@@ -19,6 +20,7 @@ export default function ProductRow({
   selected,
   onSelect,
   onToggle,
+  onDelete,
 }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -56,6 +58,21 @@ export default function ProductRow({
         }
       );
     }
+  };
+
+  const handleDelete = () => {
+    if (!onDelete) return;
+    showDeleteConfirmation(
+      'managementTable.deleteConfirmMessage',
+      { name: product.name },
+      onDelete,
+      {
+        titleKey: 'managementTable.deleteConfirmTitle',
+        confirmKey: 'managementTable.delete',
+        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        iconVariant: 'delete',
+      }
+    );
   };
 
   return (
@@ -153,16 +170,27 @@ export default function ProductRow({
 
       <td className="px-3 py-3 border-b border-gray-100 text-center">
         {/* Action buttons maintain correct alignment through natural flow */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center gap-1.5">
           <button
             onClick={() => navigate(`/edit-product/${product.id}`)}
             aria-label={t('managementTable.editProduct', {
               name: product.name,
             })}
-            className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200  hover:bg-gray-100 transition-colors rounded-full"
+            className="w-[30px] h-[30px] flex items-center justify-center border border-gray-200 hover:bg-gray-100 transition-colors rounded-full text-gray-700"
           >
-            <SquarePen size={16} />
+            <SquarePen size={15} />
           </button>
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              aria-label={t('managementTable.deleteProduct', {
+                name: product.name,
+              })}
+              className="w-[30px] h-[30px] flex items-center justify-center border border-red-200 text-red-600 hover:bg-red-50 transition-colors rounded-full"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
         </div>
       </td>
     </tr>

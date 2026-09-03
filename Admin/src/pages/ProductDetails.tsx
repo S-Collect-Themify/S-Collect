@@ -17,6 +17,12 @@ import DeleteReviewModal from "../features/AddProducts/productDetails/DeleteRevi
 
 import { useProductDetails } from "../features/products/hooks/useProductDetails";
 import {
+  useProductsData,
+  useProductStore,
+  ProductDisableModal,
+} from "../features/products";
+import { type SingleAdminProductDetail } from "../services/products";
+import {
   getProductRatingSummary,
   getProductReviews,
   deleteReviewApi,
@@ -29,6 +35,11 @@ const ProductDetails = () => {
   const productId = paramId || queryId || "";
 
   const { product, isLoading, isError } = useProductDetails(productId);
+  const { statusMutation } = useProductsData();
+  const modal = useProductStore((s) => s.modal);
+  const openDisableModal = useProductStore((s) => s.openDisableModal);
+  const closeDisableModal = useProductStore((s) => s.closeDisableModal);
+
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
   const ChevronIcon = isAr ? ChevronLeft : ChevronsRight;
@@ -188,6 +199,30 @@ const ProductDetails = () => {
     ? "تفاصيل المنتج"
     : "Product Details";
 
+  const handleToggleStatus = (pDetail: SingleAdminProductDetail) => {
+    const isActive = Boolean(pDetail.isActive && !pDetail.isDisabled);
+    if (isActive) {
+      openDisableModal({
+        id: pDetail.id,
+        name: pDetail.name,
+        nameAr: pDetail.nameAr || undefined,
+        vendor: pDetail.vendor?.storeName || '',
+        category: pDetail.category?.name || '',
+        price: pDetail.variants?.[0]?.price || 0,
+        isActive: true,
+        image: pDetail.images?.[0]?.url || '',
+      });
+    } else {
+      statusMutation.mutate({ id: pDetail.id, isActive: true });
+    }
+  };
+
+  const handleConfirmDisable = () => {
+    if (modal.product) {
+      statusMutation.mutate({ id: modal.product.id, isActive: false });
+    }
+  };
+
   return (
     <>
       {/* Page Header & Breadcrumbs */}
@@ -254,6 +289,7 @@ const ProductDetails = () => {
               productDetail={product}
               averageRating={computedAverage}
               totalReviews={computedTotal}
+              onToggleStatus={handleToggleStatus}
             />
 
             <ProductRating
@@ -275,6 +311,14 @@ const ProductDetails = () => {
           </>
         )}
       </div>
+
+      {/* Disable Product Confirmation Modal */}
+      <ProductDisableModal
+        isOpen={modal.open}
+        product={modal.product}
+        onClose={closeDisableModal}
+        onConfirm={handleConfirmDisable}
+      />
 
       {/* Delete Review Modal */}
       <DeleteReviewModal

@@ -1,14 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
-import PortalDropdown from '../components/ui/PortalDropdown';
 import {
   VendorReportHeader,
   VendorReportStatCards,
   VendorReportOrdersTable,
   VendorReportVendorDropdown,
-  DATE_RANGES,
+  VendorReportDateFilter,
   getDateRangeStrings,
   useVendorSalesReportSummary,
   useVendorReportOrders,
@@ -28,12 +26,20 @@ export default function VendorReports() {
   const [selectedVendorId, setSelectedVendorId] = useState<string>('');
 
   const [selectedRangeKey, setSelectedRangeKey] = useState<DateRangeKey>('last30Days');
+  const [customRange, setCustomRange] = useState<{ dateFrom: string; dateTo: string }>(() => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    return {
+      dateFrom: thirtyDaysAgo.toISOString().split('T')[0],
+      dateTo: now.toISOString().split('T')[0],
+    };
+  });
   const [currentPage, setCurrentPage] = useState(1);
 
   // Calculate ISO date strings dateFrom & dateTo
   const { dateFrom, dateTo } = useMemo(
-    () => getDateRangeStrings(selectedRangeKey),
-    [selectedRangeKey]
+    () => getDateRangeStrings(selectedRangeKey, customRange),
+    [selectedRangeKey, customRange]
   );
 
   // ── React Query for vendor-sales-report/summary ───────────────────────────
@@ -54,8 +60,6 @@ export default function VendorReports() {
 
   // React Mutation for report export actions
   const exportMutation = useExportVendorReportMutation();
-
-  const currentOption = DATE_RANGES.find((r) => r.key === selectedRangeKey) || DATE_RANGES[1];
 
   // Dynamic stat cards based on GET /api/v1/admin/vendor-sales-report/summary
   const dynamicStatCards = useMemo(() => {
@@ -189,51 +193,20 @@ export default function VendorReports() {
             />
           </div>
 
-          <PortalDropdown
-            minWidth={160}
-            align={isRtl ? 'left' : 'right'}
-            animate={false}
-            menuClassName="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden py-1 z-50"
-            trigger={({ isOpen, toggle }) => (
-              <button
-                type="button"
-                onClick={toggle}
-                className="flex items-center gap-2 h-10 px-3.5 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs cursor-pointer shrink-0"
-              >
-                <Calendar size={14} className="text-gray-400 shrink-0" />
-                <span>{t(`vendorReports.${currentOption.key}`, currentOption.defaultLabel)}</span>
-                <ChevronDown
-                  size={13}
-                  className={`text-gray-400 transition-transform duration-200 shrink-0 ${
-                    isOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-            )}
-          >
-            {({ close }) => (
-              <div>
-                {DATE_RANGES.map((option) => (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => {
-                      setSelectedRangeKey(option.key);
-                      setCurrentPage(1);
-                      close();
-                    }}
-                    className={`w-full text-start px-4 py-2 text-xs transition-colors cursor-pointer ${
-                      selectedRangeKey === option.key
-                        ? 'bg-green-50 text-green-700 font-semibold'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    {t(`vendorReports.${option.key}`, option.defaultLabel)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </PortalDropdown>
+          <VendorReportDateFilter
+            selectedRangeKey={selectedRangeKey}
+            customFrom={customRange.dateFrom}
+            customTo={customRange.dateTo}
+            onSelectPreset={(key) => {
+              setSelectedRangeKey(key);
+              setCurrentPage(1);
+            }}
+            onApplyCustom={(from, to) => {
+              setCustomRange({ dateFrom: from, dateTo: to });
+              setSelectedRangeKey('custom');
+              setCurrentPage(1);
+            }}
+          />
         </div>
 
         {/* 5 Stat Cards Grid */}

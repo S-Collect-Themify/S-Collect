@@ -48,12 +48,22 @@ export function useRevenueOverviewOrdersSummary(params: RevenueOverviewOrdersSum
   });
 }
 
-export function getDateFromToParams(dateRangeKey: string): { dateFrom: string; dateTo: string } {
+export function getDateFromToParams(
+  dateRangeKey: string,
+  customRange?: { dateFrom?: string; dateTo?: string }
+): { dateFrom: string; dateTo: string } {
   const now = new Date();
   const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
   const dateTo = formatDate(now);
   let dateFrom = dateTo;
+
+  if (dateRangeKey === 'custom' && customRange?.dateFrom && customRange?.dateTo) {
+    return {
+      dateFrom: customRange.dateFrom,
+      dateTo: customRange.dateTo,
+    };
+  }
 
   if (dateRangeKey === 'last7Days') {
     const from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);

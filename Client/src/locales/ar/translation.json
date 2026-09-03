@@ -586,11 +586,6 @@
     "saveChanges": "حفظ التغييرات"
   },
   "managementTable": {
-    "export": "تصدير",
-    "exportProducts": "تصدير المنتجات",
-    "exporting": "جاري التصدير...",
-    "exportSuccess": "تم تصدير المنتجات بنجاح",
-    "exportError": "فشل تصدير المنتجات",
     "importProducts": "استيراد منتجات",
     "importModal": {
       "title": "استيراد المنتجات عبر إكسيل",

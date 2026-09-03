@@ -1,37 +1,21 @@
 // features/Orders/mobile/MobileOrderDetails.tsx
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, CircleCheckBig } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import {
   type Order,
-  type OrderStatus,
   STATUS_STYLES,
-  ALL_STATUSES,
 } from '../types/order';
 
 interface MobileOrderDetailsProps {
   order: Order;
   onBack: () => void;
-  onUpdateStatus: (id: string, status: OrderStatus, tracking: string) => void;
 }
 
 export const MobileOrderDetails = ({
   order,
   onBack,
-  onUpdateStatus,
 }: MobileOrderDetailsProps) => {
   const { t } = useTranslation();
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
-    order.status
-  );
-  const [tracking, setTracking] = useState(order.trackingNumber ?? '');
-  const [saved, setSaved] = useState(false);
-
-  const handleUpdate = () => {
-    onUpdateStatus(order.id, selectedStatus, tracking);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -173,65 +157,6 @@ export const MobileOrderDetails = ({
               SAR
             </span>
           </div>
-        </div>
-
-        {/* Update Status */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <h2 className="text-sm font-bold text-gray-900 mb-1">
-            {t('ordersPage.updateOrderStatus', 'Update Order Status')}
-          </h2>
-          <p className="text-xs text-gray-400 mb-4">
-            {t(
-              'ordersPage.updateOrderStatusDesc',
-              'Status changes are irreversible and cannot be undone.'
-            )}
-          </p>
-
-          {/* Status pills */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {ALL_STATUSES.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSelectedStatus(s)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
-                  selectedStatus === s
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {t(`ordersPage.${s.toLowerCase()}`)}
-              </button>
-            ))}
-          </div>
-
-          {/* Tracking input */}
-          <label className="block text-xs text-gray-500 mb-1.5">
-            {t('ordersPage.trackingOptional', 'Tracking Number (Optional)')}
-          </label>
-          <input
-            type="text"
-            value={tracking}
-            onChange={(e) => setTracking(e.target.value)}
-            placeholder="SA123456789AE"
-            className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm mb-4 focus:outline-none focus:border-gray-500"
-          />
-
-          <button
-            onClick={handleUpdate}
-            className="w-full bg-gray-900 text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors active:scale-[0.98]"
-          >
-            {t('ordersPage.updateButton', 'Update Order Status')}
-          </button>
-
-          {saved && (
-            <div className="mt-3 flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2.5 text-sm">
-              <CircleCheckBig size={16} className="shrink-0" />
-              {t(
-                'ordersPage.updatedSuccessfully',
-                'Order updated successfully.'
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MoreVertical, SquarePen, Star } from 'lucide-react';
+import { MoreVertical, SquarePen, Star, Trash2 } from 'lucide-react';
 import StatusBadge from '../StatusBadge';
 import Toggle from '../Toggle';
 import { THUMB_STYLES } from '../constant';
@@ -11,9 +11,10 @@ import type { Product } from '../mangement';
 type Props = {
   product: Product;
   onToggle: () => void;
+  onDelete?: () => void;
 };
 
-const ProductCard = ({ product, onToggle }: Props) => {
+const ProductCard = ({ product, onToggle, onDelete }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -41,6 +42,22 @@ const ProductCard = ({ product, onToggle }: Props) => {
   const handleEdit = () => {
     setMenuOpen(false);
     navigate(`/edit-product/${product.id}`);
+  };
+
+  const handleDelete = () => {
+    setMenuOpen(false);
+    if (!onDelete) return;
+    showDeleteConfirmation(
+      'managementTable.deleteConfirmMessage',
+      { name: product.name },
+      onDelete,
+      {
+        titleKey: 'managementTable.deleteConfirmTitle',
+        confirmKey: 'managementTable.delete',
+        confirmClassName: 'bg-red-600 hover:bg-red-700',
+        iconVariant: 'delete',
+      }
+    );
   };
 
   const isProductDisabled = product.isDisabled || product.status === 'Disabled';
@@ -111,7 +128,18 @@ const ProductCard = ({ product, onToggle }: Props) => {
                   <SquarePen size={16} />
                   {t('managementTable.edit')}
                 </button>
-
+                {onDelete && (
+                  <button
+                    onClick={handleDelete}
+                    aria-label={t('managementTable.deleteProduct', {
+                      name: product.name,
+                    })}
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm cursor-pointer hover:bg-red-50 text-red-600 w-full text-start border-t border-gray-100"
+                  >
+                    <Trash2 size={16} />
+                    {t('managementTable.delete')}
+                  </button>
+                )}
               </div>
             )}
           </div>

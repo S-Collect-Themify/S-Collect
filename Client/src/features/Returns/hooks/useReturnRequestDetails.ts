@@ -9,6 +9,7 @@ import {
   getRefundDetail,
   approveRefund,
   rejectRefund,
+  setRefundInternalNotes,
 } from '../../../services/refunds';
 import type { ReturnItem } from '../types';
 
@@ -45,6 +46,31 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
   });
 
   const isLoading = isRefundError ? isSubLoading : isRefundLoading;
+
+  // Sync internal notes when refundDetail is loaded
+  useEffect(() => {
+    if (refundDetail && typeof refundDetail.internalNotes === 'string') {
+      setInternalNote(refundDetail.internalNotes);
+    }
+  }, [refundDetail]);
+
+  // Mutation for saving internal notes directly
+  const saveNotesMutation = useMutation({
+    mutationFn: (notes: string) => setRefundInternalNotes(rawId, notes),
+    onSuccess: (res) => {
+      toast.success('Internal notes saved successfully');
+      setInternalNote('');
+      if (res) {
+        queryClient.setQueryData(['vendor-refund-detail', rawId], res);
+      }
+      queryClient.invalidateQueries({
+        queryKey: ['vendor-refund-detail', rawId],
+      });
+    },
+    onError: () => {
+      toast.error('Failed to save internal notes');
+    },
+  });
 
   // Mutator for approving or rejecting return/refund status
   const updateStatusMutation = useMutation({
@@ -199,6 +225,7 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
           firstItem.thumbnailUrl || refundDetail.imageUrls?.[0] || '',
         reason: firstItem.reason || '',
         rejectionReason: refundDetail.rejectionReason || undefined,
+        internalNotes: refundDetail.internalNotes || '',
         requestedDate: reqDateFormatted,
         status: currentStatus,
         rawId: refundDetail.id,
@@ -288,6 +315,13 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
     }
   };
 
+  const handleSaveNotes = async () => {
+    if (!internalNote.trim()) return;
+    try {
+      await saveNotesMutation.mutateAsync(internalNote);
+    } catch {}
+  };
+
   return {
     item,
     isLoading,
@@ -299,6 +333,8 @@ export function useReturnRequestDetails(rawId: string, decodedId: string) {
     setShowRejectModal,
     handleApprove,
     handleReject,
+    handleSaveNotes,
+    isSavingNotes: saveNotesMutation.isPending,
     isUpdating: updateStatusMutation.isPending,
   };
 }

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronsRight, ArrowLeft } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronsRight, ChevronsLeft, ArrowLeft } from 'lucide-react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getErrorMessage } from '../types/api';
@@ -20,7 +20,7 @@ import { useCategories } from '../hooks/useCategories';
 import { getVendorReviews, getProductRatingSummary } from '../services/reviews';
 
 const ProductDetails = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id: rawId = '' } = useParams();
   const id = useMemo(() => {
     const decoded = decodeURIComponent(rawId || '').trim();
@@ -54,7 +54,7 @@ const ProductDetails = () => {
 
   const { data: reviewsData } = useQuery({
     queryKey: ['product-reviews', id],
-    queryFn: () => getVendorReviews({ productId: id, sortBy: 'createdAt' }),
+    queryFn: () => getVendorReviews({ productId: id, sortBy: 'RECENT', pageSize: 100 }),
     enabled: Boolean(id),
   });
 
@@ -72,16 +72,20 @@ const ProductDetails = () => {
       return safeB - safeA;
     });
 
-    return sorted.map((rev) => {
+    return sorted.map((rev: any) => {
       const fName = rev?.buyer?.firstName || '';
       const lName = rev?.buyer?.lastName || '';
       const fullName = `${fName} ${lName}`.trim();
       const parsedDate = rev?.createdAt ? new Date(rev.createdAt) : null;
       const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
+      const avatar =
+        rev?.buyer?.image?.url ||
+        (typeof rev?.buyer?.image === 'string' ? rev.buyer.image : undefined);
 
       return {
         id: rev?.id || Math.random().toString(),
         authorName: fullName || 'Customer',
+        authorAvatarUrl: avatar,
         date: isValidDate
           ? parsedDate.toLocaleDateString('en-US', {
               month: 'short',
@@ -134,7 +138,7 @@ const ProductDetails = () => {
     return (
       <div className="p-8 text-center space-y-4">
         <p className="text-red-500 font-semibold text-lg">
-          {getErrorMessage(productError, 'Failed to load product details')}
+          {getErrorMessage(productError, t('productDetails.error', 'Failed to load product details'))}
         </p>
         <button
           type="button"
@@ -142,7 +146,7 @@ const ProductDetails = () => {
           className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           <ArrowLeft size={16} />
-          Back to Management
+          {t('productDetails.backToManagement', 'Back to Management')}
         </button>
       </div>
     );
@@ -152,7 +156,7 @@ const ProductDetails = () => {
     return (
       <div className="p-8 text-center space-y-4">
         <p className="text-red-500 font-semibold text-lg">
-          {getErrorMessage(categoriesError, 'Failed to load categories')}
+          {getErrorMessage(categoriesError, t('productDetails.categoriesError', 'Failed to load categories'))}
         </p>
       </div>
     );
@@ -171,14 +175,16 @@ const ProductDetails = () => {
   if (!isValidProduct) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p className="text-gray-500 font-semibold text-lg">Product not found</p>
+        <p className="text-gray-500 font-semibold text-lg">
+          {t('productDetails.notFound', 'Product not found')}
+        </p>
         <button
           type="button"
           onClick={() => navigate('/management')}
           className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           <ArrowLeft size={16} />
-          Back to Management
+          {t('productDetails.backToManagement', 'Back to Management')}
         </button>
       </div>
     );
@@ -207,15 +213,16 @@ const ProductDetails = () => {
 
   let computedAverage = summaryData?.averageRating ?? 0;
   let computedTotal =
-    summaryData?.totalReviews ??
+    summaryData?.totalRatings ??
+    (summaryData as any)?.totalReviews ??
     reviewsData?.pagination?.totalItems ??
     reviewsCount;
 
-  let s5 = summaryData?.counts?.stars5 ?? 0;
-  let s4 = summaryData?.counts?.stars4 ?? 0;
-  let s3 = summaryData?.counts?.stars3 ?? 0;
-  let s2 = summaryData?.counts?.stars2 ?? 0;
-  let s1 = summaryData?.counts?.stars1 ?? 0;
+  let s5 = summaryData?.distribution?.['5'] ?? (summaryData as any)?.counts?.stars5 ?? 0;
+  let s4 = summaryData?.distribution?.['4'] ?? (summaryData as any)?.counts?.stars4 ?? 0;
+  let s3 = summaryData?.distribution?.['3'] ?? (summaryData as any)?.counts?.stars3 ?? 0;
+  let s2 = summaryData?.distribution?.['2'] ?? (summaryData as any)?.counts?.stars2 ?? 0;
+  let s1 = summaryData?.distribution?.['1'] ?? (summaryData as any)?.counts?.stars1 ?? 0;
 
   // Defensive fallback: if summary endpoint returns 0 but reviews list has items
   if (computedTotal === 0 && reviewsCount > 0) {
@@ -255,26 +262,37 @@ const ProductDetails = () => {
           ? product.stockCount
           : (variant?.stock ?? 0);
 
+  const isArabic = i18n.language === 'ar';
+  const ChevronIcon = isArabic ? ChevronsLeft : ChevronsRight;
+
   return (
     <>
       <div className="sidebar-page-container-header">
         <h1 className="heading-page-title font-semibold text-[#090909]">
-          Product Details
+          {t('productDetails.title', 'Product Details')}
         </h1>
 
-        <nav className="mt-3 flex items-center gap-1 text-sm">
-          <span className="text-[#090909]">Product Details</span>
+        <nav aria-label="Breadcrumb" className="mt-3 flex items-center gap-1.5 text-sm">
+          <Link
+            to="/management"
+            className="text-gray-500 hover:text-gray-900 transition-colors font-medium"
+          >
+            {t('sidebar.items.management', 'Management')}
+          </Link>
 
-          <span className="text-[#737373]">
-            <ChevronsRight size={16} />
+          <span className="text-gray-400 flex items-center">
+            <ChevronIcon size={16} />
           </span>
 
-          <span className="text-[#737373]">{productName}</span>
+          <span className="text-gray-900 font-semibold truncate max-w-md" aria-current="page">
+            {productName || t('productDetails.breadcrumb', 'Product Details')}
+          </span>
         </nav>
       </div>
 
       <div className="sidebar-page-container space-y-8">
         <ProductInfo
+          id={id}
           images={
             Array.isArray(product.images) && product.images.length > 0
               ? product.images

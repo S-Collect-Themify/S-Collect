@@ -5,14 +5,20 @@ interface ReturnReasonCardProps {
   item: ReturnItem;
   internalNote: string;
   setInternalNote: (note: string) => void;
+  onSaveNotes?: () => void;
+  isSavingNotes?: boolean;
 }
 
 export function ReturnReasonCard({
   item,
   internalNote,
   setInternalNote,
+  onSaveNotes,
+  isSavingNotes,
 }: ReturnReasonCardProps) {
   const { t } = useTranslation();
+
+  console.log('[ReturnReasonCard] item data:', item);
 
   return (
     <div className="space-y-6">
@@ -67,11 +73,25 @@ export function ReturnReasonCard({
 
       {/* Internal Notes */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs">
-        <h2 className="text-base font-bold text-gray-900 mb-3">
-          {t('returnsPage.internalNotes', {
-            defaultValue: 'Internal Notes (Only visible to you)',
-          })}
-        </h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-900">
+            {t('returnsPage.internalNotes', {
+              defaultValue: 'Internal Notes (Only visible to you)',
+            })}
+          </h2>
+          {onSaveNotes && (
+            <button
+              type="button"
+              onClick={onSaveNotes}
+              disabled={isSavingNotes || !internalNote.trim()}
+              className="px-3.5 py-1.5 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white font-medium text-xs rounded-lg transition-colors cursor-pointer"
+            >
+              {isSavingNotes
+                ? t('returnsPage.savingNotes', { defaultValue: 'Saving...' })
+                : t('returnsPage.saveNotes', { defaultValue: 'Save Note' })}
+            </button>
+          )}
+        </div>
         <textarea
           value={internalNote}
           onChange={(e) => setInternalNote(e.target.value)}

@@ -36,7 +36,7 @@ export default function MobileManagementTable() {
   );
   const setPage = useManagementStore((state) => state.setPage);
 
-  const { toggleSingle } = useManagementActions();
+  const { toggleSingle, deleteSingle } = useManagementActions();
 
   return (
     <div className="font-sans text-gray-800" dir={isArabic ? 'rtl' : 'ltr'}>
@@ -108,6 +108,7 @@ export default function MobileManagementTable() {
               key={product.id}
               product={product}
               onToggle={() => toggleSingle(product.id, product.enabled)}
+              onDelete={() => deleteSingle(product.id)}
             />
           ))}
         </div>

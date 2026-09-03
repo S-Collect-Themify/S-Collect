@@ -201,3 +201,16 @@ export const reactivateAdminCategory = async (id: string): Promise<ApiCategoryIt
 export const deleteAdminCategory = async (id: string): Promise<void> => {
   await api.delete(`/admin/categories/${id}`);
 };
+
+export interface CategoryBulkDiscountPayload {
+  categoryId: string;
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  expiryDate?: string;
+}
+
+export const applyCategoryBulkDiscount = async (payload: CategoryBulkDiscountPayload) => {
+  const { data } = await api.post('/admin/products/bulk-discount', payload);
+  return data;
+};
+

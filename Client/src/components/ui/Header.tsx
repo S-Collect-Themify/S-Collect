@@ -100,8 +100,21 @@ const Header = ({ onMenuClick }: HeaderProps) => {
 
   const vendorName = [account?.firstName, account?.lastName]
     .filter(Boolean)
-    .join(' ');
-  const displayName = vendorName || (isArabic ? 'تاجر' : 'Vendor');
+    .join(' ')
+    .trim();
+
+  const storeName = (
+    isArabic && profile?.storeNameAr
+      ? profile.storeNameAr
+      : profile?.storeName
+  )?.trim();
+
+  const emailName = (account?.email || profile?.publicEmail)
+    ?.split('@')[0]
+    ?.trim();
+
+  const displayName =
+    vendorName || storeName || emailName || (isArabic ? 'تاجر' : 'Vendor');
 
   const today = new Date().toLocaleDateString(
     isArabic ? 'ar-EG' : 'en-US',

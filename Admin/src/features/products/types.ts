@@ -10,6 +10,7 @@ export interface ProductItem {
   stock?: number | string;
   isActive: boolean;
   image: string;
+  discountPercent?: number;
 }
 
 export type StatusFilter = 'all' | 'active' | 'disabled';
@@ -18,4 +19,10 @@ export interface DisableModalState {
   open: boolean;
   product: ProductItem | null;
   targetStatus: boolean;
+}
+
+export interface BulkDiscountFormData {
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  expiryDate?: string;
 }

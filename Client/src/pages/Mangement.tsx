@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import ManagementTable from '../features/mangement/ManagementTable';
 import MobileManagementTable from '../features/mangement/mobile/MobileManagementTable';
 import ImportProductsModal from '../features/mangement/components/ImportProductsModal';
+import BulkDiscountModal from '../features/mangement/components/BulkDiscountModal';
+import { useManagementStore } from '../features/mangement/managementStore';
+import { useBulkDiscount } from '../features/mangement/useManagementHooks';
 import { Link } from 'react-router-dom';
 import { PlusIcon, FileSpreadsheet, Download, Loader2 } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -16,6 +19,15 @@ const Management = () => {
   const { isMobile } = useBreakpoint();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const { handleExport, isExporting } = useManagementTable();
+
+  const isBulkDiscountModalOpen = useManagementStore(
+    (state) => state.isBulkDiscountModalOpen
+  );
+  const closeBulkDiscountModal = useManagementStore(
+    (state) => state.closeBulkDiscountModal
+  );
+  const selectedRows = useManagementStore((state) => state.selectedRows);
+  const bulkDiscountMutation = useBulkDiscount();
 
   return (
     <>
@@ -112,6 +124,19 @@ const Management = () => {
       <ImportProductsModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+      />
+
+      <BulkDiscountModal
+        isOpen={isBulkDiscountModalOpen}
+        selectedCount={selectedRows.length}
+        onClose={closeBulkDiscountModal}
+        isPending={bulkDiscountMutation.isPending}
+        onSubmit={(data) => {
+          bulkDiscountMutation.mutate({
+            productIds: selectedRows.map(String),
+            ...data,
+          });
+        }}
       />
     </>
   );

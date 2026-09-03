@@ -89,16 +89,18 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
           <button
             type="button"
             onClick={() => onEdit(cat)}
+            aria-label={i18n.language === 'ar' ? `تعديل ${cat.nameAr || cat.name}` : `Edit ${cat.nameEn || cat.name}`}
             className="inline-flex items-center justify-center rounded-full bg-gray-100 p-2.5 hover:bg-blue-50 transition-all cursor-pointer text-gray-700"
-            title="Edit"
+            title={i18n.language === 'ar' ? 'تعديل' : 'Edit'}
           >
             <SquarePen size={18} />
           </button>
           <button
             type="button"
             onClick={() => onDelete(cat)}
+            aria-label={i18n.language === 'ar' ? `حذف ${cat.nameAr || cat.name}` : `Delete ${cat.nameEn || cat.name}`}
             className="inline-flex items-center justify-center rounded-full bg-gray-100 p-2.5 text-red-500 hover:bg-red-50 transition-all cursor-pointer"
-            title="Delete"
+            title={i18n.language === 'ar' ? 'حذف' : 'Delete'}
           >
             <Trash size={18} />
           </button>

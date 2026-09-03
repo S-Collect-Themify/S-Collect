@@ -9,14 +9,11 @@ import {
   bulkUpdateProductStatus,
   downloadProductImportTemplate,
   importProducts,
-  exportProducts,
   type ProductImportResponse,
-  type ExportProductsParams,
 } from '../../services/products';
 import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
 import { resolveImageUrl } from '../../utils/image';
-import { exportToXLSX } from '../../utils/exportUtils';
 
 const ITEMS_PER_PAGE = 8;
 const FETCH_PAGE_SIZE = 100;
@@ -261,28 +258,6 @@ export function useManagementTable() {
       selectedRows.some((rowId) => String(rowId) === String(product.id))
     );
 
-  const exportMutation = useExportProducts();
-
-  const handleExport = () => {
-    const singleCat =
-      selectedCategories.length === 1 && selectedCategories[0] !== 'all'
-        ? selectedCategories[0]
-        : undefined;
-
-    const isActive =
-      selectedStatus === 'Published'
-        ? true
-        : selectedStatus === 'Unpublished' || selectedStatus === 'Disabled'
-        ? false
-        : undefined;
-
-    exportMutation.mutate({
-      categoryId: singleCat,
-      isActive,
-      fallbackProducts: filteredProducts.length > 0 ? filteredProducts : products,
-    });
-  };
-
   return {
     itemsPerPage: ITEMS_PER_PAGE,
     isLoading,
@@ -299,9 +274,6 @@ export function useManagementTable() {
     selectedCount: selectedRows.length,
     allChecked,
     isIndeterminate,
-    exportMutation,
-    handleExport,
-    isExporting: exportMutation.isPending,
   };
 }
 
@@ -429,60 +401,6 @@ export function useImportProducts() {
           t('managementTable.importModal.importError', 'Failed to import products')
         )
       );
-    },
-  });
-}
-
-export function useExportProducts() {
-  const { t, i18n } = useTranslation();
-  const isAr = i18n.language === 'ar';
-
-  return useMutation({
-    mutationFn: async (
-      params?: ExportProductsParams & { fallbackProducts?: Product[] }
-    ) => {
-      try {
-        return await exportProducts({
-          categoryId: params?.categoryId,
-          isActive: params?.isActive,
-        });
-      } catch (err) {
-        console.warn(
-          'Backend export /vendor/products/export failed, trying fallback client export:',
-          err
-        );
-        const fallbackList = params?.fallbackProducts || [];
-        if (fallbackList.length > 0) {
-          const exportHeaders = [
-            { key: 'id', label: isAr ? 'معرف المنتج' : 'Product ID' },
-            { key: 'name', label: isAr ? 'اسم المنتج' : 'Product Name' },
-            { key: 'categoryName', label: isAr ? 'الفئة' : 'Category' },
-            { key: 'price', label: isAr ? 'السعر (ر.س)' : 'Price (SAR)' },
-            { key: 'rating', label: isAr ? 'التقييم' : 'Rating' },
-            { key: 'status', label: isAr ? 'الحالة' : 'Status' },
-            { key: 'enabled', label: isAr ? 'مفعل' : 'Enabled' },
-          ];
-          await exportToXLSX('products_export', exportHeaders, fallbackList);
-          return;
-        }
-        throw err;
-      }
-    },
-    onSuccess: () => {
-      toast.success(
-        isAr
-          ? 'تم تصدير المنتجات بنجاح'
-          : t('managementTable.exportSuccess', 'Products exported successfully')
-      );
-    },
-    onError: (err: any) => {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        (isAr
-          ? 'فشل تصدير المنتجات'
-          : t('managementTable.exportError', 'Failed to export products'));
-      toast.error(msg);
     },
   });
 }

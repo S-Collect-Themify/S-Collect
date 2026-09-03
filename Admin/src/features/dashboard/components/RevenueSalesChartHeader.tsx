@@ -1,34 +1,27 @@
 import { useTranslation } from 'react-i18next';
-import { ChevronDown } from 'lucide-react';
-import PortalDropdown from '../../../components/ui/PortalDropdown';
-
-export type PeriodKey = 'monthly' | 'weekly' | 'daily';
-
-export interface PeriodOption {
-  key: PeriodKey;
-  defaultLabel: string;
-}
+import DashboardDateFilter from './DashboardDateFilter';
 
 interface RevenueSalesChartHeaderProps {
-  periodKey: PeriodKey;
-  periods: PeriodOption[];
   totalDisplay: string;
-  onPeriodChange: (key: PeriodKey) => void;
+  dateRangeKey: string;
+  customFrom: string;
+  customTo: string;
+  onSelectPreset: (key: string) => void;
+  onApplyCustom: (from: string, to: string) => void;
 }
 
 export default function RevenueSalesChartHeader({
-  periodKey,
-  periods,
   totalDisplay,
-  onPeriodChange,
+  dateRangeKey,
+  customFrom,
+  customTo,
+  onSelectPreset,
+  onApplyCustom,
 }: RevenueSalesChartHeaderProps) {
   const { t } = useTranslation();
 
-  const activePeriodLabel =
-    periods.find((p) => p.key === periodKey)?.defaultLabel ?? '';
-
   return (
-    <div className="flex items-start justify-between mb-4">
+    <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
       <div>
         <p className="text-xs font-medium text-gray-500 mb-0.5">
           {t('dashboardOverview.salesOverview', 'Sales Overview')}
@@ -41,45 +34,14 @@ export default function RevenueSalesChartHeader({
         </div>
       </div>
 
-      {/* Filter Dropdown */}
-      <PortalDropdown
-        minWidth={110}
-        animate={false}
-        menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden z-50"
-        trigger={({ isOpen, toggle }) => (
-          <button
-            onClick={toggle}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <span>{t(`dashboardOverview.${periodKey}`, activePeriodLabel)}</span>
-            <ChevronDown
-              size={13}
-              className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-        )}
-      >
-        {({ close }) => (
-          <div className="py-1">
-            {periods.map((p) => (
-              <button
-                key={p.key}
-                onClick={() => {
-                  onPeriodChange(p.key);
-                  close();
-                }}
-                className={`w-full text-start px-3.5 py-2 text-xs transition-colors cursor-pointer ${
-                  periodKey === p.key
-                    ? 'bg-green-50 text-green-700 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {t(`dashboardOverview.${p.key}`, p.defaultLabel)}
-              </button>
-            ))}
-          </div>
-        )}
-      </PortalDropdown>
+      {/* Date Range Selector with Custom Option */}
+      <DashboardDateFilter
+        dateRangeKey={dateRangeKey}
+        customFrom={customFrom}
+        customTo={customTo}
+        onSelectPreset={onSelectPreset}
+        onApplyCustom={onApplyCustom}
+      />
     </div>
   );
 }
