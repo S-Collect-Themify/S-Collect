@@ -172,7 +172,7 @@ export const useProductsData = () => {
             category: categoryName,
             categoryAr: categoryNameAr,
             price: Number(p.minPrice ?? p.price ?? 0),
-            stock: p.stock !== undefined && p.stock !== null ? p.stock : '',
+            totalStock: p.totalStock !== undefined && p.totalStock !== null ? p.totalStock : '',
             isActive: isProductActive(p),
             image:
               p.thumbnailUrl ||
@@ -265,7 +265,7 @@ export const useProductsData = () => {
             { key: 'vendor', label: 'Vendor' },
             { key: 'category', label: 'Category' },
             { key: 'price', label: 'Price (SAR)' },
-            { key: 'stock', label: 'Stock' },
+            { key: 'totalStock', label: 'Stock' },
             { key: 'isActive', label: 'Is Active' },
           ];
           exportToXLSX('products_export', exportHeaders, storeProducts);

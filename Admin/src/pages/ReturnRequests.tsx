@@ -55,6 +55,9 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
+const BROKEN_IMAGE_FALLBACK =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23F9FAFB' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/><line x1='2' x2='22' y1='2' y2='22'/><circle cx='9' cy='9' r='2'/></svg>";
+
 export default function ReturnRequestsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -101,7 +104,7 @@ export default function ReturnRequestsPage() {
         productPrice: `SAR ${(ref.totalRefundAmount || 0).toFixed(2)}`,
         productImage: typeof firstProduct?.thumbnailUrl === 'string' && firstProduct.thumbnailUrl
           ? firstProduct.thumbnailUrl
-          : 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=150',
+          : BROKEN_IMAGE_FALLBACK,
         reason: firstProduct?.reason
           ? firstProduct.reason.replace(/_/g, ' ')
           : typeof ref.rejectionReason === 'string'

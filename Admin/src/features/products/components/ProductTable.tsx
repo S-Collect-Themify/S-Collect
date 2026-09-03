@@ -10,6 +10,9 @@ interface ProductTableProps {
   onToggleStatus: (product: ProductItem) => void;
 }
 
+const BROKEN_IMAGE_FALLBACK =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23F9FAFB' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/><line x1='2' x2='22' y1='2' y2='22'/><circle cx='9' cy='9' r='2'/></svg>";
+
 export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -39,7 +42,7 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
             <th className="py-4 px-6">{t('productsListing.table.vendor')}</th>
             <th className="py-4 px-6">{t('productsListing.table.category')}</th>
             <th className="py-4 px-6">{t('productsListing.table.price')}</th>
-            {/* <th className="py-4 px-6">{t('productsListing.table.stock')}</th> */}
+            <th className="py-4 px-6">{t('productsListing.table.stock')}</th>
             <th className="py-4 px-6">{t('productsListing.table.status')}</th>
           </tr>
         </thead>
@@ -72,12 +75,11 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
                   >
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity">
                       <img
-                        src={product.image}
+                        src={product.image || BROKEN_IMAGE_FALLBACK}
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            'https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=150';
+                          (e.target as HTMLImageElement).src = BROKEN_IMAGE_FALLBACK;
                         }}
                       />
                     </div>
@@ -109,13 +111,12 @@ export const ProductTable = ({ products, onToggleStatus }: ProductTableProps) =>
                 </td>
 
                 {/* Stock */}
-                {/* <td className="py-4 px-6">
+                <td className="py-4 px-6">
                   <span className="text-gray-700 font-medium">
-                    {product.stock !== undefined && product.stock !== null && product.stock !== ''
-                      ? product.stock
-                      : '-'}
+                    {product.totalStock}
                   </span>
-                </td> */}
+                </td>
+
 
                 {/* Status Switch */}
                 <td className="py-4 px-6">
