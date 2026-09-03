@@ -137,8 +137,9 @@ export const AdminsList: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {admins.map((admin) => {
+                    const r = (admin.role || '').toUpperCase();
                     const isSuperAdminRow =
-                      admin.role === 'Super Admin' || admin.role?.toUpperCase() === 'SUPER_ADMIN';
+                      admin.role === 'Super Admin' || r === 'SUPER_ADMIN' || r === 'SUPERADMIN' || r === 'SUPER ADMIN' || r.includes('SUPER');
 
                     return (
                       <tr key={admin.id} className="hover:bg-gray-50/50 transition-colors">
@@ -189,17 +190,19 @@ export const AdminsList: React.FC = () => {
                           )}
                         </td>
 
-                      {/* Actions (Delete only) */}
+                      {/* Actions (Delete only for non-superadmin) */}
                       <td className="py-4 px-6 text-right rtl:text-left">
                         <div className="flex items-center justify-end rtl:justify-start gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(admin)}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          {!isSuperAdminRow && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(admin)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

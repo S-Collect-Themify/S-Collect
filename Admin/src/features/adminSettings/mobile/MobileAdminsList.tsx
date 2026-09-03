@@ -127,8 +127,9 @@ export const MobileAdminsList: React.FC = () => {
       ) : (
         <div className="space-y-3.5">
           {admins.map((admin) => {
+            const r = (admin.role || '').toUpperCase();
             const isSuperAdminRow =
-              admin.role === 'Super Admin' || admin.role?.toUpperCase() === 'SUPER_ADMIN';
+              admin.role === 'Super Admin' || r === 'SUPER_ADMIN' || r === 'SUPERADMIN' || r === 'SUPER ADMIN' || r.includes('SUPER');
 
             return (
               <div
@@ -190,14 +191,16 @@ export const MobileAdminsList: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(admin)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                      title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {!isSuperAdminRow && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(admin)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        title={t('adminSettings.adminAccounts.deleteAdmin', { defaultValue: 'Delete Admin' })}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
