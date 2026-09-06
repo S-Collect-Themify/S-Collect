@@ -14,9 +14,9 @@ export const NotificationDropdown = () => {
   return (
     <PortalDropdown
       align={isAr ? 'left' : 'right'}
-      minWidth={340}
+      minWidth={280}
       animate
-      menuClassName="bg-white rounded-2xl shadow-2xl p-4 border border-gray-100/80 min-w-[320px] sm:min-w-[360px] max-w-[400px] z-50 overflow-hidden"
+      menuClassName="bg-white rounded-2xl shadow-2xl p-3.5 sm:p-4 border border-gray-200/80 w-[calc(100vw-2rem)] max-w-sm sm:w-96 z-50 overflow-hidden"
       trigger={({ isOpen, toggle }) => (
         <NotificationTrigger
           unreadCount={unreadCount}
@@ -26,7 +26,7 @@ export const NotificationDropdown = () => {
       )}
     >
       {({ close }) => (
-        <div className="flex flex-col max-h-115">
+        <div className="flex flex-col max-h-[80vh] sm:max-h-[460px]">
           <NotificationHeader
             hasNotifications={notifications.length > 0}
             onClearAll={() => {
@@ -34,7 +34,7 @@ export const NotificationDropdown = () => {
             }}
           />
 
-          <div className="overflow-y-auto mt-2 space-y-1.5 max-h-95 custom-scrollbar px-0.5">
+          <div className="overflow-y-auto mt-2 space-y-1.5 max-h-[calc(80vh-80px)] sm:max-h-[380px] custom-scrollbar px-0.5">
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <NotificationItem

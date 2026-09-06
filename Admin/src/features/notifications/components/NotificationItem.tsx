@@ -60,29 +60,29 @@ export const NotificationItem = ({
   return (
     <div
       onClick={handleClick}
-      className={`p-3.5 rounded-2xl transition-all cursor-pointer ${
+      className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl transition-all cursor-pointer ${
         notification.isRead ? 'bg-transparent hover:bg-gray-50/80' : 'hover:bg-gray-100'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        {/* Right section in RTL (or left in LTR): Title + unread dot */}
+      <div className="flex items-start justify-between gap-2.5">
+        {/* Title + unread dot */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base font-bold text-gray-900 truncate tracking-tight">
+          {!notification.isRead && (
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-black shrink-0 inline-block" />
+          )}
+          <span className="text-sm sm:text-base font-bold text-gray-900 truncate tracking-tight">
             {notification.title}
           </span>
-          {!notification.isRead && (
-            <span className="w-2.5 h-2.5 rounded-full bg-black shrink-0 inline-block" />
-          )}
         </div>
 
-        {/* Left section in RTL (or right in LTR): Timestamp */}
-        <span className="text-xs text-gray-400 font-normal whitespace-nowrap shrink-0 pt-0.5">
+        {/* Timestamp */}
+        <span className="text-[11px] sm:text-xs text-gray-400 font-normal whitespace-nowrap shrink-0 pt-0.5">
           {formatTimeAgo(notification.createdAt)}
         </span>
       </div>
 
       {/* Description / Message */}
-      <p className="text-sm text-gray-500 font-normal line-clamp-2 mt-1 text-start dir-ltr:text-left leading-relaxed">
+      <p className="text-xs sm:text-sm text-gray-500 font-normal line-clamp-2 mt-1 text-start leading-relaxed">
         {notification.message}
       </p>
     </div>

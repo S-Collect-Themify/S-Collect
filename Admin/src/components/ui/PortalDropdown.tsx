@@ -36,14 +36,17 @@ export default function PortalDropdown({
   const updatePosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
-    const menuWidth = menuRef.current?.offsetWidth || minWidth;
+    const availableWidth = window.innerWidth - 24;
+    const rawMenuWidth = menuRef.current?.offsetWidth || minWidth;
+    const menuWidth = Math.min(rawMenuWidth, availableWidth);
+
     let left = rect.left;
     if (align === 'right') {
       left = rect.right - menuWidth;
     } else if (align === 'center') {
       left = rect.left + rect.width / 2 - menuWidth / 2;
     }
-    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+    left = Math.max(12, Math.min(left, window.innerWidth - menuWidth - 12));
     setPosition({ top: rect.bottom + offset, left });
   }, [align, minWidth, offset]);
 
