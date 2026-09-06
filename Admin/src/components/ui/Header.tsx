@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 import { useAdminProfile } from '../../hooks/useAdminProfile';
+import { NotificationDropdown } from '../../features/notifications';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -122,19 +123,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             </button>
           </div>
 
-          {/* User icon & Search For Mobile View - Commented for now */}
-          {/* <div className="flex items-center">
-            <div className="sidebar:hidden block">
-              <InputSearch />
-            </div>
-            <Link
-              to="/login"
-              className="inline-flex h-11 w-11 items-center justify-center text-gray-50 transition-colors"
-              aria-label="Account"
-            >
-              <User size={24} />
-            </Link>
-          </div> */}
+          <div className="flex items-center gap-3">
+            <NotificationDropdown />
+            <LanguageDropdown />
+          </div>
         </div>
 
         <div className="hidden items-center justify-between gap-4 sidebar:flex">
@@ -151,7 +143,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
             <InputSearch />
           </div> */}
 
-          <div className="hidden sidebar:flex">
+          <div className="hidden sidebar:flex items-center gap-3">
+            <NotificationDropdown />
             <LanguageDropdown />
           </div>
 
