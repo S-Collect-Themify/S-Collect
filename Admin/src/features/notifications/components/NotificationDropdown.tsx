@@ -26,7 +26,7 @@ export const NotificationDropdown = () => {
       )}
     >
       {({ close }) => (
-        <div className="flex flex-col max-h-[80vh] sm:max-h-[460px]">
+        <div className="flex flex-col max-h-[80vh] sm:max-h-115">
           <NotificationHeader
             hasNotifications={notifications.length > 0}
             onClearAll={() => {
@@ -34,7 +34,7 @@ export const NotificationDropdown = () => {
             }}
           />
 
-          <div className="overflow-y-auto mt-2 space-y-1.5 max-h-[calc(80vh-80px)] sm:max-h-[380px] custom-scrollbar px-0.5">
+          <div className="overflow-y-auto mt-2 space-y-1.5 max-h-[calc(80vh-80px)] sm:max-h-95 custom-scrollbar px-0.5">
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <NotificationItem
