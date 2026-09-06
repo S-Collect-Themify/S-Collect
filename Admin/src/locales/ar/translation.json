@@ -8,6 +8,12 @@
   "header": {
     "greeting": "مرحباً، {{name}} 👋"
   },
+  "notifications": {
+    "title": "الإشعارات",
+    "clearAll": "مسح الكل",
+    "noNotifications": "لا توجد إشعارات حالياً",
+    "markAsRead": "تحديد كَمقروء"
+  },
   "dashboard": "لوحة التحكم",
   "dashboardOverview": {
     "hello": "مرحباً، أحمد 👋",

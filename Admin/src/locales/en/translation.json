@@ -8,6 +8,12 @@
   "header": {
     "greeting": "Hello, {{name}} 👋"
   },
+  "notifications": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "noNotifications": "No notifications right now",
+    "markAsRead": "Mark as read"
+  },
   "dashboard": "Dashboard",
   "dashboardOverview": {
     "hello": "Hello, Ahmed 👋",

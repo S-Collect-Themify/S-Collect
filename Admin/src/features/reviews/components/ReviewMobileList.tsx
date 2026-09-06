@@ -49,7 +49,7 @@ export const ReviewMobileList = ({
           </div>
 
           {/* Row 2: Review ID + Date */}
-          <div className="flex items-center justify-between text-xs mb-1.5 border-b border-solid border-gray-200 pb-2.5 mb-2.5">
+          <div className="flex items-center justify-between text-xs border-b border-solid border-gray-200 pb-2.5 mb-2.5">
             <span className="font-semibold text-gray-900 text-sm">
               {review.reviewId}
             </span>
