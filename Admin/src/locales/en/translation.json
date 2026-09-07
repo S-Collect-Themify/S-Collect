@@ -11,6 +11,7 @@
   "notifications": {
     "title": "Notifications",
     "clearAll": "Clear all",
+    "markAllAsRead": "Mark all as read",
     "noNotifications": "No notifications right now",
     "markAsRead": "Mark as read"
   },

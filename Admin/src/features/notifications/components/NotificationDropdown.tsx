@@ -9,7 +9,7 @@ import { NotificationItem } from './NotificationItem';
 export const NotificationDropdown = () => {
   const { i18n, t } = useTranslation();
   const isAr = i18n.language === 'ar';
-  const { notifications, unreadCount, markAsRead, clearAll } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   return (
     <PortalDropdown
@@ -28,9 +28,9 @@ export const NotificationDropdown = () => {
       {({ close }) => (
         <div className="flex flex-col max-h-[80vh] sm:max-h-115">
           <NotificationHeader
-            hasNotifications={notifications.length > 0}
-            onClearAll={() => {
-              clearAll();
+            hasUnread={unreadCount > 0}
+            onMarkAllAsRead={() => {
+              markAllAsRead();
             }}
           />
 
