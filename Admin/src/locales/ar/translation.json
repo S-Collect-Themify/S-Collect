@@ -1279,10 +1279,38 @@
   "buyers": {
     "notifications": {
       "updateSuccess": "تم تحديث حالة المشتري بنجاح",
-      "updateError": "فشل تحديث حالة المشتري"
+      "updateError": "فشل تحديث حالة المشتري",
+      "editSuccess": "تم تحديث بيانات المشتري بنجاح",
+      "editError": "فشل تحديث بيانات المشتري",
+      "deleteSuccess": "تم حذف المشتري بنجاح",
+      "deleteError": "فشل حذف المشتري",
+      "createSuccess": "تم إنشاء المشتري بنجاح",
+      "createError": "فشل إنشاء المشتري"
     },
     "title": "المشترون",
     "description": "إدارة حسابات المشترون ومعلوماتهم.",
+    "add": {
+      "title": "إضافة مشتري",
+      "button": "إضافة مشتري",
+      "submit": "إنشاء المشتري"
+    },
+    "edit": {
+      "title": "تعديل المشتري",
+      "breadcrumbParent": "المشترون",
+      "loading": "جاري تحميل بيانات المشتري...",
+      "notFound": "المشتري غير موجود",
+      "back": "العودة إلى المشترين",
+      "basicInfo": "المعلومات الأساسية",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "phoneNumber": "رقم الهاتف",
+      "save": "حفظ التغييرات",
+      "cancel": "إلغاء"
+    },
     "table": {
       "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
@@ -1291,6 +1319,8 @@
       "status": "التحقق من الهاتف",
       "activate": "حالة الحساب",
       "action": "الإجراء",
+      "edit": "تعديل",
+      "delete": "حذف",
       "search": "البحث بالاسم أو البريد...",
       "statusAll": "الحالة: الكل",
       "statusActive": "نشط",
@@ -1343,6 +1373,10 @@
       "reasonPlaceholder": "أدخل السبب بالتفصيل...",
       "suspendBtn": "إيقاف المشتري",
       "cancel": "إلغاء",
+      "deleteTitle": "حذف المشتري",
+      "deletingName": "حذف {{name}}",
+      "deleteMessage": "سيؤدي هذا إلى حذف حساب المشتري نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "deleteBtn": "حذف المشتري",
       "bulkActivateTitle": "تفعيل المشترين",
       "bulkSuspendTitle": "إيقاف المشترين",
       "bulkActivateMsg": "هل أنت تأكد من رغبتك في تفعيل {{count}} مشتري محدد؟",

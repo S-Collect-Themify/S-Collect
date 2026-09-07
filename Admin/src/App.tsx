@@ -36,6 +36,8 @@ const Vouchers = lazy(() => import('./pages/Vouchers'));
 const CreateVoucher = lazy(() => import('./pages/CreateVoucher'));
 const Buyers = lazy(() => import('./pages/Buyers'));
 const BuyerDetails = lazy(() => import('./pages/BuyerDetails'));
+const EditBuyer = lazy(() => import('./pages/EditBuyer'));
+const AddBuyer = lazy(() => import('./pages/AddBuyer'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -115,7 +117,9 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path="/buyers" element={<Buyers />} />
+            <Route path="/buyers/new" element={<AddBuyer />} />
             <Route path="/buyers/:id" element={<BuyerDetails />} />
+            <Route path="/buyers/:id/edit" element={<EditBuyer />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="*" element={<NotFound />} />
           </Route>

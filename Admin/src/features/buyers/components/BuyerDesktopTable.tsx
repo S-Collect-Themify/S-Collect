@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { SquarePen, Trash2 } from 'lucide-react';
 import type { Buyer } from '../types/buyers';
 import { getInitials } from '../utils/buyerUtils';
 
@@ -12,6 +13,7 @@ interface BuyerDesktopTableProps {
   selectedRows: string[];
   toggleRow: (id: string) => void;
   onToggleStatus: (buyer: Buyer) => void;
+  onDelete: (buyer: Buyer) => void;
 }
 
 export default function BuyerDesktopTable({
@@ -22,6 +24,7 @@ export default function BuyerDesktopTable({
   selectedRows,
   toggleRow,
   onToggleStatus,
+  onDelete,
 }: BuyerDesktopTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -131,12 +134,16 @@ export default function BuyerDesktopTable({
               return (
                 <tr
                   key={buyer.id}
-                  className={`border-b border-gray-100 transition-colors ${
+                  onClick={() => navigate(`/buyers/${buyer.id}`)}
+                  className={`border-b border-gray-100 transition-colors cursor-pointer ${
                     isSelected ? 'bg-indigo-50/40' : 'bg-white hover:bg-gray-50/50'
                   }`}
                 >
                   {/* Checkbox column */}
-                  <td className="w-9 px-3 py-3.5">
+                  <td
+                    className="w-9 px-3 py-3.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -179,7 +186,7 @@ export default function BuyerDesktopTable({
                   </td>
 
                   {/* Activate toggle */}
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       role="switch"
@@ -199,13 +206,27 @@ export default function BuyerDesktopTable({
                   </td>
 
                   {/* Action */}
-                  <td className="px-4 py-3.5">
-                    <button
-                      onClick={() => navigate(`/buyers/${buyer.id}`)}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer"
-                    >
-                      {t('buyers.table.viewDetails', 'View details')}
-                    </button>
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/buyers/${buyer.id}/edit`)}
+                        title={t('buyers.table.edit', 'Edit')}
+                        aria-label={t('buyers.table.edit', 'Edit')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <SquarePen size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(buyer)}
+                        title={t('buyers.table.delete', 'Delete')}
+                        aria-label={t('buyers.table.delete', 'Delete')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-red-500 hover:bg-red-50 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

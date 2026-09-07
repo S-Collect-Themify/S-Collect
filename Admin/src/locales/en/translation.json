@@ -1283,10 +1283,38 @@
   "buyers": {
     "notifications": {
       "updateSuccess": "Buyer status updated successfully",
-      "updateError": "Failed to update buyer status"
+      "updateError": "Failed to update buyer status",
+      "editSuccess": "Buyer updated successfully",
+      "editError": "Failed to update buyer",
+      "deleteSuccess": "Buyer deleted successfully",
+      "deleteError": "Failed to delete buyer",
+      "createSuccess": "Buyer created successfully",
+      "createError": "Failed to create buyer"
     },
     "title": "Buyers",
     "description": "Manage buyer accounts and information.",
+    "add": {
+      "title": "Add Buyer",
+      "button": "Add Buyer",
+      "submit": "Create Buyer"
+    },
+    "edit": {
+      "title": "Edit Buyer",
+      "breadcrumbParent": "Buyers",
+      "loading": "Loading buyer data...",
+      "notFound": "Buyer not found",
+      "back": "Back to Buyers",
+      "basicInfo": "Basic Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "phoneNumber": "Phone Number",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    },
     "table": {
       "fullName": "Full Name",
       "email": "Email",
@@ -1295,6 +1323,8 @@
       "status": "Status",
       "activate": "Activate",
       "action": "Action",
+      "edit": "Edit",
+      "delete": "Delete",
       "search": "Search name or email...",
       "statusAll": "Status: All",
       "statusActive": "Active",
@@ -1347,6 +1377,10 @@
       "reasonPlaceholder": "Provide detailed reason...",
       "suspendBtn": "Suspend Buyer",
       "cancel": "Cancel",
+      "deleteTitle": "Delete Buyer",
+      "deletingName": "Deleting {{name}}",
+      "deleteMessage": "This will permanently remove the buyer account. This action cannot be undone.",
+      "deleteBtn": "Delete Buyer",
       "bulkActivateTitle": "Activate Buyers",
       "bulkSuspendTitle": "Suspend Buyers",
       "bulkActivateMsg": "Are you sure you want to activate {{count}} selected buyer(s)?",
