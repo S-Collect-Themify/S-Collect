@@ -1285,7 +1285,9 @@
       "deleteSuccess": "تم حذف المشتري بنجاح",
       "deleteError": "فشل حذف المشتري",
       "createSuccess": "تم إنشاء المشتري بنجاح",
-      "createError": "فشل إنشاء المشتري"
+      "createError": "فشل إنشاء المشتري",
+      "verifySuccess": "تم تفعيل المشتري بنجاح",
+      "verifyError": "فشل تفعيل المشتري"
     },
     "title": "المشترون",
     "description": "إدارة حسابات المشترون ومعلوماتهم.",
@@ -1321,6 +1323,7 @@
       "action": "الإجراء",
       "edit": "تعديل",
       "delete": "حذف",
+      "activateBtn": "تفعيل",
       "search": "البحث بالاسم أو البريد...",
       "statusAll": "الحالة: الكل",
       "statusActive": "نشط",

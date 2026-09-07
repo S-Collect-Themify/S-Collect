@@ -2,7 +2,12 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Search } from 'lucide-react';
 import { useBuyerStore } from '../store/buyerStore';
-import { useAdminBuyers, useUpdateBuyerStatus, useDeleteBuyer } from '../hooks/useBuyers';
+import {
+  useAdminBuyers,
+  useUpdateBuyerStatus,
+  useDeleteBuyer,
+  useVerifyBuyer,
+} from '../hooks/useBuyers';
 import { updateBuyerStatus } from '../../../services/buyers';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -95,6 +100,7 @@ export default function BuyerTable() {
   const queryClient = useQueryClient();
   const updateStatusMutation = useUpdateBuyerStatus();
   const deleteBuyerMutation = useDeleteBuyer();
+  const verifyBuyerMutation = useVerifyBuyer();
 
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
@@ -136,6 +142,10 @@ export default function BuyerTable() {
 
   const handleDelete = (buyer: Buyer) => {
     setDeleteModal({ isOpen: true, buyer });
+  };
+
+  const handleVerify = (buyer: Buyer) => {
+    verifyBuyerMutation.mutate(buyer.id);
   };
 
   const handleDeleteConfirm = async () => {
@@ -268,6 +278,8 @@ export default function BuyerTable() {
         toggleRow={toggleRow}
         onToggleStatus={handleToggleStatus}
         onDelete={handleDelete}
+        onVerify={handleVerify}
+        verifyingId={verifyBuyerMutation.isPending ? verifyBuyerMutation.variables : null}
       />
 
       {/* Mobile List */}

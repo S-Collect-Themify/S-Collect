@@ -1289,7 +1289,9 @@
       "deleteSuccess": "Buyer deleted successfully",
       "deleteError": "Failed to delete buyer",
       "createSuccess": "Buyer created successfully",
-      "createError": "Failed to create buyer"
+      "createError": "Failed to create buyer",
+      "verifySuccess": "Buyer activated successfully",
+      "verifyError": "Failed to activate buyer"
     },
     "title": "Buyers",
     "description": "Manage buyer accounts and information.",
@@ -1325,6 +1327,7 @@
       "action": "Action",
       "edit": "Edit",
       "delete": "Delete",
+      "activateBtn": "Activate",
       "search": "Search name or email...",
       "statusAll": "Status: All",
       "statusActive": "Active",

@@ -9,6 +9,7 @@ import {
   updateBuyer,
   deleteBuyer,
   createBuyer,
+  verifyBuyer,
   type BuyerQueryParams,
   type AdminBuyerDetailResponse,
   type UpdateBuyerPayload,
@@ -205,6 +206,27 @@ export function useAdminBuyerRawDetail(id?: string) {
     enabled: Boolean(id),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
+  });
+}
+
+export function useVerifyBuyer() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (id: string) => verifyBuyer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-detail'] });
+      toast.success(t('buyers.notifications.verifySuccess', 'Buyer activated successfully'));
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        t('buyers.notifications.verifyError', 'Failed to activate buyer');
+      toast.error(message);
+    },
   });
 }
 

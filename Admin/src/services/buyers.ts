@@ -156,3 +156,13 @@ export async function createBuyer(
   return data?.data || data;
 }
 
+/**
+ * Activate / verify a pending buyer.
+ * TODO: backend endpoint not finalised yet — confirm the real path & method.
+ * Best guess: POST /api/v1/admin/buyers/{id}/verify
+ */
+export async function verifyBuyer(id: string): Promise<unknown> {
+  const response = await api.post(`/admin/buyers/${id}/verify`);
+  return response.data;
+}
+
