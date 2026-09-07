@@ -40,16 +40,18 @@ export function useNotifications() {
     },
   });
 
-  const clearAllMutation = useMutation({
-    mutationFn: notificationsService.clearAll,
+  const markAllAsReadMutation = useMutation({
+    mutationFn: notificationsService.markAllAsRead,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['admin-notifications'] });
       const previousData = queryClient.getQueryData<GetNotificationsResponse>(['admin-notifications']);
 
-      queryClient.setQueryData<GetNotificationsResponse>(['admin-notifications'], {
-        notifications: [],
-        unreadCount: 0,
-      });
+      if (previousData) {
+        queryClient.setQueryData<GetNotificationsResponse>(['admin-notifications'], {
+          notifications: previousData.notifications.map((n) => ({ ...n, isRead: true })),
+          unreadCount: 0,
+        });
+      }
 
       return { previousData };
     },
@@ -72,6 +74,6 @@ export function useNotifications() {
     isLoading: notificationsQuery.isLoading,
     isError: notificationsQuery.isError,
     markAsRead: markAsReadMutation.mutate,
-    clearAll: clearAllMutation.mutate,
+    markAllAsRead: markAllAsReadMutation.mutate,
   };
 }

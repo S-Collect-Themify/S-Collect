@@ -11,6 +11,7 @@
   "notifications": {
     "title": "الإشعارات",
     "clearAll": "مسح الكل",
+    "markAllAsRead": "تحديد الكل كمقروء",
     "noNotifications": "لا توجد إشعارات حالياً",
     "markAsRead": "تحديد كَمقروء"
   },

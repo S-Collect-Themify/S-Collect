@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
 interface NotificationHeaderProps {
-  onClearAll: () => void;
-  hasNotifications: boolean;
+  onMarkAllAsRead: () => void;
+  hasUnread: boolean;
 }
 
 export const NotificationHeader = ({
-  onClearAll,
-  hasNotifications,
+  onMarkAllAsRead,
+  hasUnread,
 }: NotificationHeaderProps) => {
   const { t } = useTranslation();
 
@@ -16,13 +16,13 @@ export const NotificationHeader = ({
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">
         {t('notifications.title', 'الإشعارات')}
       </h3>
-      {hasNotifications && (
+      {hasUnread && (
         <button
-          onClick={onClearAll}
+          onClick={onMarkAllAsRead}
           type="button"
           className="text-xs sm:text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors cursor-pointer focus:outline-none"
         >
-          {t('notifications.clearAll', 'مسح الكل')}
+          {t('notifications.markAllAsRead', 'تحديد الكل كمقروء')}
         </button>
       )}
     </div>
