@@ -6,8 +6,13 @@ import {
   getAdminBuyerDetail,
   getAdminBuyerStats,
   updateBuyerStatus,
+  updateBuyer,
+  deleteBuyer,
+  createBuyer,
   type BuyerQueryParams,
   type AdminBuyerDetailResponse,
+  type UpdateBuyerPayload,
+  type CreateBuyerPayload,
 } from '../../../services/buyers';
 import type { Buyer } from '../types/buyers';
 import {
@@ -189,6 +194,80 @@ export function useAdminBuyerDetail(id?: string) {
     enabled: Boolean(id),
     staleTime: 5 * 60 * 1000,
     select: mapAdminBuyerDetailToBuyer,
+  });
+}
+
+/** Raw buyer detail object — used to prefill the edit form. */
+export function useAdminBuyerRawDetail(id?: string) {
+  return useQuery({
+    queryKey: ['admin-buyer-raw', id],
+    queryFn: () => getAdminBuyerDetail(id!),
+    enabled: Boolean(id),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreateBuyer() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (payload: CreateBuyerPayload) => createBuyer(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      toast.success(t('buyers.notifications.createSuccess', 'Buyer created successfully'));
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        t('buyers.notifications.createError', 'Failed to create buyer');
+      toast.error(message);
+    },
+  });
+}
+
+export function useUpdateBuyer() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateBuyerPayload }) =>
+      updateBuyer(id, payload),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-buyer-raw', id] });
+      toast.success(t('buyers.notifications.editSuccess', 'Buyer updated successfully'));
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        t('buyers.notifications.editError', 'Failed to update buyer');
+      toast.error(message);
+    },
+  });
+}
+
+export function useDeleteBuyer() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteBuyer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-buyers'] });
+      toast.success(t('buyers.notifications.deleteSuccess', 'Buyer deleted successfully'));
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        t('buyers.notifications.deleteError', 'Failed to delete buyer');
+      toast.error(message);
+    },
   });
 }
 

@@ -55,9 +55,21 @@ export interface AdminBuyerDetailResponse {
   email?: string;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string;
   address?: unknown;
   jointDate?: string;
   savedAddresses?: AdminSavedAddress[];
+}
+
+export interface UpdateBuyerPayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+}
+
+export interface CreateBuyerPayload extends UpdateBuyerPayload {
+  password: string;
 }
 
 export async function getAdminBuyers(params: BuyerQueryParams): Promise<unknown> {
@@ -112,5 +124,35 @@ export interface UpdateBuyerStatusPayload {
 export async function updateBuyerStatus(id: string, status: string): Promise<unknown> {
   const response = await api.patch(`/admin/buyers/${id}/status`, { status });
   return response.data;
+}
+
+/**
+ * Update a buyer via PUT /api/v1/admin/buyers/{id}
+ */
+export async function updateBuyer(
+  id: string,
+  payload: UpdateBuyerPayload
+): Promise<AdminBuyerDetailResponse> {
+  const response = await api.put(`/admin/buyers/${id}`, payload);
+  const data = response.data;
+  return data?.data || data;
+}
+
+/**
+ * Delete a buyer via DELETE /api/v1/admin/buyers/{id}
+ */
+export async function deleteBuyer(id: string): Promise<void> {
+  await api.delete(`/admin/buyers/${id}`);
+}
+
+/**
+ * Create a buyer via POST /api/v1/admin/buyers
+ */
+export async function createBuyer(
+  payload: CreateBuyerPayload
+): Promise<AdminBuyerDetailResponse> {
+  const response = await api.post('/admin/buyers', payload);
+  const data = response.data;
+  return data?.data || data;
 }
 
