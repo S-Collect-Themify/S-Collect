@@ -142,12 +142,25 @@ export const mapProductToFormData = async (
       isThumbnail: Boolean(img.isThumbnail),
     }));
 
+  const existingSizeChartImages: ExistingImage[] = (
+    raw.sizeChartImages ||
+    raw.sizeCharts ||
+    []
+  )
+    .filter((img) => img.url)
+    .map((img) => ({
+      id: img.id || '',
+      url: img.url || '',
+      isThumbnail: false,
+    }));
+
   const varianceCards: VarianceCardData[] = [];
 
   if (Array.isArray(raw.variants) && raw.variants.length > 0) {
     raw.variants.forEach((variant, index) => {
       let vSize = '';
       let vColor = '';
+      const attributes: Record<string, string> = {};
 
       if (Array.isArray(variant.optionValues)) {
         variant.optionValues.forEach((ov: any) => {
@@ -161,6 +174,10 @@ export const mapProductToFormData = async (
             vColor = val;
             if (!colors.includes(val)) colors.push(val);
           }
+          const key = ov.optionId || ov.optionName || ov.name || '';
+          if (key) {
+            attributes[key] = val;
+          }
         });
       }
 
@@ -168,6 +185,7 @@ export const mapProductToFormData = async (
         id: variant.id || (index + 1).toString(),
         size: vSize,
         color: vColor,
+        attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
         stock: typeof variant.stock === 'number' ? variant.stock : 0,
         basePrice: variant.price != null ? variant.price.toString() : '',
         comparePrice:
@@ -204,6 +222,8 @@ export const mapProductToFormData = async (
     sku: firstVariant?.sku ?? (varianceCards[0]?.sku || ''),
     images: [],
     existingImages,
+    sizeChartImages: [],
+    existingSizeChartImages,
     optionsMeta,
     variantsMeta,
     categoryId: raw.categoryId || raw.category?.id || '',
@@ -245,34 +265,72 @@ export const syncProductOptions = async (
   const raw = unwrapApiData<RawProductResponse>(product) || {};
   const existingOptions = Array.isArray(raw.options) ? raw.options : [];
 
-  const extractedSizes = Array.from(
-    new Set(
-      formData.varianceCards && formData.varianceCards.length > 0
-        ? formData.varianceCards.map((c) => c.size?.trim()).filter(Boolean)
-        : formData.sizes || []
-    )
-  );
+  const cards =
+    formData.varianceCards && formData.varianceCards.length > 0
+      ? formData.varianceCards
+      : [];
 
-  const extractedColors = Array.from(
-    new Set(
-      formData.varianceCards && formData.varianceCards.length > 0
-        ? formData.varianceCards.map((c) => c.color?.trim()).filter(Boolean)
-        : formData.colors || []
-    )
-  );
+  const activeMetaList =
+    formData.optionsMeta && formData.optionsMeta.length > 0
+      ? formData.optionsMeta
+      : [
+          {
+            id: '',
+            name: 'Size',
+            nameAr: 'المقاس',
+            values: [],
+          },
+        ];
 
-  const desiredOptions = [
-    {
-      name: 'Size',
-      nameAr: 'المقاس',
-      values: extractedSizes,
-    },
-    {
-      name: 'Color',
-      nameAr: 'اللون',
-      values: extractedColors,
-    },
-  ].filter((option) => option.values.length > 0);
+  const desiredOptions = activeMetaList
+    .map((meta, metaIdx) => {
+      const extractedValues = Array.from(
+        new Set(
+          cards
+            .map((c) => {
+              if (metaIdx === 0) {
+                return (
+                  c.size?.trim() ||
+                  c.attributes?.[meta.id]?.trim() ||
+                  c.attributes?.[meta.name]?.trim() ||
+                  ''
+                );
+              }
+              if (metaIdx === 1) {
+                return (
+                  c.color?.trim() ||
+                  c.attributes?.[meta.id]?.trim() ||
+                  c.attributes?.[meta.name]?.trim() ||
+                  ''
+                );
+              }
+              return (
+                c.attributes?.[meta.id]?.trim() ||
+                c.attributes?.[meta.name]?.trim() ||
+                ''
+              );
+            })
+            .filter((val): val is string => Boolean(val))
+        )
+      );
+
+      const optionName =
+        meta.name ||
+        (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
+      const optionNameAr = meta.nameAr || optionName;
+
+      return {
+        name: optionName,
+        nameAr: optionNameAr,
+        values: extractedValues.map((val) => {
+          const matched = meta.values?.find(
+            (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
+          );
+          return { value: val, valueAr: matched?.valueAr || val };
+        }),
+      };
+    })
+    .filter((option) => option.values.length > 0);
 
   return Promise.all(
     desiredOptions.map(async (desiredOption) => {
@@ -289,9 +347,9 @@ export const syncProductOptions = async (
           await createProductOption(productId, {
             name: desiredOption.name,
             nameAr: desiredOption.nameAr,
-            values: desiredOption.values.map((value) => ({
-              value,
-              valueAr: value,
+            values: desiredOption.values.map((v) => ({
+              value: typeof v === 'string' ? v : v.value,
+              valueAr: typeof v === 'string' ? v : v.valueAr,
             })),
           })
         );
@@ -301,23 +359,29 @@ export const syncProductOptions = async (
       const existingValues = Array.isArray(existingOption.values)
         ? existingOption.values
         : [];
-      const missingValues = desiredOption.values.filter((value) => {
-        const normalizedValue = normalizeOptionText(value);
+      const missingValues = desiredOption.values.filter((item) => {
+        const val = typeof item === 'string' ? item : item.value;
+        const valAr = typeof item === 'string' ? item : item.valueAr;
+        const normalizedValue = normalizeOptionText(val);
+        const normalizedValueAr = normalizeOptionText(valAr);
         return !existingValues.some(
           (optionValue) =>
             normalizeOptionText(optionValue.value) === normalizedValue ||
-            normalizeOptionText(optionValue.valueAr) === normalizedValue
+            normalizeOptionText(optionValue.valueAr) === normalizedValueAr ||
+            normalizeOptionText(optionValue.value) === normalizedValueAr
         );
       });
       const createdValues = await Promise.all(
-        missingValues.map(async (value) =>
-          unwrapApiData<ProductOptionValue>(
+        missingValues.map(async (item) => {
+          const val = typeof item === 'string' ? item : item.value;
+          const valAr = typeof item === 'string' ? item : item.valueAr;
+          return unwrapApiData<ProductOptionValue>(
             await addProductOptionValue(productId, existingOption.id!, {
-              value,
-              valueAr: value,
+              value: val,
+              valueAr: valAr,
             })
-          )
-        )
+          );
+        })
       );
 
       return {
@@ -386,19 +450,38 @@ export const buildProductVariantMutations = (
           },
         ];
 
-  const sizeOption = findOption('Size', 'المقاس');
-  const colorOption = findOption('Color', 'اللون');
+  const activeMetaList = formData.optionsMeta || [];
 
   return cards.map((card) => {
-    const sizeValId = card.size
-      ? findValueId(sizeOption, card.size)
-      : undefined;
-    const colorValId = card.color
-      ? findValueId(colorOption, card.color)
-      : undefined;
-    const optionValueIds = [sizeValId, colorValId].filter((id): id is string =>
-      Boolean(id)
-    );
+    const optionValueIds: string[] = [];
+
+    activeMetaList.forEach((meta, metaIdx) => {
+      const option = findOption(meta.name, meta.nameAr);
+      let cardVal = '';
+      if (metaIdx === 0) {
+        cardVal =
+          card.size?.trim() ||
+          card.attributes?.[meta.id]?.trim() ||
+          card.attributes?.[meta.name]?.trim() ||
+          '';
+      } else if (metaIdx === 1) {
+        cardVal =
+          card.color?.trim() ||
+          card.attributes?.[meta.id]?.trim() ||
+          card.attributes?.[meta.name]?.trim() ||
+          '';
+      } else {
+        cardVal =
+          card.attributes?.[meta.id]?.trim() ||
+          card.attributes?.[meta.name]?.trim() ||
+          '';
+      }
+
+      if (cardVal) {
+        const valId = findValueId(option, cardVal);
+        if (valId) optionValueIds.push(valId);
+      }
+    });
 
     const price =
       parseFloat(card.basePrice) || parseFloat(formData.basePrice) || 0;
@@ -435,7 +518,15 @@ export const buildProductVariantMutations = (
         );
       });
 
-    const skuParts = [formData.sku, card.size, card.color].filter(Boolean);
+    const extraAttrVals = card.attributes
+      ? Object.values(card.attributes).filter(Boolean)
+      : [];
+    const skuParts = [
+      formData.sku,
+      card.size,
+      card.color,
+      ...extraAttrVals,
+    ].filter(Boolean);
     const sku =
       card.sku ||
       existingVariant?.sku ||
@@ -538,93 +629,120 @@ export const mapFormToMultipartFormData = (
   };
 
   // 3. Options structure (JSON-encoded array of options) — preserve real IDs
-  const uniqueSizes = Array.from(
-    new Set(
-      cards.map((c) => c.size?.trim()).filter((s): s is string => Boolean(s))
-    )
-  );
-  const uniqueColors = Array.from(
-    new Set(
-      cards.map((c) => c.color?.trim()).filter((c): c is string => Boolean(c))
-    )
-  );
-
   const options: any[] = [];
-  if (uniqueSizes.length > 0) {
-    const sizeMeta = findOptionMeta('Size');
-    options.push({
-      ...(sizeMeta?.id ? { id: sizeMeta.id } : {}),
-      name: 'Size',
-      nameAr: sizeMeta?.nameAr || 'المقاس',
-      values: uniqueSizes.map((size) => {
-        const valueId = sizeMeta ? findValueId(sizeMeta, size) : '';
-        return {
-          ...(valueId ? { id: valueId } : {}),
-          value: size,
-          valueAr: size,
-        };
-      }),
-    });
-  }
-  if (uniqueColors.length > 0) {
-    const colorMeta = findOptionMeta('Color');
-    options.push({
-      ...(colorMeta?.id ? { id: colorMeta.id } : {}),
-      name: 'Color',
-      nameAr: colorMeta?.nameAr || 'اللون',
-      values: uniqueColors.map((color) => {
-        const valueId = colorMeta ? findValueId(colorMeta, color) : '';
-        return {
-          ...(valueId ? { id: valueId } : {}),
-          value: color,
-          valueAr: color,
-        };
-      }),
-    });
-  }
+  const activeMetaList =
+    formData.optionsMeta && formData.optionsMeta.length > 0
+      ? formData.optionsMeta
+      : [
+          {
+            id: '',
+            name: 'Size',
+            nameAr: 'المقاس',
+            values: [],
+          },
+        ];
+
+  activeMetaList.forEach((meta, metaIdx) => {
+    const uniqueValues = Array.from(
+      new Set(
+        cards
+          .map((c) => {
+            if (metaIdx === 0) {
+              return (
+                c.size?.trim() ||
+                c.attributes?.[meta.id]?.trim() ||
+                c.attributes?.[meta.name]?.trim() ||
+                ''
+              );
+            }
+            if (metaIdx === 1) {
+              return (
+                c.color?.trim() ||
+                c.attributes?.[meta.id]?.trim() ||
+                c.attributes?.[meta.name]?.trim() ||
+                ''
+              );
+            }
+            return (
+              c.attributes?.[meta.id]?.trim() ||
+              c.attributes?.[meta.name]?.trim() ||
+              ''
+            );
+          })
+          .filter((val): val is string => Boolean(val))
+      )
+    );
+
+    if (uniqueValues.length > 0) {
+      const optionName =
+        meta.name ||
+        (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
+      const optionNameAr = meta.nameAr || optionName;
+
+      options.push({
+        ...(meta.id ? { id: meta.id } : {}),
+        name: optionName,
+        nameAr: optionNameAr,
+        values: uniqueValues.map((val) => {
+          const valueId = findValueId(meta, val);
+          const matchedVal = meta.values?.find(
+            (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
+          );
+          return {
+            ...(valueId ? { id: valueId } : {}),
+            value: val,
+            valueAr: matchedVal?.valueAr || val,
+          };
+        }),
+      });
+    }
+  });
+
   multipart.append('options', JSON.stringify(options));
 
   // 4. Variants structure (JSON-encoded array of variants) — preserve real IDs
   const variants = cards.map((card) => {
-    const optionValues = [];
+    const optionValues: any[] = [];
     const valueIds: string[] = [];
 
-    const sizeOption = options.find((o) => o.name === 'Size');
-    const colorOption = options.find((o) => o.name === 'Color');
-
-    if (card.size && card.size.trim()) {
-      const sizeVal = sizeOption?.values.find(
-        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.size)
-      );
-      if (sizeOption) {
-        optionValues.push({
-          ...(sizeOption.id ? { optionId: sizeOption.id } : {}),
-          optionName: sizeOption.name,
-          optionNameAr: sizeOption.nameAr,
-          ...(sizeVal?.id ? { valueId: sizeVal.id } : {}),
-          value: card.size.trim(),
-          valueAr: card.size.trim(),
-        });
+    options.forEach((opt, optIdx) => {
+      let cardVal = '';
+      if (optIdx === 0) {
+        cardVal =
+          card.size?.trim() ||
+          card.attributes?.[opt.id]?.trim() ||
+          card.attributes?.[opt.name]?.trim() ||
+          '';
+      } else if (optIdx === 1) {
+        cardVal =
+          card.color?.trim() ||
+          card.attributes?.[opt.id]?.trim() ||
+          card.attributes?.[opt.name]?.trim() ||
+          '';
+      } else {
+        cardVal =
+          card.attributes?.[opt.id]?.trim() ||
+          card.attributes?.[opt.name]?.trim() ||
+          '';
       }
-      if (sizeVal?.id) valueIds.push(sizeVal.id);
-    }
 
-    if (card.color && card.color.trim()) {
-      const colorVal = colorOption?.values.find(
-        (v: any) => normalizeOptionText(v.value) === normalizeOptionText(card.color)
-      );
-      if (colorOption) {
+      if (cardVal) {
+        const matchedVal = opt.values?.find(
+          (v: any) => normalizeOptionText(v.value) === normalizeOptionText(cardVal)
+        );
         optionValues.push({
-          ...(colorOption.id ? { optionId: colorOption.id } : {}),
-          optionName: colorOption.name,
-          optionNameAr: colorOption.nameAr,
-          ...(colorVal?.id ? { valueId: colorVal.id } : {}),
-          value: card.color.trim(),
-          valueAr: card.color.trim(),
+          ...(opt.id ? { optionId: opt.id } : {}),
+          optionName: opt.name,
+          optionNameAr: opt.nameAr,
+          ...(matchedVal?.id ? { valueId: matchedVal.id } : {}),
+          value: cardVal,
+          valueAr: matchedVal?.valueAr || cardVal,
         });
+        if (matchedVal?.id) {
+          valueIds.push(matchedVal.id);
+        }
       }
-      if (colorVal?.id) valueIds.push(colorVal.id);
-    }
+    });
 
     const cardPrice =
       parseFloat(card.basePrice) || parseFloat(formData.basePrice) || 0;
@@ -637,7 +755,15 @@ export const mapFormToMultipartFormData = (
     const existingVariantId =
       card.id && !card.id.match(/^\d{13}$/) ? card.id : findVariantId(valueIds);
 
-    const skuParts = [formData.sku, card.size, card.color].filter(Boolean);
+    const extraAttrVals = card.attributes
+      ? Object.values(card.attributes).filter(Boolean)
+      : [];
+    const skuParts = [
+      formData.sku,
+      card.size,
+      card.color,
+      ...extraAttrVals,
+    ].filter(Boolean);
     const sku = card.sku || skuParts.join('-') || `SKU-${Date.now()}`;
 
     return {
@@ -666,6 +792,13 @@ export const mapFormToMultipartFormData = (
   if (formData.images && formData.images.length > 0) {
     formData.images.forEach((file) => {
       multipart.append('images', file);
+    });
+  }
+
+  // 7. Size chart images
+  if (formData.sizeChartImages && formData.sizeChartImages.length > 0) {
+    formData.sizeChartImages.forEach((file) => {
+      multipart.append('sizeChart', file);
     });
   }
 
@@ -735,3 +868,28 @@ export const compressImage = (
     reader.onerror = () => resolve(file);
   });
 };
+
+/**
+ * Generates a clean, unique random SKU for product variants.
+ * Format: SKU-[COLOR-][SIZE-]XXXX
+ */
+export const generateRandomSku = (color?: string, size?: string): string => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 4; i++) {
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  const colorCode = color
+    ? color.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
+    : '';
+  const sizeCode = size
+    ? size.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
+    : '';
+
+  const parts = ['SKU'];
+  if (colorCode) parts.push(colorCode);
+  if (sizeCode) parts.push(sizeCode);
+  parts.push(rand);
+  return parts.join('-');
+};
+

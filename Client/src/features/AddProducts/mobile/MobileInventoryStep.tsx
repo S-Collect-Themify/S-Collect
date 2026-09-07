@@ -1,11 +1,19 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
-import { Plus, Trash2, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Trash2, ChevronDown, SlidersHorizontal, ExternalLink, X } from 'lucide-react';
 import type { ProductFormData, VarianceCardData } from '../types';
+import type { VendorAttribute } from '../../attributes/types';
 import { useMobileAddProductStore } from './mobileAddProductStore';
+import { useVendorAttributes } from '../../attributes/hooks/useAttributes';
+import { VariantsTable } from '../components/VariantsTable';
+import { ModernSelect } from '../../../components/ui/ModernSelect';
+import { AutoGenerateVariantsModal } from '../components/AutoGenerateVariantsModal';
+import { generateRandomSku } from '../utils';
+import toast from 'react-hot-toast';
 
-const SIZE_OPTIONS = [
+const DEFAULT_SIZE_OPTIONS = [
   'XS',
   'S',
   'M',
@@ -22,8 +30,109 @@ interface MobileInventoryStepProps {
 }
 
 const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const { watch, setValue } = useFormContext<ProductFormData>();
+
+  const { data: vendorAttributes = [] } = useVendorAttributes();
+
+  // Find default attributes (e.g. Size and Color)
+  const defaultSizeAttr = useMemo(() => {
+    return (
+      vendorAttributes.find(
+        (a) =>
+          a.name?.toLowerCase() === 'size' ||
+          a.name?.toLowerCase() === 'sizes' ||
+          a.nameAr === 'المقاس' ||
+          a.nameAr === 'المقاسات'
+      ) || vendorAttributes[0]
+    );
+  }, [vendorAttributes]);
+
+  const defaultColorAttr = useMemo(() => {
+    return vendorAttributes.find(
+      (a) =>
+        (a.name?.toLowerCase() === 'color' ||
+          a.name?.toLowerCase() === 'colors' ||
+          a.nameAr === 'اللون' ||
+          a.nameAr === 'الألوان') &&
+        a.id !== defaultSizeAttr?.id
+    );
+  }, [vendorAttributes, defaultSizeAttr]);
+
+  const [selectedAttributeIds, setSelectedAttributeIds] = useState<string[]>([]);
+  const [isAttributesInitialized, setIsAttributesInitialized] = useState(false);
+
+  useEffect(() => {
+    if (vendorAttributes.length === 0 || isAttributesInitialized) return;
+
+    const initialIds: string[] = [];
+    if (defaultSizeAttr?.id) initialIds.push(defaultSizeAttr.id);
+    if (defaultColorAttr?.id && !initialIds.includes(defaultColorAttr.id)) {
+      initialIds.push(defaultColorAttr.id);
+    }
+    if (initialIds.length === 0 && vendorAttributes[0]?.id) {
+      initialIds.push(vendorAttributes[0].id);
+    }
+    setSelectedAttributeIds(initialIds);
+    setIsAttributesInitialized(true);
+  }, [vendorAttributes, defaultSizeAttr, defaultColorAttr, isAttributesInitialized]);
+
+  const activeAttributes = useMemo(() => {
+    return selectedAttributeIds
+      .map((id) => vendorAttributes.find((a) => a.id === id))
+      .filter((a): a is VendorAttribute => Boolean(a));
+  }, [selectedAttributeIds, vendorAttributes]);
+
+  const unusedAttributes = useMemo(() => {
+    return vendorAttributes.filter((a) => !selectedAttributeIds.includes(a.id));
+  }, [vendorAttributes, selectedAttributeIds]);
+
+  const handleAddAttribute = (attrId: string) => {
+    if (attrId && !selectedAttributeIds.includes(attrId)) {
+      setSelectedAttributeIds((prev) => [...prev, attrId]);
+    }
+  };
+
+  const handleRemoveAttribute = (attrId: string) => {
+    setSelectedAttributeIds((prev) => prev.filter((id) => id !== attrId));
+  };
+
+  const handleSwapAttribute = (oldId: string, newId: string) => {
+    if (!newId) return;
+    setSelectedAttributeIds((prev) =>
+      prev.map((id) => (id === oldId ? newId : id))
+    );
+  };
+
+  // Keep form's optionsMeta in sync so utils.ts can build proper options payload
+  useEffect(() => {
+    const metaList = activeAttributes.map((attr) => ({
+      id: attr.id,
+      name: attr.name,
+      nameAr: attr.nameAr || attr.name,
+      values: (attr.values || []).map((v) => ({
+        id: v.id,
+        value: v.value,
+        valueAr: v.valueAr || v.value,
+      })),
+    }));
+
+    if (metaList.length === 0) {
+      metaList.push({
+        id: '',
+        name: 'Size',
+        nameAr: 'المقاس',
+        values: DEFAULT_SIZE_OPTIONS.map((s) => ({
+          id: '',
+          value: s,
+          valueAr: s,
+        })),
+      });
+    }
+
+    setValue('optionsMeta', metaList);
+  }, [activeAttributes, setValue]);
 
   const { isActive, setIsActive, previousStep, nextStep } =
     useMobileAddProductStore();
@@ -85,12 +194,20 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
   };
 
   const handleAddVarianceCard = () => {
+    const initialAttrs: Record<string, string> = {};
+    activeAttributes.forEach((attr, idx) => {
+      if (idx > 1) {
+        initialAttrs[attr.id] = attr.values?.[0]?.value || '';
+      }
+    });
+
     const newCards: VarianceCardData[] = [
       ...varianceCards,
       {
         id: Date.now().toString(),
-        size: 'XS',
-        color: '',
+        size: activeAttributes[0]?.values?.[0]?.value || 'XS',
+        color: activeAttributes[1]?.values?.[0]?.value || '',
+        attributes: initialAttrs,
         stock: 1,
         basePrice: varianceCards[0]?.basePrice || basePriceForm || '',
         comparePrice: varianceCards[0]?.comparePrice || comparePriceForm || '',
@@ -107,6 +224,18 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
     }
   };
 
+  const handleDuplicateVarianceCard = (card: VarianceCardData) => {
+    const newCards: VarianceCardData[] = [
+      ...varianceCards,
+      {
+        ...card,
+        id: Date.now().toString(),
+        sku: card.sku ? `${card.sku}-COPY` : '',
+      },
+    ];
+    updateVarianceCards(newCards);
+  };
+
   const handleUpdateCardField = (
     cardId: string,
     field: keyof VarianceCardData,
@@ -121,239 +250,239 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
     updateVarianceCards(newCards);
   };
 
+  const handleUpdateCardAttribute = (
+    cardId: string,
+    attributeId: string,
+    val: string
+  ) => {
+    const newCards = varianceCards.map((c) => {
+      if (c.id === cardId) {
+        const attrIdx = activeAttributes.findIndex((a) => a.id === attributeId);
+        const updated = {
+          ...c,
+          attributes: {
+            ...(c.attributes || {}),
+            [attributeId]: val,
+          },
+        };
+        if (attrIdx === 0) {
+          updated.size = val;
+        } else if (attrIdx === 1) {
+          updated.color = val;
+        }
+        return updated;
+      }
+      return c;
+    });
+    updateVarianceCards(newCards);
+  };
+
+  const [isAutoGenerateOpen, setIsAutoGenerateOpen] = useState(false);
+
+  const handleAutoGenerateVariants = ({
+    color,
+    sizes,
+    replaceExisting,
+  }: {
+    color: string;
+    sizes: string[];
+    replaceExisting: boolean;
+  }) => {
+    const colorAttr = vendorAttributes.find(
+      (a) =>
+        a.name?.toLowerCase().includes('color') ||
+        a.nameAr?.includes('لون')
+    );
+    if (colorAttr && !selectedAttributeIds.includes(colorAttr.id)) {
+      setSelectedAttributeIds((prev) => [...prev, colorAttr.id]);
+    }
+
+    const initialAttrs: Record<string, string> = {};
+    activeAttributes.forEach((attr, idx) => {
+      if (idx > 1) {
+        initialAttrs[attr.id] = attr.values?.[0]?.value || '';
+      }
+    });
+
+    const newCards: VarianceCardData[] = sizes.map((size, index) => {
+      const cardAttrs = { ...initialAttrs };
+      if (colorAttr) {
+        cardAttrs[colorAttr.id] = color;
+      }
+      if (activeAttributes[0]) {
+        cardAttrs[activeAttributes[0].id] = size;
+      }
+
+      return {
+        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+        size,
+        color,
+        attributes: cardAttrs,
+        stock: 1,
+        basePrice: '0',
+        comparePrice: '',
+        sku: generateRandomSku(color, size),
+      };
+    });
+
+    const isDefaultSingleEmpty =
+      varianceCards.length === 1 &&
+      !varianceCards[0].color &&
+      !varianceCards[0].basePrice &&
+      (varianceCards[0].stock === 1 || varianceCards[0].stock === 0);
+
+    if (replaceExisting || isDefaultSingleEmpty) {
+      updateVarianceCards(newCards);
+    } else {
+      updateVarianceCards([...varianceCards, ...newCards]);
+    }
+
+    toast.success(
+      t(
+        'addProduct.variantsGeneratedSuccess',
+        'Successfully generated {{count}} variants with Price 0 and Stock 1',
+        { count: newCards.length }
+      )
+    );
+  };
+
   const handleContinue = () => {
     nextStep();
   };
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Variance Cards Header & List */}
-      <div className="space-y-4">
-        {varianceCards.map((card, cardIdx) => {
-          const baseNum = parseFloat(card.basePrice);
-          const compareNum = parseFloat(card.comparePrice);
-          const hasCompareError = Boolean(
-            card.comparePrice &&
-              card.comparePrice.trim() !== '' &&
-              !isNaN(compareNum) &&
-              !isNaN(baseNum) &&
-              compareNum > 0 &&
-              compareNum <= baseNum
-          );
-
-          return (
-            <div
-              key={card.id}
-              className="relative rounded-2xl border border-gray-200 bg-white p-4 space-y-3.5 shadow-xs"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                  {varianceCards.length > 1
-                    ? `${t('addProduct.preview.variance', 'Variance')} #${cardIdx + 1}`
-                    : t('addProduct.varianceCard', 'Product Variance')}
-                </span>
-                {varianceCards.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveVarianceCard(card.id)}
-                    className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors p-1 cursor-pointer font-medium"
-                    title={t(
-                      'addProduct.removeVarianceCard',
-                      'Remove Card'
-                    )}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                )}
-              </div>
-
-              {/* Size Select */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                  {t('addProduct.size', 'Size')}{' '}
-                  <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    value={card.size}
-                    onChange={(e) =>
-                      handleUpdateCardField(card.id, 'size', e.target.value)
-                    }
-                    className="w-full appearance-none rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white cursor-pointer pr-10"
-                  >
-                    <option value="" disabled>
-                      {t('addProduct.selectSize', 'Select Size')}
-                    </option>
-                    {SIZE_OPTIONS.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                    {card.size && !SIZE_OPTIONS.includes(card.size) && (
-                      <option value={card.size}>{card.size}</option>
-                    )}
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 rtl:right-auto rtl:left-3.5"
-                  />
-                </div>
-              </div>
-
-              {/* Color Input */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                  {t('addProduct.color', 'Color')}{' '}
-                  <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
-                  placeholder={t('addProduct.enterColor', 'Red')}
-                  value={card.color}
-                  onChange={(e) =>
-                    handleUpdateCardField(card.id, 'color', e.target.value)
-                  }
-                />
-              </div>
-
-              {/* Stock Quantity Stepper */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                  {t('addProduct.stockQuantity', 'Stock Quantity')}
-                </label>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleUpdateCardField(
-                        card.id,
-                        'stock',
-                        Math.max(0, (card.stock || 0) - 1)
-                      )
-                    }
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-300 text-base font-semibold text-gray-700 hover:bg-gray-100 transition active:scale-95 cursor-pointer bg-white"
-                  >
-                    −
-                  </button>
-                  <div className="flex h-9 w-20 items-center justify-center rounded-xl border border-gray-300 bg-white">
-                    <input
-                      type="number"
-                      min={0}
-                      value={card.stock}
-                      onChange={(e) =>
-                        handleUpdateCardField(
-                          card.id,
-                          'stock',
-                          Math.max(0, Number(e.target.value))
-                        )
-                      }
-                      className="w-full text-center text-sm font-semibold focus:outline-none bg-transparent"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleUpdateCardField(
-                        card.id,
-                        'stock',
-                        (card.stock || 0) + 1
-                      )
-                    }
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-300 text-base font-semibold text-gray-700 hover:bg-gray-100 transition active:scale-95 cursor-pointer bg-white"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* Base Price & Compare-at Price */}
-              <div className="grid gap-3 grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                    {t('addProduct.basePrice', 'Base Price')}{' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white"
-                    placeholder="189 SAR"
-                    step="0.01"
-                    min="0"
-                    value={card.basePrice}
-                    onChange={(e) =>
-                      handleUpdateCardField(
-                        card.id,
-                        'basePrice',
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                    {t('addProduct.comparePrice', 'Compare-at Price')}
-                  </label>
-                  <input
-                    type="number"
-                    className={`w-full rounded-xl border px-3.5 py-2.5 text-sm focus:outline-none bg-white ${
-                      hasCompareError
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-gray-300 focus:border-gray-950'
-                    }`}
-                    placeholder="250 SAR"
-                    step="0.01"
-                    min="0"
-                    value={card.comparePrice}
-                    onChange={(e) =>
-                      handleUpdateCardField(
-                        card.id,
-                        'comparePrice',
-                        e.target.value
-                      )
-                    }
-                  />
-                  {hasCompareError && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {t(
-                        'addProduct.errors.comparePriceMustBeGreater',
-                        'Compare-at price must be greater than base price'
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* SKU */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-gray-800">
-                  {t('addProduct.sku', 'SKU')}
-                </label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:border-gray-950 focus:outline-none bg-white font-mono"
-                  placeholder="PRD-NAN-001"
-                  value={card.sku}
-                  onChange={(e) =>
-                    handleUpdateCardField(card.id, 'sku', e.target.value)
-                  }
-                />
-              </div>
+      {/* Options & Attributes Info / Config Banner */}
+      <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
+              <SlidersHorizontal size={16} />
             </div>
-          );
-        })}
+            <div>
+              <h4 className="text-xs font-bold text-gray-900">
+                {t('addProduct.productOptions', 'Product Options & Attributes')}
+              </h4>
+              <p className="text-[11px] text-gray-500">
+                {activeAttributes.length > 0
+                  ? t(
+                      'addProduct.optionsLoadedFromAttributes',
+                      'Options are populated from your pre-configured attributes library.'
+                    )
+                  : t(
+                      'addProduct.optionsDefaultHint',
+                      'Pre-configure reusable attributes to quickly choose sizes, colors, and options.'
+                    )}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/attributes"
+            target="_blank"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-white px-2.5 py-1 rounded-lg border border-blue-200 shadow-2xs whitespace-nowrap"
+          >
+            {t('addProduct.manageAttributes', 'Manage')}
+            <ExternalLink size={12} />
+          </Link>
+        </div>
 
-        {/* Add Variance Card Button */}
-        <button
-          type="button"
-          onClick={handleAddVarianceCard}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 py-3 text-xs font-bold text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-colors bg-white cursor-pointer"
-        >
-          <Plus size={16} />
-          {t('addProduct.addVariance', 'Add Variance')}
-        </button>
+        {/* Attribute pickers for active attributes and + Add Option */}
+        {vendorAttributes.length > 0 && (
+          <div className="pt-2.5 border-t border-blue-100/80 space-y-2.5">
+            {activeAttributes.map((attr, idx) => {
+              const selectableOptions = [
+                {
+                  label: isArabic ? attr.nameAr || attr.name : attr.name,
+                  value: attr.id,
+                  badge: attr.values?.length ? `${attr.values.length}` : undefined,
+                },
+                ...unusedAttributes.map((ua) => ({
+                  label: isArabic ? ua.nameAr || ua.name : ua.name,
+                  value: ua.id,
+                  badge: ua.values?.length ? `${ua.values.length}` : undefined,
+                })),
+              ];
+
+              return (
+                <div key={attr.id} className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-gray-700 shrink-0">
+                    {t('addProduct.optionLabel', 'Option {{num}}', { num: idx + 1 })}:
+                  </span>
+                  <div className="flex-1 max-w-[220px] flex items-center gap-1.5">
+                    <div className="flex-1">
+                      <ModernSelect
+                        value={attr.id}
+                        onChange={(newId) => handleSwapAttribute(attr.id, newId)}
+                        options={selectableOptions}
+                        minWidth={150}
+                      />
+                    </div>
+                    {activeAttributes.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttribute(attr.id)}
+                        className="p-1 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                      >
+                        <X size={15} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {unusedAttributes.length > 0 && (
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <span className="text-xs font-semibold text-gray-600 shrink-0">
+                  {t('addProduct.addOption', '+ Add Option')}:
+                </span>
+                <div className="flex-1 max-w-[220px]">
+                  <ModernSelect
+                    value=""
+                    onChange={(newAttrId) => {
+                      if (newAttrId) handleAddAttribute(newAttrId);
+                    }}
+                    options={unusedAttributes.map((ua) => ({
+                      label: isArabic ? ua.nameAr || ua.name : ua.name,
+                      value: ua.id,
+                      badge: ua.values?.length ? `${ua.values.length}` : undefined,
+                    }))}
+                    placeholder={t('addProduct.addOption', '+ Add Option')}
+                    minWidth={160}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Variants Table View */}
+      <VariantsTable
+        varianceCards={varianceCards}
+        activeAttributes={activeAttributes}
+        onUpdateCardField={handleUpdateCardField}
+        onUpdateCardAttribute={handleUpdateCardAttribute}
+        onAddVariance={handleAddVarianceCard}
+        onAutoGenerateVariants={() => setIsAutoGenerateOpen(true)}
+        onRemoveVariance={handleRemoveVarianceCard}
+        onDuplicateVariance={handleDuplicateVarianceCard}
+        isArabic={isArabic}
+      />
+
+      <AutoGenerateVariantsModal
+        isOpen={isAutoGenerateOpen}
+        onClose={() => setIsAutoGenerateOpen(false)}
+        onGenerate={handleAutoGenerateVariants}
+        vendorAttributes={vendorAttributes}
+        activeAttributes={activeAttributes}
+        hasExistingVariants={
+          varianceCards.length > 1 ||
+          Boolean(varianceCards[0]?.color) ||
+          Boolean(varianceCards[0]?.basePrice)
+        }
+        isArabic={isArabic}
+      />
 
       {/* Product Status Toggle */}
       {isEdit && (

@@ -8,6 +8,7 @@ import PortalDropdown from './PortalDropdown';
 
 import { useStoreProfile } from '../../features/settings/hooks/useStoreProfile';
 import { useAccountSettings } from '../../features/settings/hooks/useAccountSettings';
+import { NotificationBell } from '../../features/notifications';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -143,10 +144,11 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <Menu size={24} />
             </button>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="md:hidden block">
               <InputSearch />
             </div>
+            <NotificationBell />
             <div
               aria-label={t('header.account')}
               className="inline-flex h-11 w-11 items-center justify-center text-gray-50"
@@ -191,6 +193,8 @@ const Header = ({ onMenuClick }: HeaderProps) => {
           <div className="hidden md:flex">
             <LanguageDropdown />
           </div>
+
+          <NotificationBell />
 
           <div
             aria-label={t('header.account')}

@@ -45,6 +45,8 @@ const MobileAddProduct = ({ productId }: MobileAddProductProps) => {
       sku: '',
       images: [],
       existingImages: [],
+      sizeChartImages: [],
+      existingSizeChartImages: [],
       optionsMeta: [],
       variantsMeta: [],
       categoryId: '',

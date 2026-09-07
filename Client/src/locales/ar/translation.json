@@ -23,6 +23,7 @@
     "items": {
       "dashboard": "لوحة التحكم",
       "management": "إدارة المنتجات",
+      "attributes": "السمات والخيارات",
       "addProduct": "إضافة منتج",
       "inventory": "المخزون",
       "incomingOrders": "الطلبات الواردة",
@@ -244,7 +245,35 @@
     "selectSize": "اختر المقاس",
     "stockQuantity": "كمية المخزون",
     "addVariance": "إضافة تنوع",
+    "autoGenerateVariants": "توليد المتغيرات تلقائياً",
+    "autoGenerateSubtitle": "اختر لوناً واحداً ومقاسات متعددة لتوليد المتغيرات فوراً",
+    "selectColorTitle": "١. اختر لوناً واحداً",
+    "selectSizesTitle": "٢. اختر المقاسات",
+    "selectAll": "تحديد الكل",
+    "deselectAll": "إلغاء تحديد الكل",
+    "generationPreview": "المتغيرات التي سيتم توليدها:",
+    "generateButton": "توليد تلقائي ({{count}})",
+    "variantsGeneratedSuccess": "تم توليد {{count}} متغيرات بنجاح بسعر 0 وكمية 1",
     "removeVarianceCard": "حذف البطاقة",
+    "productOptions": "خيارات وسمات المنتج",
+    "optionsLoadedFromAttributes": "يتم جلب الخيارات من مكتبة السمات الخاصة بك.",
+    "optionsDefaultHint": "قم بإعداد السمات مسبقاً لتحديد المقاسات والألوان بسهولة.",
+    "manageAttributes": "إدارة السمات",
+    "primaryAttribute": "سمة الخيار الأول",
+    "secondaryAttribute": "سمة الخيار الثاني",
+    "addOption": "+ إضافة خيار",
+    "removeOption": "إزالة الخيار",
+    "optionLabel": "الخيار {{num}}",
+    "noneSecondaryOption": "-- لا شيء / نص مخصص --",
+    "selectOptionValue": "اختر الخيار...",
+    "selectOrEnterOption": "اختر أو أدخل القيمة (مثال: {{sample}})",
+    "suggestions": "اقتراحات:",
+    "duplicateVariance": "تكرار",
+    "totalStock": "إجمالي المخزون",
+    "units": "قطعة",
+    "variantsCount": "خيارات",
+    "applyToLastRow": "تطبيق على الصف الحالي",
+    "actions": "إجراءات",
 
     "addCategory": "إضافة تصنيف",
     "addSize": "إضافة مقاس",
@@ -282,6 +311,16 @@
     "imageDeleted": "تم حذف الصورة بنجاح",
     "imageDeleteFailed": "فشل حذف الصورة",
     "maxImagesExceeded": "لا يمكنك إضافة أكثر من 6 صور للمنتج.",
+
+    "sizeChart": "جدول المقاسات / صورة جدول القياسات",
+    "sizeChartDesc": "ارفع صور جدول المقاسات أو دليل القياسات لهذا المنتج.",
+    "uploadSizeChart": "إضافة جدول مقاسات",
+    "maxSizeChartsExceeded": "لا يمكنك رفع أكثر من 4 صور لجدول المقاسات.",
+    "sizeChartUploaded": "تم رفع صورة جدول المقاسات بنجاح",
+    "sizeChartUploadFailed": "فشل رفع صورة جدول المقاسات",
+    "sizeChartDeleted": "تم حذف صورة جدول المقاسات بنجاح",
+    "sizeChartDeleteFailed": "فشل حذف صورة جدول المقاسات",
+    "viewSizeChart": "عرض جدول المقاسات",
 
     "active": "نشط",
     "inactive": "غير نشط",
@@ -910,6 +949,101 @@
       "pendingAdminRefundSubtext": "بانتظار معالجة الاسترداد من قبل الإدارة",
       "recorded": "تم التسجيل",
       "completed": "مكتمل"
+    }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "unread": "غير مقروء",
+    "new": "جديد",
+    "markAsRead": "تحديد كمقروء",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "filterAll": "الكل",
+    "filterUnread": "غير مقروءة",
+    "allCaughtUp": "أنت على اطلاع دائم!",
+    "noNotifications": "لا توجد إشعارات بعد",
+    "noUnreadDesc": "لقد قرأت جميع إشعاراتك.",
+    "emptyDesc": "سنخطرك عند وجود طلبات جديدة أو تحديثات."
+  },
+  "attributes": {
+    "title": "السمات والخيارات",
+    "subtitle": "إدارة سمات وخيارات المنتجات القابلة لإعادة الاستخدام في متجرك.",
+    "createBtn": "إضافة سمة",
+    "searchPlaceholder": "البحث في السمات أو القيم...",
+    "card": {
+      "sortOrder": "ترتيب العرض",
+      "editAttribute": "تعديل السمة",
+      "deleteAttribute": "حذف السمة",
+      "valuesCount": "القيم ({{count}})",
+      "addValue": "إضافة قيمة",
+      "noValues": "لا توجد قيم بعد. انقر على \"إضافة قيمة\" لإضافة خيارات.",
+      "editValue": "تعديل القيمة",
+      "deleteValue": "حذف القيمة"
+    },
+    "form": {
+      "createTitle": "إضافة سمة جديدة",
+      "editTitle": "تعديل السمة",
+      "nameEnLabel": "اسم السمة (بالإنجليزية)",
+      "nameEnRequired": "اسم السمة بالإنجليزية مطلوب",
+      "nameArLabel": "اسم السمة (بالعربية)",
+      "nameArRequired": "اسم السمة بالعربية مطلوب",
+      "sortOrderLabel": "ترتيب العرض",
+      "sortOrderHint": "الأرقام الأصغر تظهر أولاً في قوائم الاختيار.",
+      "initialValuesLabel": "القيم الأولية (اختياري)",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "createBtn": "إنشاء السمة",
+      "updateBtn": "حفظ التغييرات"
+    },
+    "valueModal": {
+      "addTitle": "إضافة قيمة جديدة",
+      "editTitle": "تعديل القيمة",
+      "parentAttribute": "السمة: {{name}}",
+      "valueEnLabel": "القيمة (بالإنجليزية)",
+      "valueEnRequired": "القيمة بالإنجليزية مطلوبة",
+      "valueArLabel": "القيمة (بالعربية)",
+      "valueArRequired": "القيمة بالعربية مطلوبة",
+      "sortOrderLabel": "ترتيب العرض",
+      "sortOrderHint": "يحدد موقع هذه القيمة في القوائم المنسدلة للمنتج.",
+      "createBtn": "إضافة القيمة",
+      "updateBtn": "حفظ القيمة"
+    },
+    "deleteModal": {
+      "attributeTitle": "حذف السمة",
+      "valueTitle": "حذف القيمة",
+      "parentAttr": "من السمة: {{name}}",
+      "attributeWarning": "سيتم حذف هذه السمة نهائياً. ستفشل عملية الحذف إذا كانت هذه السمة مستخدمة حالياً في أي منتج.",
+      "valueWarning": "سيتم حذف هذه القيمة. ستفشل عملية الحذف إذا كان هناك أي شكل للمنتج يستخدم هذه القيمة حالياً.",
+      "deleting": "جارٍ الحذف...",
+      "confirmBtn": "نعم، تأكيد الحذف"
+    },
+    "empty": {
+      "title": "لا توجد سمات بعد",
+      "description": "أنشئ سمات مسبقة الإعداد مثل المقاسات، الألوان، أو الخامات مع قيمها لتتمكن من تعيينها بسهولة عند إضافة المنتجات.",
+      "action": "إضافة أول سمة"
+    },
+    "emptySearch": {
+      "title": "لا توجد نتائج مطابقة",
+      "description": "لم يتم العثور على أي سمة تطابق \"{{query}}\". جرب البحث باسم آخر.",
+      "clear": "مسح البحث"
+    },
+    "error": {
+      "title": "فشل تحميل السمات",
+      "description": "حدث خطأ غير متوقع أثناء جلب بيانات السمات.",
+      "retry": "إعادة المحاولة"
+    },
+    "toasts": {
+      "createSuccess": "تم إنشاء السمة بنجاح",
+      "createError": "فشل إنشاء السمة",
+      "updateSuccess": "تم تحديث السمة بنجاح",
+      "updateError": "فشل تحديث السمة",
+      "deleteSuccess": "تم حذف السمة بنجاح",
+      "deleteError": "فشل حذف السمة. قد تكون مرتبطة بمنتجات حالية.",
+      "addValueSuccess": "تمت إضافة القيمة بنجاح",
+      "addValueError": "فشل إضافة القيمة",
+      "updateValueSuccess": "تم تحديث القيمة بنجاح",
+      "updateValueError": "فشل تحديث القيمة",
+      "deleteValueSuccess": "تم حذف القيمة بنجاح",
+      "deleteValueError": "فشل حذف القيمة. قد تكون مستخدمة في أشكال منتجات حالية."
     }
   }
 }

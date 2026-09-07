@@ -36,14 +36,26 @@ export default function VariantsPreviewCard({
   // Generate combinations dynamically from varianceCards or fallback from sizes, colors, and custom variances
   const variantCombinations = useMemo(() => {
     if (varianceCards && varianceCards.length > 0) {
-      return varianceCards.map((card) => ({
-        size: card.size || undefined,
-        color: card.color || undefined,
-        customAttrs: undefined as Record<string, string> | undefined,
-        variantSku: card.sku || [sku, card.size, card.color].filter(Boolean).join('-') || 'SKU',
-        stock: Number(card.stock) || 0,
-        price: parseFloat(card.basePrice) || priceNum,
-      }));
+      return varianceCards.map((card) => {
+        const extraAttrVals = card.attributes
+          ? Object.values(card.attributes).filter(Boolean)
+          : [];
+        const skuParts = [
+          sku || card.sku || 'SKU',
+          card.size,
+          card.color,
+          ...extraAttrVals,
+        ].filter(Boolean);
+
+        return {
+          size: card.size || undefined,
+          color: card.color || undefined,
+          customAttrs: card.attributes,
+          variantSku: card.sku || skuParts.join('-'),
+          stock: Number(card.stock) || 0,
+          price: parseFloat(card.basePrice) || priceNum,
+        };
+      });
     }
 
     const validSizes = sizes.filter((s) => s.trim().length > 0);
@@ -123,6 +135,19 @@ export default function VariantsPreviewCard({
     });
   }, [varianceCards, sizes, colors, customVariances, sku, totalStock, priceNum]);
 
+  const extraAttrKeys = useMemo(() => {
+    if (!varianceCards || varianceCards.length === 0) return [];
+    const keys = new Set<string>();
+    varianceCards.forEach((c) => {
+      if (c.attributes) {
+        Object.keys(c.attributes).forEach((k) => {
+          if (c.attributes?.[k]) keys.add(k);
+        });
+      }
+    });
+    return Array.from(keys);
+  }, [varianceCards]);
+
   if (variantCombinations.length === 0) {
     return null;
   }
@@ -162,6 +187,11 @@ export default function VariantsPreviewCard({
                   {cv.name}
                 </th>
               ))}
+              {extraAttrKeys.map((k) => (
+                <th key={k} className="px-4 py-2.5 capitalize">
+                  {k}
+                </th>
+              ))}
               <th className="px-4 py-2.5">{t('addProduct.basePrice', 'Price')}</th>
               <th className="px-4 py-2.5">{t('addProduct.preview.stock', 'Stock')}</th>
               <th className="px-4 py-2.5">{t('addProduct.preview.status', 'Status')}</th>
@@ -192,6 +222,13 @@ export default function VariantsPreviewCard({
                   <td key={cv.name} className="px-4 py-2.5 text-gray-700">
                     <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-800">
                       {item.customAttrs?.[cv.name] || '-'}
+                    </span>
+                  </td>
+                ))}
+                {extraAttrKeys.map((k) => (
+                  <td key={k} className="px-4 py-2.5 text-gray-700">
+                    <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-800">
+                      {item.customAttrs?.[k] || '-'}
                     </span>
                   </td>
                 ))}

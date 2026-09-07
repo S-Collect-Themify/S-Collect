@@ -26,6 +26,7 @@ export interface VarianceCardData {
   id: string;
   size: string;
   color: string;
+  attributes?: Record<string, string>;
   stock: number;
   basePrice: string;
   comparePrice: string;
@@ -42,6 +43,8 @@ export interface ProductFormData {
   sku: string;
   images: File[];
   existingImages?: ExistingImage[];
+  sizeChartImages?: File[];
+  existingSizeChartImages?: ExistingImage[];
   optionsMeta?: OptionMeta[];
   variantsMeta?: VariantMeta[];
   categoryId: string;
@@ -102,5 +105,7 @@ export interface RawProductResponse {
   options?: ProductOption[];
   variants?: ProductVariant[];
   images?: ProductImage[];
+  sizeChartImages?: ProductImage[];
+  sizeCharts?: ProductImage[];
   thumbnailUrl?: string;
 }

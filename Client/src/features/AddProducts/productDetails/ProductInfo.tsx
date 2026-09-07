@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Pencil, Trash2, Tag } from 'lucide-react';
+import { Star, Pencil, Trash2, Tag, FileSpreadsheet, Maximize2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Swiper as SwiperClass } from 'swiper';
@@ -49,6 +49,7 @@ export interface ProductInfoProps {
   totalReviews?: number;
   options?: ProductOption[];
   variants?: ProductVariant[];
+  sizeChartImages?: ProductImageInfo[];
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -73,11 +74,13 @@ export default function ProductInfo({
   totalReviews,
   options = [],
   variants = [],
+  sizeChartImages = [],
   onEdit,
   onDelete,
 }: ProductInfoProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [activeModalSizeChart, setActiveModalSizeChart] = useState<string | null>(null);
   const routeParams = useParams<{ id: string }>();
   const deleteMutation = useDeleteProduct();
 
@@ -492,6 +495,60 @@ export default function ProductInfo({
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {sizeChartImages && sizeChartImages.length > 0 && (
+        <div className="mt-6 border-t border-gray-100 pt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <FileSpreadsheet className="w-4 h-4 text-gray-700" />
+            <h3 className="text-sm font-bold text-gray-900">
+              {t('addProduct.sizeChart', 'Size Chart / Table Image')}
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {sizeChartImages.map((img, idx) => (
+              <div
+                key={img.id || idx}
+                onClick={() => img.url && setActiveModalSizeChart(img.url)}
+                className="group relative h-24 w-24 sm:h-28 sm:w-28 cursor-pointer rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs transition hover:shadow-sm"
+              >
+                <img
+                  src={img.url}
+                  alt={t('addProduct.sizeChart', 'Size Chart')}
+                  className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
+                  <Maximize2 size={16} className="text-white" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeModalSizeChart && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs"
+          onClick={() => setActiveModalSizeChart(null)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl bg-white p-2 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveModalSizeChart(null)}
+              className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+            <img
+              src={activeModalSizeChart}
+              alt={t('addProduct.sizeChart', 'Size Chart Preview')}
+              className="max-h-[85vh] max-w-[85vw] rounded-xl object-contain"
+            />
           </div>
         </div>
       )}

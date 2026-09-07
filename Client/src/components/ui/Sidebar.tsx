@@ -7,6 +7,7 @@ import {
   Handbag,
   SquareUserRoundIcon,
   RotateCcw,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -196,6 +197,11 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <CirclePlus size={18} />,
         labelKey: 'sidebar.items.addProduct',
         to: '/add-product',
+      },
+      {
+        icon: <SlidersHorizontal size={18} />,
+        labelKey: 'sidebar.items.attributes',
+        to: '/attributes',
       },
     ],
   },

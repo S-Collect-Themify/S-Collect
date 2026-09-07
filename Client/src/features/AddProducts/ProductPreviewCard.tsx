@@ -46,6 +46,13 @@ const ProductPreviewCard = ({
     thumbnailUrl ||
     (newImagePreview ? URL.createObjectURL(newImagePreview) : undefined);
 
+  const sizeChartPreviews = [
+    ...(formData.existingSizeChartImages || []).map((img) => img.url),
+    ...(formData.sizeChartImages || []).map((file) =>
+      URL.createObjectURL(file)
+    ),
+  ].filter(Boolean);
+
   const productName =
     (isArabic
       ? formData.nameAr || formData.nameEn
@@ -220,6 +227,22 @@ const ProductPreviewCard = ({
                         {t('addProduct.color', 'Color')}: {card.color}
                       </span>
                     )}
+                    {card.attributes &&
+                      Object.entries(card.attributes).map(([attrKey, attrVal]) => {
+                        if (!attrVal) return null;
+                        const meta = formData.optionsMeta?.find((m) => m.id === attrKey);
+                        const label = isArabic
+                          ? meta?.nameAr || meta?.name || attrKey
+                          : meta?.name || attrKey;
+                        return (
+                          <span
+                            key={attrKey}
+                            className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
+                          >
+                            {label}: {attrVal}
+                          </span>
+                        );
+                      })}
                     {typeof card.stock === 'number' && (
                       <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600">
                         {t('addProduct.stockQuantity', 'Stock')}: {card.stock}
@@ -254,6 +277,26 @@ const ProductPreviewCard = ({
             <TagList label={t('addProduct.colors', 'Colors')} items={colors} />
           )}
         </>
+      )}
+
+      {/* Size Chart Images Preview */}
+      {sizeChartPreviews.length > 0 && (
+        <div className="mt-6 border-t border-gray-100 pt-5">
+          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">
+            {t('addProduct.sizeChart', 'Size Chart / Table Image')} (
+            {sizeChartPreviews.length})
+          </p>
+          <div className="flex flex-wrap gap-2.5">
+            {sizeChartPreviews.map((src, idx) => (
+              <img
+                key={idx}
+                src={src}
+                alt={t('addProduct.sizeChart', 'Size Chart')}
+                className="h-20 w-20 rounded-xl object-cover border border-gray-200"
+              />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

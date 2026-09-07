@@ -302,6 +302,13 @@ const ProductDetails = () => {
                   ? [{ id: '1', url: product.icon, isThumbnail: true }]
                   : []
           }
+          sizeChartImages={
+            Array.isArray(product.sizeChartImages) && product.sizeChartImages.length > 0
+              ? product.sizeChartImages
+              : Array.isArray((product as any).sizeCharts)
+                ? (product as any).sizeCharts
+                : []
+          }
           name={productName}
           description={product.description}
           descriptionAr={product.descriptionAr}

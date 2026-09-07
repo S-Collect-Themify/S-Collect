@@ -309,6 +309,52 @@ export const uploadProductImage = async (productId: string, file: File) => {
   }
 };
 
+export const uploadProductSizeChart = async (
+  productId: string,
+  file: File
+) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await api.post(
+      `/vendor/products/${productId}/size-chart-images`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+
+    const unwrapped =
+      data && typeof data === 'object' && 'success' in data && 'data' in data
+        ? (data as any).data
+        : data;
+
+    return unwrapped;
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to upload size chart image for product ${productId}`
+    );
+  }
+};
+
+export const deleteProductSizeChart = async (
+  productId: string,
+  imageId: string
+) => {
+  try {
+    const { data } = await api.delete(
+      `/vendor/products/${productId}/size-chart-images/${imageId}`
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(
+      err,
+      `Failed to delete size chart image ${imageId}`
+    );
+  }
+};
+
 export const searchVendorProducts = async (query: {
   pageNum?: number;
   pageSize?: number;
