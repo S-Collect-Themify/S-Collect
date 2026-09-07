@@ -20,6 +20,8 @@ const ReturnRequests = lazy(() => import('./pages/ReturnRequests'));
 const ReturnRequestDetails = lazy(() => import('./pages/ReturnRequestDetails'));
 const Vendors = lazy(() => import('./pages/Vendors'));
 const VendorDetails = lazy(() => import('./pages/VendorDetails'));
+const EditVendor = lazy(() => import('./pages/EditVendor'));
+const AddVendor = lazy(() => import('./pages/AddVendor'));
 const VendorPayoutsPage = lazy(() => import('./pages/VendorPayoutsPage'));
 const VendorOrdersPage = lazy(() => import('./pages/VendorOrdersPage'));
 const VendorProductsPage = lazy(() => import('./pages/VendorProductsPage'));
@@ -94,7 +96,9 @@ function App() {
             <Route path="/returns/:id" element={<ReturnRequestDetails />} />
             <Route path="/incoming-orders/:id" element={<OrderDetails />} />
             <Route path="/vendors" element={<Vendors />} />
+            <Route path="/vendors/new" element={<AddVendor />} />
             <Route path="/vendors/:id" element={<VendorDetails />} />
+            <Route path="/vendors/:id/edit" element={<EditVendor />} />
             <Route path="/vendors/:id/payouts" element={<VendorPayoutsPage />} />
             <Route path="/vendors/:id/orders" element={<VendorOrdersPage />} />
             <Route path="/vendors/:id/products" element={<VendorProductsPage />} />

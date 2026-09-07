@@ -8,6 +8,7 @@ import {
   useRejectVendor,
   useDeactivateVendor,
   useReactivateVendor,
+  useDeleteVendor,
   useFeatureVendor,
   useUnfeatureVendor,
 } from '../hooks/useVendors';
@@ -55,6 +56,7 @@ export default function VendorTable() {
   const rejectMutation = useRejectVendor();
   const deactivateMutation = useDeactivateVendor();
   const reactivateMutation = useReactivateVendor();
+  const deleteMutation = useDeleteVendor();
   const featureMutation = useFeatureVendor();
   const unfeatureMutation = useUnfeatureVendor();
 
@@ -90,7 +92,7 @@ export default function VendorTable() {
     paginatedIds,
   } = useVendorTable(fetchedVendors);
 
-  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature';
+  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature' | 'delete';
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: ModalType;
@@ -142,6 +144,7 @@ export default function VendorTable() {
     t('vendors.table.orders'),
     t('vendors.table.status'),
     t('vendors.table.assign', 'Assign'),
+    t('vendors.table.actions'),
   ];
 
   const tableHeaders = isAllTab ? allVendorHeaders : pendingSuspendedHeaders;
@@ -245,6 +248,11 @@ export default function VendorTable() {
     } else if (type === 'unfeature') {
       ids.forEach((id) => {
         unfeatureMutation.mutate(id);
+      });
+      clearSelection();
+    } else if (type === 'delete') {
+      ids.forEach((id) => {
+        deleteMutation.mutate(id);
       });
       clearSelection();
     }

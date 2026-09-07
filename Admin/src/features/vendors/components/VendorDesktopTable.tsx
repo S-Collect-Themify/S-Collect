@@ -1,11 +1,11 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Inbox, Star } from 'lucide-react';
+import { Inbox, Star, SquarePen, Trash2 } from 'lucide-react';
 import Toggle from '../../../components/ui/Toggle';
 import type { Vendor, VendorTab } from '../types/vendors';
 
-type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate';
+type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'delete';
 
 interface VendorDesktopTableProps {
   paginated: Vendor[];
@@ -184,6 +184,33 @@ export default function VendorDesktopTable({
                         }
                       />
                     </button>
+                  </td>
+                  <td
+                    className="px-4 py-3.5 whitespace-nowrap"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/vendors/${vendor.id}/edit`)}
+                        title={t('vendors.table.edit', 'Edit')}
+                        aria-label={t('vendors.table.edit', 'Edit')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <SquarePen size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openConfirm('delete', [vendor.id], vendor.businessName)
+                        }
+                        title={t('vendors.table.delete', 'Delete')}
+                        aria-label={t('vendors.table.delete', 'Delete')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-red-500 hover:bg-red-50 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
