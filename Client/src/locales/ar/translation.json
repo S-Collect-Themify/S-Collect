@@ -911,6 +911,19 @@
       "recorded": "تم التسجيل",
       "completed": "مكتمل"
     }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "unread": "غير مقروء",
+    "new": "جديد",
+    "markAsRead": "تحديد كمقروء",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "filterAll": "الكل",
+    "filterUnread": "غير مقروءة",
+    "allCaughtUp": "أنت على اطلاع دائم!",
+    "noNotifications": "لا توجد إشعارات بعد",
+    "noUnreadDesc": "لقد قرأت جميع إشعاراتك.",
+    "emptyDesc": "سنخطرك عند وجود طلبات جديدة أو تحديثات."
   }
 }
 

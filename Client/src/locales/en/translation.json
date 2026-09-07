@@ -915,6 +915,19 @@
       "recorded": "Recorded",
       "completed": "Completed"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "Unread",
+    "new": "new",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "allCaughtUp": "All caught up!",
+    "noNotifications": "No notifications yet",
+    "noUnreadDesc": "You have read all your notifications.",
+    "emptyDesc": "We will notify you when there are new orders or updates."
   }
 }
 
