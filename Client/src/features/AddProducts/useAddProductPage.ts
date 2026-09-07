@@ -21,6 +21,8 @@ const defaultFormValues: ProductFormData = {
   sku: '',
   images: [],
   existingImages: [],
+  sizeChartImages: [],
+  existingSizeChartImages: [],
   optionsMeta: [],
   variantsMeta: [],
   categoryId: '',

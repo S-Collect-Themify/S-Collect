@@ -312,6 +312,16 @@
     "imageDeleteFailed": "Failed to delete image",
     "maxImagesExceeded": "You cannot upload more than 6 images for a product.",
 
+    "sizeChart": "Size Chart / Table Image",
+    "sizeChartDesc": "Upload size chart or measurement guide images for this product.",
+    "uploadSizeChart": "Add Size Chart",
+    "maxSizeChartsExceeded": "You cannot upload more than 4 size chart images.",
+    "sizeChartUploaded": "Size chart image uploaded successfully",
+    "sizeChartUploadFailed": "Failed to upload size chart image",
+    "sizeChartDeleted": "Size chart image deleted successfully",
+    "sizeChartDeleteFailed": "Failed to delete size chart image",
+    "viewSizeChart": "View Size Chart",
+
     "active": "Active",
     "inactive": "Inactive",
     "thumbnail": "Thumbnail",

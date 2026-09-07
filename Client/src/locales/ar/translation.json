@@ -312,6 +312,16 @@
     "imageDeleteFailed": "فشل حذف الصورة",
     "maxImagesExceeded": "لا يمكنك إضافة أكثر من 6 صور للمنتج.",
 
+    "sizeChart": "جدول المقاسات / صورة جدول القياسات",
+    "sizeChartDesc": "ارفع صور جدول المقاسات أو دليل القياسات لهذا المنتج.",
+    "uploadSizeChart": "إضافة جدول مقاسات",
+    "maxSizeChartsExceeded": "لا يمكنك رفع أكثر من 4 صور لجدول المقاسات.",
+    "sizeChartUploaded": "تم رفع صورة جدول المقاسات بنجاح",
+    "sizeChartUploadFailed": "فشل رفع صورة جدول المقاسات",
+    "sizeChartDeleted": "تم حذف صورة جدول المقاسات بنجاح",
+    "sizeChartDeleteFailed": "فشل حذف صورة جدول المقاسات",
+    "viewSizeChart": "عرض جدول المقاسات",
+
     "active": "نشط",
     "inactive": "غير نشط",
     "thumbnail": "الصورة المصغرة",

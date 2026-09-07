@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from './types';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import MobileImageUploader from './mobile/MobileImageUploader';
+import ProductSizeChart from '../../components/ui/ProductSizeChart';
 
 const BasicInfoFields = () => {
   const { t } = useTranslation();
@@ -35,7 +36,12 @@ const BasicInfoFields = () => {
 
   return (
     <>
-      {isMobile && <MobileImageUploader />}
+      {isMobile && (
+        <>
+          <MobileImageUploader />
+          <ProductSizeChart isMobile />
+        </>
+      )}
       <div>
         <label className={labelCls}>
           {t('addProduct.nameAr', 'Product Name ( in arabic )')}{' '}

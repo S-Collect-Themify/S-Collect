@@ -43,6 +43,8 @@ export interface ProductFormData {
   sku: string;
   images: File[];
   existingImages?: ExistingImage[];
+  sizeChartImages?: File[];
+  existingSizeChartImages?: ExistingImage[];
   optionsMeta?: OptionMeta[];
   variantsMeta?: VariantMeta[];
   categoryId: string;
@@ -103,5 +105,7 @@ export interface RawProductResponse {
   options?: ProductOption[];
   variants?: ProductVariant[];
   images?: ProductImage[];
+  sizeChartImages?: ProductImage[];
+  sizeCharts?: ProductImage[];
   thumbnailUrl?: string;
 }

@@ -142,6 +142,18 @@ export const mapProductToFormData = async (
       isThumbnail: Boolean(img.isThumbnail),
     }));
 
+  const existingSizeChartImages: ExistingImage[] = (
+    raw.sizeChartImages ||
+    raw.sizeCharts ||
+    []
+  )
+    .filter((img) => img.url)
+    .map((img) => ({
+      id: img.id || '',
+      url: img.url || '',
+      isThumbnail: false,
+    }));
+
   const varianceCards: VarianceCardData[] = [];
 
   if (Array.isArray(raw.variants) && raw.variants.length > 0) {
@@ -210,6 +222,8 @@ export const mapProductToFormData = async (
     sku: firstVariant?.sku ?? (varianceCards[0]?.sku || ''),
     images: [],
     existingImages,
+    sizeChartImages: [],
+    existingSizeChartImages,
     optionsMeta,
     variantsMeta,
     categoryId: raw.categoryId || raw.category?.id || '',
@@ -345,23 +359,29 @@ export const syncProductOptions = async (
       const existingValues = Array.isArray(existingOption.values)
         ? existingOption.values
         : [];
-      const missingValues = desiredOption.values.filter((value) => {
-        const normalizedValue = normalizeOptionText(value);
+      const missingValues = desiredOption.values.filter((item) => {
+        const val = typeof item === 'string' ? item : item.value;
+        const valAr = typeof item === 'string' ? item : item.valueAr;
+        const normalizedValue = normalizeOptionText(val);
+        const normalizedValueAr = normalizeOptionText(valAr);
         return !existingValues.some(
           (optionValue) =>
             normalizeOptionText(optionValue.value) === normalizedValue ||
-            normalizeOptionText(optionValue.valueAr) === normalizedValue
+            normalizeOptionText(optionValue.valueAr) === normalizedValueAr ||
+            normalizeOptionText(optionValue.value) === normalizedValueAr
         );
       });
       const createdValues = await Promise.all(
-        missingValues.map(async (value) =>
-          unwrapApiData<ProductOptionValue>(
+        missingValues.map(async (item) => {
+          const val = typeof item === 'string' ? item : item.value;
+          const valAr = typeof item === 'string' ? item : item.valueAr;
+          return unwrapApiData<ProductOptionValue>(
             await addProductOptionValue(productId, existingOption.id!, {
-              value,
-              valueAr: value,
+              value: val,
+              valueAr: valAr,
             })
-          )
-        )
+          );
+        })
       );
 
       return {
@@ -772,6 +792,13 @@ export const mapFormToMultipartFormData = (
   if (formData.images && formData.images.length > 0) {
     formData.images.forEach((file) => {
       multipart.append('images', file);
+    });
+  }
+
+  // 7. Size chart images
+  if (formData.sizeChartImages && formData.sizeChartImages.length > 0) {
+    formData.sizeChartImages.forEach((file) => {
+      multipart.append('sizeChart', file);
     });
   }
 

@@ -7,6 +7,7 @@ import {
   setProductThumbnail,
   updateProductVariant,
   uploadProductImage,
+  uploadProductSizeChart,
 } from '../../services/products';
 import { buildProductVariantMutations, syncProductOptions } from './utils';
 import type { ProductFormData } from './types';
@@ -124,6 +125,36 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
             } catch (imgErr) {
               console.error('Failed to upload images after creation:', imgErr);
             }
+          }
+        }
+      }
+
+      // Fallback: upload size charts if backend createProductFull didn't attach them
+      const hasSizeChartsFromBackend =
+        Array.isArray(unwrapped?.sizeChartImages) &&
+        unwrapped.sizeChartImages.length > 0;
+
+      if (!isEdit && targetId && !hasSizeChartsFromBackend) {
+        const pendingSizeCharts =
+          productFormData.sizeChartImages && productFormData.sizeChartImages.length > 0
+            ? productFormData.sizeChartImages
+            : (formData
+                .getAll('sizeChart')
+                .filter((f): f is File => f instanceof File) as File[]);
+
+        if (pendingSizeCharts.length > 0) {
+          try {
+            const uploadedCharts = await Promise.all(
+              pendingSizeCharts.map((file) =>
+                uploadProductSizeChart(targetId, file)
+              )
+            );
+            unwrapped.sizeChartImages = uploadedCharts;
+          } catch (chartErr) {
+            console.error(
+              'Failed to upload size chart images after creation:',
+              chartErr
+            );
           }
         }
       }

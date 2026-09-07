@@ -3,6 +3,7 @@ export interface VendorAttributeValue {
   value: string;
   valueAr: string;
   sortOrder: number;
+  hexColor?: string;
 }
 
 export interface VendorAttribute {
