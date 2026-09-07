@@ -8,6 +8,9 @@ import {
   rejectVendor,
   deactivateVendor,
   reactivateVendor,
+  deleteVendor,
+  updateVendor,
+  createVendor,
   getVendorPayouts,
   getVendorPayoutSummary,
   getVendorPayoutStats,
@@ -16,6 +19,8 @@ import {
   getTopPerformingVendors,
   type GetVendorsParams,
   type GetTopPerformingVendorsParams,
+  type UpdateVendorPayload,
+  type CreateVendorPayload,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
@@ -94,6 +99,60 @@ export function useVendorDetails(id: string) {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+  });
+}
+
+/** Raw backend vendor object — used to prefill the edit form. */
+export function useVendorRawDetails(id: string) {
+  return useQuery({
+    queryKey: ['vendor-raw', id],
+    queryFn: async () => {
+      if (!id) return null;
+      return getVendorById(id);
+    },
+    enabled: !!id,
+    retry: 2,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useCreateVendor() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (payload: CreateVendorPayload) => createVendor(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      toast.success(t('vendors.notifications.createSuccess', 'Vendor created successfully'));
+    },
+    onError: (error: any) => {
+      console.error('Failed to create vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || t('vendors.notifications.createError', 'Failed to create vendor'));
+    },
+  });
+}
+
+export function useUpdateVendor() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateVendorPayload }) =>
+      updateVendor(id, payload),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-raw', id] });
+      toast.success(t('vendors.notifications.updateSuccess', 'Vendor updated successfully'));
+    },
+    onError: (error: any) => {
+      console.error('Failed to update vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || t('vendors.notifications.updateError', 'Failed to update vendor'));
+    },
   });
 }
 
@@ -229,6 +288,36 @@ export function useReactivateVendor() {
     },
     onError: (error: Error) => {
       toast.error(error.message || t('vendors.notifications.reactivateError', 'Failed to reactivate vendor'));
+    },
+  });
+}
+
+export function useDeleteVendor() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteVendor(id),
+    onSuccess: (_data, id) => {
+      // Optimistically drop the deleted vendor from every cached vendors list
+      queryClient.setQueriesData<any>({ queryKey: ['vendors'] }, (old: any) => {
+        if (!old) return old;
+        const arr: any[] = Array.isArray(old) ? old : old.items;
+        if (!Array.isArray(arr)) return old;
+        const filtered = arr.filter((v) => v.id !== id);
+        return Object.assign(filtered, {
+          items: filtered,
+          pagination: Array.isArray(old) ? undefined : old.pagination,
+        });
+      });
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      queryClient.invalidateQueries({ queryKey: ['vendor'] });
+      toast.success(t('vendors.notifications.deleteSuccess', 'Vendor deleted successfully'));
+    },
+    onError: (error: any) => {
+      console.error('Failed to delete vendor:', error);
+      const message = error?.response?.data?.message || error?.message;
+      toast.error(message || t('vendors.notifications.deleteError', 'Failed to delete vendor'));
     },
   });
 }
