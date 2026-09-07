@@ -26,6 +26,7 @@ export interface VarianceCardData {
   id: string;
   size: string;
   color: string;
+  attributes?: Record<string, string>;
   stock: number;
   basePrice: string;
   comparePrice: string;

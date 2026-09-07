@@ -24,6 +24,7 @@
     "items": {
       "dashboard": "Dashboard",
       "management": "Management",
+      "attributes": "Attributes",
       "addProduct": "Add Product",
       "inventory": "Inventory",
       "incomingOrders": "Incoming Orders",
@@ -245,7 +246,35 @@
     "selectSize": "Select Size",
     "stockQuantity": "Stock Quantity",
     "addVariance": "Add Variance",
+    "autoGenerateVariants": "Auto Generate Variants",
+    "autoGenerateSubtitle": "Select 1 color and multiple sizes to instantly generate variants",
+    "selectColorTitle": "1. Select One Color",
+    "selectSizesTitle": "2. Select Sizes",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "generationPreview": "Variants to be generated:",
+    "generateButton": "Auto Generate ({{count}})",
+    "variantsGeneratedSuccess": "Successfully generated {{count}} variants with Price 0 and Stock 1",
     "removeVarianceCard": "Remove Card",
+    "productOptions": "Product Options & Attributes",
+    "optionsLoadedFromAttributes": "Options are populated from your pre-configured attributes library.",
+    "optionsDefaultHint": "Pre-configure reusable attributes to quickly choose sizes, colors, and options.",
+    "manageAttributes": "Manage Attributes",
+    "primaryAttribute": "Primary Option Attribute",
+    "secondaryAttribute": "Secondary Option Attribute",
+    "addOption": "+ Add Option",
+    "removeOption": "Remove option",
+    "optionLabel": "Option {{num}}",
+    "noneSecondaryOption": "-- None / Custom text --",
+    "selectOptionValue": "Select option...",
+    "selectOrEnterOption": "Select or enter value (e.g. {{sample}})",
+    "suggestions": "Suggestions:",
+    "duplicateVariance": "Duplicate",
+    "totalStock": "Total Stock",
+    "units": "units",
+    "variantsCount": "variants",
+    "applyToLastRow": "Apply to current row",
+    "actions": "Actions",
 
     "addCategory": "Add Category",
     "addSize": "Add Size",
@@ -928,6 +957,88 @@
     "noNotifications": "No notifications yet",
     "noUnreadDesc": "You have read all your notifications.",
     "emptyDesc": "We will notify you when there are new orders or updates."
+  },
+  "attributes": {
+    "title": "Attributes",
+    "subtitle": "Configure reusable option attributes and values for your products.",
+    "createBtn": "Add Attribute",
+    "searchPlaceholder": "Search attributes or values...",
+    "card": {
+      "sortOrder": "Sort order",
+      "editAttribute": "Edit attribute",
+      "deleteAttribute": "Delete attribute",
+      "valuesCount": "Values ({{count}})",
+      "addValue": "Add Value",
+      "noValues": "No values yet. Click \"Add Value\" to define options.",
+      "editValue": "Edit value",
+      "deleteValue": "Delete value"
+    },
+    "form": {
+      "createTitle": "Create New Attribute",
+      "editTitle": "Edit Attribute",
+      "nameEnLabel": "Attribute Name (English)",
+      "nameEnRequired": "English attribute name is required",
+      "nameArLabel": "Attribute Name (Arabic)",
+      "nameArRequired": "Arabic attribute name is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Lower numbers appear first in product option selectors.",
+      "initialValuesLabel": "Initial Values (Optional)",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "createBtn": "Create Attribute",
+      "updateBtn": "Save Changes"
+    },
+    "valueModal": {
+      "addTitle": "Add New Value",
+      "editTitle": "Edit Attribute Value",
+      "parentAttribute": "Attribute: {{name}}",
+      "valueEnLabel": "Value (English)",
+      "valueEnRequired": "English value is required",
+      "valueArLabel": "Value (Arabic)",
+      "valueArRequired": "Arabic value is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Determines the position of this value in product dropdowns.",
+      "createBtn": "Add Value",
+      "updateBtn": "Save Value"
+    },
+    "deleteModal": {
+      "attributeTitle": "Delete Attribute",
+      "valueTitle": "Remove Attribute Value",
+      "parentAttr": "From attribute: {{name}}",
+      "attributeWarning": "This attribute will be permanently removed. The deletion will fail if this attribute is actively attached to any product.",
+      "valueWarning": "This value will be removed. The deletion will fail if any product variant is actively using this value.",
+      "deleting": "Deleting...",
+      "confirmBtn": "Yes, Delete"
+    },
+    "empty": {
+      "title": "No attributes yet",
+      "description": "Create reusable attributes like Sizes, Colors, or Materials with their values so you can easily assign them when adding products.",
+      "action": "Create First Attribute"
+    },
+    "emptySearch": {
+      "title": "No matching attributes",
+      "description": "No attributes found matching \"{{query}}\". Try searching for another name.",
+      "clear": "Clear search"
+    },
+    "error": {
+      "title": "Failed to load attributes",
+      "description": "An unexpected error occurred while fetching attributes.",
+      "retry": "Retry"
+    },
+    "toasts": {
+      "createSuccess": "Attribute created successfully",
+      "createError": "Failed to create attribute",
+      "updateSuccess": "Attribute updated successfully",
+      "updateError": "Failed to update attribute",
+      "deleteSuccess": "Attribute deleted successfully",
+      "deleteError": "Failed to delete attribute. It may be in use by products.",
+      "addValueSuccess": "Value added successfully",
+      "addValueError": "Failed to add value",
+      "updateValueSuccess": "Value updated successfully",
+      "updateValueError": "Failed to update value",
+      "deleteValueSuccess": "Value removed successfully",
+      "deleteValueError": "Failed to remove value. It may be in use by product variants."
+    }
   }
 }
 

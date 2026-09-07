@@ -220,6 +220,22 @@ const ProductPreviewCard = ({
                         {t('addProduct.color', 'Color')}: {card.color}
                       </span>
                     )}
+                    {card.attributes &&
+                      Object.entries(card.attributes).map(([attrKey, attrVal]) => {
+                        if (!attrVal) return null;
+                        const meta = formData.optionsMeta?.find((m) => m.id === attrKey);
+                        const label = isArabic
+                          ? meta?.nameAr || meta?.name || attrKey
+                          : meta?.name || attrKey;
+                        return (
+                          <span
+                            key={attrKey}
+                            className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
+                          >
+                            {label}: {attrVal}
+                          </span>
+                        );
+                      })}
                     {typeof card.stock === 'number' && (
                       <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600">
                         {t('addProduct.stockQuantity', 'Stock')}: {card.stock}

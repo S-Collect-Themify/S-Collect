@@ -24,6 +24,7 @@ import Receivables from './pages/Receivables.js';
 
 import ReturnRequests from './pages/ReturnRequests.js';
 import ReturnRequestDetails from './pages/ReturnRequestDetails.js';
+import Attributes from './pages/Attributes.js';
 
 function App() {
   const { i18n } = useTranslation();
@@ -66,6 +67,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/management" element={<Management />} />
+          <Route path="/attributes" element={<Attributes />} />
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/edit-product/:productId" element={<AddProduct />} />
           <Route path="/product-details/:id" element={<ProductDetails />} />
