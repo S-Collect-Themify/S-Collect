@@ -14,6 +14,8 @@ import type { FilterKey } from '../constants';
 import {
   getAdminInventory,
   bulkUpdateVariantStock,
+  exportAdminInventory,
+  downloadInventoryExport,
 } from '../../../services/inventory';
 import { getVendors } from '../../../services/vendors';
 
@@ -316,6 +318,38 @@ export function useInventory() {
     saveMutation.mutate(changesList);
   };
 
+  // Export the current (filtered) inventory to an Excel file via the API
+  const exportMutation = useMutation({
+    mutationFn: () =>
+      exportAdminInventory({
+        search: search || undefined,
+        vendorId: vendorId || undefined,
+        minStock,
+        maxStock,
+        stockStatus,
+      }),
+    onSuccess: (file) => {
+      downloadInventoryExport(file);
+      toast.success(
+        t('inventoryPage.exportSuccess', 'Inventory exported successfully!')
+      );
+    },
+    onError: (err: unknown) => {
+      console.error('Failed to export inventory:', err);
+      toast.error(
+        getErrorMessage(
+          err,
+          t('inventoryPage.exportFailed', 'Failed to export inventory.')
+        )
+      );
+    },
+  });
+
+  const handleExport = () => {
+    if (exportMutation.isPending) return;
+    exportMutation.mutate();
+  };
+
   return {
     search,
     activeTab,
@@ -335,5 +369,7 @@ export function useInventory() {
     handleVendorChange,
     handleSave,
     isSaving: saveMutation.isPending,
+    handleExport,
+    isExporting: exportMutation.isPending,
   };
 }

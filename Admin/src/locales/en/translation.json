@@ -623,6 +623,10 @@
     "saveSuccess": "Changes saved successfully!",
     "saveFailed": "Failed to save changes.",
     "noChanges": "No changes to save.",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "exportSuccess": "Inventory exported successfully!",
+    "exportFailed": "Failed to export inventory.",
     "updated": "Updated"
   },
   "managementTable": {
