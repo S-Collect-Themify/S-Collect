@@ -280,11 +280,11 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
   const [isAutoGenerateOpen, setIsAutoGenerateOpen] = useState(false);
 
   const handleAutoGenerateVariants = ({
-    color,
+    colors,
     sizes,
     replaceExisting,
   }: {
-    color: string;
+    colors: string[];
     sizes: string[];
     replaceExisting: boolean;
   }) => {
@@ -304,26 +304,31 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
       }
     });
 
-    const newCards: VarianceCardData[] = sizes.map((size, index) => {
-      const cardAttrs = { ...initialAttrs };
-      if (colorAttr) {
-        cardAttrs[colorAttr.id] = color;
-      }
-      if (activeAttributes[0]) {
-        cardAttrs[activeAttributes[0].id] = size;
-      }
+    const newCards: VarianceCardData[] = [];
+    let index = 0;
+    for (const color of colors) {
+      for (const size of sizes) {
+        const cardAttrs = { ...initialAttrs };
+        if (colorAttr) {
+          cardAttrs[colorAttr.id] = color;
+        }
+        if (activeAttributes[0]) {
+          cardAttrs[activeAttributes[0].id] = size;
+        }
 
-      return {
-        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-        size,
-        color,
-        attributes: cardAttrs,
-        stock: 1,
-        basePrice: '0',
-        comparePrice: '',
-        sku: generateRandomSku(color, size),
-      };
-    });
+        newCards.push({
+          id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+          size,
+          color,
+          attributes: cardAttrs,
+          stock: 1,
+          basePrice: '0',
+          comparePrice: '',
+          sku: generateRandomSku(color, size),
+        });
+        index++;
+      }
+    }
 
     const isDefaultSingleEmpty =
       varianceCards.length === 1 &&

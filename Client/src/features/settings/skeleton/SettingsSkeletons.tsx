@@ -101,6 +101,18 @@ export function AccountSettingsFormSkeleton() {
         </div>
       </div>
 
+      {/* Inventory preferences section */}
+      <div className={cardCls}>
+        <div className="md:p-5 px-4 py-6">
+          <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" />
+          <div className="h-3 w-64 bg-gray-200 rounded mt-2 mb-4 animate-pulse" />
+          <div className="max-w-md">
+            <div className="h-3 w-36 bg-gray-200 rounded mb-1.5 animate-pulse" />
+            <div className="h-10 w-full bg-gray-200 rounded-lg animate-pulse" />
+          </div>
+        </div>
+      </div>
+
       {/* Change password section */}
       <div className={cardCls}>
         <div className="md:p-5 px-4 py-6">

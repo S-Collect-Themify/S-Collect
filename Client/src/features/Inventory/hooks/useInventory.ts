@@ -11,12 +11,17 @@ import {
   getVendorInventory,
   bulkUpdateVariantStock,
 } from '../../../services/inventory';
+import { useInventorySettingsStore } from '../../../store/inventorySettingsStore';
+import { useInventoryExport } from './useInventoryExport';
 
 export function useInventory() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const isAr = i18n.language === 'ar';
+  const lowStockThreshold = useInventorySettingsStore(
+    (s) => s.lowStockThreshold
+  );
 
   // URL search params as the source of truth for UI state (0 useEffect!)
   const search = searchParams.get('search') || '';
@@ -37,15 +42,15 @@ export function useInventory() {
     maxStock = 0;
   } else if (activeTab === 'Low Stock') {
     minStock = 1;
-    maxStock = 5;
+    maxStock = lowStockThreshold;
   } else if (activeTab === 'In Stock') {
-    minStock = 6;
+    minStock = lowStockThreshold + 1;
     maxStock = undefined;
   }
 
   // Query real inventory from the API with dependencies
   const { data: rawInventory } = useQuery({
-    queryKey: ['inventory', currentPage, activeTab, search],
+    queryKey: ['inventory', currentPage, activeTab, search, lowStockThreshold],
     queryFn: () =>
       getVendorInventory({
         pageNum: currentPage,
@@ -67,8 +72,9 @@ export function useInventory() {
         // Filter against original backend stock so rows stay in current tab while editing pending values
         const originalStock = typeof item.stock === 'number' ? item.stock : 0;
         if (activeTab === 'Out of Stock') return originalStock === 0;
-        if (activeTab === 'Low Stock') return originalStock >= 1 && originalStock <= 5;
-        if (activeTab === 'In Stock') return originalStock > 5;
+        if (activeTab === 'Low Stock')
+          return originalStock >= 1 && originalStock <= lowStockThreshold;
+        if (activeTab === 'In Stock') return originalStock > lowStockThreshold;
         return true;
       })
       .sort((a, b) => {
@@ -109,10 +115,10 @@ export function useInventory() {
           variant: variantStr,
           stock,
           updatedAt,
-          status: getStatus(stock),
+          status: getStatus(stock, lowStockThreshold),
         };
       });
-  }, [rawInventory, isAr, activeTab, pendingStock]);
+  }, [rawInventory, isAr, activeTab, pendingStock, lowStockThreshold]);
 
   // Derived data
   const totalItems = rawInventory?.pagination?.totalItems || 0;
@@ -124,7 +130,7 @@ export function useInventory() {
     if (currentPage < totalPages) {
       const nextPage = currentPage + 1;
       queryClient.prefetchQuery({
-        queryKey: ['inventory', nextPage, activeTab, search],
+        queryKey: ['inventory', nextPage, activeTab, search, lowStockThreshold],
         queryFn: () =>
           getVendorInventory({
             pageNum: nextPage,
@@ -143,6 +149,7 @@ export function useInventory() {
     search,
     minStock,
     maxStock,
+    lowStockThreshold,
     queryClient,
   ]);
 
@@ -245,6 +252,19 @@ export function useInventory() {
     saveMutation.mutate(changesList);
   };
 
+  const {
+    handleExportAll,
+    handleExportFiltered,
+    isExporting,
+    hasActiveFilter,
+  } = useInventoryExport({
+    pendingStock,
+    search,
+    activeTab,
+    minStock,
+    maxStock,
+  });
+
   return {
     // State
     search,
@@ -262,5 +282,10 @@ export function useInventory() {
     handlePageChange,
     handleSave,
     isSaving: saveMutation.isPending,
+    // Export
+    handleExportAll,
+    handleExportFiltered,
+    isExporting,
+    hasActiveFilter,
   };
 }

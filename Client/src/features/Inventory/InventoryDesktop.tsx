@@ -21,11 +21,20 @@ const InventoryDesktop = () => {
     handleStockChange,
     handlePageChange,
     handleSave,
+    handleExportAll,
+    handleExportFiltered,
+    isExporting,
+    hasActiveFilter,
   } = useInventory();
 
   return (
     <>
-      <InventoryHeader />
+      <InventoryHeader
+        onExportAll={handleExportAll}
+        onExportFiltered={handleExportFiltered}
+        isExporting={isExporting}
+        hasActiveFilter={hasActiveFilter}
+      />
       <div className="flex-1 overflow-y-auto bg-gray-100 sidebar-page-container">
         <InventoryToolbar
           search={search}

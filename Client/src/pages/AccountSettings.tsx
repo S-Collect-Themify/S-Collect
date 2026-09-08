@@ -24,6 +24,7 @@ const defaultAccountSettings: AccountSettingsData = {
   lastName: '',
   email: '',
   phoneNumber: '',
+  lowStockThreshold: 5,
 };
 
 export default function AccountSettingsPage({

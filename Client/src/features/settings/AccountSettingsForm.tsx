@@ -6,7 +6,9 @@ import type { AccountSettingsData, PasswordData } from './types';
 import { useChangePassword } from './hooks/useChangePassword';
 import { useUpdateAccountSettings } from './hooks/useUpdateAccountSettings';
 import { useAccountSettingsStore } from './store/useAccountSettingsStore';
+import { useCooldown } from '../../hooks/useCooldown';
 import { PersonalInfoSection } from './components/PersonalInfoSection';
+import { InventorySettingsSection } from './components/InventorySettingsSection';
 import { PasswordChangeSection } from './components/PasswordChangeSection';
 import { EmailChangeModal } from './components/EmailChangeModal';
 
@@ -27,6 +29,12 @@ export function AccountSettingsForm({
   const changePasswordMutation = useChangePassword();
   const updateAccountSettingsMutation = useUpdateAccountSettings();
 
+  const {
+    active: isCooldown,
+    secondsLeft,
+    trigger: triggerCooldown,
+  } = useCooldown(60000, 'account_settings_save_cooldown');
+
   const pwOpen = useAccountSettingsStore((s) => s.pwOpen);
   const setPwOpen = useAccountSettingsStore((s) => s.setPwOpen);
   const currentEmailDisplay = useAccountSettingsStore(
@@ -45,6 +53,7 @@ export function AccountSettingsForm({
   const methods = useForm<AccountSettingsFormValues>({
     values: {
       ...initialData,
+      lowStockThreshold: initialData.lowStockThreshold ?? 5,
       email: currentEmailDisplay || initialData.email,
       currentPassword: '',
       newPassword: '',
@@ -53,6 +62,8 @@ export function AccountSettingsForm({
   });
 
   const onSubmit = (data: AccountSettingsFormValues) => {
+    if (isCooldown) return;
+
     startTransition(async () => {
       try {
         if (pwOpen && data.currentPassword && data.newPassword) {
@@ -67,17 +78,27 @@ export function AccountSettingsForm({
           lastName: data.lastName,
           email: currentEmailDisplay || data.email,
           phoneNumber: data.phoneNumber,
+          lowStockThreshold:
+            data.lowStockThreshold !== undefined
+              ? Number(data.lowStockThreshold)
+              : 5,
         };
 
         await updateAccountSettingsMutation.mutateAsync(updatedAccountData);
 
         if (onSave) {
-          await onSave({ ...data, email: currentEmailDisplay || data.email });
+          await onSave({
+            ...data,
+            email: currentEmailDisplay || data.email,
+            lowStockThreshold: updatedAccountData.lowStockThreshold,
+          });
         }
 
         methods.setValue('currentPassword', '');
         methods.setValue('newPassword', '');
         methods.setValue('confirmPassword', '');
+
+        triggerCooldown();
 
         if (onSuccess) {
           onSuccess();
@@ -112,12 +133,13 @@ export function AccountSettingsForm({
         className="space-y-3 settings-surface-enter"
       >
         <PersonalInfoSection />
+        <InventorySettingsSection />
         <PasswordChangeSection />
 
         <div className="flex justify-center md:justify-end pt-1">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isCooldown}
             className="py-3 px-4 rounded-lg text-sm font-semibold text-white bg-[#090909] md:w-fit w-full disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-200 ease-out active:scale-95 min-w-[130px] flex items-center justify-center cursor-pointer"
           >
             {isSubmitting ? (
@@ -126,6 +148,11 @@ export function AccountSettingsForm({
                 <span>•</span>
                 <span>•</span>
               </span>
+            ) : isCooldown ? (
+              t('settings.saveChangesCooldown', {
+                seconds: secondsLeft,
+                defaultValue: `${t('settings.saveChanges')} (${secondsLeft}s)`,
+              })
             ) : (
               t('settings.saveChanges')
             )}

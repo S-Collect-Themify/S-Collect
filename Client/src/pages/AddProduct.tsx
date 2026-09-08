@@ -356,11 +356,11 @@ const AddProduct = () => {
   };
 
   const handleAutoGenerateVariants = ({
-    color,
+    colors,
     sizes,
     replaceExisting,
   }: {
-    color: string;
+    colors: string[];
     sizes: string[];
     replaceExisting: boolean;
   }) => {
@@ -381,26 +381,31 @@ const AddProduct = () => {
       }
     });
 
-    const newCards: VarianceCardData[] = sizes.map((size, index) => {
-      const cardAttrs = { ...initialAttrs };
-      if (colorAttr) {
-        cardAttrs[colorAttr.id] = color;
-      }
-      if (activeAttributes[0]) {
-        cardAttrs[activeAttributes[0].id] = size;
-      }
+    const newCards: VarianceCardData[] = [];
+    let index = 0;
+    for (const color of colors) {
+      for (const size of sizes) {
+        const cardAttrs = { ...initialAttrs };
+        if (colorAttr) {
+          cardAttrs[colorAttr.id] = color;
+        }
+        if (activeAttributes[0]) {
+          cardAttrs[activeAttributes[0].id] = size;
+        }
 
-      return {
-        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-        size,
-        color,
-        attributes: cardAttrs,
-        stock: 1, // Quantity is 1
-        basePrice: '0', // Price is 0
-        comparePrice: '',
-        sku: generateRandomSku(color, size), // Random generated SKU
-      };
-    });
+        newCards.push({
+          id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+          size,
+          color,
+          attributes: cardAttrs,
+          stock: 1, // Quantity is 1
+          basePrice: '0', // Price is 0
+          comparePrice: '',
+          sku: generateRandomSku(color, size), // Random generated SKU
+        });
+        index++;
+      }
+    }
 
     const isDefaultSingleEmpty =
       varianceCards.length === 1 &&
@@ -607,14 +612,6 @@ const AddProduct = () => {
                           <ExternalLink size={12} />
                         </Link>
 
-                        <button
-                          type="button"
-                          onClick={() => setIsAutoGenerateOpen(true)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 px-2.5 py-1 rounded-xl shadow-2xs transition cursor-pointer shrink-0"
-                        >
-                          <Sparkles size={12} className="text-indigo-600" />
-                          <span>{t('addProduct.autoGenerateVariants', 'Auto Generate')}</span>
-                        </button>
                       </div>
                     </div>
 

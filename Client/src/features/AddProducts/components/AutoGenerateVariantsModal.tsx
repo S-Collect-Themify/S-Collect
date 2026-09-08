@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import type { VendorAttribute } from '../../attributes/types';
+import { resolveColorHex } from '../../../utils/colorResolver';
 
 const DEFAULT_POPULAR_COLORS = [
   { name: 'Black', nameAr: 'أسود', hex: '#111827' },
@@ -26,6 +27,7 @@ const DEFAULT_POPULAR_COLORS = [
   { name: 'Pink', nameAr: 'وردي', hex: '#EC4899' },
   { name: 'Yellow', nameAr: 'أصفر', hex: '#FBBF24' },
   { name: 'Purple', nameAr: 'أرجواني', hex: '#8B5CF6' },
+  { name: 'Orange', nameAr: 'برتقالي', hex: '#F97316' },
 ];
 
 const DEFAULT_SIZE_LIST = [
@@ -44,7 +46,7 @@ interface AutoGenerateVariantsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onGenerate: (data: {
-    color: string;
+    colors: string[];
     sizes: string[];
     replaceExisting: boolean;
   }) => void;
@@ -96,30 +98,33 @@ export const AutoGenerateVariantsModal = ({
     );
   }, [activeAttributes, vendorAttributes]);
 
-  // Available colors list: from attribute values + popular defaults
+  // Available colors list: from attribute values + popular defaults with auto-resolved hex
   const availableColors = useMemo(() => {
     const list: { name: string; nameAr?: string; hex?: string }[] = [];
     const seen = new Set<string>();
 
     if (colorAttribute?.values && colorAttribute.values.length > 0) {
       colorAttribute.values.forEach((v) => {
-        const lower = v.value.toLowerCase();
+        const lower = v.value.toLowerCase().trim();
         if (!seen.has(lower)) {
           seen.add(lower);
           list.push({
             name: v.value,
             nameAr: v.valueAr,
-            hex: v.hexColor,
+            hex: resolveColorHex(v.value, v.valueAr, v.hexColor),
           });
         }
       });
     }
 
     DEFAULT_POPULAR_COLORS.forEach((c) => {
-      const lower = c.name.toLowerCase();
+      const lower = c.name.toLowerCase().trim();
       if (!seen.has(lower)) {
         seen.add(lower);
-        list.push(c);
+        list.push({
+          ...c,
+          hex: resolveColorHex(c.name, c.nameAr, c.hex),
+        });
       }
     });
 
@@ -150,11 +155,14 @@ export const AutoGenerateVariantsModal = ({
     return list;
   }, [sizeAttribute]);
 
-  // Modal State
-  const [selectedColor, setSelectedColor] = useState<string>(
-    availableColors[0]?.name || 'Black'
-  );
+  // Modal State: multiple colors & multiple sizes
+  const [selectedColors, setSelectedColors] = useState<string[]>([
+    availableColors[0]?.name || 'Black',
+  ]);
   const [customColorInput, setCustomColorInput] = useState<string>('');
+  const [userCustomColors, setUserCustomColors] = useState<
+    { name: string; nameAr?: string; hex?: string }[]
+  >([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([
     'S',
     'M',
@@ -163,6 +171,57 @@ export const AutoGenerateVariantsModal = ({
   ]);
   const [customSizeInput, setCustomSizeInput] = useState<string>('');
   const [replaceExisting, setReplaceExisting] = useState<boolean>(!hasExistingVariants);
+
+  const allDisplayColors = useMemo(() => {
+    const list = [...availableColors];
+    const seen = new Set(list.map((c) => c.name.toLowerCase().trim()));
+    userCustomColors.forEach((c) => {
+      const lower = c.name.toLowerCase().trim();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        list.push(c);
+      }
+    });
+    return list;
+  }, [availableColors, userCustomColors]);
+
+  const toggleColor = (colorName: string) => {
+    setSelectedColors((prev) => {
+      const exists = prev.some(
+        (c) => c.toLowerCase() === colorName.toLowerCase()
+      );
+      return exists
+        ? prev.filter((c) => c.toLowerCase() !== colorName.toLowerCase())
+        : [...prev, colorName];
+    });
+  };
+
+  const handleSelectAllColors = () => {
+    if (selectedColors.length === allDisplayColors.length) {
+      setSelectedColors([]);
+    } else {
+      setSelectedColors(allDisplayColors.map((c) => c.name));
+    }
+  };
+
+  const handleAddCustomColor = () => {
+    const trimmed = customColorInput.trim();
+    if (!trimmed) return;
+    const exists = selectedColors.some(
+      (c) => c.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (!exists) {
+      setSelectedColors((prev) => [...prev, trimmed]);
+      setUserCustomColors((prev) => [
+        ...prev,
+        {
+          name: trimmed,
+          hex: resolveColorHex(trimmed),
+        },
+      ]);
+    }
+    setCustomColorInput('');
+  };
 
   const toggleSize = (size: string) => {
     setSelectedSizes((prev) =>
@@ -187,16 +246,12 @@ export const AutoGenerateVariantsModal = ({
     setCustomSizeInput('');
   };
 
-  const handleApplyCustomColor = () => {
-    const trimmed = customColorInput.trim();
-    if (!trimmed) return;
-    setSelectedColor(trimmed);
-  };
+  const totalVariantsCount = selectedColors.length * selectedSizes.length;
 
   const handleConfirm = () => {
-    if (!selectedColor || selectedSizes.length === 0) return;
+    if (selectedColors.length === 0 || selectedSizes.length === 0) return;
     onGenerate({
-      color: selectedColor,
+      colors: selectedColors,
       sizes: selectedSizes,
       replaceExisting,
     });
@@ -254,24 +309,38 @@ export const AutoGenerateVariantsModal = ({
 
           {/* Modal Content - Scrollable */}
           <div className="overflow-y-auto px-6 py-5 space-y-6 scrollbar-thin text-xs">
-            {/* Step 1: Select 1 Color */}
+            {/* Step 1: Select Colors (Multiple) */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-1.5 font-semibold text-gray-800 text-sm">
                   <Palette size={15} className="text-indigo-600" />
-                  <span>{t('addProduct.selectColorTitle', '1. Select One Color')}</span>
+                  <span>{t('addProduct.selectColorTitle', '1. Select Colors')}</span>
                 </label>
-                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
-                  {isArabic ? 'المحدد:' : 'Selected:'}{' '}
-                  <strong className="text-gray-900">{selectedColor}</strong>
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">
+                    ({selectedColors.length} {isArabic ? 'محدد' : 'selected'})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSelectAllColors}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
+                  >
+                    <CheckCheck size={13} />
+                    <span>
+                      {selectedColors.length === allDisplayColors.length
+                        ? t('addProduct.deselectAll', 'Deselect All')
+                        : t('addProduct.selectAll', 'Select All')}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* Color Swatch Pills Grid */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-40 overflow-y-auto p-1 border border-gray-100 rounded-xl bg-gray-50/40 scrollbar-thin">
-                {availableColors.map((c) => {
-                  const isSelected =
-                    selectedColor.toLowerCase() === c.name.toLowerCase();
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-44 overflow-y-auto p-1.5 border border-gray-100 rounded-xl bg-gray-50/40 scrollbar-thin">
+                {allDisplayColors.map((c) => {
+                  const isSelected = selectedColors.some(
+                    (sc) => sc.toLowerCase() === c.name.toLowerCase()
+                  );
                   const label =
                     isArabic && c.nameAr ? `${c.nameAr} (${c.name})` : c.name;
 
@@ -279,10 +348,7 @@ export const AutoGenerateVariantsModal = ({
                     <button
                       key={c.name}
                       type="button"
-                      onClick={() => {
-                        setSelectedColor(c.name);
-                        setCustomColorInput('');
-                      }}
+                      onClick={() => toggleColor(c.name)}
                       className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer border text-start ${
                         isSelected
                           ? 'bg-gray-950 text-white border-gray-950 shadow-xs'
@@ -309,32 +375,27 @@ export const AutoGenerateVariantsModal = ({
                 <input
                   type="text"
                   placeholder={
-                    isArabic ? 'أو اكتب لوناً مخصصاً...' : 'Or enter custom color...'
+                    isArabic ? 'أضف لوناً مخصصاً (مثال: Olive, بورغندي)...' : 'Add custom color (e.g. Olive, Burgundy)...'
                   }
                   value={customColorInput}
-                  onChange={(e) => {
-                    setCustomColorInput(e.target.value);
-                    if (e.target.value.trim()) {
-                      setSelectedColor(e.target.value.trim());
-                    }
-                  }}
+                  onChange={(e) => setCustomColorInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      handleApplyCustomColor();
+                      handleAddCustomColor();
                     }
                   }}
                   className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:border-indigo-600 focus:outline-none"
                 />
-                {customColorInput && (
-                  <button
-                    type="button"
-                    onClick={handleApplyCustomColor}
-                    className="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 font-semibold transition cursor-pointer"
-                  >
-                    {isArabic ? 'تطبيق' : 'Apply'}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleAddCustomColor}
+                  disabled={!customColorInput.trim()}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 font-semibold transition cursor-pointer disabled:opacity-50"
+                >
+                  <Plus size={13} />
+                  <span>{isArabic ? 'إضافة' : 'Add'}</span>
+                </button>
               </div>
             </div>
 
@@ -420,7 +481,7 @@ export const AutoGenerateVariantsModal = ({
               <div className="flex items-center justify-between text-indigo-950 font-semibold text-xs">
                 <span>{t('addProduct.generationPreview', 'Variants to be generated:')}</span>
                 <span className="rounded-md bg-indigo-600 px-2 py-0.5 text-[11px] font-bold text-white">
-                  {selectedSizes.length} {t('addProduct.variantsCount', 'variants')}
+                  {selectedColors.length} {isArabic ? 'ألوان' : 'colors'} × {selectedSizes.length} {isArabic ? 'مقاسات' : 'sizes'} = {totalVariantsCount} {t('addProduct.variantsCount', 'variants')}
                 </span>
               </div>
 
@@ -480,13 +541,13 @@ export const AutoGenerateVariantsModal = ({
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={!selectedColor || selectedSizes.length === 0}
+              disabled={selectedColors.length === 0 || selectedSizes.length === 0}
               className="inline-flex items-center gap-2 rounded-xl bg-gray-950 px-5 py-2 text-xs font-semibold text-white hover:bg-gray-800 transition cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Sparkles size={14} className="text-amber-400" />
               <span>
                 {t('addProduct.generateButton', 'Auto Generate ({{count}})', {
-                  count: selectedSizes.length,
+                  count: totalVariantsCount,
                 })}
               </span>
               <ArrowRight size={13} className="rtl:rotate-180" />

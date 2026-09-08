@@ -246,8 +246,8 @@
     "stockQuantity": "كمية المخزون",
     "addVariance": "إضافة تنوع",
     "autoGenerateVariants": "توليد المتغيرات تلقائياً",
-    "autoGenerateSubtitle": "اختر لوناً واحداً ومقاسات متعددة لتوليد المتغيرات فوراً",
-    "selectColorTitle": "١. اختر لوناً واحداً",
+    "autoGenerateSubtitle": "اختر الألوان والمقاسات لتوليد المتغيرات فوراً",
+    "selectColorTitle": "١. اختر الألوان",
     "selectSizesTitle": "٢. اختر المقاسات",
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء تحديد الكل",
@@ -504,6 +504,7 @@
     "phoneNumber": "رقم الهاتف",
     "phonePlaceholder": "الهاتف",
     "saveChanges": "حفظ التغييرات",
+    "saveChangesCooldown": "حفظ التغييرات ({{seconds}} ثانية)",
     "saving": "جارٍ الحفظ...",
     "logo": {
       "alt": "شعار",
@@ -536,7 +537,12 @@
       "passwordInfo": "سيؤدي تغيير كلمة المرور إلى تسجيل الخروج من جميع الجلسات النشطة الأخرى. لا يمكنك إعادة استخدام أي من آخر كلمتي مرور.",
       "countryCode": "رمز الدولة",
       "searchCountry": "ابحث عن دولة",
-      "noCountriesFound": "لا توجد دول"
+      "noCountriesFound": "لا توجد دول",
+      "inventorySettings": "تفضيلات المخزون",
+      "inventorySettingsDescription": "تحديد حدود المخزون وتنبيهات انخفاض الكمية.",
+      "lowStockThreshold": "حد تنبيه المخزون المنخفض",
+      "lowStockThresholdHint": "المنتجات التي تحتوي على كمية مخزون متوفرة تساوي هذا الرقم أو أقل ستُصنف كمخزون منخفض في إدارة المخزون وتنبيهات لوحة التحكم.",
+      "units": "وحدات"
     },
     "toast": {
       "storeProfileSaved": "تم تحديث ملف المتجر بنجاح.",
@@ -556,7 +562,9 @@
       "currentPasswordRequired": "كلمة المرور الحالية مطلوبة.",
       "newPasswordWeak": "يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير واحد، ورقم واحد.",
       "passwordMismatch": "كلمتا المرور غير متطابقتين.",
-      "storeDescriptionMaxLength": "يجب ألا يتجاوز الوصف 500 حرف."
+      "storeDescriptionMaxLength": "يجب ألا يتجاوز الوصف 500 حرف.",
+      "lowStockThresholdRequired": "حد المخزون المنخفض مطلوب.",
+      "lowStockThresholdMin": "يجب أن يكون الحد الأدنى وحدة واحدة على الأقل."
     },
     "bank": {
       "title": "الحساب البنكي",
@@ -594,7 +602,18 @@
     "showing": "عرض",
     "of": "من",
     "results": "نتيجة",
-    "saveChanges": "حفظ التغييرات"
+    "saveChanges": "حفظ التغييرات",
+    "export": "تصدير",
+    "exportVariants": "تصدير المخزون",
+    "exportAllVariants": "تصدير جميع المتغيرات",
+    "exportFilteredVariants": "تصدير المتغيرات المفلترة",
+    "exporting": "جاري التصدير...",
+    "exportSuccess": "تم تصدير متغيرات المخزون بنجاح",
+    "exportError": "فشل تصدير المخزون",
+    "exportNoData": "لا توجد متغيرات مخزون للتصدير",
+    "colProductId": "معرف المنتج",
+    "colVariantId": "معرف المتغير",
+    "defaultVariant": "الافتراضي"
   },
   "managementTable": {
     "export": "تصدير",

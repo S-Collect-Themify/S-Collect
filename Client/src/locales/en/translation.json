@@ -247,8 +247,8 @@
     "stockQuantity": "Stock Quantity",
     "addVariance": "Add Variance",
     "autoGenerateVariants": "Auto Generate Variants",
-    "autoGenerateSubtitle": "Select 1 color and multiple sizes to instantly generate variants",
-    "selectColorTitle": "1. Select One Color",
+    "autoGenerateSubtitle": "Select colors and sizes to instantly generate variants",
+    "selectColorTitle": "1. Select Colors",
     "selectSizesTitle": "2. Select Sizes",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
@@ -504,6 +504,7 @@
     "phoneNumber": "Phone Number",
     "phonePlaceholder": "Phone",
     "saveChanges": "Save Changes",
+    "saveChangesCooldown": "Save Changes ({{seconds}}s)",
     "saving": "Saving...",
     "logo": {
       "alt": "logo",
@@ -536,7 +537,12 @@
       "passwordInfo": "Changing your password will sign out all other active sessions. You cannot reuse either of your last two passwords.",
       "countryCode": "Country code",
       "searchCountry": "Search country",
-      "noCountriesFound": "No countries found"
+      "noCountriesFound": "No countries found",
+      "inventorySettings": "Inventory Preferences",
+      "inventorySettingsDescription": "Configure inventory thresholds and stock alert preferences.",
+      "lowStockThreshold": "Low Stock Alert Threshold",
+      "lowStockThresholdHint": "Products with available stock at or below this number will be flagged as Low Stock in inventory management and dashboard alert summaries.",
+      "units": "units"
     },
     "toast": {
       "storeProfileSaved": "Store Profile updated successfully.",
@@ -556,7 +562,9 @@
       "currentPasswordRequired": "Current password is required.",
       "newPasswordWeak": "Must contain at least 8 characters, one uppercase letter, and one number.",
       "passwordMismatch": "Passwords do not match.",
-      "storeDescriptionMaxLength": "Description must not exceed 500 characters."
+      "storeDescriptionMaxLength": "Description must not exceed 500 characters.",
+      "lowStockThresholdRequired": "Low stock threshold is required.",
+      "lowStockThresholdMin": "Threshold must be at least 1 unit."
     },
     "bank": {
       "title": "Bank Account",
@@ -594,7 +602,18 @@
     "showing": "Showing",
     "of": "of",
     "results": "results",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "export": "Export",
+    "exportVariants": "Export Inventory",
+    "exportAllVariants": "Export All Variants",
+    "exportFilteredVariants": "Export Filtered Variants",
+    "exporting": "Exporting...",
+    "exportSuccess": "Inventory variants exported successfully",
+    "exportError": "Failed to export inventory",
+    "exportNoData": "No inventory variants found to export",
+    "colProductId": "Product ID",
+    "colVariantId": "Variant ID",
+    "defaultVariant": "Default"
   },
   "managementTable": {
     "export": "Export",
