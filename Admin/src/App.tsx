@@ -31,6 +31,7 @@ const Payouts = lazy(() => import('./pages/Payouts'));
 const Transactions = lazy(() => import('./pages/Transactions'));
 const Categories = lazy(() => import('./pages/Categories'));
 const Products = lazy(() => import('./pages/Products'));
+const Inventory = lazy(() => import('./pages/Inventory'));
 const Reviews = lazy(() => import('./pages/Reviews'));
 const Vouchers = lazy(() => import('./pages/Vouchers'));
 const CreateVoucher = lazy(() => import('./pages/CreateVoucher'));
@@ -110,6 +111,7 @@ function App() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/inventory" element={<Inventory />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/vouchers" element={<Vouchers />} />
             <Route path="/vouchers/create" element={<CreateVoucher />} />

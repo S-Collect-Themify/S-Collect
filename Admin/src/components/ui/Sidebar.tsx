@@ -14,6 +14,7 @@ import {
   Settings,
   LogOut,
   Ticket,
+  Boxes,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -320,6 +321,11 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
         icon: <CirclePlus size={18} />,
         labelKey: 'sidebar.items.products',
         to: '/products',
+      },
+      {
+        icon: <Boxes size={18} />,
+        labelKey: 'sidebar.items.inventory',
+        to: '/inventory',
       },
       {
         icon: <Star size={18} />,

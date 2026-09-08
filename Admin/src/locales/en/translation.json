@@ -614,7 +614,11 @@
     "showing": "Showing",
     "of": "of",
     "results": "results",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "saveSuccess": "Changes saved successfully!",
+    "saveFailed": "Failed to save changes.",
+    "noChanges": "No changes to save.",
+    "updated": "Updated"
   },
   "managementTable": {
     "publish": "Publish",
