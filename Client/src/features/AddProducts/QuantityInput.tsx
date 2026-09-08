@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
-
-const LOW_STOCK_THRESHOLD = 10;
+import { useInventorySettingsStore } from '../../store/inventorySettingsStore';
 
 interface QuantityInputProps {
   value: number;
@@ -10,6 +9,9 @@ interface QuantityInputProps {
 }
 
 const QuantityInput = ({ value, onChange }: QuantityInputProps) => {
+  const lowStockThreshold = useInventorySettingsStore(
+    (s) => s.lowStockThreshold
+  );
   const [direction, setDirection] = useState(1);
 
   const increase = () => {
@@ -93,11 +95,11 @@ const QuantityInput = ({ value, onChange }: QuantityInputProps) => {
         </button>
       </div>
 
-      {value > 0 && value <= LOW_STOCK_THRESHOLD && (
+      {value > 0 && value <= lowStockThreshold && (
         <div className="mt-3 flex items-center gap-2 rounded-xl bg-gray-50/80 border border-gray-100 px-3.5 py-2.5 text-xs text-gray-600">
           <AlertCircle size={14} className="shrink-0 text-gray-500" />
           <span>
-            Low stock alert will trigger at {LOW_STOCK_THRESHOLD} units.
+            Low stock alert will trigger at {lowStockThreshold} units.
           </span>
         </div>
       )}

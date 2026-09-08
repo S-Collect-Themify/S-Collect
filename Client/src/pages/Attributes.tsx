@@ -213,9 +213,6 @@ const Attributes = () => {
       <div className="sidebar-page-container-header bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-xl bg-gray-900 text-white shadow-xs">
-              <SlidersHorizontal size={20} />
-            </span>
             <h1 className="heading-page-title">{t('attributes.title', 'Attributes')}</h1>
           </div>
           <p className="text-sm text-gray-500 mt-1">

@@ -5,6 +5,7 @@ import { useInventory } from '../hooks/useInventory';
 import { ProductCard } from './ProductCard';
 import { MobileFilter } from './MobileFilter';
 import { ITEMS_PER_PAGE } from '../types';
+import { InventoryExportButton } from '../InventoryExportButton';
 
 export const InventoryMobile = () => {
   const { t } = useTranslation();
@@ -21,6 +22,10 @@ export const InventoryMobile = () => {
     handleStockChange,
     handlePageChange,
     handleSave,
+    handleExportAll,
+    handleExportFiltered,
+    isExporting,
+    hasActiveFilter,
   } = useInventory();
 
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -31,16 +36,27 @@ export const InventoryMobile = () => {
     <div className="flex flex-col min-h-screen bg-gray-100 pb-20">
       <div className="px-4 pt-5 pb-4">
         {/* Header */}
-        <div className="mb-5">
-          <h1 className="text-lg font-bold text-gray-900">
-            {t('inventoryPage.title', 'Inventory Management')}
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {t(
-              'inventoryPage.subtitle',
-              'Keep your stock quantities updated in real time.'
-            )}
-          </p>
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">
+              {t('inventoryPage.title', 'Inventory Management')}
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {t(
+                'inventoryPage.subtitle',
+                'Keep your stock quantities updated in real time.'
+              )}
+            </p>
+          </div>
+          <div className="shrink-0 mt-0.5">
+            <InventoryExportButton
+              onExportAll={handleExportAll}
+              onExportFiltered={handleExportFiltered}
+              isExporting={isExporting}
+              hasActiveFilter={hasActiveFilter}
+              isMobile={true}
+            />
+          </div>
         </div>
 
         {/* Search + filter tabs */}

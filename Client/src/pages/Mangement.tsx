@@ -37,20 +37,6 @@ const Management = () => {
             <>
               <button
                 type="button"
-                onClick={handleExport}
-                disabled={isExporting}
-                className="flex items-center justify-center bg-gray-900 text-white hover:bg-gray-800 transition-colors rounded-full p-2 cursor-pointer shadow-xs disabled:opacity-50"
-                title={t('managementTable.export', 'Export')}
-                aria-label={t('managementTable.export', 'Export')}
-              >
-                {isExporting ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <Download size={20} />
-                )}
-              </button>
-              <button
-                type="button"
                 onClick={() => setIsImportModalOpen(true)}
                 className="flex items-center justify-center bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors rounded-full p-2 cursor-pointer shadow-xs"
                 title={t('managementTable.importProducts', 'Import Products')}

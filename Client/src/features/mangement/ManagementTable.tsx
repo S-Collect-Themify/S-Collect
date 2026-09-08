@@ -159,12 +159,12 @@ export default function ProductTable() {
         </div>
 
         {/* Action Button: Export */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="lg:hidden flex items-center gap-2 shrink-0">
           <button
             type="button"
             disabled={isExporting}
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            className="lg:hidden flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
           >
             {isExporting ? (
               <Loader2 size={16} className="animate-spin" />

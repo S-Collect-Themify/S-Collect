@@ -1,15 +1,34 @@
 import { getVendorProfile } from './vendorProfile';
 import { getVendorOnboardingStatus } from './auth';
 import { handleServiceError } from './api';
+import {
+  useInventorySettingsStore,
+  DEFAULT_LOW_STOCK_THRESHOLD,
+} from '../store/inventorySettingsStore';
 
 export interface AccountSettings {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
+  lowStockThreshold?: number;
 }
 
 export const getAccountSettings = async (): Promise<AccountSettings> => {
+  const getStoredLowStock = (): number => {
+    if (typeof window === 'undefined') return DEFAULT_LOW_STOCK_THRESHOLD;
+    try {
+      const val = localStorage.getItem('vendor_low_stock_threshold');
+      const parsed = val ? parseInt(val, 10) : DEFAULT_LOW_STOCK_THRESHOLD;
+      return isNaN(parsed) || parsed < 1 ? DEFAULT_LOW_STOCK_THRESHOLD : parsed;
+    } catch {
+      return DEFAULT_LOW_STOCK_THRESHOLD;
+    }
+  };
+
+  const currentThreshold = getStoredLowStock();
+  useInventorySettingsStore.getState().setLowStockThreshold(currentThreshold);
+
   try {
     const profile = await getVendorProfile();
     const onboarding = await getVendorOnboardingStatus().catch(() => null);
@@ -30,6 +49,7 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
         storedLastName || profile.lastName || onboarding?.lastName || '',
       email: profile.email || onboarding?.email || '',
       phoneNumber: profile.phoneNumber || onboarding?.phoneNumber || '',
+      lowStockThreshold: currentThreshold,
     };
   } catch (err) {
     try {
@@ -48,6 +68,7 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
         lastName: storedLastName || data.lastName || '',
         email: data.email ?? '',
         phoneNumber: data.phoneNumber ?? '',
+        lowStockThreshold: currentThreshold,
       };
     } catch {
       throw handleServiceError(err, 'Failed to fetch account settings');
@@ -64,6 +85,14 @@ export const updateAccountSettings = async (
     }
     if (settings.lastName) {
       localStorage.setItem('vendor_last_name', settings.lastName);
+    }
+    if (settings.lowStockThreshold !== undefined) {
+      const validThreshold = Math.max(1, Math.floor(settings.lowStockThreshold));
+      localStorage.setItem(
+        'vendor_low_stock_threshold',
+        String(validThreshold)
+      );
+      useInventorySettingsStore.getState().setLowStockThreshold(validThreshold);
     }
   }
 
@@ -90,6 +119,9 @@ export const updateAccountSettings = async (
       lastName: settings.lastName || data?.lastName || '',
       email: settings.email || data?.email || '',
       phoneNumber: settings.phoneNumber || data?.phoneNumber || '',
+      lowStockThreshold:
+        settings.lowStockThreshold ??
+        useInventorySettingsStore.getState().lowStockThreshold,
     };
   } catch (err) {
     console.warn('Backend update vendor profile fallback:', err);

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getVendorInventory } from '../../../services/inventory';
 import { searchVendorProducts } from '../../../services/products';
+import { useInventorySettingsStore } from '../../../store/inventorySettingsStore';
 import { DEFAULT_IMAGE, resolveImageUrl } from '../../../utils/image';
 import type { InventoryAlertItem, InventoryAlertStatus } from '../types';
 
@@ -22,11 +23,14 @@ interface ProductItem {
 export const useInventoryAlerts = () => {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const lowStockThreshold = useInventorySettingsStore(
+    (s) => s.lowStockThreshold
+  );
 
   const { data: inventoryData, isLoading: isInvLoading } = useQuery({
-    queryKey: ['dashboardInventoryAlerts'],
+    queryKey: ['dashboardInventoryAlerts', lowStockThreshold],
     queryFn: () =>
-      getVendorInventory({ pageNum: 1, pageSize: 100, maxStock: 5 }),
+      getVendorInventory({ pageNum: 1, pageSize: 100, maxStock: lowStockThreshold }),
     refetchOnWindowFocus: false,
     staleTime: 2 * 60 * 1000,
   });
@@ -70,7 +74,7 @@ export const useInventoryAlerts = () => {
       : [];
 
   const alertItems: InventoryAlertItem[] = inventoryItems
-    .filter((item) => typeof item.stock === 'number' && item.stock <= 5)
+    .filter((item) => typeof item.stock === 'number' && item.stock <= lowStockThreshold)
     .map((item) => {
       const name = isAr
         ? item.productNameAr || item.productName || ''
@@ -93,7 +97,7 @@ export const useInventoryAlerts = () => {
         status = 'Out of Stock';
         text = 'var(--red)';
         background = 'var(--red-light)';
-      } else if (stockCount <= 5) {
+      } else if (stockCount <= lowStockThreshold) {
         status = 'Low Stock';
         text = 'var(--yellow)';
         background = 'var(--yellow-light)';

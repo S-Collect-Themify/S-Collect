@@ -16,6 +16,7 @@ export interface AccountSettingsData {
   lastName: string;
   email: string;
   phoneNumber: string;
+  lowStockThreshold?: number;
 }
 
 export interface PasswordData {

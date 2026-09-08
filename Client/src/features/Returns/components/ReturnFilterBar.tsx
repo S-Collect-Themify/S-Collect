@@ -82,16 +82,6 @@ export function ReturnFilterBar({
                 defaultValue: 'Rejected',
               })}
             </option>
-            <option value="AWAITING_ITEM">
-              {t('returnsPage.statuses.awaitingItem', {
-                defaultValue: 'Awaiting Item',
-              })}
-            </option>
-            <option value="COMPLETED">
-              {t('returnsPage.statuses.completed', {
-                defaultValue: 'Completed',
-              })}
-            </option>
           </select>
           <ChevronDown
             size={16}

@@ -1,25 +1,70 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
- * Returns `true` for `duration` ms after `trigger` is called,
- * then resets to `false`. Useful for briefly disabling a button
- * after an action completes to prevent rapid re-submission.
+ * Returns `active` as `true` and `secondsLeft` countdown for `duration` ms
+ * after `trigger` is called, then resets to `false`.
+ * Supports an optional `storageKey` to persist cooldown across page reloads.
  */
-export function useCooldown(duration = 3000) {
-  const [active, setActive] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export function useCooldown(duration = 3000, storageKey?: string) {
+  const getRemainingSeconds = useCallback(() => {
+    if (!storageKey || typeof window === 'undefined') return 0;
+    try {
+      const stored = sessionStorage.getItem(storageKey);
+      if (!stored) return 0;
+      const targetTime = parseInt(stored, 10);
+      const remainingMs = targetTime - Date.now();
+      return remainingMs > 0 ? Math.ceil(remainingMs / 1000) : 0;
+    } catch {
+      return 0;
+    }
+  }, [storageKey]);
+
+  const [secondsLeft, setSecondsLeft] = useState<number>(() =>
+    getRemainingSeconds()
+  );
 
   const trigger = useCallback(() => {
-    setActive(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setActive(false), duration);
-  }, [duration]);
+    const expiresAt = Date.now() + duration;
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(storageKey, String(expiresAt));
+      } catch (err) {
+        console.warn('Failed to persist cooldown in sessionStorage:', err);
+      }
+    }
+    setSecondsLeft(Math.ceil(duration / 1000));
+  }, [duration, storageKey]);
 
   useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+    if (secondsLeft <= 0) {
+      if (storageKey && typeof window !== 'undefined') {
+        try {
+          sessionStorage.removeItem(storageKey);
+        } catch {
+          // ignore
+        }
+      }
+      return;
+    }
 
-  return { active, trigger };
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          if (storageKey && typeof window !== 'undefined') {
+            try {
+              sessionStorage.removeItem(storageKey);
+            } catch {
+              // ignore
+            }
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [secondsLeft, storageKey]);
+
+  return { active: secondsLeft > 0, secondsLeft, trigger };
 }
