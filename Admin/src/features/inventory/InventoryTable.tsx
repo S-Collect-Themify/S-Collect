@@ -14,6 +14,7 @@ export const InventoryTable = ({
   const { t } = useTranslation();
 
   const columns = [
+    'inventoryPage.colVendor',
     'inventoryPage.colProductName',
     'inventoryPage.colSku',
     'inventoryPage.colVariant',
@@ -36,26 +37,29 @@ export const InventoryTable = ({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-body-md table-fixed min-w-[750px]">
+      <table className="w-full text-body-md table-fixed min-w-220">
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[18%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[14%]">
               {t(columns[0])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[26%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[16%]">
               {t(columns[1])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[24%]">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[20%]">
               {t(columns[2])}
             </th>
-            <th className="text-center py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[12%] whitespace-nowrap">
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[18%]">
               {t(columns[3])}
             </th>
-            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
+            <th className="text-center py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[12%] whitespace-nowrap">
               {t(columns[4])}
             </th>
             <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
               {t(columns[5])}
+            </th>
+            <th className="text-left rtl:text-right py-3 px-3 text-body-sm font-bold text-gray-950 tracking-wider w-[10%] whitespace-nowrap">
+              {t(columns[6])}
             </th>
           </tr>
         </thead>
@@ -72,6 +76,12 @@ export const InventoryTable = ({
               }}
               className="border-b border-gray-100 hover:bg-gray-100 transition-colors"
             >
+              <td
+                className="py-3 px-3 text-body-sm text-gray-500 truncate max-w-0"
+                title={product.vendor}
+              >
+                {product.vendor || '—'}
+              </td>
               <td
                 className="py-3 px-3 text-body-md font-medium text-gray-900 truncate"
                 title={product.name}

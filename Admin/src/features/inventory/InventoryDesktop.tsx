@@ -11,6 +11,9 @@ export const InventoryDesktop = () => {
     search,
     activeTab,
     currentPage,
+    vendorId,
+    vendorOptions,
+    isVendorsLoading,
     paginatedData,
     totalItems,
     totalPages,
@@ -18,6 +21,7 @@ export const InventoryDesktop = () => {
     handleSearchChange,
     handleStockChange,
     handlePageChange,
+    handleVendorChange,
     handleSave,
     isSaving,
   } = useInventory();
@@ -29,8 +33,12 @@ export const InventoryDesktop = () => {
         <InventoryToolbar
           search={search}
           activeTab={activeTab}
+          vendorId={vendorId}
+          vendorOptions={vendorOptions}
+          isVendorsLoading={isVendorsLoading}
           onSearchChange={handleSearchChange}
           onFilterChange={handleFilterChange}
+          onVendorChange={handleVendorChange}
         />
         <div className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 pb-4 px-4 pt-2 overflow-hidden">
           <AnimatePresence mode="wait">

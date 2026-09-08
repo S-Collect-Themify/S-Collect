@@ -21,6 +21,14 @@ export const ProductCard = ({ product, onStockChange }: ProductCardProps) => {
       {/* Top row: name + status badge */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
+          {product.vendor && (
+            <p
+              className="text-[11px] font-medium text-gray-400 truncate mb-0.5"
+              title={product.vendor}
+            >
+              {product.vendor}
+            </p>
+          )}
           <h6
             className="font-semibold text-gray-900 text-sm leading-tight truncate"
             title={product.name}

@@ -11,6 +11,9 @@ export const InventoryMobile = () => {
     search,
     activeTab,
     currentPage,
+    vendorId,
+    vendorOptions,
+    isVendorsLoading,
     paginatedData,
     totalItems,
     totalPages,
@@ -19,6 +22,7 @@ export const InventoryMobile = () => {
     handleFilterChange,
     handleStockChange,
     handlePageChange,
+    handleVendorChange,
     handleSave,
     isSaving,
   } = useInventory();
@@ -47,8 +51,12 @@ export const InventoryMobile = () => {
         <MobileFilter
           search={search}
           activeTab={activeTab}
+          vendorId={vendorId}
+          vendorOptions={vendorOptions}
+          isVendorsLoading={isVendorsLoading}
           onSearchChange={handleSearchChange}
           onFilterChange={handleFilterChange}
+          onVendorChange={handleVendorChange}
         />
 
         {/* Cards list with animation */}

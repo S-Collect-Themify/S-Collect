@@ -2,19 +2,29 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import type { FilterKey } from '../constants';
 import { FILTER_TABS } from '../constants';
+import type { InventoryVendorOption } from '../types';
+import { InventoryVendorFilter } from '../InventoryVendorFilter';
 
 interface MobileFilterProps {
   search: string;
   activeTab: FilterKey;
+  vendorId: string;
+  vendorOptions: InventoryVendorOption[];
+  isVendorsLoading: boolean;
   onSearchChange: (value: string) => void;
   onFilterChange: (key: FilterKey) => void;
+  onVendorChange: (id: string) => void;
 }
 
 export const MobileFilter = ({
   search,
   activeTab,
+  vendorId,
+  vendorOptions,
+  isVendorsLoading,
   onSearchChange,
   onFilterChange,
+  onVendorChange,
 }: MobileFilterProps) => {
   const { t } = useTranslation();
 
@@ -43,6 +53,14 @@ export const MobileFilter = ({
           className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 focus:outline-none focus:border-gray-700 placeholder:text-gray-400 transition-colors"
         />
       </div>
+
+      {/* Vendor filter */}
+      <InventoryVendorFilter
+        vendors={vendorOptions}
+        selectedVendorId={vendorId}
+        onSelectVendor={onVendorChange}
+        isLoading={isVendorsLoading}
+      />
 
       {/* Filter tabs — horizontally scrollable, no scrollbar shown */}
       <div

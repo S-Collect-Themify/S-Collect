@@ -2,19 +2,29 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import type { FilterKey } from './constants';
 import { FILTER_TABS } from './constants';
+import type { InventoryVendorOption } from './types';
+import { InventoryVendorFilter } from './InventoryVendorFilter';
 
 interface InventoryToolbarProps {
   search: string;
   activeTab: FilterKey;
+  vendorId: string;
+  vendorOptions: InventoryVendorOption[];
+  isVendorsLoading: boolean;
   onSearchChange: (value: string) => void;
   onFilterChange: (key: FilterKey) => void;
+  onVendorChange: (id: string) => void;
 }
 
 export const InventoryToolbar = ({
   search,
   activeTab,
+  vendorId,
+  vendorOptions,
+  isVendorsLoading,
   onSearchChange,
   onFilterChange,
+  onVendorChange,
 }: InventoryToolbarProps) => {
   const { t } = useTranslation();
 
@@ -75,6 +85,16 @@ export const InventoryToolbar = ({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Vendor filter */}
+      <div className="w-full sm:w-auto">
+        <InventoryVendorFilter
+          vendors={vendorOptions}
+          selectedVendorId={vendorId}
+          onSelectVendor={onVendorChange}
+          isLoading={isVendorsLoading}
+        />
       </div>
     </div>
   );
