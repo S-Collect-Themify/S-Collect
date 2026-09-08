@@ -626,6 +626,12 @@
     "exporting": "جارٍ التصدير...",
     "exportSuccess": "تم تصدير المخزون بنجاح!",
     "exportFailed": "فشل تصدير المخزون.",
+    "import": "استيراد",
+    "importing": "جارٍ الاستيراد...",
+    "importSuccess": "تم تحديث المخزون من الملف!",
+    "importFailed": "فشل استيراد الملف.",
+    "importFailedRows": "صف/صفوف لم يتم استيرادها.",
+    "importInvalidType": "الرجاء اختيار ملف Excel أو CSV.",
     "updated": "تم التحديث"
   },
   "managementTable": {

@@ -197,25 +197,50 @@ export const downloadInventoryExport = ({
   URL.revokeObjectURL(url);
 };
 
+const unwrapImportResult = (data: unknown): ImportInventoryResult => {
+  const unwrapped =
+    data && typeof data === 'object' && 'success' in data && 'data' in data
+      ? (data as { data: ImportInventoryResult }).data
+      : data;
+  return (unwrapped ?? {}) as ImportInventoryResult;
+};
+
 /**
  * POST /admin/inventory/import — uploads a spreadsheet to bulk-import stock.
  * Sends multipart/form-data with the file under the `file` field.
+ * Falls back to the vendor endpoint if the admin one is unavailable.
  */
 export const importAdminInventory = async (
   file: File
 ): Promise<ImportInventoryResult> => {
+  const buildForm = () => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return fd;
+  };
+
   try {
-    const formData = new FormData();
-    formData.append('file', file);
-    const { data } = await api.post('/admin/inventory/import', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    const unwrapped =
-      data && typeof data === 'object' && 'success' in data && 'data' in data
-        ? (data as { data: ImportInventoryResult }).data
-        : data;
-    return (unwrapped ?? {}) as ImportInventoryResult;
+    const { data } = await api.post(
+      '/admin/inventory/import',
+      buildForm(),
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return unwrapImportResult(data);
   } catch (err) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    // Only retry the vendor route when the admin route is missing (404) or not allowed (405)
+    if (status === 404 || status === 405) {
+      try {
+        const { data } = await api.post(
+          '/vendor/inventory/import',
+          buildForm(),
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        return unwrapImportResult(data);
+      } catch {
+        // fall through to throw the original error
+      }
+    }
     throw handleServiceError(err, 'Failed to import inventory');
   }
 };

@@ -5,6 +5,7 @@ import type { FilterKey } from './constants';
 import { FILTER_TABS } from './constants';
 import type { InventoryVendorOption } from './types';
 import { InventoryVendorFilter } from './InventoryVendorFilter';
+import { InventoryImportButton } from './InventoryImportButton';
 
 interface InventoryToolbarProps {
   search: string;
@@ -13,11 +14,16 @@ interface InventoryToolbarProps {
   vendorOptions: InventoryVendorOption[];
   isVendorsLoading: boolean;
   isExporting: boolean;
+  isImporting: boolean;
   onSearchChange: (value: string) => void;
   onFilterChange: (key: FilterKey) => void;
   onVendorChange: (id: string) => void;
   onExport: () => void;
+  onImport: (file: File) => void;
 }
+
+const ACTION_BTN_CLASS =
+  'flex-1 sm:flex-initial flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-gray-300 bg-gray-50 text-label-md font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer whitespace-nowrap';
 
 export const InventoryToolbar = ({
   search,
@@ -26,10 +32,12 @@ export const InventoryToolbar = ({
   vendorOptions,
   isVendorsLoading,
   isExporting,
+  isImporting,
   onSearchChange,
   onFilterChange,
   onVendorChange,
   onExport,
+  onImport,
 }: InventoryToolbarProps) => {
   const { t } = useTranslation();
 
@@ -102,18 +110,25 @@ export const InventoryToolbar = ({
         />
       </div>
 
-      {/* Export to Excel */}
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={isExporting}
-        className="w-full sm:w-auto sm:ms-auto flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-gray-300 bg-gray-50 text-label-md font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer whitespace-nowrap"
-      >
-        <Download size={15} className="shrink-0" />
-        {isExporting
-          ? t('inventoryPage.exporting', 'Exporting...')
-          : t('inventoryPage.export', 'Export')}
-      </button>
+      {/* Import from / Export to Excel */}
+      <div className="w-full sm:w-auto sm:ms-auto flex items-center gap-2">
+        <InventoryImportButton
+          onImport={onImport}
+          isImporting={isImporting}
+          className={ACTION_BTN_CLASS}
+        />
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={isExporting}
+          className={ACTION_BTN_CLASS}
+        >
+          <Download size={15} className="shrink-0" />
+          {isExporting
+            ? t('inventoryPage.exporting', 'Exporting...')
+            : t('inventoryPage.export', 'Export')}
+        </button>
+      </div>
     </div>
   );
 };
