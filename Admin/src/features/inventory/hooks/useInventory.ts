@@ -16,6 +16,7 @@ import {
   bulkUpdateVariantStock,
   exportAdminInventory,
   downloadInventoryExport,
+  importAdminInventory,
 } from '../../../services/inventory';
 import { getVendors } from '../../../services/vendors';
 
@@ -350,6 +351,47 @@ export function useInventory() {
     exportMutation.mutate();
   };
 
+  // Import stock updates from an uploaded Excel/CSV file, then refresh the table
+  const importMutation = useMutation({
+    mutationFn: (file: File) => importAdminInventory(file),
+    onSuccess: (result) => {
+      // Server data changed — drop any unsaved local edits so the table shows the truth
+      pendingChanges.current = {};
+      setPendingStock({});
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
+
+      toast.success(
+        t('inventoryPage.importSuccess', 'Inventory updated from file!')
+      );
+      const failed = Number(result?.failed) || 0;
+      if (failed > 0) {
+        toast.error(
+          `${failed} ${t(
+            'inventoryPage.importFailedRows',
+            'row(s) could not be imported.'
+          )}`
+        );
+      }
+    },
+    onError: (err: unknown) => {
+      const status = (err as { statusCode?: number })?.statusCode;
+      console.error('Failed to import inventory:', status ?? '', err);
+      const message = getErrorMessage(
+        err,
+        t('inventoryPage.importFailed', 'Failed to import file.')
+      );
+      toast.error(status ? `${message} (${status})` : message);
+    },
+  });
+
+  const handleImport = (file: File) => {
+    if (importMutation.isPending) return;
+    importMutation.mutate(file);
+  };
+
   return {
     search,
     activeTab,
@@ -371,5 +413,7 @@ export function useInventory() {
     isSaving: saveMutation.isPending,
     handleExport,
     isExporting: exportMutation.isPending,
+    handleImport,
+    isImporting: importMutation.isPending,
   };
 }

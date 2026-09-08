@@ -627,6 +627,12 @@
     "exporting": "Exporting...",
     "exportSuccess": "Inventory exported successfully!",
     "exportFailed": "Failed to export inventory.",
+    "import": "Import",
+    "importing": "Importing...",
+    "importSuccess": "Inventory updated from file!",
+    "importFailed": "Failed to import file.",
+    "importFailedRows": "row(s) could not be imported.",
+    "importInvalidType": "Please choose an Excel or CSV file.",
     "updated": "Updated"
   },
   "managementTable": {

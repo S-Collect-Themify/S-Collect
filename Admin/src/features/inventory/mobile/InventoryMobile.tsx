@@ -4,7 +4,11 @@ import { Download } from 'lucide-react';
 import { useInventory } from '../hooks/useInventory';
 import { ProductCard } from './ProductCard';
 import { MobileFilter } from './MobileFilter';
+import { InventoryImportButton } from '../InventoryImportButton';
 import { ITEMS_PER_PAGE } from '../types';
+
+const MOBILE_ACTION_BTN_CLASS =
+  'shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer';
 
 export const InventoryMobile = () => {
   const { t } = useTranslation();
@@ -28,6 +32,8 @@ export const InventoryMobile = () => {
     isSaving,
     handleExport,
     isExporting,
+    handleImport,
+    isImporting,
   } = useInventory();
 
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -50,17 +56,25 @@ export const InventoryMobile = () => {
               )}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={isExporting}
-            className="shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
-          >
-            <Download size={14} className="shrink-0" />
-            {isExporting
-              ? t('inventoryPage.exporting', 'Exporting...')
-              : t('inventoryPage.export', 'Export')}
-          </button>
+          <div className="shrink-0 flex items-center gap-2">
+            <InventoryImportButton
+              onImport={handleImport}
+              isImporting={isImporting}
+              className={MOBILE_ACTION_BTN_CLASS}
+              iconSize={14}
+            />
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={isExporting}
+              className={MOBILE_ACTION_BTN_CLASS}
+            >
+              <Download size={14} className="shrink-0" />
+              {isExporting
+                ? t('inventoryPage.exporting', 'Exporting...')
+                : t('inventoryPage.export', 'Export')}
+            </button>
+          </div>
         </div>
 
         {/* Search + filter tabs */}

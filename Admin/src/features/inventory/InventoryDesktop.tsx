@@ -26,6 +26,8 @@ export const InventoryDesktop = () => {
     isSaving,
     handleExport,
     isExporting,
+    handleImport,
+    isImporting,
   } = useInventory();
 
   return (
@@ -39,10 +41,12 @@ export const InventoryDesktop = () => {
           vendorOptions={vendorOptions}
           isVendorsLoading={isVendorsLoading}
           isExporting={isExporting}
+          isImporting={isImporting}
           onSearchChange={handleSearchChange}
           onFilterChange={handleFilterChange}
           onVendorChange={handleVendorChange}
           onExport={handleExport}
+          onImport={handleImport}
         />
         <div className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 pb-4 px-4 pt-2 overflow-hidden">
           <AnimatePresence mode="wait">
