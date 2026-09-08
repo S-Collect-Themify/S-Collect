@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { Plus, ChevronDown, ChevronsRight, SlidersHorizontal, ExternalLink, Sparkles, X } from 'lucide-react';
+import {ChevronsRight, SlidersHorizontal, ExternalLink, Sparkles, X } from 'lucide-react';
 import ProductMedia from '../components/ui/ProductMedia';
 import ProductSizeChart from '../components/ui/ProductSizeChart';
 import ProductStatus from '../components/ui/ProductStatus';

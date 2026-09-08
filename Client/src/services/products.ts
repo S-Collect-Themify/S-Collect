@@ -167,15 +167,24 @@ export interface ProductOptionValueBody {
   valueAr: string;
 }
 
+export interface CreateOptionValueDto {
+  vendorAttributeValueId: string;
+}
+
 export interface CreateProductOptionBody {
   name: string;
   nameAr: string;
   values: ProductOptionValueBody[];
 }
 
+export interface CreateProductOptionDto {
+  vendorAttributeId: string;
+  valueIds: string[];
+}
+
 export const createProductOption = async (
   productId: string,
-  body: CreateProductOptionBody
+  body: CreateProductOptionDto | CreateProductOptionBody
 ) => {
   try {
     const { data } = await api.post(
@@ -191,7 +200,7 @@ export const createProductOption = async (
 export const addProductOptionValue = async (
   productId: string,
   optionId: string,
-  body: ProductOptionValueBody
+  body: CreateOptionValueDto | ProductOptionValueBody
 ) => {
   try {
     const { data } = await api.post(
@@ -201,6 +210,20 @@ export const addProductOptionValue = async (
     return data;
   } catch (err) {
     throw handleServiceError(err, `Failed to add option value for ${optionId}`);
+  }
+};
+
+export const deleteProductOption = async (
+  productId: string,
+  optionId: string
+) => {
+  try {
+    const { data } = await api.delete(
+      `/vendor/products/${productId}/options/${optionId}`
+    );
+    return data;
+  } catch (err) {
+    throw handleServiceError(err, `Failed to delete option ${optionId}`);
   }
 };
 
@@ -375,9 +398,11 @@ export const searchVendorProducts = async (query: {
   }
 };
 
+export type BulkProductStatus = 'PUBLISH' | 'UNPUBLISH';
+
 export const bulkUpdateProductStatus = async (params: {
   productIds: string[];
-  status: 'PUBLISH' | 'UNPUBLISH';
+  status: BulkProductStatus;
 }) => {
   try {
     const { data } = await api.post('/vendor/products/bulk-status', params);
@@ -407,15 +432,14 @@ export const applyVendorBulkDiscount = async (
 
 export const applyBulkDiscountApi = applyVendorBulkDiscount;
 
-
 export const activateProduct = async (productId: string) => {
   try {
-    const { data } = await api.patch(`/vendor/products/${productId}/activate`);
+    const { data } = await api.post(`/vendor/products/${productId}/activate`);
     return data;
   } catch (err) {
     const serviceErr = handleServiceError(err);
     if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
-      const { data } = await api.post(`/vendor/products/${productId}/activate`);
+      const { data } = await api.patch(`/vendor/products/${productId}/activate`);
       return data;
     }
     throw serviceErr;
@@ -424,14 +448,14 @@ export const activateProduct = async (productId: string) => {
 
 export const deactivateProduct = async (productId: string) => {
   try {
-    const { data } = await api.patch(
+    const { data } = await api.post(
       `/vendor/products/${productId}/deactivate`
     );
     return data;
   } catch (err) {
     const serviceErr = handleServiceError(err);
     if (serviceErr.statusCode === 404 || serviceErr.statusCode === 405) {
-      const { data } = await api.post(
+      const { data } = await api.patch(
         `/vendor/products/${productId}/deactivate`
       );
       return data;
