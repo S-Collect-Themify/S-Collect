@@ -4,13 +4,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { getErrorMessage } from '../../../types/api';
-import { ITEMS_PER_PAGE, type ProductRow } from '../types';
+import {
+  ITEMS_PER_PAGE,
+  type ProductRow,
+  type InventoryVendorOption,
+} from '../types';
 import { getStatus } from '../utils';
 import type { FilterKey } from '../constants';
 import {
   getAdminInventory,
   bulkUpdateVariantStock,
 } from '../../../services/inventory';
+import { getVendors } from '../../../services/vendors';
 
 export function useInventory() {
   const { t, i18n } = useTranslation();
@@ -22,6 +27,35 @@ export function useInventory() {
   const search = searchParams.get('search') || '';
   const activeTab = (searchParams.get('status') || 'all') as FilterKey;
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const vendorId = searchParams.get('vendorId') || '';
+
+  // Vendor list for the "filter by vendor" dropdown
+  const { data: vendorsResp, isLoading: isVendorsLoading } = useQuery({
+    queryKey: ['inventory-vendors'],
+    queryFn: () => getVendors({ pageSize: 100 }),
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const vendorOptions: InventoryVendorOption[] = useMemo(
+    () =>
+      (vendorsResp?.items || []).map((v) => ({
+        id: v.id,
+        name:
+          v.storeName ||
+          [v.firstName, v.lastName].filter(Boolean).join(' ').trim() ||
+          v.id,
+      })),
+    [vendorsResp]
+  );
+
+  // Fallback lookup: resolve a vendor's display name from its id when the
+  // inventory API response doesn't embed storeName on the item.
+  const vendorNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    vendorOptions.forEach((v) => map.set(v.id, v.name));
+    return map;
+  }, [vendorOptions]);
 
   // Keep track of unsaved local stock edits in a ref and local state for instant re-render
   const pendingChanges = useRef<
@@ -50,12 +84,13 @@ export function useInventory() {
 
   // Query real inventory from the API with dependencies
   const { data: rawInventory, isLoading } = useQuery({
-    queryKey: ['inventory', currentPage, activeTab, search],
+    queryKey: ['inventory', currentPage, activeTab, search, vendorId],
     queryFn: () =>
       getAdminInventory({
         pageNum: currentPage,
         pageSize: ITEMS_PER_PAGE,
         search: search || undefined,
+        vendorId: vendorId || undefined,
         minStock,
         maxStock,
         stockStatus,
@@ -68,6 +103,11 @@ export function useInventory() {
   // Convert raw product variants to flat rows
   const rows: ProductRow[] = useMemo(() => {
     const items = rawInventory?.items || [];
+    // Mirror the vendor filter client-side only when it's safe: the API returns a
+    // vendorId on items AND at least one row matches the selection. Otherwise
+    // (no vendorId field, or an id-space mismatch) trust the server response.
+    const canClientFilterVendor =
+      !!vendorId && items.some((it) => it.vendorId === vendorId);
     return [...items]
       .filter((item) => {
         // Filter against original backend stock so rows stay in current tab while editing pending values
@@ -77,6 +117,9 @@ export function useInventory() {
         if (activeTab === 'In Stock') return originalStock > 5;
         return true;
       })
+      .filter((item) =>
+        canClientFilterVendor ? item.vendorId === vendorId : true
+      )
       .sort((a, b) => {
         const timeA = a.lastUpdatedAt ? new Date(a.lastUpdatedAt).getTime() : 0;
         const timeB = b.lastUpdatedAt ? new Date(b.lastUpdatedAt).getTime() : 0;
@@ -93,6 +136,13 @@ export function useInventory() {
         const variantStr = isAr
           ? item.labelNameAr || item.labelName || 'الافتراضي'
           : item.labelName || item.labelNameAr || 'Default';
+
+        const vendorName =
+          (isAr
+            ? item.storeNameAr || item.storeName
+            : item.storeName || item.storeNameAr) ||
+          vendorNameById.get(item.vendorId || '') ||
+          '';
 
         const updatedAt = item.lastUpdatedAt
           ? new Date(item.lastUpdatedAt).toLocaleDateString(
@@ -111,6 +161,8 @@ export function useInventory() {
         return {
           id: uniqueId,
           name,
+          vendor: vendorName,
+          vendorId: item.vendorId || '',
           sku: item.sku || '',
           variant: variantStr,
           stock,
@@ -118,7 +170,7 @@ export function useInventory() {
           status: getStatus(stock),
         };
       });
-  }, [rawInventory, isAr, activeTab, pendingStock]);
+  }, [rawInventory, isAr, activeTab, pendingStock, vendorId, vendorNameById]);
 
   // Derived data
   const totalItems = rawInventory?.pagination?.totalItems || 0;
@@ -130,12 +182,13 @@ export function useInventory() {
     if (currentPage < totalPages) {
       const nextPage = currentPage + 1;
       queryClient.prefetchQuery({
-        queryKey: ['inventory', nextPage, activeTab, search],
+        queryKey: ['inventory', nextPage, activeTab, search, vendorId],
         queryFn: () =>
           getAdminInventory({
             pageNum: nextPage,
             pageSize: ITEMS_PER_PAGE,
             search: search || undefined,
+            vendorId: vendorId || undefined,
             minStock,
             maxStock,
             stockStatus,
@@ -148,6 +201,7 @@ export function useInventory() {
     totalPages,
     activeTab,
     search,
+    vendorId,
     minStock,
     maxStock,
     stockStatus,
@@ -187,6 +241,18 @@ export function useInventory() {
   const handlePageChange = (page: number) => {
     setSearchParams((prev) => {
       prev.set('page', String(page));
+      return prev;
+    });
+  };
+
+  const handleVendorChange = (id: string) => {
+    setSearchParams((prev) => {
+      if (!id) {
+        prev.delete('vendorId');
+      } else {
+        prev.set('vendorId', id);
+      }
+      prev.set('page', '1');
       return prev;
     });
   };
@@ -254,6 +320,9 @@ export function useInventory() {
     search,
     activeTab,
     currentPage,
+    vendorId,
+    vendorOptions,
+    isVendorsLoading,
     paginatedData,
     totalItems,
     totalPages,
@@ -263,6 +332,7 @@ export function useInventory() {
     handleSearchChange,
     handleStockChange,
     handlePageChange,
+    handleVendorChange,
     handleSave,
     isSaving: saveMutation.isPending,
   };
