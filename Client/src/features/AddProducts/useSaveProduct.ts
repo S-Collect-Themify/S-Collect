@@ -9,7 +9,12 @@ import {
   uploadProductImage,
   uploadProductSizeChart,
 } from '../../services/products';
-import { buildProductVariantMutations, syncProductOptions } from './utils';
+import {
+  buildProductVariantMutations,
+  ensureVendorAttributesAndValues,
+  mapFormToMultipartFormData,
+  syncProductOptions,
+} from './utils';
 import type { ProductFormData } from './types';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +27,7 @@ interface UseSaveProductOptions {
 }
 
 interface SaveProductArgs {
-  formData: FormData;
+  formData?: FormData;
   productFormData: ProductFormData;
 }
 
@@ -35,24 +40,39 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
     mutationFn: async ({ formData, productFormData }: SaveProductArgs) => {
       let rawResponse: unknown;
 
+      let enrichedFormData = productFormData;
+      try {
+        const result = await ensureVendorAttributesAndValues(productFormData);
+        enrichedFormData = result.formData;
+      } catch (attrErr) {
+        console.warn(
+          'Failed ensuring vendor attributes before product save:',
+          attrErr
+        );
+      }
+
+      const multipartToSend = mapFormToMultipartFormData(enrichedFormData);
+
       if (isEdit && productId) {
         const updatePayload = {
-          name: productFormData.nameEn || productFormData.nameAr || '',
-          nameAr: productFormData.nameAr || productFormData.nameEn || '',
-          categoryId: productFormData.categoryId || '',
-          description: productFormData.description || '',
+          name: enrichedFormData.nameEn || enrichedFormData.nameAr || '',
+          nameAr: enrichedFormData.nameAr || enrichedFormData.nameEn || '',
+          categoryId: enrichedFormData.categoryId || '',
+          description: enrichedFormData.description || '',
           descriptionAr:
-            productFormData.descriptionAr || productFormData.description || '',
+            enrichedFormData.descriptionAr ||
+            enrichedFormData.description ||
+            '',
         };
 
         rawResponse = await updateProductFull(productId, updatePayload);
 
         try {
           const latestProduct = await getProductById(productId);
-          await syncProductOptions(productId, productFormData, latestProduct);
+          await syncProductOptions(productId, enrichedFormData, latestProduct);
           const productWithSyncedOptions = await getProductById(productId);
           const variantMutations = buildProductVariantMutations(
-            productFormData,
+            enrichedFormData,
             productWithSyncedOptions
           );
 
@@ -88,7 +108,7 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
           console.warn('Sync options/variants error:', syncErr);
         }
       } else {
-        rawResponse = await createProductFull(formData);
+        rawResponse = await createProductFull(multipartToSend);
       }
 
       const unwrapped: any =
@@ -101,12 +121,56 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
 
       const targetId = productId || unwrapped?.id;
 
+      // Post-creation sync for new products to guarantee options and variants are created
+      if (!isEdit && targetId) {
+        try {
+          const latestProduct = await getProductById(targetId);
+          const hasOptions =
+            Array.isArray(latestProduct?.options) &&
+            latestProduct.options.length > 0;
+          const hasVariants =
+            Array.isArray(latestProduct?.variants) &&
+            latestProduct.variants.length > 0;
+          const hasCards =
+            Array.isArray(enrichedFormData.varianceCards) &&
+            enrichedFormData.varianceCards.length > 0;
+
+          if (hasCards && (!hasOptions || !hasVariants)) {
+            await syncProductOptions(targetId, enrichedFormData, latestProduct);
+            const productWithSyncedOptions = await getProductById(targetId);
+            const variantMutations = buildProductVariantMutations(
+              enrichedFormData,
+              productWithSyncedOptions
+            );
+
+            await Promise.all(
+              variantMutations.map((variant) =>
+                createProductVariant(targetId, {
+                  optionValueIds: variant.optionValueIds,
+                  sku: variant.sku,
+                  price: variant.price,
+                  compareAtPrice: variant.compareAtPrice,
+                  stock: variant.stock,
+                }).catch((err) => {
+                  console.warn(
+                    `Failed to create variant ${variant.sku}:`,
+                    err
+                  );
+                })
+              )
+            );
+          }
+        } catch (syncErr) {
+          console.warn('Post-creation sync options/variants error:', syncErr);
+        }
+      }
+
       // Only upload images manually if backend createProductFull didn't process them
       const hasImagesFromBackend =
         Array.isArray(unwrapped?.images) && unwrapped.images.length > 0;
 
       if (!isEdit && targetId && !hasImagesFromBackend) {
-        const pendingImages = formData.getAll('images');
+        const pendingImages = multipartToSend.getAll('images');
         if (pendingImages && pendingImages.length > 0) {
           const filesToUpload = pendingImages.filter(
             (f): f is File => f instanceof File
@@ -136,9 +200,10 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
 
       if (!isEdit && targetId && !hasSizeChartsFromBackend) {
         const pendingSizeCharts =
-          productFormData.sizeChartImages && productFormData.sizeChartImages.length > 0
-            ? productFormData.sizeChartImages
-            : (formData
+          enrichedFormData.sizeChartImages &&
+          enrichedFormData.sizeChartImages.length > 0
+            ? enrichedFormData.sizeChartImages
+            : (multipartToSend
                 .getAll('sizeChart')
                 .filter((f): f is File => f instanceof File) as File[]);
 

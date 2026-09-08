@@ -4,8 +4,7 @@ import { CircleCheckBig } from 'lucide-react';
 import type { ProductFormData } from '../types';
 import { useMobileAddProductStore } from './mobileAddProductStore';
 import { mapFormToMultipartFormData } from '../utils';
-import { useCreateProduct } from '../useCreateProduct';
-import { useUpdateProduct } from '../useUpdateProduct';
+import { useSaveProduct } from '../useSaveProduct';
 import VariantsPreviewCard from '../VariantsPreviewCard';
 
 const STEPS = [
@@ -22,9 +21,8 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
   const { t } = useTranslation();
   const { watch } = useFormContext<ProductFormData>();
   const formData = watch();
-  const { mutate: createProduct } = useCreateProduct();
-  const { mutate: updateProduct } = useUpdateProduct();
   const isEdit = !!productId;
+  const { mutate: saveProduct } = useSaveProduct({ isEdit, productId });
 
   const { categories, quantity, sizes, colors, previousStep } =
     useMobileAddProductStore();
@@ -70,14 +68,10 @@ const MobileReviewStep = ({ productId }: MobileReviewStepProps) => {
       useMobileAddProductStore.setState({ isLoading: false });
     };
 
-    if (isEdit && productId) {
-      updateProduct(
-        { productId, formData: multipartData, productFormData },
-        { onSuccess, onError }
-      );
-    } else {
-      createProduct(multipartData, { onSuccess, onError });
-    }
+    saveProduct(
+      { formData: multipartData, productFormData },
+      { onSuccess, onError }
+    );
   };
 
   return (

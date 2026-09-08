@@ -288,11 +288,20 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
     sizes: string[];
     replaceExisting: boolean;
   }) => {
+    const sizeAttr = vendorAttributes.find(
+      (a) =>
+        a.name?.toLowerCase().includes('size') ||
+        a.nameAr?.includes('مقاس')
+    );
     const colorAttr = vendorAttributes.find(
       (a) =>
         a.name?.toLowerCase().includes('color') ||
         a.nameAr?.includes('لون')
     );
+
+    if (sizeAttr && !selectedAttributeIds.includes(sizeAttr.id)) {
+      setSelectedAttributeIds((prev) => [sizeAttr.id, ...prev.filter((id) => id !== sizeAttr.id)]);
+    }
     if (colorAttr && !selectedAttributeIds.includes(colorAttr.id)) {
       setSelectedAttributeIds((prev) => [...prev, colorAttr.id]);
     }
@@ -304,16 +313,19 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
       }
     });
 
+    const sizeAttrId = sizeAttr?.id || activeAttributes[0]?.id || '';
+    const colorAttrId = colorAttr?.id || activeAttributes[1]?.id || '';
+
     const newCards: VarianceCardData[] = [];
     let index = 0;
     for (const color of colors) {
       for (const size of sizes) {
         const cardAttrs = { ...initialAttrs };
-        if (colorAttr) {
-          cardAttrs[colorAttr.id] = color;
+        if (sizeAttrId) {
+          cardAttrs[sizeAttrId] = size;
         }
-        if (activeAttributes[0]) {
-          cardAttrs[activeAttributes[0].id] = size;
+        if (colorAttrId) {
+          cardAttrs[colorAttrId] = color;
         }
 
         newCards.push({
