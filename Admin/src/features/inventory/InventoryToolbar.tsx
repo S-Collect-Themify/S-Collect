@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Download } from 'lucide-react';
 import type { FilterKey } from './constants';
 import { FILTER_TABS } from './constants';
 import type { InventoryVendorOption } from './types';
@@ -11,9 +12,11 @@ interface InventoryToolbarProps {
   vendorId: string;
   vendorOptions: InventoryVendorOption[];
   isVendorsLoading: boolean;
+  isExporting: boolean;
   onSearchChange: (value: string) => void;
   onFilterChange: (key: FilterKey) => void;
   onVendorChange: (id: string) => void;
+  onExport: () => void;
 }
 
 export const InventoryToolbar = ({
@@ -22,9 +25,11 @@ export const InventoryToolbar = ({
   vendorId,
   vendorOptions,
   isVendorsLoading,
+  isExporting,
   onSearchChange,
   onFilterChange,
   onVendorChange,
+  onExport,
 }: InventoryToolbarProps) => {
   const { t } = useTranslation();
 
@@ -96,6 +101,19 @@ export const InventoryToolbar = ({
           isLoading={isVendorsLoading}
         />
       </div>
+
+      {/* Export to Excel */}
+      <button
+        type="button"
+        onClick={onExport}
+        disabled={isExporting}
+        className="w-full sm:w-auto sm:ms-auto flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-gray-300 bg-gray-50 text-label-md font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer whitespace-nowrap"
+      >
+        <Download size={15} className="shrink-0" />
+        {isExporting
+          ? t('inventoryPage.exporting', 'Exporting...')
+          : t('inventoryPage.export', 'Export')}
+      </button>
     </div>
   );
 };

@@ -622,6 +622,10 @@
     "saveSuccess": "تم حفظ التغييرات بنجاح!",
     "saveFailed": "فشل حفظ التغييرات.",
     "noChanges": "لا توجد تغييرات للحفظ.",
+    "export": "تصدير",
+    "exporting": "جارٍ التصدير...",
+    "exportSuccess": "تم تصدير المخزون بنجاح!",
+    "exportFailed": "فشل تصدير المخزون.",
     "updated": "تم التحديث"
   },
   "managementTable": {

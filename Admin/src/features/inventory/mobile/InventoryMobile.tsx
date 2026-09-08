@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Download } from 'lucide-react';
 import { useInventory } from '../hooks/useInventory';
 import { ProductCard } from './ProductCard';
 import { MobileFilter } from './MobileFilter';
@@ -25,6 +26,8 @@ export const InventoryMobile = () => {
     handleVendorChange,
     handleSave,
     isSaving,
+    handleExport,
+    isExporting,
   } = useInventory();
 
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -35,16 +38,29 @@ export const InventoryMobile = () => {
     <div className="flex flex-col min-h-screen bg-gray-100 pb-20">
       <div className="px-4 pt-5 pb-4">
         {/* Header */}
-        <div className="mb-5">
-          <h1 className="text-lg font-bold text-gray-900">
-            {t('inventoryPage.title', 'Inventory Management')}
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {t(
-              'inventoryPage.subtitle',
-              'Keep your stock quantities updated in real time.'
-            )}
-          </p>
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold text-gray-900">
+              {t('inventoryPage.title', 'Inventory Management')}
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {t(
+                'inventoryPage.subtitle',
+                'Keep your stock quantities updated in real time.'
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
+          >
+            <Download size={14} className="shrink-0" />
+            {isExporting
+              ? t('inventoryPage.exporting', 'Exporting...')
+              : t('inventoryPage.export', 'Export')}
+          </button>
         </div>
 
         {/* Search + filter tabs */}
