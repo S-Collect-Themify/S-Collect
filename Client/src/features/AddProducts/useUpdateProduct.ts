@@ -6,7 +6,11 @@ import {
   setProductThumbnail,
   updateProductVariant,
 } from '../../services/products';
-import { buildProductVariantMutations, syncProductOptions } from './utils';
+import {
+  buildProductVariantMutations,
+  ensureVendorAttributesAndValues,
+  syncProductOptions,
+} from './utils';
 import type { ProductFormData } from './types';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -30,13 +34,23 @@ export const useUpdateProduct = () => {
       formData,
       productFormData,
     }: UpdateProductArgs) => {
+      let enrichedFormData = productFormData;
+      try {
+        const result = await ensureVendorAttributesAndValues(productFormData);
+        enrichedFormData = result.formData;
+      } catch (attrErr) {
+        console.warn('Failed ensuring vendor attributes in useUpdateProduct:', attrErr);
+      }
+
       const updatePayload = {
-        name: productFormData.nameEn || productFormData.nameAr || '',
-        nameAr: productFormData.nameAr || productFormData.nameEn || '',
-        categoryId: productFormData.categoryId || '',
-        description: productFormData.description || '',
+        name: enrichedFormData.nameEn || enrichedFormData.nameAr || '',
+        nameAr: enrichedFormData.nameAr || enrichedFormData.nameEn || '',
+        categoryId: enrichedFormData.categoryId || '',
+        description: enrichedFormData.description || '',
         descriptionAr:
-          productFormData.descriptionAr || productFormData.description || '',
+          enrichedFormData.descriptionAr ||
+          enrichedFormData.description ||
+          '',
       };
       const rawResponse = await updateProductFull(productId, updatePayload);
 
@@ -49,10 +63,10 @@ export const useUpdateProduct = () => {
           : rawResponse;
 
       const latestProduct = await getProductById(productId);
-      await syncProductOptions(productId, productFormData, latestProduct);
+      await syncProductOptions(productId, enrichedFormData, latestProduct);
       const productWithSyncedOptions = await getProductById(productId);
       const variantMutations = buildProductVariantMutations(
-        productFormData,
+        enrichedFormData,
         productWithSyncedOptions
       );
       console.log(

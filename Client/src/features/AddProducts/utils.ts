@@ -12,6 +12,12 @@ import {
   addProductOptionValue,
   createProductOption,
 } from '../../services/products';
+import {
+  getVendorAttributes,
+  createVendorAttribute,
+  addVendorAttributeValue,
+} from '../../services/attributes';
+import type { VendorAttribute } from '../attributes/types';
 
 export const urlToFile = async (
   url: string,
@@ -257,13 +263,24 @@ const unwrapApiData = <T>(response: unknown): T =>
     ? (response as { data: T }).data
     : (response as T);
 
-export const syncProductOptions = async (
-  productId: string,
+export const ensureVendorAttributesAndValues = async (
   formData: ProductFormData,
-  product: unknown
-): Promise<ProductOption[]> => {
-  const raw = unwrapApiData<RawProductResponse>(product) || {};
-  const existingOptions = Array.isArray(raw.options) ? raw.options : [];
+  cachedVendorAttributes?: VendorAttribute[]
+): Promise<{
+  formData: ProductFormData;
+  vendorAttributes: VendorAttribute[];
+}> => {
+  let vendorAttributes: VendorAttribute[] = [];
+  try {
+    if (cachedVendorAttributes && cachedVendorAttributes.length > 0) {
+      vendorAttributes = cachedVendorAttributes;
+    } else {
+      vendorAttributes = await getVendorAttributes();
+    }
+  } catch (err) {
+    console.warn('Failed to fetch vendor attributes:', err);
+    vendorAttributes = cachedVendorAttributes || [];
+  }
 
   const cards =
     formData.varianceCards && formData.varianceCards.length > 0
@@ -281,6 +298,181 @@ export const syncProductOptions = async (
             values: [],
           },
         ];
+
+  const updatedMetaList: OptionMeta[] = [];
+
+  for (let metaIdx = 0; metaIdx < activeMetaList.length; metaIdx++) {
+    const meta = activeMetaList[metaIdx];
+    const defaultName =
+      meta.name || (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
+    const defaultNameAr =
+      meta.nameAr || (metaIdx === 0 ? 'المقاس' : metaIdx === 1 ? 'اللون' : defaultName);
+
+    // 1. Find or create the vendor attribute
+    let vendorAttr = vendorAttributes.find(
+      (a) =>
+        (meta.id && a.id === meta.id) ||
+        normalizeOptionText(a.name) === normalizeOptionText(defaultName) ||
+        (a.nameAr && normalizeOptionText(a.nameAr) === normalizeOptionText(defaultNameAr))
+    );
+
+    if (!vendorAttr) {
+      try {
+        vendorAttr = await createVendorAttribute({
+          name: defaultName,
+          nameAr: defaultNameAr,
+          sortOrder: metaIdx,
+          values: [],
+        });
+        vendorAttributes.push(vendorAttr);
+      } catch (createErr) {
+        console.warn(`Failed to auto-create vendor attribute "${defaultName}":`, createErr);
+      }
+    }
+
+    const attrId = vendorAttr?.id || meta.id || '';
+    const attrValues = [...(vendorAttr?.values || [])];
+
+    // 2. Extract all values used for this option across all varianceCards
+    const usedValues = Array.from(
+      new Set(
+        cards
+          .map((c) => {
+            if (metaIdx === 0) {
+              return (
+                c.size?.trim() ||
+                c.attributes?.[attrId]?.trim() ||
+                (meta.id ? c.attributes?.[meta.id]?.trim() : '') ||
+                c.attributes?.[defaultName]?.trim() ||
+                ''
+              );
+            }
+            if (metaIdx === 1) {
+              return (
+                c.color?.trim() ||
+                c.attributes?.[attrId]?.trim() ||
+                (meta.id ? c.attributes?.[meta.id]?.trim() : '') ||
+                c.attributes?.[defaultName]?.trim() ||
+                ''
+              );
+            }
+            return (
+              c.attributes?.[attrId]?.trim() ||
+              (meta.id ? c.attributes?.[meta.id]?.trim() : '') ||
+              c.attributes?.[defaultName]?.trim() ||
+              ''
+            );
+          })
+          .filter((val): val is string => Boolean(val))
+      )
+    );
+
+    // Also include any pre-existing meta values that user had configured
+    if (meta.values) {
+      meta.values.forEach((mv) => {
+        if (mv.value && !usedValues.includes(mv.value)) {
+          usedValues.push(mv.value);
+        }
+      });
+    }
+
+    // 3. For each value, ensure it exists under vendorAttr.values
+    const finalValueMetas: { id: string; value: string; valueAr: string }[] = [];
+
+    for (const val of usedValues) {
+      const normalized = normalizeOptionText(val);
+      let existingVal = attrValues.find(
+        (v) =>
+          normalizeOptionText(v.value) === normalized ||
+          normalizeOptionText(v.valueAr) === normalized
+      );
+
+      if (!existingVal && attrId) {
+        const matchedMetaVal = meta.values?.find(
+          (mv) => normalizeOptionText(mv.value) === normalized
+        );
+        const valueAr = matchedMetaVal?.valueAr || val;
+
+        try {
+          existingVal = await addVendorAttributeValue(attrId, {
+            value: val,
+            valueAr: valueAr,
+            sortOrder: attrValues.length,
+          });
+          attrValues.push(existingVal);
+          if (vendorAttr) {
+            vendorAttr.values = attrValues;
+          }
+        } catch (addValErr) {
+          console.warn(`Failed to auto-create attribute value "${val}" for attribute ${attrId}:`, addValErr);
+        }
+      }
+
+      finalValueMetas.push({
+        id: existingVal?.id || '',
+        value: val,
+        valueAr: existingVal?.valueAr || val,
+      });
+    }
+
+    updatedMetaList.push({
+      id: attrId,
+      name: vendorAttr?.name || defaultName,
+      nameAr: vendorAttr?.nameAr || defaultNameAr,
+      values: finalValueMetas,
+    });
+  }
+
+  // Also update varianceCards attributes keys to use the resolved attrId
+  const updatedCards = cards.map((card) => {
+    const updatedAttrs: Record<string, string> = { ...(card.attributes || {}) };
+    updatedMetaList.forEach((meta, idx) => {
+      let cardVal = '';
+      if (idx === 0) {
+        cardVal = card.size || card.attributes?.[meta.id] || card.attributes?.[meta.name] || '';
+      } else if (idx === 1) {
+        cardVal = card.color || card.attributes?.[meta.id] || card.attributes?.[meta.name] || '';
+      } else {
+        cardVal = card.attributes?.[meta.id] || card.attributes?.[meta.name] || '';
+      }
+      if (meta.id && cardVal) {
+        updatedAttrs[meta.id] = cardVal;
+      }
+    });
+    return {
+      ...card,
+      attributes: Object.keys(updatedAttrs).length > 0 ? updatedAttrs : undefined,
+    };
+  });
+
+  return {
+    formData: {
+      ...formData,
+      optionsMeta: updatedMetaList,
+      varianceCards: updatedCards,
+    },
+    vendorAttributes,
+  };
+};
+
+export const syncProductOptions = async (
+  productId: string,
+  formData: ProductFormData,
+  product: unknown,
+  cachedVendorAttributes?: VendorAttribute[]
+): Promise<ProductOption[]> => {
+  const raw = unwrapApiData<RawProductResponse>(product) || {};
+  const existingOptions = Array.isArray(raw.options) ? raw.options : [];
+
+  const cards =
+    formData.varianceCards && formData.varianceCards.length > 0
+      ? formData.varianceCards
+      : [];
+
+  const activeMetaList =
+    formData.optionsMeta && formData.optionsMeta.length > 0
+      ? formData.optionsMeta
+      : [];
 
   const desiredOptions = activeMetaList
     .map((meta, metaIdx) => {
@@ -319,20 +511,28 @@ export const syncProductOptions = async (
         (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
       const optionNameAr = meta.nameAr || optionName;
 
+      const values = extractedValues.map((val) => {
+        const matched = meta.values?.find(
+          (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
+        );
+        return {
+          id: matched?.id || '',
+          value: val,
+          valueAr: matched?.valueAr || val,
+        };
+      });
+
       return {
+        vendorAttributeId: meta.id,
         name: optionName,
         nameAr: optionNameAr,
-        values: extractedValues.map((val) => {
-          const matched = meta.values?.find(
-            (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
-          );
-          return { value: val, valueAr: matched?.valueAr || val };
-        }),
+        values,
+        valueIds: values.map((v) => v.id).filter(Boolean),
       };
     })
     .filter((option) => option.values.length > 0);
 
-  return Promise.all(
+  const results = await Promise.all(
     desiredOptions.map(async (desiredOption) => {
       const existingOption = existingOptions.find(
         (option) =>
@@ -342,46 +542,55 @@ export const syncProductOptions = async (
             normalizeOptionText(desiredOption.nameAr)
       );
 
+      // If option does not exist on product, create it with vendorAttributeId and valueIds
       if (!existingOption?.id) {
+        if (!desiredOption.vendorAttributeId) {
+          console.warn(
+            `Cannot create option "${desiredOption.name}": missing vendorAttributeId`
+          );
+          return null as unknown as ProductOption;
+        }
+
         const createdOption = unwrapApiData<ProductOption>(
           await createProductOption(productId, {
-            name: desiredOption.name,
-            nameAr: desiredOption.nameAr,
-            values: desiredOption.values.map((v) => ({
-              value: typeof v === 'string' ? v : v.value,
-              valueAr: typeof v === 'string' ? v : v.valueAr,
-            })),
+            vendorAttributeId: desiredOption.vendorAttributeId,
+            valueIds: desiredOption.valueIds,
           })
         );
         return createdOption;
       }
 
+      // If option already exists on product, add any missing values
       const existingValues = Array.isArray(existingOption.values)
         ? existingOption.values
         : [];
+      const existingValueNames = existingValues.map((v) =>
+        normalizeOptionText(v.value)
+      );
+      const existingValueNamesAr = existingValues.map((v) =>
+        normalizeOptionText(v.valueAr)
+      );
+
       const missingValues = desiredOption.values.filter((item) => {
-        const val = typeof item === 'string' ? item : item.value;
-        const valAr = typeof item === 'string' ? item : item.valueAr;
-        const normalizedValue = normalizeOptionText(val);
-        const normalizedValueAr = normalizeOptionText(valAr);
-        return !existingValues.some(
-          (optionValue) =>
-            normalizeOptionText(optionValue.value) === normalizedValue ||
-            normalizeOptionText(optionValue.valueAr) === normalizedValueAr ||
-            normalizeOptionText(optionValue.value) === normalizedValueAr
+        const normalized = normalizeOptionText(item.value);
+        const normalizedAr = normalizeOptionText(item.valueAr);
+        return (
+          !existingValueNames.includes(normalized) &&
+          !existingValueNamesAr.includes(normalizedAr) &&
+          !existingValueNames.includes(normalizedAr)
         );
       });
+
       const createdValues = await Promise.all(
-        missingValues.map(async (item) => {
-          const val = typeof item === 'string' ? item : item.value;
-          const valAr = typeof item === 'string' ? item : item.valueAr;
-          return unwrapApiData<ProductOptionValue>(
-            await addProductOptionValue(productId, existingOption.id!, {
-              value: val,
-              valueAr: valAr,
-            })
-          );
-        })
+        missingValues
+          .filter((item) => Boolean(item.id))
+          .map(async (item) => {
+            return unwrapApiData<ProductOptionValue>(
+              await addProductOptionValue(productId, existingOption.id!, {
+                vendorAttributeValueId: item.id,
+              })
+            );
+          })
       );
 
       return {
@@ -390,6 +599,8 @@ export const syncProductOptions = async (
       };
     })
   );
+
+  return results.filter(Boolean);
 };
 
 export const buildProductVariantMutations = (
@@ -679,17 +890,24 @@ export const mapFormToMultipartFormData = (
         (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
       const optionNameAr = meta.nameAr || optionName;
 
+      const valueIds = uniqueValues
+        .map((val) => findValueId(meta, val))
+        .filter(Boolean);
+
       options.push({
-        ...(meta.id ? { id: meta.id } : {}),
+        ...(meta.id ? { id: meta.id, vendorAttributeId: meta.id } : {}),
         name: optionName,
         nameAr: optionNameAr,
+        valueIds,
         values: uniqueValues.map((val) => {
           const valueId = findValueId(meta, val);
           const matchedVal = meta.values?.find(
             (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
           );
           return {
-            ...(valueId ? { id: valueId } : {}),
+            ...(valueId
+              ? { id: valueId, vendorAttributeValueId: valueId }
+              : {}),
             value: val,
             valueAr: matchedVal?.valueAr || val,
           };
@@ -731,10 +949,12 @@ export const mapFormToMultipartFormData = (
           (v: any) => normalizeOptionText(v.value) === normalizeOptionText(cardVal)
         );
         optionValues.push({
-          ...(opt.id ? { optionId: opt.id } : {}),
+          ...(opt.id ? { optionId: opt.id, vendorAttributeId: opt.id } : {}),
           optionName: opt.name,
           optionNameAr: opt.nameAr,
-          ...(matchedVal?.id ? { valueId: matchedVal.id } : {}),
+          ...(matchedVal?.id
+            ? { valueId: matchedVal.id, vendorAttributeValueId: matchedVal.id }
+            : {}),
           value: cardVal,
           valueAr: matchedVal?.valueAr || cardVal,
         });
@@ -768,6 +988,7 @@ export const mapFormToMultipartFormData = (
 
     return {
       ...(existingVariantId ? { id: existingVariantId } : {}),
+      optionValueIds: valueIds,
       sku,
       price: cardPrice,
       compareAtPrice:
