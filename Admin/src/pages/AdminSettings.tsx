@@ -12,7 +12,6 @@ import { DeleteAdminModal } from '../features/adminSettings/components/DeleteAdm
 import { ReactivateAdminModal } from '../features/adminSettings/components/ReactivateAdminModal';
 import { EmailExistsModal } from '../features/adminSettings/components/EmailExistsModal';
 import { ShippingZonesList } from '../features/adminSettings/components/ShippingZonesList';
-import { DisableZoneModal } from '../features/adminSettings/components/DisableZoneModal';
 
 // Mobile Components
 import { MobilePlatformSettings } from '../features/adminSettings/mobile/MobilePlatformSettings';
@@ -155,7 +154,6 @@ const AdminSettings: React.FC = () => {
       <DeleteAdminModal />
       <ReactivateAdminModal />
       <EmailExistsModal />
-      <DisableZoneModal />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { PlatformSettings, BannerItem, AdminAccount, ShippingZoneItem, AdminSettingsViewMode } from './types';
-import { INITIAL_PLATFORM_SETTINGS, INITIAL_ADMINS, INITIAL_SHIPPING_ZONES } from './data';
+import type { PlatformSettings, BannerItem, AdminAccount, AdminSettingsViewMode } from './types';
+import { INITIAL_PLATFORM_SETTINGS, INITIAL_ADMINS } from './data';
 import toast from 'react-hot-toast';
 import i18n from '../../i18n';
 import {
@@ -18,7 +18,6 @@ interface AdminSettingsStore {
   bannersLoading: boolean;
   bannersError: string | null;
   admins: AdminAccount[];
-  shippingZones: ShippingZoneItem[];
   viewMode: AdminSettingsViewMode;
   editingBanner: BannerItem | null;
   editingAdmin: AdminAccount | null;
@@ -37,10 +36,6 @@ interface AdminSettingsStore {
   };
   emailExistsModal: {
     open: boolean;
-  };
-  disableZoneModal: {
-    open: boolean;
-    zone: ShippingZoneItem | null;
   };
 
   // Actions
@@ -93,12 +88,6 @@ interface AdminSettingsStore {
   closeReactivateAdminModal: () => void;
   confirmDeleteAdmin: () => void;
   closeEmailExistsModal: () => void;
-
-  // Shipping Zone Actions
-  toggleShippingZoneStatus: (zone: ShippingZoneItem) => void;
-  openDisableZoneModal: (zone: ShippingZoneItem) => void;
-  closeDisableZoneModal: () => void;
-  confirmDisableZone: () => void;
 }
 
 export const MAX_ACTIVE_BANNERS = 5;
@@ -109,7 +98,6 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   bannersLoading: false,
   bannersError: null,
   admins: INITIAL_ADMINS,
-  shippingZones: INITIAL_SHIPPING_ZONES,
   viewMode: 'settings',
   editingBanner: null,
   editingAdmin: null,
@@ -128,10 +116,6 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
   },
   emailExistsModal: {
     open: false,
-  },
-  disableZoneModal: {
-    open: false,
-    zone: null,
   },
 
   setViewMode: (mode) => set({ viewMode: mode }),
@@ -512,44 +496,5 @@ export const useAdminSettingsStore = create<AdminSettingsStore>((set, get) => ({
 
   closeEmailExistsModal: () => {
     set({ emailExistsModal: { open: false } });
-  },
-
-  toggleShippingZoneStatus: (zone) => {
-    if (zone.isActive) {
-      set({ disableZoneModal: { open: true, zone } });
-    } else {
-      set((state) => ({
-        shippingZones: state.shippingZones.map((z) =>
-          z.id === zone.id ? { ...z, isActive: true } : z
-        ),
-      }));
-      toast.success(
-        i18n.language === 'ar' ? 'تم تفعيل المنطقة بنجاح' : 'Zone enabled successfully'
-      );
-    }
-  },
-
-  openDisableZoneModal: (zone) => {
-    set({ disableZoneModal: { open: true, zone } });
-  },
-
-  closeDisableZoneModal: () => {
-    set({ disableZoneModal: { open: false, zone: null } });
-  },
-
-  confirmDisableZone: () => {
-    const { disableZoneModal } = get();
-    if (disableZoneModal.zone) {
-      const zoneId = disableZoneModal.zone.id;
-      set((state) => ({
-        shippingZones: state.shippingZones.map((z) =>
-          z.id === zoneId ? { ...z, isActive: false } : z
-        ),
-        disableZoneModal: { open: false, zone: null },
-      }));
-      toast.success(
-        i18n.language === 'ar' ? 'تم تعطيل المنطقة بنجاح' : 'Zone disabled successfully'
-      );
-    }
   },
 }));

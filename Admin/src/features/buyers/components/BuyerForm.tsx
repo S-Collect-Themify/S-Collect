@@ -80,6 +80,7 @@ export default function BuyerForm({
           <Field
             label={t('buyers.edit.phoneNumber', 'Phone Number')}
             value={form.phoneNumber}
+            required
             onChange={setField('phoneNumber')}
           />
           {isCreate && (

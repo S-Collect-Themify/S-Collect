@@ -47,6 +47,7 @@ export interface ShippingZoneItem {
   vendorsCount: number;
   vendorCount?: number;
   isActive: boolean;
+  rate: number;
 }
 
 export type AdminSettingsViewMode =
