@@ -130,17 +130,6 @@ export default function VendorForm({
           value={form.commercialRegisterNumber}
           onChange={setField('commercialRegisterNumber')}
         />
-        <div className="sm:col-span-2 flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-500">
-            {t('vendors.edit.storeDescription', 'Store Description')}
-          </label>
-          <textarea
-            value={form.storeDescription}
-            onChange={setField('storeDescription')}
-            rows={4}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 resize-y"
-          />
-        </div>
       </Section>
 
       {/* Inventory & Shipping */}
@@ -150,12 +139,6 @@ export default function VendorForm({
           type="number"
           value={form.lowStockThreshold}
           onChange={setField('lowStockThreshold')}
-        />
-        <Field
-          label={t('vendors.edit.flatShippingRate', 'Flat Shipping Rate')}
-          type="number"
-          value={form.flatShippingRate}
-          onChange={setField('flatShippingRate')}
         />
       </Section>
 
