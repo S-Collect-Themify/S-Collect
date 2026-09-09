@@ -1,5 +1,5 @@
 import { getVendorProfile } from './vendorProfile';
-import { getVendorOnboardingStatus } from './auth';
+import { getVendorOnboardingStatus, getStoredUserEmail } from './auth';
 import { handleServiceError } from './api';
 import {
   useInventorySettingsStore,
@@ -29,9 +29,22 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
   const currentThreshold = getStoredLowStock();
   useInventorySettingsStore.getState().setLowStockThreshold(currentThreshold);
 
+  const storedEmail = getStoredUserEmail();
+
   try {
-    const profile = await getVendorProfile();
-    const onboarding = await getVendorOnboardingStatus().catch(() => null);
+    const rawProfile = await getVendorProfile();
+    const profile: any =
+      rawProfile && typeof rawProfile === 'object' && 'data' in rawProfile
+        ? (rawProfile as any).data
+        : rawProfile;
+
+    const rawOnboarding = await getVendorOnboardingStatus().catch(() => null);
+    const onboarding: any =
+      rawOnboarding &&
+      typeof rawOnboarding === 'object' &&
+      'data' in rawOnboarding
+        ? (rawOnboarding as any).data
+        : rawOnboarding;
 
     const storedFirstName =
       typeof window !== 'undefined'
@@ -42,18 +55,48 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
         ? localStorage.getItem('vendor_last_name')
         : null;
 
+    const resolvedEmail =
+      storedEmail ||
+      profile?.email ||
+      profile?.user?.email ||
+      profile?.publicEmail ||
+      onboarding?.email ||
+      onboarding?.user?.email ||
+      '';
+
+    if (
+      resolvedEmail &&
+      typeof window !== 'undefined' &&
+      !localStorage.getItem('user_email')
+    ) {
+      try {
+        localStorage.setItem('user_email', resolvedEmail);
+      } catch {
+        // ignore
+      }
+    }
+
     return {
       firstName:
-        storedFirstName || profile.firstName || onboarding?.firstName || '',
+        storedFirstName ?? profile?.firstName ?? onboarding?.firstName ?? '',
       lastName:
-        storedLastName || profile.lastName || onboarding?.lastName || '',
-      email: profile.email || onboarding?.email || '',
-      phoneNumber: profile.phoneNumber || onboarding?.phoneNumber || '',
+        storedLastName ?? profile?.lastName ?? onboarding?.lastName ?? '',
+      email: resolvedEmail,
+      phoneNumber:
+        profile?.phoneNumber ??
+        profile?.publicPhoneNumber ??
+        onboarding?.phoneNumber ??
+        '',
       lowStockThreshold: currentThreshold,
     };
   } catch (err) {
     try {
-      const data = await getVendorOnboardingStatus();
+      const rawData = await getVendorOnboardingStatus();
+      const data: any =
+        rawData && typeof rawData === 'object' && 'data' in rawData
+          ? (rawData as any).data
+          : rawData;
+
       const storedFirstName =
         typeof window !== 'undefined'
           ? localStorage.getItem('vendor_first_name')
@@ -63,11 +106,29 @@ export const getAccountSettings = async (): Promise<AccountSettings> => {
           ? localStorage.getItem('vendor_last_name')
           : null;
 
+      const resolvedEmail =
+        storedEmail ||
+        data?.email ||
+        data?.user?.email ||
+        '';
+
+      if (
+        resolvedEmail &&
+        typeof window !== 'undefined' &&
+        !localStorage.getItem('user_email')
+      ) {
+        try {
+          localStorage.setItem('user_email', resolvedEmail);
+        } catch {
+          // ignore
+        }
+      }
+
       return {
-        firstName: storedFirstName || data.firstName || '',
-        lastName: storedLastName || data.lastName || '',
-        email: data.email ?? '',
-        phoneNumber: data.phoneNumber ?? '',
+        firstName: storedFirstName ?? data?.firstName ?? '',
+        lastName: storedLastName ?? data?.lastName ?? '',
+        email: resolvedEmail,
+        phoneNumber: data?.phoneNumber ?? '',
         lowStockThreshold: currentThreshold,
       };
     } catch {
@@ -80,11 +141,14 @@ export const updateAccountSettings = async (
   settings: Partial<AccountSettings>
 ): Promise<AccountSettings> => {
   if (typeof window !== 'undefined') {
-    if (settings.firstName) {
+    if (settings.firstName !== undefined) {
       localStorage.setItem('vendor_first_name', settings.firstName);
     }
-    if (settings.lastName) {
+    if (settings.lastName !== undefined) {
       localStorage.setItem('vendor_last_name', settings.lastName);
+    }
+    if (settings.email) {
+      localStorage.setItem('user_email', settings.email);
     }
     if (settings.lowStockThreshold !== undefined) {
       const validThreshold = Math.max(1, Math.floor(settings.lowStockThreshold));

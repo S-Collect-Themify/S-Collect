@@ -70,6 +70,12 @@ export function EmailChangeModal() {
       {
         onSuccess: () => {
           setCurrentEmailDisplay(newEmail);
+          try {
+            localStorage.setItem('user_email', newEmail);
+            localStorage.setItem('auth_email', newEmail);
+          } catch {
+            // ignore
+          }
           setEmailSuccessMsg('Email changed successfully!');
           setTimeout(() => {
             closeEmailModal();

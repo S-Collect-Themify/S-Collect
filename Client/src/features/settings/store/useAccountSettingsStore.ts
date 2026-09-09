@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getStoredUserEmail } from '../../../services/auth';
 
 export type EmailModalStep = 'request' | 'verify';
 
@@ -41,7 +42,7 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set) => ({
   emailStep: 'request',
   newEmail: '',
   otpCode: '',
-  currentEmailDisplay: '',
+  currentEmailDisplay: getStoredUserEmail(),
   emailError: null,
   emailSuccessMsg: null,
 
@@ -49,7 +50,16 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set) => ({
   setEmailStep: (step) => set({ emailStep: step }),
   setNewEmail: (email) => set({ newEmail: email }),
   setOtpCode: (code) => set({ otpCode: code }),
-  setCurrentEmailDisplay: (email) => set({ currentEmailDisplay: email }),
+  setCurrentEmailDisplay: (email) => {
+    if (typeof window !== 'undefined' && email) {
+      try {
+        localStorage.setItem('user_email', email);
+      } catch {
+        // ignore
+      }
+    }
+    set({ currentEmailDisplay: email });
+  },
   setEmailError: (error) => set({ emailError: error }),
   setEmailSuccessMsg: (msg) => set({ emailSuccessMsg: msg }),
 

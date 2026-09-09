@@ -542,11 +542,13 @@
       "inventorySettingsDescription": "Configure inventory thresholds and stock alert preferences.",
       "lowStockThreshold": "Low Stock Alert Threshold",
       "lowStockThresholdHint": "Products with available stock at or below this number will be flagged as Low Stock in inventory management and dashboard alert summaries.",
-      "units": "units"
+      "units": "units",
+      "updateStock": "Update Stock"
     },
     "toast": {
       "storeProfileSaved": "Store Profile updated successfully.",
       "accountSettingsSaved": "Account Settings updated successfully.",
+      "stockUpdated": "Stock threshold updated successfully.",
       "bankAccountSaved": "Bank Account updated successfully.",
       "details": "Changes have been saved and will be reflected in the marketplace within 2 minutes.",
       "close": "Close"

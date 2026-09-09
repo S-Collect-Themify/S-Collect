@@ -217,32 +217,51 @@ const ProductPreviewCard = ({
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {card.size && (
-                      <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
-                        {t('addProduct.size', 'Size')}: {card.size}
-                      </span>
-                    )}
-                    {card.color && (
-                      <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
-                        {t('addProduct.color', 'Color')}: {card.color}
-                      </span>
-                    )}
-                    {card.attributes &&
-                      Object.entries(card.attributes).map(([attrKey, attrVal]) => {
-                        if (!attrVal) return null;
-                        const meta = formData.optionsMeta?.find((m) => m.id === attrKey);
+                    {formData.optionsMeta && formData.optionsMeta.length > 0 ? (
+                      formData.optionsMeta.map((meta, metaIdx) => {
+                        const val =
+                          card.attributes?.[meta.id] ||
+                          card.attributes?.[meta.name] ||
+                          (metaIdx === 0 ? card.size : metaIdx === 1 ? card.color : '');
+                        if (!val) return null;
                         const label = isArabic
-                          ? meta?.nameAr || meta?.name || attrKey
-                          : meta?.name || attrKey;
+                          ? meta.nameAr || meta.name
+                          : meta.name;
                         return (
                           <span
-                            key={attrKey}
+                            key={meta.id || metaIdx}
                             className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
                           >
-                            {label}: {attrVal}
+                            {label}: {val}
                           </span>
                         );
-                      })}
+                      })
+                    ) : (
+                      <>
+                        {card.size && (
+                          <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
+                            {t('addProduct.size', 'Size')}: {card.size}
+                          </span>
+                        )}
+                        {card.color && (
+                          <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800">
+                            {t('addProduct.color', 'Color')}: {card.color}
+                          </span>
+                        )}
+                        {card.attributes &&
+                          Object.entries(card.attributes).map(([attrKey, attrVal]) => {
+                            if (!attrVal) return null;
+                            return (
+                              <span
+                                key={attrKey}
+                                className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-800"
+                              >
+                                {attrKey}: {attrVal}
+                              </span>
+                            );
+                          })}
+                      </>
+                    )}
                     {typeof card.stock === 'number' && (
                       <span className="rounded-md bg-white border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600">
                         {t('addProduct.stockQuantity', 'Stock')}: {card.stock}

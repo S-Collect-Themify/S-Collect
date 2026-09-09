@@ -340,19 +340,19 @@ export const ensureVendorAttributesAndValues = async (
           .map((c) => {
             if (metaIdx === 0) {
               return (
-                c.size?.trim() ||
                 c.attributes?.[attrId]?.trim() ||
                 (meta.id ? c.attributes?.[meta.id]?.trim() : '') ||
                 c.attributes?.[defaultName]?.trim() ||
+                c.size?.trim() ||
                 ''
               );
             }
             if (metaIdx === 1) {
               return (
-                c.color?.trim() ||
                 c.attributes?.[attrId]?.trim() ||
                 (meta.id ? c.attributes?.[meta.id]?.trim() : '') ||
                 c.attributes?.[defaultName]?.trim() ||
+                c.color?.trim() ||
                 ''
               );
             }
@@ -671,15 +671,15 @@ export const buildProductVariantMutations = (
       let cardVal = '';
       if (metaIdx === 0) {
         cardVal =
-          card.size?.trim() ||
           card.attributes?.[meta.id]?.trim() ||
           card.attributes?.[meta.name]?.trim() ||
+          card.size?.trim() ||
           '';
       } else if (metaIdx === 1) {
         cardVal =
-          card.color?.trim() ||
           card.attributes?.[meta.id]?.trim() ||
           card.attributes?.[meta.name]?.trim() ||
+          card.color?.trim() ||
           '';
       } else {
         cardVal =
@@ -1092,24 +1092,50 @@ export const compressImage = (
 
 /**
  * Generates a clean, unique random SKU for product variants.
- * Format: SKU-[COLOR-][SIZE-]XXXX
+ * Supports:
+ *   generateRandomSku(color, size)
+ *   generateRandomSku(['Red', 'XL', 'Cotton'])
+ *   generateRandomSku(color, size, 'Cotton')
  */
-export const generateRandomSku = (color?: string, size?: string): string => {
+export const generateRandomSku = (
+  colorOrValues?: string | string[],
+  size?: string,
+  ...extraParts: (string | undefined)[]
+): string => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let rand = '';
   for (let i = 0; i < 4; i++) {
     rand += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  const colorCode = color
-    ? color.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
-    : '';
-  const sizeCode = size
-    ? size.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
-    : '';
 
   const parts = ['SKU'];
-  if (colorCode) parts.push(colorCode);
-  if (sizeCode) parts.push(sizeCode);
+
+  if (Array.isArray(colorOrValues)) {
+    colorOrValues.forEach((val) => {
+      const code = (val || '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .slice(0, 3)
+        .toUpperCase();
+      if (code) parts.push(code);
+    });
+  } else {
+    const colorCode = colorOrValues
+      ? colorOrValues.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
+      : '';
+    const sizeCode = size
+      ? size.replace(/[^a-zA-Z0-9]/g, '').slice(0, 3).toUpperCase()
+      : '';
+    if (colorCode) parts.push(colorCode);
+    if (sizeCode) parts.push(sizeCode);
+    extraParts.forEach((part) => {
+      const code = (part || '')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .slice(0, 3)
+        .toUpperCase();
+      if (code) parts.push(code);
+    });
+  }
+
   parts.push(rand);
   return parts.join('-');
 };
