@@ -1,11 +1,14 @@
 import { api, handleServiceError } from './api';
 
+export type InventoryStockStatus = 'inStock' | 'lowStock' | 'outOfStock';
+
 export interface ListVendorInventoryQuery {
   pageNum?: number;
   pageSize?: number;
   search?: string;
   minStock?: number;
   maxStock?: number;
+  stockStatus?: InventoryStockStatus | string;
 }
 
 export interface VendorVariantStockItem {
@@ -13,11 +16,13 @@ export interface VendorVariantStockItem {
   productId: string;
   productName: string;
   productNameAr: string;
-  labelName: string | null;
-  labelNameAr: string | null;
+  labelName?: string | Record<string, any> | null;
+  labelNameAr?: string | Record<string, any> | null;
   sku: string;
   stock: number;
+  thumbnailUrl?: string | Record<string, any> | null;
   lastUpdatedAt: string;
+  isLowStock?: boolean;
 }
 
 export interface PaginatedVendorVariantStock {
@@ -25,16 +30,32 @@ export interface PaginatedVendorVariantStock {
   pagination: {
     totalItems: number;
     totalPages: number;
-    page: number;
-    limit: number;
+    currentPage?: number;
+    pageSize?: number;
+    page?: number;
+    limit?: number;
   };
 }
 
+export interface BulkUpdateVariantStockItem {
+  variantId: string;
+  stock: number;
+}
+
 export interface BulkUpdateVariantStockParams {
-  updates: {
-    variantId: string;
-    stock: number;
-  }[];
+  updates: BulkUpdateVariantStockItem[];
+}
+
+export interface InventoryImportFailedItem {
+  row: number;
+  variantId?: string;
+  sku?: string;
+  reason: string;
+}
+
+export interface InventoryImportResponse {
+  updated: number;
+  failed: InventoryImportFailedItem[];
 }
 
 export const getVendorInventory = async (
@@ -49,7 +70,14 @@ export const getVendorInventory = async (
     if (!unwrapped) {
       return {
         items: [],
-        pagination: { totalItems: 0, totalPages: 0, page: 1, limit: query.pageSize || 50 },
+        pagination: {
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: 1,
+          pageSize: query.pageSize || 50,
+          page: 1,
+          limit: query.pageSize || 50,
+        },
       };
     }
     return unwrapped;
@@ -73,6 +101,69 @@ export const bulkUpdateVariantStock = async (
 };
 
 /**
+ * Downloads the official Excel sheet of all vendor variants with their current stock levels.
+ * The Stock column is highlighted yellow with SUM header formulas for editing and re-upload.
+ */
+export const exportVendorInventory = async (): Promise<Blob> => {
+  try {
+    const response = await api.get('/vendor/inventory/export', {
+      responseType: 'blob',
+    });
+
+    const contentType =
+      (response.headers['content-type'] as string) ||
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+    const blob = new Blob([response.data as BlobPart], {
+      type: contentType,
+    });
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `inventory_stock_export_${dateStr}.xlsx`;
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return blob;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to export inventory');
+  }
+};
+
+/**
+ * Uploads a previously exported inventory Excel sheet to bulk-update variant stock.
+ */
+export const importVendorInventory = async (
+  file: File
+): Promise<InventoryImportResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const { data } = await api.post('/vendor/inventory/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const unwrapped: InventoryImportResponse =
+      data && typeof data === 'object' && 'data' in data
+        ? (data as any).data
+        : data;
+
+    return unwrapped;
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to import inventory');
+  }
+};
+
+/**
  * Fetches all inventory variants across all pages for full inventory export
  */
 export const fetchAllVendorInventoryVariants = async (
@@ -86,7 +177,11 @@ export const fetchAllVendorInventoryVariants = async (
       pageSize,
     });
 
-    const totalPages = firstPage.pagination?.totalPages || 1;
+    const totalPages =
+      firstPage.pagination?.totalPages ||
+      (firstPage.pagination?.totalItems
+        ? Math.ceil(firstPage.pagination.totalItems / pageSize)
+        : 1);
     let allItems = [...(firstPage.items || [])];
 
     if (totalPages > 1) {
@@ -117,3 +212,4 @@ export const fetchAllVendorInventoryVariants = async (
     );
   }
 };
+

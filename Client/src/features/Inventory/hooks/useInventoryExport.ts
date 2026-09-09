@@ -1,7 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import { fetchAllVendorInventoryVariants } from '../../../services/inventory';
+import {
+  exportVendorInventory,
+  fetchAllVendorInventoryVariants,
+} from '../../../services/inventory';
 import { exportToXLSX } from '../../../utils/exportUtils';
 import { getErrorMessage } from '../../../types/api';
 import { getStatus } from '../utils';
@@ -33,6 +36,20 @@ export function useInventoryExport({
 
   const exportMutation = useMutation({
     mutationFn: async ({ scope }: { scope: 'all' | 'filtered' }) => {
+      // For exporting all items, use the official server endpoint which generates
+      // the formatted Excel sheet with yellow Stock column and SUM formulas
+      if (scope === 'all') {
+        try {
+          await exportVendorInventory();
+          return;
+        } catch (serverErr) {
+          console.warn(
+            'Server inventory export failed, falling back to local exporter:',
+            serverErr
+          );
+        }
+      }
+
       const isFiltered = scope === 'filtered' && hasActiveFilter;
 
       const queryFilter = isFiltered
