@@ -6,6 +6,7 @@ import type { AccountSettingsData, PasswordData } from './types';
 import { useChangePassword } from './hooks/useChangePassword';
 import { useUpdateAccountSettings } from './hooks/useUpdateAccountSettings';
 import { useAccountSettingsStore } from './store/useAccountSettingsStore';
+import { getStoredUserEmail } from '../../services/auth';
 import { useCooldown } from '../../hooks/useCooldown';
 import { PersonalInfoSection } from './components/PersonalInfoSection';
 import { InventorySettingsSection } from './components/InventorySettingsSection';
@@ -45,16 +46,18 @@ export function AccountSettingsForm({
   );
 
   useEffect(() => {
-    if (initialData?.email) {
-      setCurrentEmailDisplay(initialData.email);
+    const emailToSet =
+      initialData?.email || currentEmailDisplay || getStoredUserEmail();
+    if (emailToSet) {
+      setCurrentEmailDisplay(emailToSet);
     }
-  }, [initialData?.email, setCurrentEmailDisplay]);
+  }, [initialData?.email, currentEmailDisplay, setCurrentEmailDisplay]);
 
   const methods = useForm<AccountSettingsFormValues>({
     values: {
       ...initialData,
       lowStockThreshold: initialData.lowStockThreshold ?? 5,
-      email: currentEmailDisplay || initialData.email,
+      email: currentEmailDisplay || initialData?.email || getStoredUserEmail(),
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',

@@ -183,16 +183,77 @@ export const logoutAndRedirect = (state: string = 'expired'): void => {
   }
 };
 
+export const extractEmailFromJwt = (token?: string | null): string | null => {
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (typeof payload?.email === 'string' && payload.email) return payload.email;
+    if (typeof payload?.user?.email === 'string' && payload.user.email) return payload.user.email;
+    if (typeof payload?.sub === 'string' && payload.sub.includes('@')) return payload.sub;
+    if (typeof payload?.username === 'string' && payload.username.includes('@')) return payload.username;
+    if (typeof payload?.preferred_username === 'string' && payload.preferred_username.includes('@')) return payload.preferred_username;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+export const getStoredUserEmail = (): string => {
+  if (typeof window === 'undefined') return '';
+  const stored =
+    localStorage.getItem('user_email') ||
+    localStorage.getItem('auth_email') ||
+    localStorage.getItem('vendor_email');
+  if (stored) return stored;
+
+  const token = getToken() || getRefreshToken();
+  const emailFromToken = extractEmailFromJwt(token);
+  if (emailFromToken) {
+    try {
+      localStorage.setItem('user_email', emailFromToken);
+      localStorage.setItem('auth_email', emailFromToken);
+    } catch {
+      // ignore
+    }
+    return emailFromToken;
+  }
+  return '';
+};
+
 export const saveAuthSession = (
   accessToken?: string | null,
   refreshToken?: string | null,
-  expiresInSeconds?: number | null
+  expiresInSeconds?: number | null,
+  email?: string | null
 ): void => {
   if (accessToken) {
     localStorage.setItem('token', accessToken);
   }
   if (refreshToken) {
     localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  const resolvedEmail =
+    email ||
+    extractEmailFromJwt(accessToken) ||
+    extractEmailFromJwt(refreshToken);
+  if (resolvedEmail) {
+    try {
+      localStorage.setItem('user_email', resolvedEmail);
+      localStorage.setItem('auth_email', resolvedEmail);
+    } catch {
+      // ignore
+    }
   }
 
   let expMs: number | null = null;

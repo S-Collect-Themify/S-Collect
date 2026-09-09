@@ -25,7 +25,7 @@ export const useLogin = () => {
         throw new Error(getErrorMessage(error, 'Login failed'));
       }
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       const token =
         data?.accessToken ||
         data?.token ||
@@ -34,8 +34,23 @@ export const useLogin = () => {
       const refreshToken = data?.refreshToken || data?.data?.refreshToken;
       const expiresInSeconds =
         data?.expiresInSeconds || data?.data?.expiresInSeconds;
+      const email =
+        variables?.email ||
+        data?.email ||
+        data?.user?.email ||
+        data?.data?.email ||
+        data?.data?.user?.email;
 
-      saveAuthSession(token, refreshToken, expiresInSeconds);
+      if (email) {
+        try {
+          localStorage.setItem('user_email', email.trim());
+          localStorage.setItem('auth_email', email.trim());
+        } catch {
+          // ignore
+        }
+      }
+
+      saveAuthSession(token, refreshToken, expiresInSeconds, email);
 
       const result = data?.status ?? 'success';
       if (result === 'locked' || result === 'expired') {

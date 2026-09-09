@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layers } from 'lucide-react';
 import type { VarianceCardData } from './types';
+import { useVendorAttributes } from '../attributes/hooks/useAttributes';
 
 interface CustomVarianceProp {
   name: string;
@@ -29,6 +30,13 @@ export default function VariantsPreviewCard({
 }: VariantsPreviewCardProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === 'ar';
+  const { data: vendorAttributes = [] } = useVendorAttributes();
+
+  const getAttributeName = (key: string) => {
+    const attr = vendorAttributes.find((a) => a.id === key || a.name === key);
+    if (attr) return isArabic ? attr.nameAr || attr.name : attr.name;
+    return key;
+  };
 
   const priceNum = parseFloat(basePrice) || 0;
   const totalStock = quantity || 0;
@@ -138,15 +146,30 @@ export default function VariantsPreviewCard({
   const extraAttrKeys = useMemo(() => {
     if (!varianceCards || varianceCards.length === 0) return [];
     const keys = new Set<string>();
+
+    const sizeAttr = vendorAttributes.find(
+      (a) =>
+        a.name?.toLowerCase().includes('size') ||
+        a.nameAr?.includes('مقاس')
+    );
+    const colorAttr = vendorAttributes.find(
+      (a) =>
+        a.name?.toLowerCase().includes('color') ||
+        a.nameAr?.includes('لون')
+    );
+
     varianceCards.forEach((c) => {
       if (c.attributes) {
         Object.keys(c.attributes).forEach((k) => {
-          if (c.attributes?.[k]) keys.add(k);
+          if (!c.attributes?.[k]) return;
+          if (sizes.length > 0 && (k === sizeAttr?.id || k.toLowerCase().includes('size'))) return;
+          if (colors.length > 0 && (k === colorAttr?.id || k.toLowerCase().includes('color'))) return;
+          keys.add(k);
         });
       }
     });
     return Array.from(keys);
-  }, [varianceCards]);
+  }, [varianceCards, vendorAttributes, sizes, colors]);
 
   if (variantCombinations.length === 0) {
     return null;
@@ -189,7 +212,7 @@ export default function VariantsPreviewCard({
               ))}
               {extraAttrKeys.map((k) => (
                 <th key={k} className="px-4 py-2.5 capitalize">
-                  {k}
+                  {getAttributeName(k)}
                 </th>
               ))}
               <th className="px-4 py-2.5">{t('addProduct.basePrice', 'Price')}</th>

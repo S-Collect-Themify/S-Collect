@@ -171,9 +171,9 @@ export const VariantsTable = ({
                     resolvedAttributes.map((attr, attrIdx) => {
                       let val = '';
                       if (attrIdx === 0) {
-                        val = card.size || card.attributes?.[attr.id] || '';
+                        val = card.attributes?.[attr.id] || card.size || '';
                       } else if (attrIdx === 1) {
-                        val = card.color || card.attributes?.[attr.id] || '';
+                        val = card.attributes?.[attr.id] || card.color || '';
                       } else {
                         val = card.attributes?.[attr.id] || '';
                       }

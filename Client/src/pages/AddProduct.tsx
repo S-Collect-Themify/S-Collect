@@ -356,68 +356,77 @@ const AddProduct = () => {
   };
 
   const handleAutoGenerateVariants = ({
+    cards,
+    attributeIds,
     colors,
     sizes,
     replaceExisting,
   }: {
-    colors: string[];
-    sizes: string[];
+    cards?: VarianceCardData[];
+    attributeIds?: string[];
+    colors?: string[];
+    sizes?: string[];
     replaceExisting: boolean;
   }) => {
-    // Ensure Size and Color attributes are active among options
-    const sizeAttr = vendorAttributes.find(
-      (a) =>
-        a.name?.toLowerCase().includes('size') ||
-        a.nameAr?.includes('مقاس')
-    );
-    const colorAttr = vendorAttributes.find(
-      (a) =>
-        a.name?.toLowerCase().includes('color') ||
-        a.nameAr?.includes('لون')
-    );
-
-    if (sizeAttr && !selectedAttributeIds.includes(sizeAttr.id)) {
-      setSelectedAttributeIds((prev) => [sizeAttr.id, ...prev.filter((id) => id !== sizeAttr.id)]);
-    }
-    if (colorAttr && !selectedAttributeIds.includes(colorAttr.id)) {
-      setSelectedAttributeIds((prev) => [...prev, colorAttr.id]);
+    // Ensure all generated attribute IDs are active
+    if (attributeIds && attributeIds.length > 0) {
+      setSelectedAttributeIds((prev) => {
+        const set = new Set(prev);
+        attributeIds.forEach((id) => set.add(id));
+        return Array.from(set);
+      });
     }
 
-    const initialAttrs: Record<string, string> = {};
-    activeAttributes.forEach((attr, idx) => {
-      if (idx > 1) {
-        initialAttrs[attr.id] = attr.values?.[0]?.value || '';
-      }
-    });
+    let newCards: VarianceCardData[] = [];
 
-    const sizeAttrId = sizeAttr?.id || activeAttributes[0]?.id || '';
-    const colorAttrId = colorAttr?.id || activeAttributes[1]?.id || '';
+    if (cards && cards.length > 0) {
+      newCards = cards;
+    } else {
+      // Fallback for 2-attribute generation
+      const sizeAttr = vendorAttributes.find(
+        (a) =>
+          a.name?.toLowerCase().includes('size') ||
+          a.nameAr?.includes('مقاس')
+      );
+      const colorAttr = vendorAttributes.find(
+        (a) =>
+          a.name?.toLowerCase().includes('color') ||
+          a.nameAr?.includes('لون')
+      );
 
-    const newCards: VarianceCardData[] = [];
-    let index = 0;
-    for (const color of colors) {
-      for (const size of sizes) {
-        const cardAttrs = { ...initialAttrs };
-        if (sizeAttrId) {
-          cardAttrs[sizeAttrId] = size;
+      const sizeAttrId = sizeAttr?.id || activeAttributes[0]?.id || '';
+      const colorAttrId = colorAttr?.id || activeAttributes[1]?.id || '';
+
+      const initialAttrs: Record<string, string> = {};
+      activeAttributes.forEach((attr, idx) => {
+        if (idx > 1) {
+          initialAttrs[attr.id] = attr.values?.[0]?.value || '';
         }
-        if (colorAttrId) {
-          cardAttrs[colorAttrId] = color;
-        }
+      });
 
-        newCards.push({
-          id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-          size,
-          color,
-          attributes: cardAttrs,
-          stock: 1, // Quantity is 1
-          basePrice: '0', // Price is 0
-          comparePrice: '',
-          sku: generateRandomSku(color, size), // Random generated SKU
-        });
-        index++;
+      let index = 0;
+      for (const color of colors || []) {
+        for (const size of sizes || []) {
+          const cardAttrs = { ...initialAttrs };
+          if (sizeAttrId) cardAttrs[sizeAttrId] = size;
+          if (colorAttrId) cardAttrs[colorAttrId] = color;
+
+          newCards.push({
+            id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+            size,
+            color,
+            attributes: cardAttrs,
+            stock: 1,
+            basePrice: '0',
+            comparePrice: '',
+            sku: generateRandomSku(color, size),
+          });
+          index++;
+        }
       }
     }
+
+    if (newCards.length === 0) return;
 
     const isDefaultSingleEmpty =
       varianceCards.length === 1 &&

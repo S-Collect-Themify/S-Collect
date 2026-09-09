@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { SectionCard, TextInput } from '../shared';
 import type { AccountSettingsData, PasswordData } from '../types';
+import { useUpdateStockThreshold } from '../hooks/useUpdateStockThreshold';
 
 type AccountSettingsFormValues = AccountSettingsData & PasswordData;
 
@@ -11,8 +12,26 @@ export function InventorySettingsSection() {
   const { t } = useTranslation();
   const {
     register,
+    trigger,
+    getValues,
     formState: { errors },
   } = useFormContext<AccountSettingsFormValues>();
+
+  const updateStockMutation = useUpdateStockThreshold();
+
+  const handleUpdateStock = async () => {
+    const isValid = await trigger('lowStockThreshold');
+    if (!isValid) return;
+
+    const threshold = Number(getValues('lowStockThreshold'));
+    if (!threshold || isNaN(threshold) || threshold < 1) return;
+
+    try {
+      await updateStockMutation.mutateAsync(threshold);
+    } catch {
+      // Error handled by mutation onError
+    }
+  };
 
   return (
     <SectionCard>
@@ -60,6 +79,12 @@ export function InventorySettingsSection() {
                 },
                 valueAsNumber: true,
               })}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleUpdateStock();
+                }
+              }}
             />
             <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-xs font-medium text-gray-400">
               {t('settings.account.units', 'units')}
@@ -81,7 +106,26 @@ export function InventorySettingsSection() {
               </p>
             </div>
           )}
+
         </div>
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              onClick={handleUpdateStock}
+              disabled={updateStockMutation.isPending}
+              className="py-2.5 px-4 rounded-lg text-xs md:text-sm font-semibold text-white bg-[#090909] hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 ease-out active:scale-95 flex items-center justify-center cursor-pointer w-full sm:w-fit min-w-[120px]"
+            >
+              {updateStockMutation.isPending ? (
+                <span className="flex items-center gap-1 text-white">
+                  <span>•</span>
+                  <span>•</span>
+                  <span>•</span>
+                </span>
+              ) : (
+                t('settings.account.updateStock', 'Update Stock')
+              )}
+            </button>
+          </div>
       </div>
     </SectionCard>
   );

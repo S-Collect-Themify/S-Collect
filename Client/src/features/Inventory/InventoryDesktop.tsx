@@ -6,6 +6,7 @@ import { InventoryToolbar } from './InventoryToolbar';
 import { InventoryTable } from './InventoryTable';
 import { InventoryPagination } from './InventoryPagination';
 import { InventoryFooter } from './InventoryFooter';
+import { ImportInventoryModal } from './components/ImportInventoryModal';
 
 const InventoryDesktop = () => {
   const {
@@ -25,6 +26,9 @@ const InventoryDesktop = () => {
     handleExportFiltered,
     isExporting,
     hasActiveFilter,
+    isImportModalOpen,
+    openImportModal,
+    closeImportModal,
   } = useInventory();
 
   return (
@@ -34,6 +38,7 @@ const InventoryDesktop = () => {
         onExportFiltered={handleExportFiltered}
         isExporting={isExporting}
         hasActiveFilter={hasActiveFilter}
+        onOpenImportModal={openImportModal}
       />
       <div className="flex-1 overflow-y-auto bg-gray-100 sidebar-page-container">
         <InventoryToolbar
@@ -70,8 +75,14 @@ const InventoryDesktop = () => {
         </div>
         <InventoryFooter onSave={handleSave} />
       </div>
+
+      <ImportInventoryModal
+        isOpen={isImportModalOpen}
+        onClose={closeImportModal}
+      />
     </>
   );
 };
 
 export default InventoryDesktop;
+

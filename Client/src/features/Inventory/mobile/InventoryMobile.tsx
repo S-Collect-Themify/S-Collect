@@ -1,11 +1,12 @@
-// features/Inventory/mobile/InventoryMobile.tsx
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { FileSpreadsheet } from 'lucide-react';
 import { useInventory } from '../hooks/useInventory';
 import { ProductCard } from './ProductCard';
 import { MobileFilter } from './MobileFilter';
 import { ITEMS_PER_PAGE } from '../types';
 import { InventoryExportButton } from '../InventoryExportButton';
+import { ImportInventoryModal } from '../components/ImportInventoryModal';
 
 export const InventoryMobile = () => {
   const { t } = useTranslation();
@@ -26,6 +27,9 @@ export const InventoryMobile = () => {
     handleExportFiltered,
     isExporting,
     hasActiveFilter,
+    isImportModalOpen,
+    openImportModal,
+    closeImportModal,
   } = useInventory();
 
   const start = totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
@@ -48,7 +52,16 @@ export const InventoryMobile = () => {
               )}
             </p>
           </div>
-          <div className="shrink-0 mt-0.5">
+          <div className="shrink-0 mt-0.5 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={openImportModal}
+              className="flex items-center gap-1.5 text-xs font-semibold bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100 transition-all rounded-lg px-2.5 py-2 cursor-pointer shadow-xs select-none"
+              title={t('inventoryPage.import', 'Import Inventory')}
+            >
+              <FileSpreadsheet size={14} className="text-emerald-600 shrink-0" />
+              <span>{t('inventoryPage.import', 'Import')}</span>
+            </button>
             <InventoryExportButton
               onExportAll={handleExportAll}
               onExportFiltered={handleExportFiltered}
@@ -149,6 +162,12 @@ export const InventoryMobile = () => {
           {t('inventoryPage.saveChanges', 'Save Changes')}
         </button>
       </div>
+
+      <ImportInventoryModal
+        isOpen={isImportModalOpen}
+        onClose={closeImportModal}
+      />
     </div>
   );
 };
+

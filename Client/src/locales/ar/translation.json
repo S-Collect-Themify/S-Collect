@@ -542,11 +542,13 @@
       "inventorySettingsDescription": "تحديد حدود المخزون وتنبيهات انخفاض الكمية.",
       "lowStockThreshold": "حد تنبيه المخزون المنخفض",
       "lowStockThresholdHint": "المنتجات التي تحتوي على كمية مخزون متوفرة تساوي هذا الرقم أو أقل ستُصنف كمخزون منخفض في إدارة المخزون وتنبيهات لوحة التحكم.",
-      "units": "وحدات"
+      "units": "وحدات",
+      "updateStock": "تحديث المخزون"
     },
     "toast": {
       "storeProfileSaved": "تم تحديث ملف المتجر بنجاح.",
       "accountSettingsSaved": "تم تحديث إعدادات الحساب بنجاح.",
+      "stockUpdated": "تم تحديث حد المخزون بنجاح.",
       "bankAccountSaved": "تم تحديث الحساب البنكي بنجاح.",
       "details": "تم حفظ التغييرات وستظهر في المتجر خلال دقيقتين.",
       "close": "إغلاق"
@@ -613,7 +615,40 @@
     "exportNoData": "لا توجد متغيرات مخزون للتصدير",
     "colProductId": "معرف المنتج",
     "colVariantId": "معرف المتغير",
-    "defaultVariant": "الافتراضي"
+    "defaultVariant": "الافتراضي",
+    "import": "استيراد",
+    "importModal": {
+      "title": "تحديث المخزون عبر ملف Excel",
+      "subtitle": "قم بتصدير ملف المخزون، وتعديل عمود المخزون الأصفر، ثم إعادة رفعه هنا.",
+      "step1Tag": "الخطوة 1",
+      "step1Title": "تحميل ملف المخزون الحالي",
+      "step1Desc": "يحتوي الملف المُحَمَّل على عمود المخزون مظللاً باللون الأصفر مع معادلات الجمع التلقائي. قم بتعديل الكميات وارفع الملف أدناه.",
+      "downloadTemplate": "تحميل Excel",
+      "downloading": "جاري التحميل...",
+      "step2Tag": "الخطوة 2",
+      "fileTypesAllowed": "ملفات XLSX و XLS حتى 10 ميجابايت",
+      "dropzonePrompt": "انقر أو اسحب ملف Excel المُعَدّل هنا",
+      "dropzoneSub": "سيتم تحديث المتغيرات التابعة لحسابك كتاجر فقط.",
+      "invalidFileType": "يرجى اختيار ملف Excel صالح (.xlsx أو .xls)",
+      "fileTooLarge": "يجب ألا يتجاوز حجم الملف 10 ميجابايت",
+      "uploading": "جاري تحديث المخزون...",
+      "submitUpload": "رفع وتحديث",
+      "successAll": "تم تحديث {{count}} متغير بنجاح!",
+      "successPartial": "تم تحديث {{updated}} متغير، وفشل {{failed}} متغير.",
+      "failAll": "فشل تحديث المتغيرات. يرجى مراجعة تفاصيل الأخطاء أدناه.",
+      "uploadError": "فشل استيراد المخزون. يرجى التحقق من تنسيق الملف.",
+      "allSuccessTitle": "تم تحديث المخزون بنجاح!",
+      "allSuccessMsg": "تم تحديث كميات مخزون جميع المتغيرات في الوقت الفعلي.",
+      "partialSuccessTitle": "تم التحديث جزئياً",
+      "partialSuccessMsg": "تعذر تحديث بعض صفوف المتغيرات. راجع الصفوف التي بها أخطاء أدناه.",
+      "failedTitle": "فشل التحديث",
+      "updatedCount": "المتغيرات المحدثة",
+      "failedCount": "الصفوف غير الناجحة",
+      "failedDetails": "تفاصيل الصفوف غير الناجحة",
+      "colRow": "الصف",
+      "colReason": "السبب",
+      "uploadAnother": "رفع ملف آخر"
+    }
   },
   "managementTable": {
     "export": "تصدير",

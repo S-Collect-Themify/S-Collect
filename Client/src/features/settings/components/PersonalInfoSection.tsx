@@ -6,6 +6,7 @@ import { SectionCard, TextInput } from '../shared';
 import { cn, formatSaudiPhone, isValidSaudiPhone } from '../utils';
 import type { AccountSettingsData, PasswordData } from '../types';
 import { useAccountSettingsStore } from '../store/useAccountSettingsStore';
+import { getStoredUserEmail } from '../../../services/auth';
 
 type AccountSettingsFormValues = AccountSettingsData & PasswordData;
 
@@ -21,6 +22,7 @@ export function PersonalInfoSection() {
     (s) => s.currentEmailDisplay
   );
   const openEmailModal = useAccountSettingsStore((s) => s.openEmailModal);
+  const displayEmail = currentEmailDisplay || getStoredUserEmail() || '';
 
   return (
     <SectionCard>
@@ -39,11 +41,7 @@ export function PersonalInfoSection() {
             </p>
             <TextInput
               error={errors.firstName?.message}
-              {...register('firstName', {
-                required: t('settings.errors.firstNameRequired'),
-                validate: (v) =>
-                  v.trim() !== '' || t('settings.errors.firstNameRequired'),
-              })}
+              {...register('firstName')}
             />
             {errors.firstName && (
               <p className="settings-pop-enter mt-1 text-[12px] text-red-500">
@@ -58,11 +56,7 @@ export function PersonalInfoSection() {
             </p>
             <TextInput
               error={errors.lastName?.message}
-              {...register('lastName', {
-                required: t('settings.errors.lastNameRequired'),
-                validate: (v) =>
-                  v.trim() !== '' || t('settings.errors.lastNameRequired'),
-              })}
+              {...register('lastName')}
             />
             {errors.lastName && (
               <p className="settings-pop-enter mt-1 text-[12px] text-red-500">
@@ -79,7 +73,7 @@ export function PersonalInfoSection() {
           <div className="relative">
             <div className="h-10 px-3 pr-10 flex items-center border border-gray-200 rounded-md bg-white transition-all duration-200 ease-out">
               <span className="text-[13px] text-gray-500">
-                {currentEmailDisplay}
+                {displayEmail}
               </span>
             </div>
             <span className="absolute inset-y-0 right-3 flex items-center text-gray-400">
