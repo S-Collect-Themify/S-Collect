@@ -154,6 +154,7 @@
       "reviews": "Reviews",
       "vouchers": "Vouchers",
       "buyers": "Buyers",
+      "attributes": "Attributes",
       "adminSettings": "Settings",
       "logout": "Logout",
       "logoutDescription": "Are you sure you want to sign out of your account?\nYou will need to sign in again to access your dashboard.",
@@ -937,8 +938,6 @@
       "suspended": "Suspended",
       "suspend": "Suspend",
       "activate": "Activate",
-      "suspendVendor": "Suspend Vendor",
-      "activateVendor": "Activate Vendor",
       "statusCompleted": "Completed",
       "statusAccepted": "Accepted",
       "statusPending": "Pending",
@@ -954,11 +953,7 @@
       "amountLabel": "Amount",
       "categoryLabel": "Category",
       "priceLabel": "Price",
-      "contactInfo": "Contact Information",
       "owner": "Owner",
-      "phone": "Phone",
-      "email": "Email",
-      "location": "Location",
       "commercialRegister": "Commercial Register"
     },
     "modals": {
@@ -1639,7 +1634,9 @@
     "addNewBanner": "Add New Banner",
     "noBanners": "No banners added yet.",
     "delete": "Delete Banner",
-    "edit": "Edit Banner",
+    "edit": {
+      "title": "Edit Banner"
+    },
     "refreshBanners": "Refresh banners",
     "dragToReorder": "Drag to reorder",
     "noImage": "No Image",
@@ -1668,9 +1665,6 @@
     },
     "add": {
       "title": "Add New Banner"
-    },
-    "edit": {
-      "title": "Edit Banner"
     },
     "breadcrumb": {
       "settings": "Settings",
@@ -1977,7 +1971,6 @@
     "tableDate": "Sent Date",
     "madeByAdmin": "Admin",
     "tokensUnit": "devices",
-
     "noCampaigns": "No push campaigns found",
     "sendModalTitle": "Send Push Notification",
     "sendModalSubtitle": "Broadcast a new push campaign to users",
@@ -2000,5 +1993,87 @@
     "sending": "Sending...",
     "sendSuccess": "Push notification sent successfully",
     "sendError": "Failed to send push notification"
+  },
+  "attributes": {
+    "title": "Attributes",
+    "subtitle": "Configure reusable option attributes and values for your products.",
+    "createBtn": "Add Attribute",
+    "searchPlaceholder": "Search attributes or values...",
+    "error": {
+      "title": "Failed to load attributes",
+      "description": "An unexpected error occurred while fetching attributes.",
+      "retry": "Retry"
+    },
+    "emptySearch": {
+      "title": "No matching attributes",
+      "description": "No attributes found matching \"{{query}}\". Try searching for another name.",
+      "clear": "Clear search"
+    },
+    "empty": {
+      "title": "No attributes yet",
+      "description": "Create reusable attributes like Sizes, Colors, or Materials with their values so you can easily assign them when adding products.",
+      "action": "Create First Attribute"
+    },
+    "card": {
+      "sortOrder": "Sort order",
+      "editAttribute": "Edit attribute",
+      "deleteAttribute": "Delete attribute",
+      "valuesCount": "Values ({{count}})",
+      "addValue": "Add Value",
+      "noValues": "No values yet. Click \"Add Value\" to define options.",
+      "editValue": "Edit value",
+      "deleteValue": "Delete value"
+    },
+    "form": {
+      "editTitle": "Edit Attribute",
+      "createTitle": "Create New Attribute",
+      "nameEnLabel": "Attribute Name (English)",
+      "nameEnRequired": "English attribute name is required",
+      "nameArLabel": "Attribute Name (Arabic)",
+      "nameArRequired": "Arabic attribute name is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Lower numbers appear first in product option selectors.",
+      "initialValuesLabel": "Initial Values (Optional)",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "updateBtn": "Save Changes",
+      "createBtn": "Create Attribute"
+    },
+    "valueModal": {
+      "editTitle": "Edit Attribute Value",
+      "addTitle": "Add New Value",
+      "parentAttribute": "Attribute: {{name}}",
+      "valueEnLabel": "Value (English)",
+      "valueEnRequired": "English value is required",
+      "valueArLabel": "Value (Arabic)",
+      "valueArRequired": "Arabic value is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Determines the position of this value in product dropdowns.",
+      "updateBtn": "Save Value",
+      "createBtn": "Add Value"
+    },
+    "deleteModal": {
+      "attributeTitle": "Delete Attribute",
+      "valueTitle": "Remove Attribute Value",
+      "parentAttr": "From attribute: {{name}}",
+      "attributeWarning": "This attribute will be permanently removed. The deletion will fail if this attribute is actively attached to any product.",
+      "valueWarning": "This value will be removed. The deletion will fail if any product variant is actively using this value.",
+      "deleting": "Deleting...",
+      "confirmBtn": "Yes, Delete"
+    },
+    "toasts": {
+      "createSuccess": "Attribute created successfully",
+      "createError": "Failed to create attribute",
+      "updateSuccess": "Attribute updated successfully",
+      "updateError": "Failed to update attribute",
+      "deleteSuccess": "Attribute deleted successfully",
+      "deleteError": "Failed to delete attribute. It may be in use by products.",
+      "addValueSuccess": "Value added successfully",
+      "addValueError": "Failed to add value",
+      "updateValueSuccess": "Value updated successfully",
+      "updateValueError": "Failed to update value",
+      "deleteValueSuccess": "Value removed successfully",
+      "deleteValueError": "Failed to remove value. It may be in use by product variants."
+    }
   }
 }

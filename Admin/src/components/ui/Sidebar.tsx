@@ -17,6 +17,7 @@ import {
   Boxes,
   Undo2,
   Bell,
+  Tags,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -187,7 +188,7 @@ const NavItem = ({
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{t(labelKey)}</span>
         {badge !== undefined && badge !== null && Number(badge) > 0 && (
-          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
             {badge}
           </span>
         )}
@@ -358,6 +359,11 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
         icon: <Ticket size={18} />,
         labelKey: 'sidebar.items.vouchers',
         to: '/vouchers',
+      },
+      {
+        icon: <Tags size={18} />,
+        labelKey: 'sidebar.items.attributes',
+        to: '/attributes',
       },
     ],
   },
