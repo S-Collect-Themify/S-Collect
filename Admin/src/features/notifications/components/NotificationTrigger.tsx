@@ -29,7 +29,7 @@ export const NotificationTrigger = ({
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] sm:min-w-[20px] h-4.5 sm:h-5 px-1 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full border-2 border-white shadow-xs pointer-events-none"
+            className="absolute -top-1 -right-1 flex items-center justify-center min-w-4.5 sm:min-w-5 h-4.5 sm:h-5 px-1 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full border-2 border-white shadow-xs pointer-events-none"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.span>
