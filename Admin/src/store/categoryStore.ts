@@ -1,10 +1,15 @@
 import { create } from 'zustand';
-import type { Category } from '../features/categories/types';
+import type { Category, CategoryDepth } from '../features/categories/types';
 
 interface FormModalState {
   open: boolean;
   mode: 'add' | 'edit';
   category: Category | null;
+  // Depth of the node being added/edited — 1 = Category, 2 = Sub-Category.
+  // Departments (depth 0) are seeded by the backend and never created here.
+  level: 1 | 2;
+  // Parent department id (when level 1) or parent category id (when level 2).
+  parentId: string | null;
 }
 
 interface DeleteModalState {
@@ -27,9 +32,9 @@ interface CannotDeleteModalState {
 
 interface CategoryStore {
   search: string;
-  categoryFilter: string;
-  currentPage: number;
+  departmentFilter: string;
   selectedIds: Set<string>;
+  expandedIds: Set<string>;
 
   formModal: FormModalState;
   deleteModal: DeleteModalState;
@@ -39,13 +44,15 @@ interface CategoryStore {
 
   // Actions
   setSearch: (val: string) => void;
-  setCategoryFilter: (val: string) => void;
-  setCurrentPage: (page: number) => void;
+  setDepartmentFilter: (val: string) => void;
   handleSelectOne: (id: string) => void;
   handleSelectAll: (pageIds: string[]) => void;
   clearSelection: () => void;
+  toggleExpanded: (id: string) => void;
+  setExpandedIds: (ids: Set<string>) => void;
+  expandIds: (ids: string[]) => void;
 
-  openAdd: () => void;
+  openAdd: (opts?: { level?: 1 | 2; parentId?: string | null }) => void;
   openEdit: (category: Category) => void;
   openDelete: (category: Category) => void;
   openBulkDelete: () => void;
@@ -59,21 +66,22 @@ interface CategoryStore {
   handleToggleActiveRequest: (category: Category) => void;
 }
 
+const parentLevelOf = (depth: CategoryDepth): 1 | 2 => (depth === 2 ? 2 : 1);
+
 export const useCategoryStore = create<CategoryStore>((set) => ({
   search: '',
-  categoryFilter: 'all',
-  currentPage: 1,
+  departmentFilter: 'all',
   selectedIds: new Set<string>(),
+  expandedIds: new Set<string>(),
 
-  formModal: { open: false, mode: 'add', category: null },
+  formModal: { open: false, mode: 'add', category: null, level: 1, parentId: null },
   deleteModal: { open: false, category: null, isBulk: false },
   statusModal: { open: false, category: null },
   cannotDeleteModal: { open: false, isBulk: false },
   discountModal: { open: false },
 
-  setSearch: (val) => set({ search: val, currentPage: 1 }),
-  setCategoryFilter: (val) => set({ categoryFilter: val, currentPage: 1 }),
-  setCurrentPage: (page) => set({ currentPage: page }),
+  setSearch: (val) => set({ search: val }),
+  setDepartmentFilter: (val) => set({ departmentFilter: val }),
 
   handleSelectOne: (id) =>
     set((state) => {
@@ -100,8 +108,44 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
 
   clearSelection: () => set({ selectedIds: new Set() }),
 
-  openAdd: () => set({ formModal: { open: true, mode: 'add', category: null } }),
-  openEdit: (category) => set({ formModal: { open: true, mode: 'edit', category } }),
+  toggleExpanded: (id) =>
+    set((state) => {
+      const next = new Set(state.expandedIds);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return { expandedIds: next };
+    }),
+  setExpandedIds: (ids) => set({ expandedIds: ids }),
+  expandIds: (ids) =>
+    set((state) => {
+      const next = new Set(state.expandedIds);
+      ids.forEach((id) => next.add(id));
+      return { expandedIds: next };
+    }),
+
+  openAdd: (opts) =>
+    set({
+      formModal: {
+        open: true,
+        mode: 'add',
+        category: null,
+        level: opts?.level ?? 1,
+        parentId: opts?.parentId ?? null,
+      },
+    }),
+  openEdit: (category) =>
+    set({
+      formModal: {
+        open: true,
+        mode: 'edit',
+        category,
+        level: parentLevelOf(category.depth),
+        parentId: category.parentCategoryId ?? null,
+      },
+    }),
   openDelete: (category) => set({ deleteModal: { open: true, category, isBulk: false } }),
   openBulkDelete: () => set({ deleteModal: { open: true, category: null, isBulk: true } }),
   closeForm: () => set((state) => ({ formModal: { ...state.formModal, open: false } })),

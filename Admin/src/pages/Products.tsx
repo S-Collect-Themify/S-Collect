@@ -32,6 +32,7 @@ const Products = () => {
   const vendorFilter = useProductStore((s) => s.vendorFilter);
   const categoryFilter = useProductStore((s) => s.categoryFilter);
   const statusFilter = useProductStore((s) => s.statusFilter);
+  const seasonFilter = useProductStore((s) => s.seasonFilter);
   const currentPage = useProductStore((s) => s.currentPage);
   const modal = useProductStore((s) => s.modal);
   const selectedProductIds = useProductStore((s) => s.selectedProductIds);
@@ -141,9 +142,14 @@ const Products = () => {
         return false;
       }
 
+      // Season Filter
+      if (seasonFilter !== 'all' && (item.season || 'all') !== seasonFilter) {
+        return false;
+      }
+
       return true;
     });
-  }, [products, search, vendorFilter, categoryFilter, statusFilter]);
+  }, [products, search, vendorFilter, categoryFilter, statusFilter, seasonFilter]);
 
   // ── Pagination Calculation ──
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));

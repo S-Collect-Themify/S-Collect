@@ -1,9 +1,6 @@
 // ─── Barrel Export ────────────────────────────────────────────────────────────
 // Types
-export type { Category } from './types';
-
-// Data
-export { INITIAL_CATEGORIES, ITEMS_PER_PAGE } from './data';
+export type { Category, CategoryDepth, CategoryTreeNode } from './types';
 
 // Store
 export { useCategoryStore } from '../../store/categoryStore';
@@ -12,7 +9,7 @@ export { useCategoryStore } from '../../store/categoryStore';
 export { useCategoriesData } from './useCategoriesData';
 
 // Utils
-export { toSlug } from './utils';
+export { toSlug, buildCategoryTree, flattenCategoryTree, filterCategoryTree } from './utils';
 
 // Components
 export { default as Toggle } from '../../components/ui/Toggle';
@@ -25,11 +22,9 @@ export type {
   CategoryFormModalProps,
   CannotDeleteModalProps,
 } from './components/CategoryModals';
-export { default as CategoryTable } from './components/CategoryTable';
-export type { DesktopTableProps } from './components/CategoryTable';
+export { default as CategoryTree } from './components/CategoryTree';
+export type { CategoryTreeProps } from './components/CategoryTree';
 export { default as CategorySkeleton } from './components/CategorySkeleton';
 export type { CategorySkeletonProps } from './components/CategorySkeleton';
-export { default as MobileCard } from './components/MobileCard';
-export type { MobileCardProps } from './components/MobileCard';
-export { Pagination, BulkNavbar } from './components/CategoryControls';
-export type { PaginationProps, BulkNavbarProps } from './components/CategoryControls';
+export { BulkNavbar } from './components/CategoryControls';
+export type { BulkNavbarProps } from './components/CategoryControls';

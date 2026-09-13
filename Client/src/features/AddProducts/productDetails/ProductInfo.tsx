@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Pencil, Trash2, Tag, FileSpreadsheet, Maximize2, X } from 'lucide-react';
+import { Star, Pencil, Trash2, Tag, FileSpreadsheet, Maximize2, X, Sun, Snowflake } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Swiper as SwiperClass } from 'swiper';
@@ -36,6 +36,7 @@ export interface ProductInfoProps {
   description?: string;
   descriptionAr?: string;
   category?: string;
+  season?: string;
   brand?: string;
   sku?: string;
   price?: number;
@@ -61,6 +62,7 @@ export default function ProductInfo({
   description,
   descriptionAr,
   category,
+  season,
   brand,
   sku,
   price,
@@ -300,6 +302,18 @@ export default function ProductInfo({
               </span>
               <span className="font-bold text-gray-700">{sku}</span>
             </div>
+            {season && season !== 'all' && (
+              <span
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  season === 'summer'
+                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    : 'bg-sky-50 text-sky-700 border border-sky-200'
+                }`}
+              >
+                {season === 'summer' ? <Sun size={12} /> : <Snowflake size={12} />}
+                {season === 'summer' ? (isArabic ? 'صيفي' : 'Summer') : (isArabic ? 'شتوي' : 'Winter')}
+              </span>
+            )}
           </div>
 
           {/* Description */}

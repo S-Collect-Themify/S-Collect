@@ -1,7 +1,7 @@
 import { Search, ChevronDown, Tag, Download, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProductStore } from '../productStore';
-import type { StatusFilter } from '../types';
+import type { StatusFilter, SeasonFilter } from '../types';
 
 export interface CategoryFilterOption {
   key: string;
@@ -28,12 +28,14 @@ export const ProductFilterBar = ({
   const vendorFilter = useProductStore((s) => s.vendorFilter);
   const categoryFilter = useProductStore((s) => s.categoryFilter);
   const statusFilter = useProductStore((s) => s.statusFilter);
+  const seasonFilter = useProductStore((s) => s.seasonFilter);
   const selectedProductIds = useProductStore((s) => s.selectedProductIds);
 
   const setSearch = useProductStore((s) => s.setSearch);
   const setVendorFilter = useProductStore((s) => s.setVendorFilter);
   const setCategoryFilter = useProductStore((s) => s.setCategoryFilter);
   const setStatusFilter = useProductStore((s) => s.setStatusFilter);
+  const setSeasonFilter = useProductStore((s) => s.setSeasonFilter);
   const openBulkDiscountModal = useProductStore((s) => s.openBulkDiscountModal);
 
   const selectedCount = selectedProductIds.length;
@@ -56,7 +58,7 @@ export const ProductFilterBar = ({
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
+        <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
           {/* Vendor Dropdown */}
           <div className="relative w-full sm:w-auto sm:inline-block">
             <select
@@ -114,6 +116,23 @@ export const ProductFilterBar = ({
               <option value="all">{t('productsListing.status')}</option>
               <option value="active">{t('productsListing.active')}</option>
               <option value="disabled">{t('productsListing.disabled')}</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:right-auto rtl:left-2 sm:rtl:left-3"
+            />
+          </div>
+
+          {/* Season Dropdown */}
+          <div className="relative w-full sm:w-auto sm:inline-block">
+            <select
+              value={seasonFilter}
+              onChange={(e) => setSeasonFilter(e.target.value as SeasonFilter)}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-0.5 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
+            >
+              <option value="all">{t('addProduct.season', 'Season')}</option>
+              <option value="summer">{t('addProduct.seasonSummer', 'Summer')}</option>
+              <option value="winter">{t('addProduct.seasonWinter', 'Winter')}</option>
             </select>
             <ChevronDown
               size={16}

@@ -6,10 +6,11 @@ import { useCategoriesData } from '../useCategoriesData';
 export const CategoryFilterBar = () => {
   const { t, i18n } = useTranslation();
   const search = useCategoryStore((state) => state.search);
-  const categoryFilter = useCategoryStore((state) => state.categoryFilter);
+  const departmentFilter = useCategoryStore((state) => state.departmentFilter);
   const setSearch = useCategoryStore((state) => state.setSearch);
-  const setCategoryFilter = useCategoryStore((state) => state.setCategoryFilter);
+  const setDepartmentFilter = useCategoryStore((state) => state.setDepartmentFilter);
   const { categories } = useCategoriesData();
+  const departments = categories.filter((c) => c.depth === 0);
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
@@ -30,15 +31,15 @@ export const CategoryFilterBar = () => {
 
       <div className="relative w-full sm:w-auto shrink-0">
         <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          aria-label={t('categories.filter.all')}
+          value={departmentFilter}
+          onChange={(e) => setDepartmentFilter(e.target.value)}
+          aria-label={t('categories.filter.allDepartments')}
           className="w-full sm:w-auto appearance-none pl-3 pr-8 rtl:pl-8 rtl:pr-3 py-2.5 p-[2px] rounded-xl border border-gray-200 text-body-sm text-gray-700 focus:outline-none focus:border-gray-900 transition-all bg-white cursor-pointer"
         >
-          <option value="all">{t('categories.filter.all')}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {i18n.language === 'ar' ? c.nameAr : c.nameEn || c.name}
+          <option value="all">{t('categories.filter.allDepartments')}</option>
+          {departments.map((d) => (
+            <option key={d.id} value={d.id}>
+              {i18n.language === 'ar' ? d.nameAr : d.nameEn || d.name}
             </option>
           ))}
         </select>

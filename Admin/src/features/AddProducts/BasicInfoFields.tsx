@@ -3,18 +3,15 @@ import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from './types';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import MobileImageUploader from './mobile/MobileImageUploader';
-
-import { useCategories } from '../../hooks/useCategories';
+import CategorySeasonFields from './CategorySeasonFields';
 
 const BasicInfoFields = () => {
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
+  const { t } = useTranslation();
   const {
     register,
     formState: { errors },
   } = useFormContext<ProductFormData>();
   const { isMobile } = useBreakpoint();
-  const { categories: categoriesList, isLoading } = useCategories();
 
   const inputCls = (hasError?: string) =>
     `w-full rounded-xl border py-2.5 focus:outline-none ${
@@ -68,29 +65,7 @@ const BasicInfoFields = () => {
         {errors.nameEn && <p className={errorCls}>{errors.nameEn.message}</p>}
       </div>
 
-      <div>
-        <label className={labelCls}>
-          {t('addProduct.category', 'Category')} <span className="text-red-500">*</span>
-        </label>
-        <select
-          className={inputCls(errors.categoryId?.message)}
-          {...register('categoryId', {
-            required: t('addProduct.errors.categoryRequired', 'Category is required'),
-          })}
-        >
-          <option value="">
-            {isLoading 
-              ? t('addProduct.loadingCategories', 'Loading categories...') 
-              : t('addProduct.selectCategory', 'Select a category')}
-          </option>
-          {Array.isArray(categoriesList) && categoriesList.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {isArabic ? cat.nameAr : cat.name}
-            </option>
-          ))}
-        </select>
-        {errors.categoryId && <p className={errorCls}>{errors.categoryId.message}</p>}
-      </div>
+      <CategorySeasonFields />
 
       <div>
         <label className={labelCls}>

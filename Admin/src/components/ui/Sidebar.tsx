@@ -36,7 +36,6 @@ import { useVendorStore } from '../../features/vendors/store/vendorStore';
 import { useBuyerStore } from '../../features/buyers/store/buyerStore';
 import { useProductStore } from '../../features/products/productStore';
 import { useTransactionStore } from '../../store/transactionStore';
-import { useCategoryStore } from '../../store/categoryStore';
 import { useReviewStore } from '../../features/reviews/reviewStore';
 import { useVoucherStore } from '../../features/vouchers/voucherStore';
 import { useManagementStore } from '../../features/mangement/managementStore';
@@ -71,7 +70,6 @@ const resetPageForRoute = (path?: string) => {
   else if (path === '/buyers') useBuyerStore.getState().setPage(1);
   else if (path === '/products') useProductStore.getState().setCurrentPage(1);
   else if (path === '/transactions') useTransactionStore.getState().setPage(1);
-  else if (path === '/categories') useCategoryStore.getState().setCurrentPage(1);
   else if (path === '/reviews') useReviewStore.getState().setCurrentPage(1);
   else if (path === '/vouchers') useVoucherStore.getState().setCurrentPage(1);
   else if (path === '/management') useManagementStore.getState().setPage(1);

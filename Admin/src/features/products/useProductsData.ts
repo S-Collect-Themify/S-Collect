@@ -171,6 +171,7 @@ export const useProductsData = () => {
             vendorId: vId,
             category: categoryName,
             categoryAr: categoryNameAr,
+            season: p.season || 'all',
             price: Number(p.minPrice ?? p.price ?? 0),
             totalStock: p.totalStock !== undefined && p.totalStock !== null ? p.totalStock : '',
             isActive: isProductActive(p),

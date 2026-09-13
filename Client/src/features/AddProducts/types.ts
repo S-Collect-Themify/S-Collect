@@ -33,6 +33,8 @@ export interface VarianceCardData {
   sku: string;
 }
 
+export type ProductSeason = 'summer' | 'winter' | 'all';
+
 export interface ProductFormData {
   nameAr: string;
   nameEn: string;
@@ -48,6 +50,7 @@ export interface ProductFormData {
   optionsMeta?: OptionMeta[];
   variantsMeta?: VariantMeta[];
   categoryId: string;
+  season?: ProductSeason;
   enabled?: boolean;
   quantity?: number;
   categories?: string[];
@@ -96,6 +99,7 @@ export interface RawProductResponse {
   descriptionAr?: string;
   categoryId?: string;
   category?: { id?: string; name?: string; nameAr?: string };
+  season?: ProductSeason;
   enabled?: boolean;
   isActive?: boolean;
   isDisabled?: boolean;

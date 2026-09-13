@@ -301,7 +301,8 @@
       "basePriceRequired": "Base price is required",
       "comparePriceRequired": "Compare-at price is required",
       "skuRequired": "SKU is required",
-      "priceMinValue": "Price must be greater than or equal to 0"
+      "priceMinValue": "Price must be greater than or equal to 0",
+      "categoryRequired": "Category is required"
     },
     "mobile": {
       "addProduct": "Add Product",
@@ -319,7 +320,19 @@
       "productAddedSuccessfully": "Product Added Successfully",
       "productAddedMessage": "Your product has been added successfully.",
       "done": "Done"
-    }
+    },
+    "category": "Category",
+    "selectCategory": "Select a category",
+    "loadingCategories": "Loading categories...",
+    "department": "Department",
+    "selectDepartment": "Select a department",
+    "noCategoriesInDepartment": "No categories in this department yet",
+    "subCategory": "Sub-Category",
+    "selectSubCategoryOptional": "None (use Category)",
+    "season": "Season",
+    "seasonAll": "All Seasons",
+    "seasonSummer": "Summer",
+    "seasonWinter": "Winter"
   },
   "ordersPage": {
     "notifications": {
@@ -1138,7 +1151,16 @@
       "save": "Save Category",
       "cancel": "Cancel",
       "nameLengthError": "Category name must be between 2 and 50 characters.",
-      "duplicateError": "Category name already exists. Please choose a different name."
+      "duplicateError": "Category name already exists. Please choose a different name.",
+      "addSubCategory": "Add Sub-Category",
+      "editDepartment": "Edit Department",
+      "editSubCategory": "Edit Sub-Category",
+      "level": "Level",
+      "parentDepartment": "Parent Department",
+      "parentCategory": "Parent Category",
+      "selectParentDepartment": "Select a department",
+      "selectParentCategory": "Select a category",
+      "parentRequiredError": "Please select a parent before saving."
     },
     "statusModal": {
       "title": "Change Status",
@@ -1170,7 +1192,8 @@
     },
     "filter": {
       "all": "Category: All",
-      "search": "Search categories..."
+      "search": "Search categories...",
+      "allDepartments": "Department: All"
     },
     "pagination": {
       "showing": "Showing {{start}}–{{end}} of {{total}} categories"
@@ -1198,6 +1221,18 @@
     "mobile": {
       "slug": "slug",
       "productsCount": "Products Count"
+    },
+    "tree": {
+      "department": "Department",
+      "category": "Category",
+      "subCategory": "Sub-Category",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "addCategory": "Add Category",
+      "addSubCategory": "Add Sub-Category",
+      "emptyDepartment": "No categories in this department yet.",
+      "emptyCategory": "No sub-categories yet.",
+      "unassignedNotice": "These categories exist but are not linked to a Department yet, so they will not appear in the storefront category tree. Edit one and choose a Parent Department to link it in."
     }
   },
   "productsListing": {

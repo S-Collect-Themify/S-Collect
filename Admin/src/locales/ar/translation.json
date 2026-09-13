@@ -300,7 +300,8 @@
       "basePriceRequired": "السعر الأساسي مطلوب",
       "comparePriceRequired": "السعر قبل الخصم مطلوب",
       "skuRequired": "رمز المنتج مطلوب",
-      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0"
+      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0",
+      "categoryRequired": "الفئة مطلوبة"
     },
     "mobile": {
       "addProduct": "إضافة منتج",
@@ -318,7 +319,19 @@
       "productAddedSuccessfully": "تمت إضافة المنتج بنجاح",
       "productAddedMessage": "تمت إضافة منتجك بنجاح.",
       "done": "تم"
-    }
+    },
+    "category": "الفئة",
+    "selectCategory": "اختر فئة",
+    "loadingCategories": "جاري تحميل الفئات...",
+    "department": "القسم",
+    "selectDepartment": "اختر قسمًا",
+    "noCategoriesInDepartment": "لا توجد فئات في هذا القسم بعد",
+    "subCategory": "فئة فرعية",
+    "selectSubCategoryOptional": "بدون (استخدام الفئة الرئيسية)",
+    "season": "الموسم",
+    "seasonAll": "كل المواسم",
+    "seasonSummer": "صيفي",
+    "seasonWinter": "شتوي"
   },
   "ordersPage": {
     "notifications": {
@@ -1134,7 +1147,16 @@
       "save": "حفظ الفئة",
       "cancel": "إلغاء",
       "nameLengthError": "يجب أن يكون اسم الفئة بين 2 و 50 حرفاً",
-      "duplicateError": "اسم الفئة موجود مسبقا يرجى اختيار اسم مختلف"
+      "duplicateError": "اسم الفئة موجود مسبقا يرجى اختيار اسم مختلف",
+      "addSubCategory": "إضافة فئة فرعية",
+      "editDepartment": "تعديل القسم",
+      "editSubCategory": "تعديل فئة فرعية",
+      "level": "المستوى",
+      "parentDepartment": "القسم الرئيسي",
+      "parentCategory": "الفئة الرئيسية",
+      "selectParentDepartment": "اختر القسم",
+      "selectParentCategory": "اختر الفئة",
+      "parentRequiredError": "يرجى اختيار القسم/الفئة الرئيسية قبل الحفظ."
     },
     "statusModal": {
       "title": "تغيير الحالة",
@@ -1166,7 +1188,8 @@
     },
     "filter": {
       "all": "الفئة: الكل",
-      "search": "البحث في الفئات..."
+      "search": "البحث في الفئات...",
+      "allDepartments": "القسم: الكل"
     },
     "pagination": {
       "showing": "عرض {{start}}–{{end}} من {{total}} فئات"
@@ -1194,6 +1217,18 @@
     "mobile": {
       "slug": "الرابط",
       "productsCount": "عدد المنتجات"
+    },
+    "tree": {
+      "department": "قسم",
+      "category": "فئة",
+      "subCategory": "فئة فرعية",
+      "expand": "توسيع",
+      "collapse": "طي",
+      "addCategory": "إضافة فئة",
+      "addSubCategory": "إضافة فئة فرعية",
+      "emptyDepartment": "لا توجد فئات في هذا القسم بعد.",
+      "emptyCategory": "لا توجد فئات فرعية بعد.",
+      "unassignedNotice": "هذه الفئات موجودة لكنها غير مرتبطة بأي قسم بعد، لذلك لن تظهر في شجرة الفئات بالمتجر. عدّل الفئة واختر قسمًا رئيسيًا لربطها."
     }
   },
   "productsListing": {
