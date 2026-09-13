@@ -146,7 +146,7 @@ export const SendCampaignModal: React.FC<SendCampaignModalProps> = ({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               {/* Title EN */}
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">

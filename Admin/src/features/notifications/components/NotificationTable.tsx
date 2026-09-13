@@ -20,7 +20,7 @@ const VendorNameBadge: React.FC<{
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const cachedVendor = vendorsMap[vendorId];
+  const cachedVendor = vendorsMap[String(vendorId)];
   const { data: detailVendor, isLoading: isDetailLoading } = useVendorDetails(
     !cachedVendor ? vendorId : ''
   );
@@ -30,10 +30,13 @@ const VendorNameBadge: React.FC<{
 
   const displayName =
     (isAr && vAny?.storeNameAr ? vAny.storeNameAr : vAny?.storeName) ||
+    (isAr && vAny?.store_name_ar ? vAny.store_name_ar : vAny?.store_name) ||
     (isAr && vAny?.nameAr ? vAny.nameAr : vAny?.name) ||
+    (isAr && vAny?.name_ar ? vAny.name_ar : vAny?.name_en) ||
     (targetVendor?.businessName && targetVendor.businessName !== '--' ? targetVendor.businessName : null) ||
     (targetVendor?.owner && targetVendor.owner !== '--' ? targetVendor.owner : null) ||
     (vAny?.firstName ? `${vAny.firstName} ${vAny.lastName || ''}`.trim() : null) ||
+    (vAny?.first_name ? `${vAny.first_name} ${vAny.last_name || ''}`.trim() : null) ||
     vendorId;
 
   const isLoading = (isLoadingVendors && !cachedVendor) || (isDetailLoading && !cachedVendor);
@@ -97,7 +100,9 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
       ? vendorsData
       : [];
     list.forEach((v: any) => {
-      if (v.id) map[v.id] = v;
+      if (v.id) map[String(v.id)] = v;
+      if (v._id) map[String(v._id)] = v;
+      if (v.vendorId) map[String(v.vendorId)] = v;
     });
     return map;
   }, [vendorsData]);

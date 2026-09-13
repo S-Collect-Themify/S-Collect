@@ -34,4 +34,10 @@ export interface Vendor {
   commissionRate?: number;
   logoUrl?: string;
   createdAt?: string;
+  storeName?: string;
+  storeNameAr?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  nameAr?: string;
 }
