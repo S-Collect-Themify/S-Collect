@@ -24,9 +24,6 @@ export const AttributeCard = ({
 
   const primaryName = isArabic ? attribute.nameAr || attribute.name : attribute.name;
   const secondaryName = isArabic ? attribute.name : attribute.nameAr;
-  const isSystemAttribute = ['size', 'color', 'colors', 'sizes'].includes(
-    attribute.name.toLowerCase().trim()
-  );
 
   // Sort values by sortOrder asc
   const sortedValues = [...(attribute.values || [])].sort(
@@ -75,17 +72,15 @@ export const AttributeCard = ({
             >
               <Pencil size={15} />
             </button>
-            {!isSystemAttribute && (
-              <button
-                type="button"
-                onClick={() => onDeleteAttribute(attribute)}
-                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                title={t('attributes.card.deleteAttribute', 'Delete attribute')}
-                aria-label={t('attributes.card.deleteAttribute', 'Delete attribute')}
-              >
-                <Trash2 size={15} />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => onDeleteAttribute(attribute)}
+              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+              title={t('attributes.card.deleteAttribute', 'Delete attribute')}
+              aria-label={t('attributes.card.deleteAttribute', 'Delete attribute')}
+            >
+              <Trash2 size={15} />
+            </button>
           </div>
         </div>
       </div>
