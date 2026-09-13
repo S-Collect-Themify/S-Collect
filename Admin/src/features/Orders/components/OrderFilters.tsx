@@ -5,8 +5,8 @@ import PortalDropdown from '../../../components/ui/PortalDropdown';
 import { OrderBuyerDropdown } from './OrderBuyerDropdown';
 
 export interface OrderFiltersProps {
-  activeMainTab: 'allOrders' | 'refunds';
-  onMainTabChange: (tab: 'allOrders' | 'refunds') => void;
+  activeMainTab?: 'allOrders' | 'refunds';
+  onMainTabChange?: (tab: 'allOrders' | 'refunds') => void;
   search: string;
   onSearchChange: (val: string) => void;
   statusFilter: string;
@@ -21,8 +21,7 @@ export interface OrderFiltersProps {
 }
 
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
-  activeMainTab,
-  onMainTabChange,
+  activeMainTab = 'allOrders',
   search,
   onSearchChange,
   statusFilter,
@@ -90,34 +89,6 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
 
   return (
     <div>
-      {/* Main Tab Toggle Pills Container */}
-      <div className="inline-flex items-center p-1 bg-[#EBEBEB] rounded-lg mb-5">
-        <button
-          type="button"
-          onClick={() => onMainTabChange('allOrders')}
-          className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
-            activeMainTab === 'allOrders'
-              ? 'bg-black text-white shadow-2xs'
-              : 'bg-transparent text-gray-700 hover:text-gray-900'
-          }`}
-        >
-          {t('ordersPage.allOrders', 'All Orders')}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            if (onBuyerAccountIdChange) onBuyerAccountIdChange(undefined);
-            onMainTabChange('refunds');
-          }}
-          className={`px-6 py-2.5 rounded-lg text-body-sm font-bold transition-all cursor-pointer ${
-            activeMainTab === 'refunds'
-              ? 'bg-black text-white shadow-2xs'
-              : 'bg-transparent text-gray-700 hover:text-gray-900'
-          }`}
-        >
-          {t('ordersPage.refunds', 'Refunds')}
-        </button>
-      </div>
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-start gap-3 mb-5">
