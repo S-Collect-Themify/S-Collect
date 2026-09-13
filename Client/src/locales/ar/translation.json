@@ -30,6 +30,7 @@
       "settings": "ملف المتجر",
       "accountSettings": "إعدادات الحساب",
       "returns": "طلبات الإرجاع",
+      "campaigns": "حملات الإشعارات",
       "orders": "الطلبات",
       "logout": "تسجيل الخروج",
       "cancel": "إلغاء",
@@ -1098,6 +1099,91 @@
       "updateValueError": "فشل تحديث القيمة",
       "deleteValueSuccess": "تم حذف القيمة بنجاح",
       "deleteValueError": "فشل حذف القيمة. قد تكون مستخدمة في أشكال منتجات حالية."
+    }
+  },
+  "campaigns": {
+    "title": "حملات الإشعارات",
+    "subtitle": "إرسال وتتبع الإشعارات المباشرة المرسلة إلى أجهزة المشترين.",
+    "createBtn": "حملة جديدة",
+    "searchPlaceholder": "البحث في الحملات بالعنوان أو المحتوى...",
+    "stats": {
+      "totalCampaigns": "إجمالي الحملات",
+      "totalReached": "الجمهور المستهدف",
+      "totalDelivered": "الإشعارات المسلّمة",
+      "deliveryRate": "معدل التسليم"
+    },
+    "table": {
+      "campaign": "الحملة",
+      "recipients": "المستلمون",
+      "delivery": "حالة التسليم",
+      "successRate": "نسبة النجاح",
+      "date": "تاريخ الإرسال",
+      "actions": "الإجراءات",
+      "devices": "جهاز",
+      "delivered": "تم التسليم",
+      "failed": "فشل",
+      "rate": "النسبة"
+    },
+    "pagination": {
+      "showing": "عرض {{start}} - {{end}} من أصل {{total}} حملة"
+    },
+    "actions": {
+      "view": "عرض"
+    },
+    "empty": {
+      "title": "لا توجد حملات إشعارات حتى الآن",
+      "description": "أرسل إشعارات فورية مباشرة إلى أجهزة المشترين للإعلان عن التخفيضات أو المنتجات الجديدة أو العروض الحصرية.",
+      "noSearchTitle": "لم يتم العثور على أي نتائج",
+      "noSearchDesc": "لا توجد حملات تطابق بحثك \"{{query}}\". تأكد من صحة الكلمات أو جرب كلمة أخرى.",
+      "clearSearch": "مسح البحث"
+    },
+    "preview": {
+      "header": "معاينة الإشعار المباشرة",
+      "now": "الآن",
+      "defaultTitle": "عنوان الإشعار",
+      "defaultBody": "نص وصف الإشعار سيظهر هنا..."
+    },
+    "modal": {
+      "createTitle": "إنشاء إشعار للمشترين",
+      "subtitle": "إرسال إشعار فوري لجميع المشترين النشطين"
+    },
+    "form": {
+      "englishSection": "المحتوى باللغة الإنجليزية",
+      "arabicSection": "المحتوى باللغة العربية",
+      "titleEn": "عنوان الإشعار (بالإنجليزية)",
+      "titleEnPlaceholder": "e.g., Special Weekend Offer!",
+      "titleEnRequired": "عنوان الإشعار بالإنجليزية مطلوب",
+      "bodyEn": "نص الإشعار (بالإنجليزية)",
+      "bodyEnPlaceholder": "e.g., Enjoy up to 30% off on all products for a limited time.",
+      "bodyEnRequired": "نص الإشعار بالإنجليزية مطلوب",
+      "titleAr": "عنوان الإشعار (بالعربية)",
+      "titleArPlaceholder": "مثال: عرض نهاية الأسبوع الخاص!",
+      "titleArRequired": "عنوان الإشعار بالعربية مطلوب",
+      "bodyAr": "نص الإشعار (بالعربية)",
+      "bodyArPlaceholder": "مثال: احصل على خصم 30% على جميع المنتجات لفترة محدودة.",
+      "bodyArRequired": "نص الإشعار بالعربية مطلوب",
+      "imageUrl": "رابط صورة الإشعار (اختياري)",
+      "imageUrlHint": "رابط اختياري لصورة العرض التي ستظهر في الإشعار",
+      "dispatchNotice": "سيؤدي إرسال هذا النموذج إلى بث الإشعار فوراً إلى جميع أجهزة المشترين المسجلة.",
+      "sending": "جارٍ إرسال الإشعار...",
+      "sendNow": "إرسال الحملة الآن"
+    },
+    "details": {
+      "title": "تفاصيل الحملة",
+      "totalRecipients": "الأجهزة المستهدفة",
+      "delivered": "تم التسليم",
+      "failed": "فشل التسليم",
+      "successRate": "معدل نجاح التسليم",
+      "sentByVendor": "مرسل من المتجر"
+    },
+    "toasts": {
+      "sendSuccess": "تم إرسال الإشعار بنجاح!",
+      "sendSuccessDetailed": "تم إرسال الإشعار إلى {{success}} من أصل {{total}} مستلم!",
+      "sendError": "فشل إرسال حملة الإشعارات"
+    },
+    "error": {
+      "title": "فشل تحميل الحملات",
+      "description": "حدث خطأ غير متوقع أثناء جلب حملات الإشعارات."
     }
   }
 }

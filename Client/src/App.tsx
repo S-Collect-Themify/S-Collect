@@ -25,6 +25,7 @@ import Receivables from './pages/Receivables.js';
 import ReturnRequests from './pages/ReturnRequests.js';
 import ReturnRequestDetails from './pages/ReturnRequestDetails.js';
 import Attributes from './pages/Attributes.js';
+import Campaigns from './pages/Campaigns.js';
 
 function App() {
   const { i18n } = useTranslation();
@@ -77,6 +78,7 @@ function App() {
           <Route path="/returns" element={<ReturnRequests />} />
           <Route path="/returns/:id" element={<ReturnRequestDetails />} />
           <Route path="/incoming-orders/:id" element={<SubOrderDetails />} />
+          <Route path="/campaigns" element={<Campaigns />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

@@ -31,6 +31,7 @@
       "settings": "Store Profile",
       "accountSettings": "Account Settings",
       "returns": "Return Requests",
+      "campaigns": "Push Campaigns",
       "orders": "Orders",
       "logout": "Logout",
       "cancel": "Cancel",
@@ -1102,6 +1103,91 @@
       "updateValueError": "Failed to update value",
       "deleteValueSuccess": "Value removed successfully",
       "deleteValueError": "Failed to remove value. It may be in use by product variants."
+    }
+  },
+  "campaigns": {
+    "title": "Push Campaigns",
+    "subtitle": "Send and track push notifications delivered directly to buyer devices.",
+    "createBtn": "New Campaign",
+    "searchPlaceholder": "Search campaigns by title or content...",
+    "stats": {
+      "totalCampaigns": "Total Campaigns",
+      "totalReached": "Audience Reached",
+      "totalDelivered": "Delivered Notifications",
+      "deliveryRate": "Avg Delivery Rate"
+    },
+    "table": {
+      "campaign": "Campaign",
+      "recipients": "Recipients",
+      "delivery": "Delivery Status",
+      "successRate": "Success Rate",
+      "date": "Date Sent",
+      "actions": "Actions",
+      "devices": "devices",
+      "delivered": "delivered",
+      "failed": "failed",
+      "rate": "Rate"
+    },
+    "pagination": {
+      "showing": "Showing {{start}} - {{end}} of {{total}} campaigns"
+    },
+    "actions": {
+      "view": "View"
+    },
+    "empty": {
+      "title": "No Push Campaigns Yet",
+      "description": "Send real-time push notifications directly to buyer devices to announce sales, new arrivals, or exclusive offers.",
+      "noSearchTitle": "No campaigns found",
+      "noSearchDesc": "No push campaigns matching \"{{query}}\". Try checking for typos or searching another term.",
+      "clearSearch": "Clear Search"
+    },
+    "preview": {
+      "header": "Live Push Preview",
+      "now": "now",
+      "defaultTitle": "Notification Title",
+      "defaultBody": "Notification message description goes here..."
+    },
+    "modal": {
+      "createTitle": "Create Push Notification",
+      "subtitle": "Send an instant notification to all active buyers"
+    },
+    "form": {
+      "englishSection": "English Content",
+      "arabicSection": "Arabic Content (محتوى الإشعار بالعربية)",
+      "titleEn": "Notification Title (English)",
+      "titleEnPlaceholder": "e.g., Special Weekend Offer!",
+      "titleEnRequired": "English title is required",
+      "bodyEn": "Notification Body (English)",
+      "bodyEnPlaceholder": "e.g., Enjoy up to 30% off on all products for a limited time.",
+      "bodyEnRequired": "English notification message is required",
+      "titleAr": "عنوان الإشعار (العربية)",
+      "titleArPlaceholder": "مثال: عرض نهاية الأسبوع الخاص!",
+      "titleArRequired": "Arabic title is required",
+      "bodyAr": "نص الإشعار (العربية)",
+      "bodyArPlaceholder": "مثال: احصل على خصم 30% على جميع المنتجات لفترة محدودة.",
+      "bodyArRequired": "Arabic notification message is required",
+      "imageUrl": "Banner Image URL (Optional)",
+      "imageUrlHint": "Optional banner image displayed in rich push notifications",
+      "dispatchNotice": "Submitting this will immediately broadcast the push notification to all registered buyer devices.",
+      "sending": "Sending Notification...",
+      "sendNow": "Send Push Campaign"
+    },
+    "details": {
+      "title": "Campaign Details",
+      "totalRecipients": "Total Targets",
+      "delivered": "Delivered",
+      "failed": "Failed",
+      "successRate": "Delivery Success Rate",
+      "sentByVendor": "Sent by store"
+    },
+    "toasts": {
+      "sendSuccess": "Push notification sent successfully!",
+      "sendSuccessDetailed": "Notification sent to {{success}} of {{total}} recipients!",
+      "sendError": "Failed to send push campaign"
+    },
+    "error": {
+      "title": "Failed to load campaigns",
+      "description": "An unexpected error occurred while retrieving push campaigns."
     }
   }
 }
