@@ -5,23 +5,16 @@ import {
   mapAdminOrderToTableItem,
   mapAdminSubOrderToTableItem,
 } from '../../../services/orders';
-import { mapAdminRefundToTableItem } from '../../../services/refunds';
 import { useAdminOrders } from './useAdminOrders';
 import { useAdminSubOrders } from './useAdminSubOrders';
-import { useAdminRefunds } from './useAdminRefunds';
-import type { TableItem, OrderMainTab } from '../types';
+import type { TableItem } from '../types';
 
 export const useOrdersLogic = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlTab = searchParams.get('tab');
   const urlVendorId = searchParams.get('vendorId');
   const urlBuyerAccountId = searchParams.get('buyerAccountId');
   const { isMobile } = useBreakpoint();
-
-  // Tab State
-  const initialTab: OrderMainTab = urlTab === 'refunds' ? 'refunds' : 'allOrders';
-  const [activeMainTab, setActiveMainTab] = useState<OrderMainTab>(initialTab);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -59,11 +52,6 @@ export const useOrdersLogic = () => {
     setPrevSearchParams(currentParamsStr);
     setVendorIdFilter(urlVendorId || undefined);
     setBuyerAccountIdFilter(urlBuyerAccountId || undefined);
-    if (urlTab === 'refunds' && activeMainTab !== 'refunds') {
-      setActiveMainTab('refunds');
-    } else if (!urlTab && activeMainTab === 'refunds') {
-      setActiveMainTab('allOrders');
-    }
     setPage(1);
   }
 
@@ -93,8 +81,6 @@ export const useOrdersLogic = () => {
   const searchParam = debouncedSearch.trim() || undefined;
 
   // ─── Mode: vendor-filtered sub-orders vs. all orders ─────────────────────────
-  // When a vendorId is in the URL, we switch to /admin/sub-orders?vendorId=xxx
-  // so the server returns only that vendor's sub-orders with accurate pagination.
   const isVendorFiltered = Boolean(vendorIdFilter);
 
   // ─── Sub-orders (vendor-filtered mode) ───────────────────────────────────────
@@ -114,7 +100,7 @@ export const useOrdersLogic = () => {
       startDate: startDateParam,
       endDate: endDateParam,
     },
-    isVendorFiltered // only enabled when vendor filter is active
+    isVendorFiltered
   );
 
   // ─── All orders (default mode) ────────────────────────────────────────────────
@@ -134,35 +120,10 @@ export const useOrdersLogic = () => {
       startDate: startDateParam,
       endDate: endDateParam,
     },
-    !isVendorFiltered // only enabled when NOT in vendor-filtered mode
+    !isVendorFiltered
   );
 
-  // ─── Refunds ─────────────────────────────────────────────────────────────────
-  const {
-    data: refundsData,
-    isLoading: isRefundsLoading,
-  } = useAdminRefunds(
-    {
-      pageNum: page,
-      pageSize: itemsPerPage,
-      status: statusParam,
-      vendorId: vendorIdFilter,
-      buyerAccountId: buyerAccountIdFilter,
-      search: searchParam,
-      refundNumber: searchParam ? searchParam.trim().replace(/^(#?REF-|#)/i, '').trim() : undefined,
-      dateFilter: dateFilter !== 'all' && dateFilter !== 'custom' ? dateFilter : undefined,
-      startDate: startDateParam,
-      endDate: endDateParam,
-      sortBy: 'createdAt',
-      sortOrder: 'DESC',
-    },
-    true
-  );
-
-  const isLoading =
-    activeMainTab === 'allOrders'
-      ? isVendorFiltered ? isSubOrdersLoading : isOrdersLoading
-      : isRefundsLoading;
+  const isLoading = isVendorFiltered ? isSubOrdersLoading : isOrdersLoading;
 
   // ─── Map to TableItem for table rendering ───
   const displayOrders = useMemo(() => {
@@ -171,45 +132,17 @@ export const useOrdersLogic = () => {
       : (orders ?? []).map(mapAdminOrderToTableItem);
   }, [isVendorFiltered, subOrders, orders]);
 
-  const displayRefunds = useMemo(() => {
-    const list = (refundsData?.items || []).map(mapAdminRefundToTableItem);
-    return list.sort((a, b) => {
-      const timeA = a.rawCreatedAt ? new Date(a.rawCreatedAt).getTime() : 0;
-      const timeB = b.rawCreatedAt ? new Date(b.rawCreatedAt).getTime() : 0;
-      if (timeA !== timeB) return timeB - timeA;
-      return String(b.code || '').localeCompare(String(a.code || ''), undefined, { numeric: true });
-    });
-  }, [refundsData?.items]);
-
   // ─── Pagination numbers (always from server) ─────────────────────────────────
   const activePagination = isVendorFiltered ? subOrdersPagination : ordersPagination;
 
   const ordersTotalCount = activePagination?.totalItems ?? displayOrders.length;
   const ordersTotalPages = activePagination?.totalPages ?? Math.max(1, Math.ceil(ordersTotalCount / itemsPerPage));
 
-  const refundsTotalCount = refundsData?.pagination?.totalItems ?? displayRefunds.length;
-  const refundsTotalPages = refundsData?.pagination?.totalPages ?? Math.max(1, Math.ceil(refundsTotalCount / itemsPerPage));
-
-  const totalCount = activeMainTab === 'allOrders' ? ordersTotalCount : refundsTotalCount;
-  const totalPages = activeMainTab === 'allOrders' ? ordersTotalPages : refundsTotalPages;
+  const totalCount = ordersTotalCount;
+  const totalPages = ordersTotalPages;
   const safePage = Math.min(page, Math.max(1, totalPages));
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
-  const handleMainTabChange = (tab: OrderMainTab) => {
-    setActiveMainTab(tab);
-    setStatusFilter('All');
-    setDateFilter('all');
-    setSearch('');
-    setPage(1);
-    const newParams = new URLSearchParams(searchParams);
-    if (tab === 'refunds') {
-      newParams.set('tab', 'refunds');
-    } else {
-      newParams.delete('tab');
-    }
-    setSearchParams(newParams);
-  };
-
   const handleSearchChange = (val: string) => {
     setSearch(val);
     setPage(1);
@@ -244,16 +177,11 @@ export const useOrdersLogic = () => {
   };
 
   const handleViewDetails = (item: TableItem) => {
-    if (activeMainTab === 'refunds') {
-      navigate(`/returns/${item.id}`);
-    } else {
-      navigate(`/incoming-orders/${item.id}`);
-    }
+    navigate(`/incoming-orders/${item.id}`);
   };
 
   return {
-    activeMainTab,
-    handleMainTabChange,
+    activeMainTab: 'allOrders' as const,
     search,
     handleSearchChange,
     statusFilter,
@@ -272,11 +200,8 @@ export const useOrdersLogic = () => {
     totalPages,
     itemsPerPage,
     displayOrders,
-    displayRefunds,
     ordersTotalCount,
     ordersTotalPages,
-    refundsTotalCount,
-    refundsTotalPages,
     isVendorFiltered,
     handleViewDetails,
   };
