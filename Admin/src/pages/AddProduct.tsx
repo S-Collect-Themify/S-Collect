@@ -58,6 +58,7 @@ const AddProduct = () => {
       sku: '',
       images: [],
       categoryId: '',
+      season: 'all',
       enabled: true,
       quantity: 0,
       categories: [],

@@ -204,12 +204,15 @@ export interface SingleProductImage {
   isThumbnail?: boolean;
 }
 
+export type ProductSeason = 'summer' | 'winter' | 'all';
+
 export interface SingleAdminProductDetail {
   id: string;
   vendorId?: string;
   vendor?: SingleProductVendor;
   categoryId?: string;
   category?: SingleProductCategory;
+  season?: ProductSeason;
   name: string;
   nameAr?: string | null;
   description?: string | null;

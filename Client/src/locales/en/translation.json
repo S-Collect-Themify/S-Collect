@@ -221,12 +221,10 @@
     "title": "Add Product",
     "editTitle": "Edit Product",
     "subtitle": "Add a new product to your inventory",
-
     "productInformation": "Product Information",
     "productMedia": "Product Media",
     "productStatus": "Product Status",
     "pricingRules": "Pricing Rules",
-
     "nameAr": "Product Name (Arabic)",
     "nameEn": "Product Name (English)",
     "description": "Description",
@@ -234,7 +232,6 @@
     "descriptionEnPlaceholder": "Description (English)",
     "descriptionAr": "Description (Arabic)",
     "descriptionEn": "Description (English)",
-
     "categories": "Categories",
     "category": "Category",
     "selectCategory": "Select a category",
@@ -275,30 +272,23 @@
     "variantsCount": "variants",
     "applyToLastRow": "Apply to current row",
     "actions": "Actions",
-
     "addCategory": "Add Category",
     "addSize": "Add Size",
     "addColor": "Add Color",
-
     "enterCategory": "Enter category name",
     "enterSize": "Enter size",
     "enterColor": "Enter color",
-
     "add": "Add",
-
     "nameArPlaceholder": "Enter product name in Arabic",
     "nameEnPlaceholder": "Enter product name in English",
     "descriptionPlaceholder": "Enter product description",
-
     "basePrice": "Base Price",
     "comparePrice": "Compare-at Price",
     "sku": "SKU",
-
     "visibility": "Visibility",
     "homepage": "Homepage",
     "promotions": "Promotions",
     "searchResults": "Search Results",
-
     "save": "Save Changes",
     "cancel": "Cancel",
     "continue": "Continue",
@@ -311,7 +301,6 @@
     "imageDeleted": "Image deleted successfully",
     "imageDeleteFailed": "Failed to delete image",
     "maxImagesExceeded": "You cannot upload more than 6 images for a product.",
-
     "sizeChart": "Size Chart / Table Image",
     "sizeChartDesc": "Upload size chart or measurement guide images for this product.",
     "uploadSizeChart": "Add Size Chart",
@@ -321,14 +310,12 @@
     "sizeChartDeleted": "Size chart image deleted successfully",
     "sizeChartDeleteFailed": "Failed to delete size chart image",
     "viewSizeChart": "View Size Chart",
-
     "active": "Active",
     "inactive": "Inactive",
     "thumbnail": "Thumbnail",
     "updated": "Updated",
     "published": "Published",
     "publishing": "Publishing...",
-
     "preview": {
       "productName": "Product Name",
       "uncategorized": "Uncategorized",
@@ -355,10 +342,8 @@
       "inventory": "Inventory",
       "review": "Review"
     },
-
     "addingProduct": "Adding Product...",
     "addingProductMessage": "Please wait while we add your product.",
-
     "productAddedSuccessfully": "Product Added Successfully",
     "productAddedMessage": "Your product has been added successfully.",
     "productUpdatedSuccessfully": "Product Updated Successfully",
@@ -393,7 +378,16 @@
       "productAddedSuccessfully": "Product Added Successfully",
       "productAddedMessage": "Your product has been added successfully.",
       "done": "Done"
-    }
+    },
+    "department": "Department",
+    "selectDepartment": "Select a department",
+    "noCategoriesInDepartment": "No categories in this department yet",
+    "subCategory": "Sub-Category",
+    "selectSubCategoryOptional": "None (use Category)",
+    "season": "Season",
+    "seasonAll": "All Seasons",
+    "seasonSummer": "Summer",
+    "seasonWinter": "Winter"
   },
   "ordersPage": {
     "title": "Incoming Orders",
@@ -403,34 +397,26 @@
     "shipped": "Shipped",
     "delivered": "Delivered",
     "cancelled": "Cancelled",
-
     "sortBy": "Sort by",
     "newestFirst": "Newest First",
     "oldestFirst": "Oldest First",
-
     "orderId": "Order ID",
     "orderDate": "Order Date",
     "customerName": "Customer Name",
     "totalAmount": "Total Amount",
     "orderStatus": "Order Status",
     "actions": "Actions",
-
     "viewDetails": "View Details",
-
     "showing": "Showing",
     "of": "of",
     "results": "results",
-
     "noOrders": "No orders yet",
     "noOrdersDesc": "They will appear here once you receive your first order",
-
     "save": "Save",
     "cancel": "Cancel",
-
     "addTrackingNumber": "Add Tracking Number",
     "trackingDescription": "Please enter the tracking number for this shipment to help the buyer track their order",
     "trackingPlaceholder": "Enter tracking number",
-
     "orderDetails": "Order Details",
     "orderItems": "Order Items",
     "orderTimeline": "Order Timeline",
@@ -439,25 +425,20 @@
     "customerInformation": "Customer Information",
     "shippingAddress": "Shipping Address",
     "orderSummary": "Order Summary",
-
     "paymentStatus": "Payment Status",
     "trackingNumber": "Tracking Number",
-
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-
     "subtotal": "Subtotal",
     "shippingFee": "Shipping Fee",
     "discount": "Discount",
     "tax": "Tax",
     "grandTotal": "Grand Total",
-
     "updateOrderStatus": "Update Order Status",
     "updateOrderStatusDesc": "Status changes are irreversible and cannot be undone",
     "trackingOptional": "Tracking Number (Optional)",
     "updateButton": "Update Order Status",
-
     "updatedSuccessfully": "Order updated successfully",
     "pendingLabel": "Pending",
     "paid": "Paid",
@@ -786,7 +767,8 @@
       "In Stock": "In Stock",
       "Low Stock": "Low Stock",
       "Out Of Stock": "Out Of Stock"
-    }
+    },
+    "season": "Season"
   },
   "recentOrders": {
     "title": "Recent Orders",
@@ -819,7 +801,6 @@
       }
     }
   },
-
   "productDetails": {
     "title": "Product Details",
     "breadcrumb": "Product Details",
@@ -847,12 +828,12 @@
     },
     "reviews": {
       "filters": {
-        "all": "All Reviews",
-        "5": "5 Stars",
-        "4": "4 Stars",
-        "3": "3 Stars",
-        "2": "2 Stars",
         "1": "1 Star",
+        "2": "2 Stars",
+        "3": "3 Stars",
+        "4": "4 Stars",
+        "5": "5 Stars",
+        "all": "All Reviews",
         "photos": "With Photos",
         "newest": "Newest",
         "highest": "Highest Rating",
@@ -865,7 +846,6 @@
       "showingRange": "Showing {{start}}–{{end}} of {{total}} reviews"
     }
   },
-
   "receivables": {
     "title": "Receivables",
     "description": "Track earnings, commissions, and payment history.",
@@ -915,7 +895,6 @@
       "cancelled": "Cancelled"
     }
   },
-
   "dateFilter": {
     "allDates": "All Dates",
     "last7Days": "Last 7 Days",
@@ -933,9 +912,7 @@
     "clear": "Clear",
     "invalidDateRange": "Start date must be before or equal to end date"
   },
-
   "Add Product": "Add Product",
-
   "returnsPage": {
     "title": "Return Requests",
     "breadcrumb": "Return Request Details",
@@ -1105,4 +1082,3 @@
     }
   }
 }
-

@@ -12,6 +12,7 @@ import {
   importProducts,
   applyVendorBulkDiscount,
   exportProducts,
+  getCategoriesTree,
   type VendorBulkDiscountPayload,
   type ProductImportResponse,
   type ExportProductsParams,
@@ -20,6 +21,7 @@ import { getVendorReviews } from '../../services/reviews';
 import { useManagementStore } from './managementStore';
 import { resolveImageUrl } from '../../utils/image';
 import { exportToXLSX } from '../../utils/exportUtils';
+import { buildCategoryTree, expandCategoryIds } from '../../utils/categoryTree';
 
 const ITEMS_PER_PAGE = 8;
 const FETCH_PAGE_SIZE = 100;
@@ -36,6 +38,7 @@ export function useManagementTable() {
     (state) => state.selectedCategories
   );
   const selectedStatus = useManagementStore((state) => state.selectedStatus);
+  const selectedSeason = useManagementStore((state) => state.selectedSeason);
   const search = useManagementStore((state) => state.search);
   const page = useManagementStore((state) => state.page);
   const selectedRows = useManagementStore((state) => state.selectedRows);
@@ -50,6 +53,12 @@ export function useManagementTable() {
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,
     retry: 1,
+  });
+
+  const { data: categoryTree = [] } = useQuery({
+    queryKey: ['category-tree'],
+    queryFn: async () => buildCategoryTree(await getCategoriesTree()),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: rawReviews } = useQuery({
@@ -254,6 +263,7 @@ export function useManagementTable() {
         name: isArabic ? p.nameAr || p.name || '' : p.name || p.nameAr || '',
         category: categoryId,
         categoryName,
+        season: p.season || 'all',
         price: parsedPrice,
         rating,
         ratingCount,
@@ -277,6 +287,13 @@ export function useManagementTable() {
     });
   }, [rawProducts, isArabic, reviewsMap]);
 
+  // Expand selected Department/Category ids into every leaf category id they
+  // cover, so filtering by a Department also matches its Sub-Categories.
+  const matchingCategoryIds = useMemo(
+    () => (selectedCategories.length > 0 ? expandCategoryIds(categoryTree, selectedCategories) : null),
+    [categoryTree, selectedCategories]
+  );
+
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       if (
@@ -286,10 +303,7 @@ export function useManagementTable() {
         return false;
       }
 
-      if (
-        selectedCategories.length > 0 &&
-        !selectedCategories.includes(String(product.category))
-      ) {
+      if (matchingCategoryIds && !matchingCategoryIds.has(String(product.category))) {
         return false;
       }
 
@@ -297,9 +311,13 @@ export function useManagementTable() {
         return false;
       }
 
+      if (selectedSeason !== 'all' && (product.season || 'all') !== selectedSeason) {
+        return false;
+      }
+
       return true;
     });
-  }, [products, search, selectedCategories, selectedStatus]);
+  }, [products, search, matchingCategoryIds, selectedStatus, selectedSeason]);
 
   const totalItems = filteredProducts.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
@@ -351,6 +369,7 @@ export function useManagementTable() {
     products,
     selectedCategories,
     selectedStatus,
+    selectedSeason,
     search,
     page,
     selectedRows,

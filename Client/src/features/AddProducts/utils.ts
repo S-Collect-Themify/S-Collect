@@ -233,6 +233,7 @@ export const mapProductToFormData = async (
     optionsMeta,
     variantsMeta,
     categoryId: raw.categoryId || raw.category?.id || '',
+    season: raw.season || 'all',
     enabled: raw.enabled ?? (raw.isDisabled ? false : (raw.isActive ?? true)),
     quantity,
     categories: [],
@@ -766,6 +767,7 @@ export const mapFormToMultipartFormData = (
   multipart.append('name', formData.nameEn || formData.nameAr || '');
   multipart.append('nameAr', formData.nameAr || formData.nameEn || '');
   multipart.append('categoryId', formData.categoryId || '');
+  multipart.append('season', formData.season || 'all');
 
   // Calculate total stock from cards
   const cards =

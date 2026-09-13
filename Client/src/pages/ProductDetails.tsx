@@ -313,6 +313,7 @@ const ProductDetails = () => {
           description={product.description}
           descriptionAr={product.descriptionAr}
           category={categoryName ?? '-'}
+          season={product.season}
           brand="-"
           sku={variant?.sku ?? product.sku ?? '-'}
           price={

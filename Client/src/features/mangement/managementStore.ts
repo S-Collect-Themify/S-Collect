@@ -1,9 +1,12 @@
 import { create } from 'zustand';
-import type { StatusFilter } from './mangement';
+import type { ProductSeason, StatusFilter } from './mangement';
+
+type SeasonFilter = ProductSeason | 'all';
 
 type ManagementStore = {
   selectedCategories: string[];
   selectedStatus: StatusFilter;
+  selectedSeason: SeasonFilter;
   search: string;
   page: number;
   selectedRows: (string | number)[];
@@ -11,6 +14,7 @@ type ManagementStore = {
   setSearch: (search: string) => void;
   setSelectedCategories: (categories: string[]) => void;
   setSelectedStatus: (status: StatusFilter) => void;
+  setSelectedSeason: (season: SeasonFilter) => void;
   setPage: (page: number) => void;
   toggleRow: (id: string | number) => void;
   toggleSelectPage: (pageProductIds: (string | number)[]) => void;
@@ -23,6 +27,7 @@ type ManagementStore = {
 export const useManagementStore = create<ManagementStore>((set) => ({
   selectedCategories: [],
   selectedStatus: 'All',
+  selectedSeason: 'all',
   search: '',
   page: 1,
   selectedRows: [],
@@ -31,6 +36,7 @@ export const useManagementStore = create<ManagementStore>((set) => ({
   setSelectedCategories: (selectedCategories) =>
     set({ selectedCategories, page: 1 }),
   setSelectedStatus: (selectedStatus) => set({ selectedStatus, page: 1 }),
+  setSelectedSeason: (selectedSeason) => set({ selectedSeason, page: 1 }),
   setPage: (page) => set({ page }),
   toggleRow: (id) =>
     set((state) => {
