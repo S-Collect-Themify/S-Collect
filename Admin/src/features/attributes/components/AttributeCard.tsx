@@ -111,7 +111,7 @@ export const AttributeCard = ({
               </p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2 max-h-[160px] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-1 scrollbar-thin">
               {sortedValues.map((val) => {
                 const primaryVal = isArabic ? val.valueAr || val.value : val.value;
                 const secondaryVal = isArabic ? val.value : val.valueAr;
