@@ -123,13 +123,23 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {Array.from({ length: 4 }).map((_, idx) => (
+        {Array.from({ length: 5 }).map((_, idx) => (
           <div
-            key={idx}
-            className="bg-white rounded-2xl border border-gray-200 p-4 animate-pulse space-y-3"
+            key={`mobile-skeleton-${idx}`}
+            className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs space-y-3 animate-pulse"
           >
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-3 bg-gray-100 rounded w-2/3"></div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded-md w-2/5" />
+                <div className="h-3 bg-gray-150 rounded-md w-4/5" />
+                <div className="h-3 bg-gray-150 rounded-md w-1/2" />
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gray-200 shrink-0" />
+            </div>
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+              <div className="h-5 bg-gray-200 rounded-full w-20" />
+              <div className="h-3 bg-gray-150 rounded-md w-24" />
+            </div>
           </div>
         ))}
       </div>

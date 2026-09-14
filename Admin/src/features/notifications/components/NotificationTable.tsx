@@ -136,11 +136,33 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
 
           <tbody className="divide-y divide-gray-100 text-sm">
             {isLoading ? (
-              <tr>
-                <td colSpan={5} className="py-12 text-center text-gray-400">
-                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-900 border-t-transparent" />
-                </td>
-              </tr>
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr key={`skeleton-${idx}`} className="animate-pulse">
+                  {/* Campaign Title */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded-md w-36" />
+                  </td>
+                  {/* Message Content */}
+                  <td className="py-4 px-4">
+                    <div className="space-y-1.5">
+                      <div className="h-3.5 bg-gray-200 rounded-md w-56" />
+                      <div className="h-3 bg-gray-100 rounded-md w-36" />
+                    </div>
+                  </td>
+                  {/* Image */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+                  </td>
+                  {/* Created By */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-6 bg-gray-200 rounded-full w-24" />
+                  </td>
+                  {/* Sent Date */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-3.5 bg-gray-200 rounded-md w-28" />
+                  </td>
+                </tr>
+              ))
             ) : campaigns.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 text-center text-gray-400">
