@@ -15,7 +15,6 @@ import {
   LogOut,
   Ticket,
   Boxes,
-  Undo2,
   Bell,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -338,11 +337,6 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
         icon: <PackageCheck size={18} />,
         labelKey: 'sidebar.items.orders',
         to: '/orders',
-      },
-      {
-        icon: <Undo2 size={18} />,
-        labelKey: 'sidebar.items.refunds',
-        to: '/refunds',
       },
       {
         icon: <Bell size={18} />,
