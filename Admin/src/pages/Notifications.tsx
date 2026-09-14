@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, Bell } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useVendors } from '../features/vendors/hooks/useVendors';
 import VendorReportVendorDropdown from '../features/vendorReports/components/VendorReportVendorDropdown';
