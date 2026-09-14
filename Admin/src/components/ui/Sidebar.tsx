@@ -351,7 +351,7 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
           item.isLogout ? (
             <LogoutNavItem key="logout" />
           ) : (
-            <NavItem key={item.to} {...item} onClick={onItemClick} />
+            <NavItem key={item.to || item.labelKey} {...item} onClick={onItemClick} />
           )
         )}
       </div>

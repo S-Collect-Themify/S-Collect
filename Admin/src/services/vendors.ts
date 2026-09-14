@@ -151,11 +151,9 @@ export async function getVendors(params?: GetVendorsParams): Promise<BackendVend
     queryParams.page = params.pageNum;
   }
   if (params?.pageSize !== undefined) {
-    queryParams.pageSize = params.pageSize;
-    queryParams.limit = params.pageSize;
+    queryParams.pageSize = Math.min(params.pageSize, 100);
   } else {
-    queryParams.pageSize = 1000;
-    queryParams.limit = 1000;
+    queryParams.pageSize = 100;
   }
   if (params?.search?.trim()) queryParams.search = params.search.trim();
   if (params?.status?.trim()) queryParams.status = params.status.trim();
@@ -241,11 +239,11 @@ export async function getVendors(params?: GetVendorsParams): Promise<BackendVend
     if (res.items && res.items.length > 0) {
       return res;
     }
-  } catch (err) {
-    console.warn('Failed to fetch vendors with query params, trying clean fetch fallback:', err);
+  } catch {
+    // Primary query params attempt failed, try fallback
   }
 
-  // Fallback 1: Try without pageSize/limit overrides
+  // Fallback 1: Try without extra overrides
   try {
     const cleanParams: Record<string, any> = {};
     if (params?.search?.trim()) cleanParams.search = params.search.trim();
@@ -254,8 +252,8 @@ export async function getVendors(params?: GetVendorsParams): Promise<BackendVend
     if (res.items && res.items.length > 0) {
       return res;
     }
-  } catch (err) {
-    console.warn('Failed to fetch vendors with clean params:', err);
+  } catch {
+    // Clean params attempt failed, try unconstrained fallback
   }
 
   // Fallback 2: Completely unconstrained GET /admin/vendors + client-side filter
@@ -313,8 +311,10 @@ export async function getVendorById(id: string): Promise<BackendVendorDetail> {
       return resData.data as BackendVendorDetail;
     }
     return resData as BackendVendorDetail;
-  } catch (err) {
-    console.warn(`GET /admin/vendors/${id} failed, falling back to search on /admin/vendors:`, err);
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      throw err;
+    }
     try {
       const searchRes = await api.get('/admin/vendors', { params: { search: id } });
       const extracted = extractVendorResponse(searchRes.data);
@@ -324,11 +324,11 @@ export async function getVendorById(id: string): Promise<BackendVendorDetail> {
             String(v.id) === String(id) ||
             String(v._id) === String(id) ||
             String(v.vendorId) === String(id)
-        ) || extracted.items[0];
+        );
 
       if (matched) return matched as unknown as BackendVendorDetail;
-    } catch (fallbackErr) {
-      console.error('Fallback search on /admin/vendors failed:', fallbackErr);
+    } catch {
+      // Fail quietly to avoid console spam
     }
     throw err;
   }
