@@ -5,7 +5,6 @@ import { ChevronDown } from 'lucide-react';
 import { useAdminSettingsStore } from '../store';
 import { usePlatformSettingsData } from '../hooks/usePlatformSettingsData';
 import { ConfirmLanguageChangeModal } from '../components/ConfirmLanguageChangeModal';
-import type { PlatformSettings } from '../types';
 import i18n from '../../../i18n';
 
 const LANGUAGES = [
@@ -19,35 +18,59 @@ export const MobilePlatformSettings: React.FC = () => {
   const { setViewMode } = useAdminSettingsStore();
   const {
     updateLanguageMutation,
+    updateStockThresholdMutation,
     isSuperAdmin,
     defaultLanguage,
+    defaultLowStockThreshold,
   } = usePlatformSettingsData();
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [pendingLanguage, setPendingLanguage] = useState<string>(defaultLanguage);
 
+  // Form 1: Default Language
   const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<PlatformSettings>({
+    register: registerLang,
+    handleSubmit: handleSubmitLang,
+    reset: resetLang,
+    watch: watchLang,
+    formState: { errors: errorsLang },
+  } = useForm<{ defaultLanguage: string }>({
     defaultValues: { defaultLanguage },
     mode: 'onChange',
   });
 
-  const selectedLanguage = watch('defaultLanguage');
-  const isLanguageChanged = Boolean(
-    selectedLanguage && selectedLanguage !== defaultLanguage
+  // Form 2: Low Stock Threshold
+  const {
+    register: registerStock,
+    handleSubmit: handleSubmitStock,
+    reset: resetStock,
+    watch: watchStock,
+    formState: { errors: errorsStock },
+  } = useForm<{ defaultLowStockThreshold: number }>({
+    defaultValues: { defaultLowStockThreshold: defaultLowStockThreshold ?? 10 },
+    mode: 'onChange',
+  });
+
+  const selectedLanguage = watchLang('defaultLanguage');
+  const selectedThreshold = watchStock('defaultLowStockThreshold');
+
+  const isLanguageChanged = Boolean(selectedLanguage && selectedLanguage !== defaultLanguage);
+  const isThresholdChanged = Boolean(
+    selectedThreshold !== undefined &&
+    selectedThreshold !== null &&
+    Number(selectedThreshold) !== Number(defaultLowStockThreshold ?? 10)
   );
 
   React.useEffect(() => {
-    reset({ defaultLanguage });
+    resetLang({ defaultLanguage });
     setPendingLanguage(defaultLanguage);
-  }, [defaultLanguage, reset]);
+  }, [defaultLanguage, resetLang]);
 
-  const onSubmit = (data: PlatformSettings) => {
+  React.useEffect(() => {
+    resetStock({ defaultLowStockThreshold: defaultLowStockThreshold ?? 10 });
+  }, [defaultLowStockThreshold, resetStock]);
+
+  const onLanguageSubmit = (data: { defaultLanguage: string }) => {
     if (!isSuperAdmin || !isLanguageChanged) return;
     setPendingLanguage(data.defaultLanguage);
     setIsConfirmModalOpen(true);
@@ -61,6 +84,11 @@ export const MobilePlatformSettings: React.FC = () => {
     });
   };
 
+  const onStockSubmit = (data: { defaultLowStockThreshold: number }) => {
+    if (!isSuperAdmin || !isThresholdChanged) return;
+    updateStockThresholdMutation.mutate(Number(data.defaultLowStockThreshold));
+  };
+
   return (
     <div className="space-y-6 w-full pb-8">
       {/* Header */}
@@ -70,10 +98,9 @@ export const MobilePlatformSettings: React.FC = () => {
         </h1>
       </div>
 
-      {/* Main Platform Settings Form Card */}
+      {/* Form 1 Card: Default Language */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-xs">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Default Language */}
+        <form onSubmit={handleSubmitLang(onLanguageSubmit)} className="space-y-5">
           <div>
             <div className="flex items-center justify-between mb-2">
               <label
@@ -96,7 +123,7 @@ export const MobilePlatformSettings: React.FC = () => {
               <select
                 id="mob-defaultLanguage"
                 disabled={!isSuperAdmin || updateLanguageMutation.isPending}
-                {...register('defaultLanguage', {
+                {...registerLang('defaultLanguage', {
                   required: isArabic
                     ? 'اللغة مطلوبة'
                     : 'Default language is required',
@@ -127,14 +154,14 @@ export const MobilePlatformSettings: React.FC = () => {
               </p>
             )}
 
-            {errors.defaultLanguage && (
+            {errorsLang.defaultLanguage && (
               <p className="text-xs text-red-500 mt-1.5">
-                {errors.defaultLanguage.message}
+                {errorsLang.defaultLanguage.message}
               </p>
             )}
           </div>
 
-          {/* Save Settings Button - Only rendered for Super Admin */}
+          {/* Save Language Button */}
           {isSuperAdmin && (
             <div className="pt-2">
               <button
@@ -149,7 +176,84 @@ export const MobilePlatformSettings: React.FC = () => {
                 {updateLanguageMutation.isPending && (
                   <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                 )}
-                {t('adminSettings.saveSettings', { defaultValue: 'Save Settings' })}
+                {t('adminSettings.updateLanguage', { defaultValue: 'Update Language' })}
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
+
+      {/* Form 2 Card: Low Stock Threshold */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-xs">
+        <form onSubmit={handleSubmitStock(onStockSubmit)} className="space-y-5">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label
+                htmlFor="mob-defaultLowStockThreshold"
+                className="text-sm font-semibold text-gray-900 block"
+              >
+                {t('adminSettings.lowStockThreshold', {
+                  defaultValue: 'Default Low Stock Threshold',
+                })}{' '}
+                {isSuperAdmin && <span className="text-red-500">*</span>}
+              </label>
+              {!isSuperAdmin && (
+                <span className="inline-flex items-center text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200">
+                  {t('adminSettings.viewOnly', { defaultValue: 'View Only' })}
+                </span>
+              )}
+            </div>
+
+            <div className="relative">
+              <input
+                id="mob-defaultLowStockThreshold"
+                type="number"
+                min="0"
+                disabled={!isSuperAdmin || updateStockThresholdMutation.isPending}
+                {...registerStock('defaultLowStockThreshold', {
+                  valueAsNumber: true,
+                  required: isArabic ? 'حد المخزون مطلوب' : 'Stock threshold is required',
+                  min: { value: 0, message: isArabic ? 'يجب أن يكون 0 على الأقل' : 'Must be at least 0' },
+                })}
+                className={`w-full appearance-none border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 transition-colors ${
+                  !isSuperAdmin
+                    ? 'bg-gray-100/80 text-gray-600 cursor-not-allowed border-gray-200'
+                    : 'bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent'
+                }`}
+              />
+            </div>
+
+            {!isSuperAdmin && (
+              <p className="text-xs text-gray-400 mt-2">
+                {t('adminSettings.adminCannotChangeSettings', {
+                  defaultValue: 'Only Super Administrators can change platform settings.',
+                })}
+              </p>
+            )}
+
+            {errorsStock.defaultLowStockThreshold && (
+              <p className="text-xs text-red-500 mt-1.5">
+                {errorsStock.defaultLowStockThreshold.message}
+              </p>
+            )}
+          </div>
+
+          {/* Update Stock Threshold Button */}
+          {isSuperAdmin && (
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={!isThresholdChanged || updateStockThresholdMutation.isPending}
+                className={`w-full font-semibold text-sm py-3 rounded-xl transition-all inline-flex items-center justify-center gap-2 ${
+                  !isThresholdChanged || updateStockThresholdMutation.isPending
+                    ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed opacity-70'
+                    : 'bg-black hover:bg-gray-800 text-white cursor-pointer shadow-2xs'
+                }`}
+              >
+                {updateStockThresholdMutation.isPending && (
+                  <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                )}
+                {t('adminSettings.updateThreshold', { defaultValue: 'Update Stock Threshold' })}
               </button>
             </div>
           )}

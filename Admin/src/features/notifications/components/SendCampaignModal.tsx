@@ -65,6 +65,25 @@ export const SendCampaignModal: React.FC<SendCampaignModalProps> = ({
   };
 
   useEffect(() => {
+    if (!isOpen) {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      reset({
+        title: '',
+        titleAr: '',
+        body: '',
+        bodyAr: '',
+      });
+    }
+  }, [isOpen, reset]);
+
+  useEffect(() => {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);

@@ -111,14 +111,24 @@ export function useVendorDetails(id: string) {
     queryKey: ['vendor', id, isAr ? 'ar' : 'en'],
     queryFn: async () => {
       if (!id) return null;
-      const data = await getVendorById(id);
-      return mapBackendVendorDetailToVendor(data, isAr);
+      try {
+        const data = await getVendorById(id);
+        return mapBackendVendorDetailToVendor(data, isAr);
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          return null;
+        }
+        throw err;
+      }
     },
-    enabled: !!id,
-    retry: 2,
+    enabled: Boolean(id && id.trim() !== ''),
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, Bell } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useVendors } from '../features/vendors/hooks/useVendors';
 import VendorReportVendorDropdown from '../features/vendorReports/components/VendorReportVendorDropdown';
@@ -69,9 +69,6 @@ export default function NotificationsPage() {
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gray-950 text-white flex items-center justify-center shadow-xs shrink-0">
-              <Bell size={20} />
-            </div>
             <div>
               <h1 className="font-bold text-gray-900 heading-page-title">
                 {t('notificationsPage.title', 'Push Notifications')}

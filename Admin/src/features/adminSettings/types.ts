@@ -2,6 +2,7 @@ export interface PlatformSettings {
   logoUrl?: string;
   logoFileName?: string;
   defaultLanguage: string;
+  defaultLowStockThreshold?: number;
 }
 
 export type BannerLinkType = 'CATEGORY' | 'PRODUCT' | 'VENDOR' | 'EXTERNAL_URL';

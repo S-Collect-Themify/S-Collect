@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BellRing, Image as ImageIcon, UserCheck, Store } from 'lucide-react';
 import type { PushCampaign } from '../../../services/pushCampaigns';
-import { useVendors, useVendorDetails } from '../../vendors/hooks/useVendors';
+import { useVendors } from '../../vendors/hooks/useVendors';
 
 interface NotificationTableProps {
   campaigns: PushCampaign[];
@@ -20,13 +20,17 @@ const VendorNameBadge: React.FC<{
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const cachedVendor = vendorsMap[String(vendorId)];
-  const { data: detailVendor, isLoading: isDetailLoading } = useVendorDetails(
-    !cachedVendor ? vendorId : ''
-  );
-
-  const targetVendor = cachedVendor || detailVendor;
+  const targetVendor = vendorsMap[String(vendorId)];
   const vAny = targetVendor as any;
+
+  if (isLoadingVendors && !targetVendor) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200/60 animate-pulse">
+        <Store size={13} className="text-purple-600" />
+        {isAr ? 'جاري التحميل...' : 'Loading...'}
+      </span>
+    );
+  }
 
   const displayName =
     (isAr && vAny?.storeNameAr ? vAny.storeNameAr : vAny?.storeName) ||
@@ -37,18 +41,7 @@ const VendorNameBadge: React.FC<{
     (targetVendor?.owner && targetVendor.owner !== '--' ? targetVendor.owner : null) ||
     (vAny?.firstName ? `${vAny.firstName} ${vAny.lastName || ''}`.trim() : null) ||
     (vAny?.first_name ? `${vAny.first_name} ${vAny.last_name || ''}`.trim() : null) ||
-    vendorId;
-
-  const isLoading = (isLoadingVendors && !cachedVendor) || (isDetailLoading && !cachedVendor);
-
-  if (isLoading && !targetVendor) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200/60 animate-pulse">
-        <Store size={13} className="text-purple-600" />
-        {isAr ? 'جاري التحميل...' : 'Loading...'}
-      </span>
-    );
-  }
+    (isAr ? 'مورد' : 'Vendor');
 
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200/60">
@@ -90,7 +83,7 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 200 });
+  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 100 });
 
   const vendorsMap = useMemo(() => {
     const map: Record<string, any> = {};
@@ -136,11 +129,33 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
 
           <tbody className="divide-y divide-gray-100 text-sm">
             {isLoading ? (
-              <tr>
-                <td colSpan={5} className="py-12 text-center text-gray-400">
-                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-900 border-t-transparent" />
-                </td>
-              </tr>
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr key={`skeleton-${idx}`} className="animate-pulse">
+                  {/* Campaign Title */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded-md w-36" />
+                  </td>
+                  {/* Message Content */}
+                  <td className="py-4 px-4">
+                    <div className="space-y-1.5">
+                      <div className="h-3.5 bg-gray-200 rounded-md w-56" />
+                      <div className="h-3 bg-gray-100 rounded-md w-36" />
+                    </div>
+                  </td>
+                  {/* Image */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+                  </td>
+                  {/* Created By */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-6 bg-gray-200 rounded-full w-24" />
+                  </td>
+                  {/* Sent Date */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="h-3.5 bg-gray-200 rounded-md w-28" />
+                  </td>
+                </tr>
+              ))
             ) : campaigns.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 text-center text-gray-400">
@@ -178,7 +193,9 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
                           src={item.imageUrl}
                           alt={titleDisplay}
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = BROKEN_IMAGE_FALLBACK;
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = BROKEN_IMAGE_FALLBACK;
                           }}
                           className="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-2xs"
                         />
@@ -208,5 +225,3 @@ export const NotificationTable: React.FC<NotificationTableProps> = ({
     </div>
   );
 };
-
-

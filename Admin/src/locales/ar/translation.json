@@ -1566,7 +1566,11 @@
     "defaultLanguage": "اللغة الافتراضية",
     "viewOnly": "للعرض فقط",
     "adminCannotChangeLanguage": "فقط المشرف العام (Super Admin) يمكنه تغيير لغة المنصة الافتراضية.",
+    "lowStockThreshold": "الحد الافتراضي للمخزون المنخفض",
+    "adminCannotChangeSettings": "فقط المشرف العام (Super Admin) يمكنه تغيير إعدادات المنصة.",
     "saveSettings": "حفظ الإعدادات",
+    "updateLanguage": "تحديث اللغة",
+    "updateThreshold": "تحديث حد المخزون",
     "confirmLanguageModal": {
       "title": "تغيير لغة المنصة الافتراضية؟",
       "message": "هل أنت متأكد من رغبتك في تغيير لغة المنصة الافتراضية إلى {{language}}؟ سيتم اعتماد هذه اللغة كلغة افتراضية للمنصة.",
@@ -1990,9 +1994,9 @@
     "zoomImage": "عرض بحجم كامل"
   },
   "notificationsPage": {
-    "title": "إشعارات حملات الدفع",
-    "subtitle": "إرسال الإشعارات وتصفح حملات الإشعارات السابقة",
-    "sendButton": "إرسال إشعار",
+    "title": "حملات الدفع",
+    "subtitle": "إرسال حملات الدفع وتصفح حملات الدفع السابقة",
+    "sendButton": "إرسال حملة",
     "vendorFilterLabel": "التصفية حسب المورد",
     "totalCampaigns": "إجمالي الحملات",
     "tableTitle": "عنوان الحملة",
@@ -2015,15 +2019,15 @@
     "bodyArPlaceholder": "مثال: خصم 30% على كل المنتجات لفترة محدودة",
     "imageUrlLabel": "رابط الصورة",
     "imageUrlPlaceholder": "https://example.com/image.jpg",
-    "photoUploadLabel": "صورة الإشعار",
+    "photoUploadLabel": "صورة الحملة",
     "optionalLabel": "(اختياري)",
     "uploadPrompt": "اضغط لرفع صورة أو اسحب الصورة هنا",
     "uploadedPhoto": "تم رفع الصورة من الجهاز",
     "imageUrlPhoto": "صورة من رابط",
     "requiredField": "هذا الحقل مطلوب",
     "sending": "جارٍ الإرسال...",
-    "sendSuccess": "تم إرسال الإشعار بنجاح",
-    "sendError": "فشل إرسال الإشعار"
+    "sendSuccess": "تم إرسال الحملة بنجاح",
+    "sendError": "فشل إرسال الحملة"
   },
   "attributes": {
     "title": "السمات والخيارات",

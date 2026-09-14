@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BellRing, Image as ImageIcon, UserCheck, Store } from 'lucide-react';
 import type { PushCampaign } from '../../../services/pushCampaigns';
-import { useVendors, useVendorDetails } from '../../vendors/hooks/useVendors';
+import { useVendors } from '../../vendors/hooks/useVendors';
 
 interface NotificationMobileListProps {
   campaigns: PushCampaign[];
@@ -20,13 +20,17 @@ const VendorNameBadge: React.FC<{
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const cachedVendor = vendorsMap[String(vendorId)];
-  const { data: detailVendor, isLoading: isDetailLoading } = useVendorDetails(
-    !cachedVendor ? vendorId : ''
-  );
-
-  const targetVendor = cachedVendor || detailVendor;
+  const targetVendor = vendorsMap[String(vendorId)];
   const vAny = targetVendor as any;
+
+  if (isLoadingVendors && !targetVendor) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/60 animate-pulse">
+        <Store size={12} className="text-purple-600" />
+        {isAr ? 'جاري التحميل...' : 'Loading...'}
+      </span>
+    );
+  }
 
   const displayName =
     (isAr && vAny?.storeNameAr ? vAny.storeNameAr : vAny?.storeName) ||
@@ -37,18 +41,7 @@ const VendorNameBadge: React.FC<{
     (targetVendor?.owner && targetVendor.owner !== '--' ? targetVendor.owner : null) ||
     (vAny?.firstName ? `${vAny.firstName} ${vAny.lastName || ''}`.trim() : null) ||
     (vAny?.first_name ? `${vAny.first_name} ${vAny.last_name || ''}`.trim() : null) ||
-    vendorId;
-
-  const isLoading = (isLoadingVendors && !cachedVendor) || (isDetailLoading && !cachedVendor);
-
-  if (isLoading && !targetVendor) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/60 animate-pulse">
-        <Store size={12} className="text-purple-600" />
-        {isAr ? 'جاري التحميل...' : 'Loading...'}
-      </span>
-    );
-  }
+    (isAr ? 'مورد' : 'Vendor');
 
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/60">
@@ -90,7 +83,7 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 200 });
+  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 100 });
 
   const vendorsMap = useMemo(() => {
     const map: Record<string, any> = {};
@@ -123,13 +116,23 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {Array.from({ length: 4 }).map((_, idx) => (
+        {Array.from({ length: 5 }).map((_, idx) => (
           <div
-            key={idx}
-            className="bg-white rounded-2xl border border-gray-200 p-4 animate-pulse space-y-3"
+            key={`mobile-skeleton-${idx}`}
+            className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-2xs space-y-3 animate-pulse"
           >
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-3 bg-gray-100 rounded w-2/3"></div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded-md w-2/5" />
+                <div className="h-3 bg-gray-150 rounded-md w-4/5" />
+                <div className="h-3 bg-gray-150 rounded-md w-1/2" />
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-gray-200 shrink-0" />
+            </div>
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+              <div className="h-5 bg-gray-200 rounded-full w-20" />
+              <div className="h-3 bg-gray-150 rounded-md w-24" />
+            </div>
           </div>
         ))}
       </div>
@@ -171,7 +174,9 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
                   src={item.imageUrl}
                   alt={titleDisplay}
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = BROKEN_IMAGE_FALLBACK;
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = BROKEN_IMAGE_FALLBACK;
                   }}
                   className="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0 shadow-2xs"
                 />
@@ -198,5 +203,3 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
     </div>
   );
 };
-
-
