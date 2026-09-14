@@ -1570,7 +1570,11 @@
     "defaultLanguage": "Default Language",
     "viewOnly": "View Only",
     "adminCannotChangeLanguage": "Only Super Admin can change the default platform language.",
+    "lowStockThreshold": "Default Low Stock Threshold",
+    "adminCannotChangeSettings": "Only Super Administrators can change platform settings.",
     "saveSettings": "Save Settings",
+    "updateLanguage": "Update Language",
+    "updateThreshold": "Update Stock Threshold",
     "confirmLanguageModal": {
       "title": "Change Platform Default Language?",
       "message": "Are you sure you want to change the platform default language to {{language}}? This setting will become the default language for the platform.",

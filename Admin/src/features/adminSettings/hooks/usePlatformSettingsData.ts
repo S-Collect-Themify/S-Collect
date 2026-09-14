@@ -4,6 +4,9 @@ import { useAdminSettingsStore } from '../store';
 import {
   getPlatformLanguageApi,
   updatePlatformLanguageApi,
+  getPlatformStockThresholdApi,
+  updatePlatformStockThresholdApi,
+  extractThresholdValue,
 } from '../../../services/platformSettings';
 import { useAdminProfile } from '../../../hooks/useAdminProfile';
 import i18n from '../../../i18n';
@@ -43,6 +46,7 @@ export const usePlatformSettingsData = () => {
     },
     onSuccess: (_, newLang) => {
       updatePlatformSettings({ defaultLanguage: newLang }, true);
+      queryClient.setQueryData(['admin-platform-language'], newLang);
       queryClient.invalidateQueries({ queryKey: ['admin-platform-language'] });
       toast.success(
         i18n.language === 'ar'
@@ -83,10 +87,73 @@ export const usePlatformSettingsData = () => {
     },
   });
 
+  // ── GET Stock Threshold Query ──
+  const stockThresholdQuery = useQuery({
+    queryKey: ['admin-platform-stock-threshold'],
+    queryFn: async () => {
+      const threshold = await getPlatformStockThresholdApi();
+      if (threshold !== null) {
+        updatePlatformSettings({ defaultLowStockThreshold: threshold }, true);
+        return threshold;
+      }
+      return platformSettings.defaultLowStockThreshold ?? 10;
+    },
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  // ── PUT Stock Threshold Mutation (Super Admin only) ──
+  const updateStockThresholdMutation = useMutation({
+    mutationFn: async (newThreshold: number) => {
+      if (!isSuperAdmin) {
+        throw new Error(
+          i18n.language === 'ar'
+            ? 'غير مصرح لك بتغيير إعدادات المنصة'
+            : 'You are not authorized to change platform settings'
+        );
+      }
+      return await updatePlatformStockThresholdApi(newThreshold);
+    },
+    onSuccess: (responseData, newThreshold) => {
+      const returnedThreshold = extractThresholdValue(responseData);
+      const finalThreshold = returnedThreshold !== null ? returnedThreshold : newThreshold;
+
+      updatePlatformSettings({ defaultLowStockThreshold: finalThreshold }, true);
+      queryClient.setQueryData(['admin-platform-stock-threshold'], finalThreshold);
+      queryClient.invalidateQueries({ queryKey: ['admin-platform-stock-threshold'] });
+
+      toast.success(
+        i18n.language === 'ar'
+          ? 'تم حفظ حد المخزون المنخفض بنجاح'
+          : 'Low stock threshold updated successfully'
+      );
+    },
+    onError: (err: any) => {
+      console.error('Update platform stock threshold error:', err?.response?.data || err);
+      const errorText = err?.response?.data?.message || err?.message || (
+        i18n.language === 'ar'
+          ? 'فشل تحديث حد المخزون المنخفض'
+          : 'Failed to update low stock threshold'
+      );
+      toast.error(errorText);
+    },
+  });
+
+  const effectiveThreshold =
+    stockThresholdQuery.data !== undefined && stockThresholdQuery.data !== null
+      ? stockThresholdQuery.data
+      : platformSettings.defaultLowStockThreshold ?? 10;
+
+  const effectiveLanguage =
+    languageQuery.data ?? platformSettings.defaultLanguage;
+
   return {
     languageQuery,
     updateLanguageMutation,
+    stockThresholdQuery,
+    updateStockThresholdMutation,
     isSuperAdmin,
-    defaultLanguage: platformSettings.defaultLanguage,
+    defaultLanguage: effectiveLanguage,
+    defaultLowStockThreshold: effectiveThreshold,
   };
 };

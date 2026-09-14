@@ -6,6 +6,30 @@ export interface PlatformLanguageResponse {
   data?: any;
 }
 
+export const extractThresholdValue = (data: any): number | null => {
+  if (data === null || data === undefined) return null;
+  if (typeof data === 'number' && !isNaN(data)) return data;
+  if (typeof data === 'string' && !isNaN(Number(data)) && data.trim() !== '') return Number(data);
+
+  const target = data?.data ?? data;
+
+  const raw =
+    target?.threshold ??
+    target?.defaultLowStockThreshold ??
+    target?.default_low_stock_threshold ??
+    target?.lowStockThreshold ??
+    target?.low_stock_threshold ??
+    target?.stockThreshold ??
+    target?.stock_threshold ??
+    target?.value ??
+    (typeof target === 'number' ? target : null);
+
+  if (typeof raw === 'number' && !isNaN(raw)) return raw;
+  if (typeof raw === 'string' && !isNaN(Number(raw)) && raw.trim() !== '') return Number(raw);
+
+  return null;
+};
+
 export const getPlatformLanguageApi = async (): Promise<string | null> => {
   try {
     const { data } = await api.get('/admin/platform-settings/language');
@@ -79,6 +103,47 @@ export const updatePlatformLanguageApi = async (lang: string) => {
       lastError = err;
       const status = err?.response?.status;
       // If error is not a validation/bad request error (e.g. 401, 403, 500), stop and rethrow
+      if (status !== 400 && status !== 422) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError;
+};
+
+export const getPlatformStockThresholdApi = async (): Promise<number | null> => {
+  try {
+    const { data } = await api.get('/admin/platform-settings/stock-threshold');
+    return extractThresholdValue(data);
+  } catch (err) {
+    console.warn('API getPlatformStockThresholdApi error:', err);
+    return null;
+  }
+};
+
+export const updatePlatformStockThresholdApi = async (threshold: number) => {
+  const candidatePayloads = [
+    { threshold },
+    { defaultLowStockThreshold: threshold },
+    { default_low_stock_threshold: threshold },
+    { lowStockThreshold: threshold },
+    { stockThreshold: threshold },
+    { value: threshold },
+  ];
+
+  let lastError: any = null;
+
+  for (const payload of candidatePayloads) {
+    try {
+      const { data } = await api.put(
+        '/admin/platform-settings/stock-threshold',
+        payload
+      );
+      return data;
+    } catch (err: any) {
+      lastError = err;
+      const status = err?.response?.status;
       if (status !== 400 && status !== 422) {
         throw err;
       }
