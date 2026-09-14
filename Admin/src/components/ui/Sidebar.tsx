@@ -17,14 +17,14 @@ import {
   Boxes,
   Bell,
 } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import Logo from '../ui/Logo';
 import LogoutModal from '../auth/LogoutModal';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Globe, Check } from 'lucide-react';
+import { Globe, Check, ChevronDown } from 'lucide-react';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 import toast from 'react-hot-toast';
@@ -42,6 +42,12 @@ import { useAdminSettingsStore } from '../../features/adminSettings/store';
 import { useVendors } from '../../features/vendors/hooks/useVendors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface NavSubItemProps {
+  labelKey: string;
+  to: string;
+  badge?: number | string;
+}
+
 interface NavItemProps {
   icon: ReactNode;
   labelKey: string;
@@ -50,6 +56,7 @@ interface NavItemProps {
   onClick?: () => void;
   isLogout?: boolean;
   badge?: number | string;
+  subItems?: NavSubItemProps[];
 }
 
 interface NavSectionProps {
@@ -65,7 +72,7 @@ interface SidebarProps {
 
 const resetPageForRoute = (path?: string) => {
   if (!path) return;
-  if (path === '/vendors') useVendorStore.getState().setPage(1);
+  if (path.startsWith('/vendors')) useVendorStore.getState().setPage(1);
   else if (path === '/buyers') useBuyerStore.getState().setPage(1);
   else if (path === '/products') useProductStore.getState().setCurrentPage(1);
   else if (path === '/transactions') useTransactionStore.getState().setPage(1);
@@ -134,10 +141,11 @@ const LanguageDropdown = () => {
                 handleLanguageChange(lang.code);
                 close();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-700 ${lang.code === i18n.language
-                ? 'text-white font-medium bg-gray-700/50'
-                : 'text-gray-400'
-                }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-700 ${
+                lang.code === i18n.language
+                  ? 'text-white font-medium bg-gray-700/50'
+                  : 'text-gray-400'
+              }`}
             >
               <span className="text-base">{lang.short}</span>
               <span>{lang.label}</span>
@@ -152,15 +160,100 @@ const LanguageDropdown = () => {
   );
 };
 
-// ─── Nav Item ─────────────────────────────────────────────────────────────────
-const NavItem = ({
+// ─── Expandable Nav Item ──────────────────────────────────────────────────────
+const ExpandableNavItem = ({
   icon,
   labelKey,
-  to,
-  danger = false,
+  subItems = [],
   onClick,
   badge,
 }: NavItemProps) => {
+  const { t } = useTranslation();
+  const location = useLocation();
+
+  const isAnySubItemActive = subItems.some(
+    (sub) =>
+      location.pathname === sub.to ||
+      (sub.to !== '/vendors' && location.pathname.startsWith(sub.to))
+  );
+
+  const [isOpen, setIsOpen] = useState(isAnySubItemActive);
+
+  useEffect(() => {
+    if (isAnySubItemActive) {
+      setIsOpen(true);
+    }
+  }, [isAnySubItemActive]);
+
+  return (
+    <div className="flex flex-col gap-0.5">
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`group flex items-center justify-between w-full px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-label-md ${
+          isAnySubItemActive
+            ? 'bg-gray-800/80 text-gray-50 font-medium'
+            : 'text-gray-400 hover:bg-gray-800/40 hover:text-gray-100'
+        }`}
+      >
+        <div className="flex items-center gap-3 truncate">
+          <span className="shrink-0">{icon}</span>
+          <span className="truncate">{t(labelKey)}</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 ms-auto">
+          {badge !== undefined && badge !== null && Number(badge) > 0 && (
+            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+              {badge}
+            </span>
+          )}
+          <ChevronDown
+            size={16}
+            className={`transition-transform duration-200 text-gray-400 group-hover:text-gray-200 ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="flex flex-col gap-0.5 ps-9 pt-0.5 pb-1">
+          {subItems.map((sub) => (
+            <NavLink
+              key={sub.to}
+              to={sub.to}
+              onClick={() => {
+                resetPageForRoute(sub.to);
+                if (onClick) onClick();
+              }}
+              className={({ isActive }) =>
+                `flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors text-xs ${
+                  isActive
+                    ? 'bg-gray-800 text-white font-semibold'
+                    : 'text-gray-400 hover:bg-gray-800/40 hover:text-gray-200'
+                }`
+              }
+            >
+              <span className="truncate">{t(sub.labelKey)}</span>
+              {sub.badge !== undefined && sub.badge !== null && Number(sub.badge) > 0 && (
+                <span className="shrink-0 inline-flex items-center justify-center min-w-[18px] h-4.5 px-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  {sub.badge}
+                </span>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Nav Item ─────────────────────────────────────────────────────────────────
+const NavItem = (props: NavItemProps) => {
+  if (props.subItems && props.subItems.length > 0) {
+    return <ExpandableNavItem {...props} />;
+  }
+
+  const { icon, labelKey, to, danger = false, onClick, badge } = props;
   const { t } = useTranslation();
 
   const handleClick = () => {
@@ -285,8 +378,18 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
       {
         icon: <PackageOpen size={18} />,
         labelKey: 'sidebar.items.vendors',
-        to: '/vendors',
         badge: pendingVendorsCount,
+        subItems: [
+          {
+            labelKey: 'vendors.tabs.pending',
+            to: '/vendors/pending',
+            badge: pendingVendorsCount,
+          },
+          {
+            labelKey: 'vendors.tabs.all',
+            to: '/vendors/all',
+          },
+        ],
       },
       {
         icon: <FileChartColumn size={18} />,

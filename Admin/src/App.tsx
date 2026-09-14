@@ -101,6 +101,8 @@ function App() {
             <Route path="/returns/:id" element={<ReturnRequestDetails />} />
             <Route path="/incoming-orders/:id" element={<OrderDetails />} />
             <Route path="/vendors" element={<Vendors />} />
+            <Route path="/vendors/pending" element={<Vendors />} />
+            <Route path="/vendors/all" element={<Vendors />} />
             <Route path="/vendors/new" element={<AddVendor />} />
             <Route path="/vendors/:id" element={<VendorDetails />} />
             <Route path="/vendors/:id/edit" element={<EditVendor />} />

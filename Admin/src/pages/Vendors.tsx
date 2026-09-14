@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import VendorTable from '../features/vendors/components/VendorTable';
 import { useVendorStore } from '../features/vendors/store/vendorStore';
@@ -27,15 +27,27 @@ const itemVariants: Variants = {
 const Vendors = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const setActiveTab = useVendorStore((s) => s.setActiveTab);
+  const activeTab = useVendorStore((s) => s.activeTab);
 
   useEffect(() => {
-    useVendorStore.getState().setPage(1);
-  }, []);
+    if (location.pathname === '/vendors/pending' || location.search.includes('tab=pending')) {
+      setActiveTab('pending');
+    } else if (location.pathname === '/vendors/all' || location.search.includes('tab=all')) {
+      setActiveTab('all');
+    }
+  }, [location.pathname, location.search, setActiveTab]);
+
+  const pageTitle =
+    activeTab === 'pending'
+      ? t('vendors.tabs.pending', 'Pending Requests')
+      : t('vendors.tabs.all', 'All Vendors');
 
   return (
     <>
       <div className="sidebar-page-container-header border-b border-gray-100/80 flex items-center justify-between gap-4">
-        <h1 className="font-bold text-gray-900 heading-page-title ">{t('vendors.title')}</h1>
+        <h1 className="font-bold text-gray-900 heading-page-title ">{pageTitle}</h1>
         <button
           type="button"
           onClick={() => navigate('/vendors/new')}
