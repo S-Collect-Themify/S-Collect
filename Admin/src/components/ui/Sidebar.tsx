@@ -201,7 +201,7 @@ const ExpandableNavItem = ({
         </div>
         <div className="flex items-center gap-2 shrink-0 ms-auto">
           {badge !== undefined && badge !== null && Number(badge) > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+            <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
               {badge}
             </span>
           )}
@@ -234,7 +234,7 @@ const ExpandableNavItem = ({
             >
               <span className="truncate">{t(sub.labelKey)}</span>
               {sub.badge !== undefined && sub.badge !== null && Number(sub.badge) > 0 && (
-                <span className="shrink-0 inline-flex items-center justify-center min-w-[18px] h-4.5 px-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span className="shrink-0 inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                   {sub.badge}
                 </span>
               )}

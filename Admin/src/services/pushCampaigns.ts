@@ -150,15 +150,16 @@ export async function createPushCampaign(
           isActive: false,
         });
 
+        const tempBannerData = tempBanner as unknown as Record<string, unknown>;
         const uploadedUrl =
           tempBanner?.imageUrl ||
-          (tempBanner as any)?.data?.imageUrl ||
-          (tempBanner as any)?.image;
+          (tempBannerData?.data as Record<string, unknown> | undefined)?.imageUrl ||
+          tempBannerData?.image;
 
         if (uploadedUrl && typeof uploadedUrl === 'string') {
           finalImageUrl = uploadedUrl;
         }
-      } catch (uploadErr: any) {
+      } catch (uploadErr: unknown) {
         console.warn('Banner storage upload failed, trying category storage upload...', uploadErr);
         try {
           const catFormData = new FormData();
@@ -170,22 +171,20 @@ export async function createPushCampaign(
           const catRes = await api.post('/admin/categories', catFormData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
-          const catData = catRes.data?.data || catRes.data;
+          const catData = (catRes.data?.data || catRes.data) as Record<string, unknown>;
           const uploadedUrl = catData?.imageUrl || catData?.image;
 
           if (uploadedUrl && typeof uploadedUrl === 'string') {
             finalImageUrl = uploadedUrl;
           }
-        } catch (catErr: any) {
+        } catch (catErr: unknown) {
           console.error('All storage upload attempts failed:', catErr);
-          const serverMessage =
-            catErr?.response?.data?.message ||
-            uploadErr?.response?.data?.message ||
-            catErr?.message ||
-            uploadErr?.message;
+          const catAxiosMsg = (catErr as { response?: { data?: { message?: unknown } }; message?: string })?.response?.data?.message || (catErr as Error)?.message;
+          const uploadAxiosMsg = (uploadErr as { response?: { data?: { message?: unknown } }; message?: string })?.response?.data?.message || (uploadErr as Error)?.message;
+          const serverMessage = catAxiosMsg || uploadAxiosMsg;
           throw new Error(
             serverMessage
-              ? `Failed to upload image file: ${Array.isArray(serverMessage) ? serverMessage.join(', ') : serverMessage}`
+              ? `Failed to upload image file: ${Array.isArray(serverMessage) ? serverMessage.join(', ') : String(serverMessage)}`
               : 'Failed to upload image file. Please try again.'
           );
         }

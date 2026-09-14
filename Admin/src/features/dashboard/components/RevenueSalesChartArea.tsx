@@ -21,12 +21,12 @@ export default function RevenueSalesChartArea({
   config,
 }: RevenueSalesChartAreaProps) {
   return (
-    <div className="w-full pt-2">
-      <ChartContainer config={config} className="w-full h-44 aspect-auto">
+    <div className="w-full pt-2 overflow-hidden">
+      <ChartContainer config={config} className="w-full h-44 aspect-auto overflow-hidden">
         <AreaChart
           accessibilityLayer
           data={data}
-          margin={{ left: 12, right: 12, top: 10, bottom: 0 }}
+          margin={{ left: 12, right: 12, top: 12, bottom: 4 }}
         >
           <defs>
             <linearGradient id="revenueFillGradient" x1="0" y1="0" x2="0" y2="1">
@@ -49,10 +49,11 @@ export default function RevenueSalesChartArea({
           />
           <Area
             dataKey="sales"
-            type="natural"
+            type="monotone"
             fill="url(#revenueFillGradient)"
             stroke="#22c55e"
             strokeWidth={2.5}
+            isAnimationActive={true}
           />
         </AreaChart>
       </ChartContainer>

@@ -12,21 +12,22 @@ interface DashboardDateFilterProps {
   dateRangeKey: string;
   customFrom: string;
   customTo: string;
+  customGroupBy?: 'day' | 'week' | 'month';
   onSelectPreset: (key: string) => void;
-  onApplyCustom: (from: string, to: string) => void;
+  onApplyCustom: (from: string, to: string, groupBy?: 'day' | 'week' | 'month') => void;
 }
 
 export const PRESET_DATE_RANGES: DateRangeOption[] = [
   { key: 'last7Days', defaultLabel: 'Last 7 Days' },
   { key: 'last30Days', defaultLabel: 'Last 30 Days' },
   { key: 'thisMonth', defaultLabel: 'This Month' },
-  { key: 'thisYear', defaultLabel: 'This Year' },
 ];
 
 export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
   dateRangeKey,
   customFrom,
   customTo,
+  customGroupBy = 'day',
   onSelectPreset,
   onApplyCustom,
 }) => {
@@ -36,6 +37,7 @@ export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
   const [showCustomInputs, setShowCustomInputs] = useState(dateRangeKey === 'custom');
   const [tempFrom, setTempFrom] = useState(customFrom);
   const [tempTo, setTempTo] = useState(customTo);
+  const [tempGroupBy, setTempGroupBy] = useState<'day' | 'week' | 'month'>(customGroupBy);
   const [error, setError] = useState<string | null>(null);
 
   const getTriggerLabel = () => {
@@ -56,7 +58,7 @@ export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
       return;
     }
     setError(null);
-    onApplyCustom(tempFrom, tempTo);
+    onApplyCustom(tempFrom, tempTo, tempGroupBy);
     close();
   };
 
@@ -70,6 +72,7 @@ export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
           onClick={() => {
             setTempFrom(customFrom);
             setTempTo(customTo);
+            setTempGroupBy(customGroupBy);
             setShowCustomInputs(dateRangeKey === 'custom');
             setError(null);
             toggle();
@@ -139,7 +142,7 @@ export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
               />
             </button>
 
-            {/* Expandable Custom Date Inputs */}
+            {/* Expandable Custom Date Inputs & GroupBy */}
             {showCustomInputs && (
               <div className="mt-2.5 p-2.5 bg-gray-50/80 rounded-lg border border-gray-100 space-y-2.5">
                 <div className="space-y-1">
@@ -170,6 +173,21 @@ export const DashboardDateFilter: React.FC<DashboardDateFilterProps> = ({
                     }}
                     className="w-full h-8 px-2.5 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all"
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-medium text-gray-500">
+                    {t('dashboardOverview.groupBy', 'Group By')}
+                  </label>
+                  <select
+                    value={tempGroupBy}
+                    onChange={(e) => setTempGroupBy(e.target.value as 'day' | 'week' | 'month')}
+                    className="w-full h-8 px-2 text-xs bg-white border border-gray-200 rounded-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-black transition-all cursor-pointer font-medium"
+                  >
+                    <option value="day">{t('dashboardOverview.groupByDay', 'Day')}</option>
+                    <option value="week">{t('dashboardOverview.groupByWeek', 'Week')}</option>
+                    <option value="month">{t('dashboardOverview.groupByMonth', 'Month')}</option>
+                  </select>
                 </div>
 
                 {error && <p className="text-[10px] font-medium text-rose-500">{error}</p>}

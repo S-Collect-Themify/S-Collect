@@ -208,10 +208,10 @@ export default function SalesChart() {
           />
         </div>
       </CardHeader>
-      <CardContent className="lg:flex-1">
+      <CardContent className="lg:flex-1 overflow-hidden">
         <ChartContainer
           config={chartConfig}
-          className="lg:aspect-auto lg:h-full"
+          className="lg:aspect-auto lg:h-full overflow-hidden"
         >
           <AreaChart
             accessibilityLayer
@@ -219,6 +219,8 @@ export default function SalesChart() {
             margin={{
               left: 12,
               right: 12,
+              top: 12,
+              bottom: 4,
             }}
           >
             <defs>
@@ -254,7 +256,7 @@ export default function SalesChart() {
             />
             <Area
               dataKey="desktop"
-              type="natural"
+              type="monotone"
               fill="url(#fillGradient)"
               stroke="var(--color-desktop)"
             />
