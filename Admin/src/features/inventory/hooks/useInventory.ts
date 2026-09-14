@@ -62,7 +62,7 @@ export function useInventory() {
 
   // Keep track of unsaved local stock edits in a ref and local state for instant re-render
   const pendingChanges = useRef<
-    Record<string, { productId: string; variantId: string; stock: number }>
+    Record<string, { productId: string; variantId: string; sku: string; stock: number }>
   >({});
   const [pendingStock, setPendingStock] = useState<Record<string, number>>({});
 
@@ -264,28 +264,76 @@ export function useInventory() {
   const handleStockChange = (id: string, value: string) => {
     const num = Math.max(0, parseInt(value, 10) || 0);
     const [productId, variantId] = id.split('::');
+    // sku isn't part of `id`; pull it from the currently loaded row (falling
+    // back to whatever was already staged) so it survives to save time.
+    // TEMPORARY (bulk-stock workaround) — only needed by the export/import
+    // fallback in services/inventory.ts. Removal checklist:
+    // features/inventory/BULK_STOCK_WORKAROUND_TODO.md
+    const sku = rows.find((r) => r.id === id)?.sku ?? pendingChanges.current[id]?.sku ?? '';
 
-    pendingChanges.current[id] = { productId, variantId, stock: num };
+    pendingChanges.current[id] = { productId, variantId, sku, stock: num };
     setPendingStock((prev) => ({ ...prev, [id]: num }));
   };
 
   // Mutation to save stock modifications in batch
   const saveMutation = useMutation({
     mutationFn: async (
-      changesList: { productId: string; variantId: string; stock: number }[]
+      changesList: { productId: string; variantId: string; sku: string; stock: number }[]
     ) => {
-      const updates = changesList.map(({ variantId, stock }) => ({
+      const updates = changesList.map(({ variantId, sku, stock }) => ({
         variantId,
+        sku,
         stock,
       }));
       return bulkUpdateVariantStock({ updates });
     },
-    onSuccess: () => {
-      toast.success(
-        t('inventoryPage.saveSuccess', 'Changes saved successfully!')
+    onSuccess: (result, savedChanges) => {
+      // TEMPORARY (bulk-stock workaround): the export/import fallback path
+      // (see services/inventory.ts) can report a row as failed (e.g. its SKU
+      // wasn't found in the export) without the whole request throwing. Keep
+      // those rows pending so the user can retry. Removal checklist:
+      // features/inventory/BULK_STOCK_WORKAROUND_TODO.md
+      const failedSkus = new Set(
+        (result?.errors || [])
+          .map((e) => e.sku)
+          .filter((sku): sku is string => !!sku)
       );
-      pendingChanges.current = {};
-      setPendingStock({});
+
+      const clearedIds = new Set(
+        savedChanges
+          .filter((c) => !failedSkus.has(c.sku))
+          .map(({ productId, variantId }) => `${productId}::${variantId}`)
+      );
+
+      // Only clear the rows that were actually part of this save — the stock
+      // inputs stay editable while the request is in flight, so the user may
+      // have edited another row in the meantime; clearing everything would
+      // silently drop that unsaved edit.
+      clearedIds.forEach((id) => {
+        delete pendingChanges.current[id];
+      });
+      setPendingStock((prev) => {
+        const next = { ...prev };
+        clearedIds.forEach((id) => {
+          delete next[id];
+        });
+        return next;
+      });
+
+      if (clearedIds.size > 0) {
+        toast.success(
+          t('inventoryPage.saveSuccess', 'Changes saved successfully!')
+        );
+      }
+      if (result?.failed) {
+        toast.error(
+          `${result.failed} ${t(
+            'inventoryPage.saveFailedRows',
+            'item(s) could not be saved.'
+          )}`
+        );
+      }
+
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
@@ -309,13 +357,13 @@ export function useInventory() {
     if (saveMutation.isPending || now - lastSaveClickRef.current < 600) {
       return;
     }
-    lastSaveClickRef.current = now;
 
     const changesList = Object.values(pendingChanges.current);
     if (changesList.length === 0) {
       toast.error(t('inventoryPage.noChanges', 'No changes to save.'));
       return;
     }
+    lastSaveClickRef.current = now;
     saveMutation.mutate(changesList);
   };
 

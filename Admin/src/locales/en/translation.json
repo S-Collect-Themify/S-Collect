@@ -638,6 +638,7 @@
     "saveChanges": "Save Changes",
     "saveSuccess": "Changes saved successfully!",
     "saveFailed": "Failed to save changes.",
+    "saveFailedRows": "item(s) could not be saved.",
     "noChanges": "No changes to save.",
     "export": "Export",
     "exporting": "Exporting...",

@@ -1,4 +1,4 @@
-import { api, handleServiceError } from './api';
+import { api, handleServiceError, ServiceError } from './api';
 
 export interface ListAdminInventoryQuery {
   pageNum?: number;
@@ -40,8 +40,17 @@ export interface PaginatedAdminVariantStock {
 export interface BulkUpdateVariantStockParams {
   updates: {
     variantId: string;
+    /** SKU is unused by the real bulk-stock route; kept only so the
+     *  export/import fallback below can locate the row to patch. */
+    sku: string;
     stock: number;
   }[];
+}
+
+/** Outcome of a bulk stock save when some rows could not be applied. */
+export interface BulkStockUpdateSummary {
+  failed: number;
+  errors: InventoryImportRowError[];
 }
 
 /** Filters accepted by the export endpoint (same as the search filters, without pagination). */
@@ -104,16 +113,154 @@ export const getAdminInventory = async (
   }
 };
 
+/** Case/whitespace-insensitive comparison key for matching SKUs and headers. */
+const normalizeCell = (value: unknown): string => String(value ?? '').trim().toLowerCase();
+
+const SKU_HEADER_HINTS = ['sku', 'رمز', 'كود'];
+const STOCK_HEADER_HINTS = ['stock', 'qty', 'quantity', 'كمية', 'كميه', 'مخزون'];
+
+/** The tiny slice of exceljs's API this fallback needs — kept minimal so we
+ *  don't have to import its full type surface for a dynamic `import()`. */
+interface MinimalExcelCell {
+  value: unknown;
+}
+interface MinimalExcelRow {
+  eachCell(
+    opts: { includeEmpty: boolean },
+    cb: (cell: MinimalExcelCell, colNumber: number) => void
+  ): void;
+  getCell(col: number): MinimalExcelCell;
+}
+interface MinimalExcelWorksheet {
+  getRow(rowNumber: number): MinimalExcelRow;
+  eachRow(cb: (row: MinimalExcelRow, rowNumber: number) => void): void;
+}
+interface MinimalExcelJS {
+  Workbook: new () => {
+    xlsx: {
+      load(buffer: ArrayBuffer): Promise<unknown>;
+      writeBuffer(): Promise<BlobPart>;
+    };
+    worksheets: MinimalExcelWorksheet[];
+  };
+}
+
+/** Finds the single header cell matching one of `hints`; null if none or ambiguous. */
+const findHeaderColumn = (headerRow: MinimalExcelRow, hints: string[]): number | null => {
+  const matches: number[] = [];
+  headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+    const text = normalizeCell(cell.value);
+    if (hints.some((hint) => text.includes(hint))) {
+      matches.push(colNumber);
+    }
+  });
+  return matches.length === 1 ? matches[0] : null;
+};
+
+/**
+ * TEMPORARY WORKAROUND — remove once the backend ships a working admin
+ * bulk-stock write route (see `bulkUpdateVariantStock` below).
+ * Full removal checklist: features/inventory/BULK_STOCK_WORKAROUND_TODO.md
+ *
+ * There is currently no admin-scoped endpoint to write stock, and the
+ * vendor-scoped one rejects admin tokens. Both admin export and admin
+ * import are confirmed to work with an admin token, so this downloads the
+ * admin's own inventory export, patches just the stock cells for the
+ * changed SKUs, and re-uploads it through the admin import endpoint.
+ * Heavier than a direct bulk-stock call (a full export/import round trip
+ * per save), so it should be dropped as soon as a real route exists.
+ */
+const bulkUpdateVariantStockViaExportImport = async (
+  updates: BulkUpdateVariantStockParams['updates']
+): Promise<BulkStockUpdateSummary> => {
+  const ExcelModule = await import('exceljs');
+  const ExcelJS = (ExcelModule as unknown as { default?: MinimalExcelJS }).default ??
+    (ExcelModule as unknown as MinimalExcelJS);
+
+  const { blob } = await exportAdminInventory({});
+  const buffer = await blob.arrayBuffer();
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) {
+    throw new ServiceError('Inventory export returned no sheet to patch.');
+  }
+
+  const headerRow = worksheet.getRow(1);
+  const skuCol = findHeaderColumn(headerRow, SKU_HEADER_HINTS);
+  const stockCol = findHeaderColumn(headerRow, STOCK_HEADER_HINTS);
+  if (!skuCol || !stockCol) {
+    throw new ServiceError(
+      'Could not identify the SKU/stock columns in the inventory export.'
+    );
+  }
+
+  // Map normalized SKU -> row number so each change is located in one pass.
+  const rowNumberBySku = new Map<string, number>();
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const sku = normalizeCell(row.getCell(skuCol).value);
+    if (sku) rowNumberBySku.set(sku, rowNumber);
+  });
+
+  const errors: InventoryImportRowError[] = [];
+  let patchedCount = 0;
+  updates.forEach(({ sku, stock, variantId }) => {
+    const rowNumber = rowNumberBySku.get(normalizeCell(sku));
+    if (!rowNumber) {
+      errors.push({
+        sku,
+        message: `Variant ${variantId} (SKU ${sku || '—'}) was not found in the current export.`,
+      });
+      return;
+    }
+    worksheet.getRow(rowNumber).getCell(stockCol).value = stock;
+    patchedCount += 1;
+  });
+
+  if (patchedCount === 0) {
+    throw new ServiceError(
+      'None of the changed items could be matched in the inventory export.'
+    );
+  }
+
+  const outBuffer = await workbook.xlsx.writeBuffer();
+  const file = new File(
+    [outBuffer],
+    `inventory-stock-patch-${Date.now()}.xlsx`,
+    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+  );
+
+  const result = await importAdminInventory(file);
+  return {
+    failed: (Number(result.failed) || 0) + errors.length,
+    errors: [...(result.errors || []), ...errors],
+  };
+};
+
 export const bulkUpdateVariantStock = async (
   params: BulkUpdateVariantStockParams
-): Promise<void> => {
+): Promise<BulkStockUpdateSummary> => {
   try {
-    const { data } = await api.post(
-      '/vendor/inventory/variants/bulk-stock',
-      params
-    );
-    return data;
+    await api.post('/admin/inventory/variants/bulk-stock', {
+      updates: params.updates.map(({ variantId, stock }) => ({ variantId, stock })),
+    });
+    return { failed: 0, errors: [] };
   } catch (err) {
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 404 || status === 405) {
+      // No admin bulk-stock route exists yet — see the TEMPORARY WORKAROUND
+      // note above. Deliberately does not fall back to the vendor route: it
+      // rejects admin tokens with 401, which forces a logout redirect.
+      try {
+        return await bulkUpdateVariantStockViaExportImport(params.updates);
+      } catch (fallbackErr) {
+        throw handleServiceError(
+          fallbackErr,
+          'Failed to bulk update inventory stock'
+        );
+      }
+    }
     throw handleServiceError(err, 'Failed to bulk update inventory stock');
   }
 };
