@@ -19,7 +19,7 @@ import VendorDesktopTable from './VendorDesktopTable';
 import VendorMobileList from './VendorMobileList';
 import VendorPagination from './VendorPagination';
 import VendorBulkActionBar from './VendorBulkActionBar';
-import type { ActiveFilter, VendorTab } from '../types/vendors';
+import type { ActiveFilter } from '../types/vendors';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 
 export default function VendorTable() {
@@ -29,7 +29,6 @@ export default function VendorTable() {
   const activeTab = useVendorStore((s) => s.activeTab);
   const search = useVendorStore((s) => s.search);
   const activeFilter = useVendorStore((s) => s.activeFilter);
-  const setActiveTab = useVendorStore((s) => s.setActiveTab);
   const setSearch = useVendorStore((s) => s.setSearch);
   const setActiveFilter = useVendorStore((s) => s.setActiveFilter);
   const setPage = useVendorStore((s) => s.setPage);
@@ -85,7 +84,6 @@ export default function VendorTable() {
     totalPages,
     page,
     itemsPerPage,
-    pendingCount,
     selectedRows,
     selectedCount,
     allChecked,
@@ -111,11 +109,6 @@ export default function VendorTable() {
     ids: string[];
     vendorName: string;
   }>({ isOpen: false, ids: [], vendorName: '' });
-
-  const tabs: { key: VendorTab; label: string; count?: number }[] = [
-    { key: 'pending', label: t('vendors.tabs.pending'), count: pendingCount },
-    { key: 'all', label: t('vendors.tabs.all') },
-  ];
 
   const activeFilters: { key: ActiveFilter; label: string }[] = [
     { key: 'all', label: t('vendors.table.allStatuses') },
@@ -264,34 +257,6 @@ export default function VendorTable() {
 
   return (
     <div className="font-sans text-gray-800" dir={isRtl ? 'rtl' : 'ltr'}>
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-gray-200 mb-5">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? 'border-gray-900 text-gray-900'
-                : 'border-transparent text-gray-700 hover:text-gray-900'
-            }`}
-          >
-            {tab.label}
-            {tab.count !== undefined && tab.count > 0 && (
-              <span
-                className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-semibold ${
-                  activeTab === tab.key
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
       {/* Filters */}
       <div className="flex items-center gap-2.5 mb-5 flex-wrap">
         {/* Search */}

@@ -104,6 +104,14 @@ function extractVendorResponse(resData: unknown): BackendVendorsResponse {
     items = resData;
   } else if (obj.data && typeof obj.data === 'object' && Array.isArray((obj.data as any).items)) {
     items = (obj.data as any).items;
+  } else if (obj.data && typeof obj.data === 'object' && Array.isArray((obj.data as any).vendors)) {
+    items = (obj.data as any).vendors;
+  } else if (Array.isArray((resData as any).vendors)) {
+    items = (resData as any).vendors;
+  } else if (Array.isArray((resData as any).vendorsList)) {
+    items = (resData as any).vendorsList;
+  } else if (Array.isArray((resData as any).result)) {
+    items = (resData as any).result;
   }
 
   let pagination: BackendVendorsPagination;
@@ -143,20 +151,56 @@ export async function getVendors(params?: GetVendorsParams): Promise<BackendVend
   if (params?.search?.trim()) queryParams.search = params.search.trim();
   if (params?.status?.trim()) queryParams.status = params.status.trim();
 
-  const response = await api.get('/admin/vendors', { params: queryParams });
-  return extractVendorResponse(response.data);
+  try {
+    const response = await api.get('/admin/vendors', { params: queryParams });
+    return extractVendorResponse(response.data);
+  } catch (err) {
+    console.error('Failed to fetch vendors from /admin/vendors with params:', queryParams, err);
+    if (Object.keys(queryParams).length > 0) {
+      try {
+        const fallbackRes = await api.get('/admin/vendors');
+        return extractVendorResponse(fallbackRes.data);
+      } catch (err2) {
+        console.error('Fallback /admin/vendors also failed:', err2);
+      }
+    }
+    return {
+      items: [],
+      pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 },
+    };
+  }
 }
 
 /**
  * Fetch single vendor details by ID GET /api/v1/admin/vendors/{id}
  */
 export async function getVendorById(id: string): Promise<BackendVendorDetail> {
-  const response = await api.get(`/admin/vendors/${id}`);
-  const resData = response.data;
-  if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
-    return resData.data as BackendVendorDetail;
+  try {
+    const response = await api.get(`/admin/vendors/${id}`);
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+      return resData.data as BackendVendorDetail;
+    }
+    return resData as BackendVendorDetail;
+  } catch (err) {
+    console.warn(`GET /admin/vendors/${id} failed, falling back to search on /admin/vendors:`, err);
+    try {
+      const searchRes = await api.get('/admin/vendors', { params: { search: id } });
+      const extracted = extractVendorResponse(searchRes.data);
+      const matched =
+        extracted.items.find(
+          (v: any) =>
+            String(v.id) === String(id) ||
+            String(v._id) === String(id) ||
+            String(v.vendorId) === String(id)
+        ) || extracted.items[0];
+
+      if (matched) return matched as unknown as BackendVendorDetail;
+    } catch (fallbackErr) {
+      console.error('Fallback search on /admin/vendors failed:', fallbackErr);
+    }
+    throw err;
   }
-  return resData as BackendVendorDetail;
 }
 
 /**

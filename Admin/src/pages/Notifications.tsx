@@ -67,9 +67,9 @@ export default function NotificationsPage() {
     <>
       {/* Header Container */}
       <div className="sidebar-page-container-header bg-white border-b border-gray-200/80 py-4">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gray-950 text-white flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-gray-950 text-white flex items-center justify-center shadow-xs shrink-0">
               <Bell size={20} />
             </div>
             <div>
@@ -86,7 +86,7 @@ export default function NotificationsPage() {
           <button
             type="button"
             onClick={() => setIsSendModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-gray-950 hover:bg-gray-800 text-white text-xs sm:text-sm font-semibold shadow-md active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-gray-950 hover:bg-gray-800 text-white text-xs sm:text-sm font-semibold shadow-md active:scale-95 transition-all cursor-pointer flex items-center gap-2"
           >
             <Send size={16} />
             <span>{t('notificationsPage.sendButton', 'Send Notification')}</span>
@@ -95,38 +95,40 @@ export default function NotificationsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto py-6 sidebar-page-container space-y-6">
+      <div className="flex-1 overflow-y-auto py-4 sm:py-6 sidebar-page-container space-y-4 sm:space-y-6">
         {/* Vendor Filter Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border border-gray-200/80 rounded-2xl p-4 shadow-2xs">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border border-gray-200/80 rounded-2xl p-3.5 sm:p-4 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 flex-wrap">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider shrink-0">
               {t('notificationsPage.vendorFilterLabel', 'Filter by Vendor')}:
             </span>
-            <VendorReportVendorDropdown
-              vendors={vendorsList}
-              selectedVendorId={selectedVendorId}
-              onSelectVendor={(id) => {
-                setSelectedVendorId(id);
-                setPage(1);
-              }}
-              isLoading={isVendorsLoading}
-            />
-
-            {selectedVendorId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedVendorId('');
+            <div className="flex items-center gap-2 flex-wrap">
+              <VendorReportVendorDropdown
+                vendors={vendorsList}
+                selectedVendorId={selectedVendorId}
+                onSelectVendor={(id) => {
+                  setSelectedVendorId(id);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 transition-colors cursor-pointer"
-              >
-                {t('common.clearFilter', 'Clear Filter')}
-              </button>
-            )}
+                isLoading={isVendorsLoading}
+              />
+
+              {selectedVendorId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedVendorId('');
+                    setPage(1);
+                  }}
+                  className="px-3 py-2 sm:py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-gray-600 transition-colors cursor-pointer shrink-0"
+                >
+                  {t('common.clearFilter', 'Clear Filter')}
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="text-xs text-gray-400 font-medium self-end sm:self-auto">
+          <div className="text-xs text-gray-400 font-medium self-end sm:self-auto pt-1 sm:pt-0">
             {t('notificationsPage.totalCampaigns', 'Total Campaigns')}:{' '}
             <span className="font-bold text-gray-800">{pagination.totalItems}</span>
           </div>

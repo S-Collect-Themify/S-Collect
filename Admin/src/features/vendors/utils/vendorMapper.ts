@@ -14,9 +14,16 @@ function extractIsFeatured(v: any): boolean {
  * Maps a backend vendor object from list API to the UI Vendor data structure.
  * Missing or empty fields fallback to '--' per requirements.
  */
-export function mapBackendVendorToVendor(v: BackendVendor, isAr?: boolean): Vendor {
-  const ownerName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim() || '--';
-  const businessName = v.storeName || ownerName || '--';
+export function mapBackendVendorToVendor(v: BackendVendor | any, isAr?: boolean): Vendor {
+  const fName = v.firstName || v.first_name || v.user?.firstName || v.user?.first_name || '';
+  const lName = v.lastName || v.last_name || v.user?.lastName || v.user?.last_name || '';
+  const ownerName = [fName, lName].filter(Boolean).join(' ').trim() || v.owner || v.ownerName || (typeof v.user === 'string' ? v.user : '') || '--';
+
+  const storeAr = v.storeNameAr || v.store_name_ar || v.nameAr || v.name_ar || v.titleAr || v.title_ar || v.vendorNameAr || v.vendor_name_ar;
+  const storeEn = v.storeName || v.storeNameEn || v.store_name || v.store_name_en || v.name || v.nameEn || v.name_en || v.title || v.titleEn || v.title_en || v.businessName || v.business_name || v.vendorName || v.vendor_name;
+
+  const rawStore = isAr ? (storeAr || storeEn) : (storeEn || storeAr);
+  const businessName = rawStore || (ownerName !== '--' ? ownerName : null) || (v.id ? `Vendor ${v.id.slice(-4)}` : '--');
 
   const rawStatus = v.status ? String(v.status).toUpperCase() : 'PENDING_APPROVAL';
   let status: VendorStatus = 'pending';
@@ -112,6 +119,12 @@ export function mapBackendVendorToVendor(v: BackendVendor, isAr?: boolean): Vend
     revenue: v.totalRevenue,
     orders: v.totalOrders,
     createdAt: v.createdAt || v.submittedDate,
+    storeName: v.storeName,
+    storeNameAr: (v as any).storeNameAr || (v as any).store_name_ar,
+    firstName: v.firstName,
+    lastName: v.lastName,
+    name: (v as any).name,
+    nameAr: (v as any).nameAr || (v as any).name_ar,
   };
 }
 
@@ -119,12 +132,18 @@ export function mapBackendVendorToVendor(v: BackendVendor, isAr?: boolean): Vend
  * Maps a backend single vendor detail response to the UI Vendor data structure.
  * Missing or empty fields fallback to '--'.
  */
-export function mapBackendVendorDetailToVendor(v: BackendVendorDetail, isAr?: boolean): Vendor {
-  const target: Partial<BackendVendorDetail> =
-    (v as unknown as { data?: BackendVendorDetail })?.data || v || {};
+export function mapBackendVendorDetailToVendor(v: BackendVendorDetail | any, isAr?: boolean): Vendor {
+  const target: any = (v as unknown as { data?: any })?.data || v || {};
 
-  const ownerName = [target.firstName, target.lastName].filter(Boolean).join(' ').trim() || '--';
-  const businessName = target.storeName || ownerName || '--';
+  const fName = target.firstName || target.first_name || target.user?.firstName || target.user?.first_name || '';
+  const lName = target.lastName || target.last_name || target.user?.lastName || target.user?.last_name || '';
+  const ownerName = [fName, lName].filter(Boolean).join(' ').trim() || target.owner || target.ownerName || (typeof target.user === 'string' ? target.user : '') || '--';
+
+  const storeAr = target.storeNameAr || target.store_name_ar || target.nameAr || target.name_ar || target.titleAr || target.title_ar || target.vendorNameAr || target.vendor_name_ar;
+  const storeEn = target.storeName || target.storeNameEn || target.store_name || target.store_name_en || target.name || target.nameEn || target.name_en || target.title || target.titleEn || target.title_en || target.businessName || target.business_name || target.vendorName || target.vendor_name;
+
+  const rawStore = isAr ? (storeAr || storeEn) : (storeEn || storeAr);
+  const businessName = rawStore || (ownerName !== '--' ? ownerName : null) || (target.id ? `Vendor ${target.id.slice(-4)}` : '--');
 
   const rawStatus = target.status ? String(target.status).toUpperCase() : 'PENDING_APPROVAL';
 
@@ -264,5 +283,11 @@ export function mapBackendVendorDetailToVendor(v: BackendVendorDetail, isAr?: bo
     revenue: undefined,
     orders: undefined,
     createdAt: target.createdAt,
+    storeName: target.storeName,
+    storeNameAr: target.storeNameAr || (target as any).store_name_ar,
+    firstName: target.firstName,
+    lastName: target.lastName,
+    name: (target as any).name,
+    nameAr: (target as any).nameAr || (target as any).name_ar,
   };
 }

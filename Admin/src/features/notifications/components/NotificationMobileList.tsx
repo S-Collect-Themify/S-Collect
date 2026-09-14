@@ -20,7 +20,7 @@ const VendorNameBadge: React.FC<{
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  const cachedVendor = vendorsMap[vendorId];
+  const cachedVendor = vendorsMap[String(vendorId)];
   const { data: detailVendor, isLoading: isDetailLoading } = useVendorDetails(
     !cachedVendor ? vendorId : ''
   );
@@ -30,10 +30,13 @@ const VendorNameBadge: React.FC<{
 
   const displayName =
     (isAr && vAny?.storeNameAr ? vAny.storeNameAr : vAny?.storeName) ||
+    (isAr && vAny?.store_name_ar ? vAny.store_name_ar : vAny?.store_name) ||
     (isAr && vAny?.nameAr ? vAny.nameAr : vAny?.name) ||
+    (isAr && vAny?.name_ar ? vAny.name_ar : vAny?.name_en) ||
     (targetVendor?.businessName && targetVendor.businessName !== '--' ? targetVendor.businessName : null) ||
     (targetVendor?.owner && targetVendor.owner !== '--' ? targetVendor.owner : null) ||
     (vAny?.firstName ? `${vAny.firstName} ${vAny.lastName || ''}`.trim() : null) ||
+    (vAny?.first_name ? `${vAny.first_name} ${vAny.last_name || ''}`.trim() : null) ||
     vendorId;
 
   const isLoading = (isLoadingVendors && !cachedVendor) || (isDetailLoading && !cachedVendor);
@@ -97,7 +100,9 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
       ? vendorsData
       : [];
     list.forEach((v: any) => {
-      if (v.id) map[v.id] = v;
+      if (v.id) map[String(v.id)] = v;
+      if (v._id) map[String(v._id)] = v;
+      if (v.vendorId) map[String(v.vendorId)] = v;
     });
     return map;
   }, [vendorsData]);
@@ -178,12 +183,12 @@ export const NotificationMobileList: React.FC<NotificationMobileListProps> = ({
             </div>
 
             {/* Footer row: Made By & Date */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
-              <div>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-100 text-xs">
+              <div className="shrink-0">
                 <MadeByBadge item={item} vendorsMap={vendorsMap} isLoadingVendors={isVendorsLoading} />
               </div>
 
-              <div className="text-[11px] text-gray-400 font-medium">
+              <div className="text-[11px] text-gray-400 font-medium shrink-0">
                 {formatDate(item.createdAt)}
               </div>
             </div>
