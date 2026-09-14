@@ -6,8 +6,9 @@ interface RevenueSalesChartHeaderProps {
   dateRangeKey: string;
   customFrom: string;
   customTo: string;
+  groupBy: 'day' | 'week' | 'month';
   onSelectPreset: (key: string) => void;
-  onApplyCustom: (from: string, to: string) => void;
+  onApplyCustom: (from: string, to: string, groupBy?: 'day' | 'week' | 'month') => void;
 }
 
 export default function RevenueSalesChartHeader({
@@ -15,13 +16,14 @@ export default function RevenueSalesChartHeader({
   dateRangeKey,
   customFrom,
   customTo,
+  groupBy,
   onSelectPreset,
   onApplyCustom,
 }: RevenueSalesChartHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-start justify-between mb-4 flex-wrap gap-2">
+    <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
       <div>
         <p className="text-xs font-medium text-gray-500 mb-0.5">
           {t('dashboardOverview.salesOverview', 'Sales Overview')}
@@ -39,6 +41,7 @@ export default function RevenueSalesChartHeader({
         dateRangeKey={dateRangeKey}
         customFrom={customFrom}
         customTo={customTo}
+        customGroupBy={groupBy}
         onSelectPreset={onSelectPreset}
         onApplyCustom={onApplyCustom}
       />

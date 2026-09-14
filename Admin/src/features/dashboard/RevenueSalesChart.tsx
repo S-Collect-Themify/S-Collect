@@ -30,7 +30,8 @@ export default function RevenueSalesChart({
     };
   });
 
-  // If parent dates change, update customRange to reflect parent if desired
+  const [groupBy, setGroupBy] = useState<'day' | 'week' | 'month'>('day');
+
   useEffect(() => {
     if (parentDateFrom && parentDateTo) {
       setCustomRange({ dateFrom: parentDateFrom, dateTo: parentDateTo });
@@ -41,15 +42,6 @@ export default function RevenueSalesChart({
     () => getDateFromToParams(dateRangeKey, customRange),
     [dateRangeKey, customRange]
   );
-
-  const groupBy = useMemo(() => {
-    const diffDays =
-      (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) / (1000 * 3600 * 24);
-    if (diffDays <= 7) return 'day';
-    if (diffDays <= 35) return 'day';
-    if (diffDays <= 90) return 'week';
-    return 'month';
-  }, [dateFrom, dateTo]);
 
   const { data: salesData, isLoading } = useRevenueOverviewSales({
     dateFrom,
@@ -72,11 +64,15 @@ export default function RevenueSalesChart({
 
   const handleSelectPreset = (key: string) => {
     setDateRangeKey(key);
+    setGroupBy('day');
   };
 
-  const handleApplyCustom = (from: string, to: string) => {
+  const handleApplyCustom = (from: string, to: string, customGb?: 'day' | 'week' | 'month') => {
     setCustomRange({ dateFrom: from, dateTo: to });
     setDateRangeKey('custom');
+    if (customGb) {
+      setGroupBy(customGb);
+    }
   };
 
   return (
@@ -87,6 +83,7 @@ export default function RevenueSalesChart({
         dateRangeKey={dateRangeKey}
         customFrom={customRange.dateFrom}
         customTo={customRange.dateTo}
+        groupBy={groupBy}
         onSelectPreset={handleSelectPreset}
         onApplyCustom={handleApplyCustom}
       />

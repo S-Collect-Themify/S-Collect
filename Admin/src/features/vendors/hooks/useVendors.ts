@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import {
   getVendors,
   getVendorById,
@@ -21,6 +22,7 @@ import {
   type GetTopPerformingVendorsParams,
   type UpdateVendorPayload,
   type CreateVendorPayload,
+  type BackendVendorsResponse,
 } from '../../../services/vendors';
 import { getAdminProducts } from '../../../services/products';
 import { getAdminSubOrders } from '../../../services/orders';
@@ -29,23 +31,36 @@ import {
   mapBackendVendorToVendor,
   mapBackendVendorDetailToVendor,
 } from '../utils/vendorMapper';
+import type { Vendor } from '../types/vendors';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || error.message || fallback;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
 
 export function useVendorCategories() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  return useQuery({
+  return useQuery<string[]>({
     queryKey: ['vendor-categories', isAr ? 'ar' : 'en'],
-    queryFn: async () => {
+    queryFn: async (): Promise<string[]> => {
       try {
         const items = await getAdminCategories({ pageNum: 1, pageSize: 100 });
         return (items || [])
-          .map((c: any) =>
-            isAr
-              ? c.nameAr || c.name_ar || c.name || c.nameEn
-              : c.nameEn || c.name || c.nameAr || c.name_ar
-          )
-          .filter((name): name is string => Boolean(name));
+          .map((c: any) => {
+            const nameAr = (c.nameAr || c.name_ar) as string | undefined;
+            const nameEn = (c.nameEn || c.name) as string | undefined;
+            return isAr
+              ? nameAr || nameEn
+              : nameEn || nameAr;
+          })
+          .filter((name: unknown): name is string => typeof name === 'string' && Boolean(name));
       } catch (err) {
         console.error('Failed to fetch categories:', err);
         return [];
@@ -55,15 +70,20 @@ export function useVendorCategories() {
   });
 }
 
+export type ExtendedVendorsList = Vendor[] & {
+  items: Vendor[];
+  pagination: BackendVendorsResponse['pagination'];
+};
+
 export function useVendors(params?: string | GetVendorsParams) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const queryParams: GetVendorsParams =
     typeof params === 'string' ? { status: params } : params || {};
 
-  return useQuery({
+  return useQuery<ExtendedVendorsList>({
     queryKey: ['vendors', queryParams, isAr ? 'ar' : 'en'],
-    queryFn: async () => {
+    queryFn: async (): Promise<ExtendedVendorsList> => {
       const data = await getVendors(queryParams);
       const items = (data.items || []).map((v) => mapBackendVendorToVendor(v, isAr));
       return Object.assign(items, {
@@ -87,7 +107,7 @@ export function useVendorDetails(id: string) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
 
-  return useQuery({
+  return useQuery<Vendor | null>({
     queryKey: ['vendor', id, isAr ? 'ar' : 'en'],
     queryFn: async () => {
       if (!id) return null;
@@ -127,10 +147,10 @@ export function useCreateVendor() {
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       toast.success(t('vendors.notifications.createSuccess', 'Vendor created successfully'));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to create vendor:', error);
-      const message = error?.response?.data?.message || error?.message;
-      toast.error(message || t('vendors.notifications.createError', 'Failed to create vendor'));
+      const message = getErrorMessage(error, t('vendors.notifications.createError', 'Failed to create vendor'));
+      toast.error(message);
     },
   });
 }
@@ -148,10 +168,10 @@ export function useUpdateVendor() {
       queryClient.invalidateQueries({ queryKey: ['vendor-raw', id] });
       toast.success(t('vendors.notifications.updateSuccess', 'Vendor updated successfully'));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to update vendor:', error);
-      const message = error?.response?.data?.message || error?.message;
-      toast.error(message || t('vendors.notifications.updateError', 'Failed to update vendor'));
+      const message = getErrorMessage(error, t('vendors.notifications.updateError', 'Failed to update vendor'));
+      toast.error(message);
     },
   });
 }
@@ -302,7 +322,7 @@ export function useDeleteVendor() {
       // Optimistically drop the deleted vendor from every cached vendors list
       queryClient.setQueriesData<any>({ queryKey: ['vendors'] }, (old: any) => {
         if (!old) return old;
-        const arr: any[] = Array.isArray(old) ? old : old.items;
+        const arr: Vendor[] = Array.isArray(old) ? old : old.items || [];
         if (!Array.isArray(arr)) return old;
         const filtered = arr.filter((v) => v.id !== id);
         return Object.assign(filtered, {
@@ -314,10 +334,10 @@ export function useDeleteVendor() {
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success(t('vendors.notifications.deleteSuccess', 'Vendor deleted successfully'));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to delete vendor:', error);
-      const message = error?.response?.data?.message || error?.message;
-      toast.error(message || t('vendors.notifications.deleteError', 'Failed to delete vendor'));
+      const message = getErrorMessage(error, t('vendors.notifications.deleteError', 'Failed to delete vendor'));
+      toast.error(message);
     },
   });
 }
@@ -333,10 +353,10 @@ export function useFeatureVendor() {
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success(t('vendors.notifications.featureSuccess', 'Vendor marked as featured'));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to feature vendor:', error);
-      const message = error?.response?.data?.message || error?.message;
-      toast.error(message || t('vendors.notifications.featureError', 'Failed to feature vendor'));
+      const message = getErrorMessage(error, t('vendors.notifications.featureError', 'Failed to feature vendor'));
+      toast.error(message);
     },
   });
 }
@@ -352,10 +372,10 @@ export function useUnfeatureVendor() {
       queryClient.invalidateQueries({ queryKey: ['vendor'] });
       toast.success(t('vendors.notifications.unfeatureSuccess', 'Vendor unmarked as featured'));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to unfeature vendor:', error);
-      const message = error?.response?.data?.message || error?.message;
-      toast.error(message || t('vendors.notifications.unfeatureError', 'Failed to unfeature vendor'));
+      const message = getErrorMessage(error, t('vendors.notifications.unfeatureError', 'Failed to unfeature vendor'));
+      toast.error(message);
     },
   });
 }
