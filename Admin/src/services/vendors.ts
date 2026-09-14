@@ -146,29 +146,160 @@ function extractVendorResponse(resData: unknown): BackendVendorsResponse {
 export async function getVendors(params?: GetVendorsParams): Promise<BackendVendorsResponse> {
   const queryParams: Record<string, any> = {};
 
-  if (params?.pageNum !== undefined) queryParams.pageNum = params.pageNum;
-  if (params?.pageSize !== undefined) queryParams.pageSize = params.pageSize;
+  if (params?.pageNum !== undefined) {
+    queryParams.pageNum = params.pageNum;
+    queryParams.page = params.pageNum;
+  }
+  if (params?.pageSize !== undefined) {
+    queryParams.pageSize = params.pageSize;
+    queryParams.limit = params.pageSize;
+  } else {
+    queryParams.pageSize = 1000;
+    queryParams.limit = 1000;
+  }
   if (params?.search?.trim()) queryParams.search = params.search.trim();
   if (params?.status?.trim()) queryParams.status = params.status.trim();
 
-  try {
-    const response = await api.get('/admin/vendors', { params: queryParams });
-    return extractVendorResponse(response.data);
-  } catch (err) {
-    console.error('Failed to fetch vendors from /admin/vendors with params:', queryParams, err);
-    if (Object.keys(queryParams).length > 0) {
-      try {
-        const fallbackRes = await api.get('/admin/vendors');
-        return extractVendorResponse(fallbackRes.data);
-      } catch (err2) {
-        console.error('Fallback /admin/vendors also failed:', err2);
-      }
+  const fetchWithParams = async (p: Record<string, any>): Promise<BackendVendorsResponse> => {
+    const response = await api.get('/admin/vendors', { params: p });
+    const extracted = extractVendorResponse(response.data);
+
+    // If caller explicitly requested a single specific pageNum, return immediately
+    if (params?.pageNum !== undefined) {
+      return extracted;
     }
+
+    let items = [...extracted.items];
+    const firstPageCount = items.length;
+    const reportedTotalPages = extracted.pagination.totalPages;
+    const reportedTotalItems = extracted.pagination.totalItems;
+
+    // Check if there could be more pages:
+    // If page 1 has items and (items.length >= 25 || reportedTotalPages > 1 || reportedTotalItems > items.length)
+    const shouldFetchMore =
+      items.length > 0 &&
+      (firstPageCount >= 25 || reportedTotalPages > 1 || reportedTotalItems > items.length);
+
+    if (shouldFetchMore) {
+      let currentPage = 2;
+      const maxPages = 50; // Safety cap (up to 50 * 25 = 1250 items)
+
+      while (currentPage <= maxPages) {
+        const batchPages = [currentPage, currentPage + 1, currentPage + 2, currentPage + 3, currentPage + 4];
+        const batchPromises = batchPages.map((pageNum) =>
+          api
+            .get('/admin/vendors', { params: { ...p, pageNum, page: pageNum } })
+            .then((res) => extractVendorResponse(res.data).items)
+            .catch(() => [] as BackendVendor[])
+        );
+
+        const batchResults = await Promise.all(batchPromises);
+        let reachedEnd = false;
+
+        for (const pageItems of batchResults) {
+          if (!pageItems || pageItems.length === 0) {
+            reachedEnd = true;
+            break;
+          }
+          items.push(...pageItems);
+          if (pageItems.length < firstPageCount && firstPageCount >= 25) {
+            reachedEnd = true;
+            break;
+          }
+        }
+
+        if (reachedEnd) {
+          break;
+        }
+        currentPage += 5;
+      }
+
+      // Deduplicate by ID
+      const seen = new Set<string>();
+      items = items.filter((item) => {
+        const id = String(item.id || (item as any)._id || '');
+        if (!id) return true;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+    }
+
     return {
-      items: [],
-      pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 },
+      items,
+      pagination: {
+        currentPage: 1,
+        pageSize: items.length || 25,
+        totalItems: items.length,
+        totalPages: 1,
+      },
     };
+  };
+
+  try {
+    const res = await fetchWithParams(queryParams);
+    if (res.items && res.items.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch vendors with query params, trying clean fetch fallback:', err);
   }
+
+  // Fallback 1: Try without pageSize/limit overrides
+  try {
+    const cleanParams: Record<string, any> = {};
+    if (params?.search?.trim()) cleanParams.search = params.search.trim();
+    if (params?.status?.trim()) cleanParams.status = params.status.trim();
+    const res = await fetchWithParams(cleanParams);
+    if (res.items && res.items.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch vendors with clean params:', err);
+  }
+
+  // Fallback 2: Completely unconstrained GET /admin/vendors + client-side filter
+  try {
+    const res = await fetchWithParams({});
+    let filteredItems = res.items || [];
+
+    if (params?.status?.trim()) {
+      const targetStatus = params.status.trim().toUpperCase();
+      filteredItems = filteredItems.filter((v: any) => {
+        const st = String(v.status || '').toUpperCase();
+        if (targetStatus === 'PENDING_APPROVAL') return st === 'PENDING_APPROVAL' || st === 'PENDING';
+        if (targetStatus === 'ACTIVE') return st === 'ACTIVE' || st === 'APPROVED';
+        if (targetStatus === 'DEACTIVATED') return st === 'DEACTIVATED' || st === 'SUSPENDED';
+        if (targetStatus === 'REJECTED') return st === 'REJECTED';
+        return st === targetStatus;
+      });
+    }
+
+    if (params?.search?.trim()) {
+      const searchLower = params.search.trim().toLowerCase();
+      filteredItems = filteredItems.filter((v: any) => {
+        const full = `${v.storeName || ''} ${v.storeNameAr || ''} ${v.firstName || ''} ${v.lastName || ''} ${v.email || ''} ${v.id || ''}`.toLowerCase();
+        return full.includes(searchLower);
+      });
+    }
+
+    return {
+      items: filteredItems,
+      pagination: {
+        currentPage: 1,
+        pageSize: filteredItems.length || 25,
+        totalItems: filteredItems.length,
+        totalPages: 1,
+      },
+    };
+  } catch (err2) {
+    console.error('All fallback GET /admin/vendors attempts failed:', err2);
+  }
+
+  return {
+    items: [],
+    pagination: { currentPage: 1, pageSize: 25, totalItems: 0, totalPages: 0 },
+  };
 }
 
 /**
