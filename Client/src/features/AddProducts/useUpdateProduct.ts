@@ -46,6 +46,7 @@ export const useUpdateProduct = () => {
         name: enrichedFormData.nameEn || enrichedFormData.nameAr || '',
         nameAr: enrichedFormData.nameAr || enrichedFormData.nameEn || '',
         categoryId: enrichedFormData.categoryId || '',
+        season: enrichedFormData.season || 'all',
         description: enrichedFormData.description || '',
         descriptionAr:
           enrichedFormData.descriptionAr ||

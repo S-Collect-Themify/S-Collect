@@ -200,6 +200,10 @@ export interface CategoryFormModalProps {
   mode: 'add' | 'edit';
   category?: Category | null;
   categories: Category[];
+  // Level (1 = Category, 2 = Sub-Category) and parent preselected by the caller
+  // (e.g. clicking "+" on a Department row), used only when adding.
+  initialLevel: 1 | 2;
+  initialParentId: string | null;
   isSubmitting?: boolean;
   onClose: () => void;
   onSave: (data: Omit<Category, 'id' | 'productsCount' | 'image'> & { image?: string | File | null }) => void;
@@ -210,12 +214,15 @@ export const CategoryFormModal = ({
   mode,
   category,
   categories,
+  initialLevel,
+  initialParentId,
   isSubmitting: isSubmittingProp,
   onClose,
   onSave,
 }: CategoryFormModalProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isSubmitting = isSubmittingProp ?? false;
+  const isDepartment = mode === 'edit' && category?.depth === 0;
   const [nameEn, setNameEn] = useState(category?.nameEn ?? '');
   const [nameAr, setNameAr] = useState(category?.nameAr ?? '');
   const [slug, setSlug] = useState(category?.slug ?? '');
@@ -227,6 +234,12 @@ export const CategoryFormModal = ({
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [touchedEn, setTouchedEn] = useState(false);
   const [touchedAr, setTouchedAr] = useState(false);
+  const [level, setLevel] = useState<1 | 2>(initialLevel);
+  const [parentId, setParentId] = useState(initialParentId ?? '');
+
+  const departments = categories.filter((c) => c.depth === 0);
+  const parentCategories = categories.filter((c) => c.depth === 1);
+  const parentOptions = level === 1 ? departments : parentCategories;
 
   const isNameEnValid = nameEn.trim().length >= 2 && nameEn.trim().length <= 50;
   const isNameArValid = nameAr.trim().length >= 2 && nameAr.trim().length <= 50;
@@ -239,7 +252,8 @@ export const CategoryFormModal = ({
   );
   const isDuplicate = isDuplicateEn || isDuplicateAr;
 
-  const isValid = isNameEnValid && isNameArValid && !isDuplicate;
+  const isParentValid = isDepartment || parentId.trim().length > 0;
+  const isValid = isNameEnValid && isNameArValid && !isDuplicate && isParentValid;
 
   const handleNameEnChange = (val: string) => {
     setNameEn(val);
@@ -284,7 +298,15 @@ export const CategoryFormModal = ({
   const handleSave = () => {
     if (!isValid) return;
     const finalImage = mode === 'edit' ? (imageFile ? imageFile : (image.trim() ? image.trim() : null)) : undefined;
-    onSave({ nameEn: nameEn.trim(), nameAr: nameAr.trim(), slug, image: finalImage, isActive });
+    onSave({
+      nameEn: nameEn.trim(),
+      nameAr: nameAr.trim(),
+      slug,
+      image: finalImage,
+      isActive,
+      depth: isDepartment ? 0 : level,
+      parentCategoryId: isDepartment ? undefined : parentId,
+    });
   };
 
   return (
@@ -315,7 +337,15 @@ export const CategoryFormModal = ({
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
               <h2 className="text-label-lg font-semibold text-gray-900">
-                {mode === 'add' ? t('categories.modal.addCategory') : t('categories.modal.editCategory')}
+                {isDepartment
+                  ? t('categories.modal.editDepartment')
+                  : mode === 'add'
+                    ? level === 1
+                      ? t('categories.modal.addCategory')
+                      : t('categories.modal.addSubCategory')
+                    : level === 1
+                      ? t('categories.modal.editCategory')
+                      : t('categories.modal.editSubCategory')}
               </h2>
               <button
                 type="button"
@@ -329,6 +359,65 @@ export const CategoryFormModal = ({
 
             {/* Body */}
             <div className="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Level + Parent — hidden when editing a Department (fixed, no parent) */}
+              {!isDepartment && (
+                <>
+                  {mode === 'add' && (
+                    <div>
+                      <label className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                        {t('categories.modal.level')}
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {([1, 2] as const).map((lvl) => (
+                          <button
+                            key={lvl}
+                            type="button"
+                            onClick={() => {
+                              setLevel(lvl);
+                              setParentId('');
+                            }}
+                            className={`py-2 rounded-xl border text-body-sm font-medium transition-all cursor-pointer ${
+                              level === lvl
+                                ? 'border-gray-900 bg-gray-900 text-white'
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            {lvl === 1 ? t('categories.tree.category') : t('categories.tree.subCategory')}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="cat-parent" className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                      {level === 1 ? t('categories.modal.parentDepartment') : t('categories.modal.parentCategory')}{' '}
+                      <span className="text-red">*</span>
+                    </label>
+                    <select
+                      id="cat-parent"
+                      value={parentId}
+                      onChange={(e) => setParentId(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-900 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white cursor-pointer"
+                    >
+                      <option value="" disabled>
+                        {level === 1
+                          ? t('categories.modal.selectParentDepartment')
+                          : t('categories.modal.selectParentCategory')}
+                      </option>
+                      {parentOptions.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {i18n.language === 'ar' ? (opt.nameAr || opt.name) : (opt.nameEn || opt.name)}
+                        </option>
+                      ))}
+                    </select>
+                    {touchedEn && !isParentValid && (
+                      <p className="text-xs text-red mt-1.5">{t('categories.modal.parentRequiredError')}</p>
+                    )}
+                  </div>
+                </>
+              )}
+
               {/* Category Image - Edit Mode Only */}
               {mode === 'edit' && (
                 <div>

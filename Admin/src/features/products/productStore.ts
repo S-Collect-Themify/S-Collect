@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ProductItem, StatusFilter, DisableModalState } from './types';
+import type { ProductItem, StatusFilter, SeasonFilter, DisableModalState } from './types';
 
 interface ProductStore {
   products: ProductItem[];
@@ -7,6 +7,7 @@ interface ProductStore {
   vendorFilter: string;
   categoryFilter: string;
   statusFilter: StatusFilter;
+  seasonFilter: SeasonFilter;
   currentPage: number;
   modal: DisableModalState;
   selectedProductIds: (string | number)[];
@@ -17,6 +18,7 @@ interface ProductStore {
   setVendorFilter: (vendor: string) => void;
   setCategoryFilter: (category: string) => void;
   setStatusFilter: (status: StatusFilter) => void;
+  setSeasonFilter: (season: SeasonFilter) => void;
   setCurrentPage: (page: number) => void;
   
   openDisableModal: (product: ProductItem) => void;
@@ -37,6 +39,7 @@ export const useProductStore = create<ProductStore>((set) => ({
   vendorFilter: 'all',
   categoryFilter: 'all',
   statusFilter: 'all',
+  seasonFilter: 'all',
   currentPage: 1,
   modal: {
     open: false,
@@ -51,6 +54,7 @@ export const useProductStore = create<ProductStore>((set) => ({
   setVendorFilter: (vendorFilter) => set({ vendorFilter, currentPage: 1 }),
   setCategoryFilter: (categoryFilter) => set({ categoryFilter, currentPage: 1 }),
   setStatusFilter: (statusFilter) => set({ statusFilter, currentPage: 1 }),
+  setSeasonFilter: (seasonFilter) => set({ seasonFilter, currentPage: 1 }),
   setCurrentPage: (currentPage) => set({ currentPage }),
 
   openDisableModal: (product) =>

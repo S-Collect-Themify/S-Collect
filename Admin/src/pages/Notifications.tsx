@@ -23,8 +23,8 @@ export default function NotificationsPage() {
   const [selectedVendorId, setSelectedVendorId] = useState<string>('');
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
-  // Fetch vendors for filter
-  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 200 });
+  // Fetch vendors for filter (API caps pageSize at 100)
+  const { data: vendorsData, isLoading: isVendorsLoading } = useVendors({ pageSize: 100 });
 
   const vendorsList = useMemo(() => {
     if (Array.isArray(vendorsData?.items)) return vendorsData.items;

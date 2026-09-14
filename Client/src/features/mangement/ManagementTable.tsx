@@ -7,6 +7,7 @@ import { useManagementStore } from './managementStore';
 import { useManagementTable, useManagementActions } from './useManagementHooks';
 import CategoryDropdown from './CategoryDropdown';
 import StatusDropdown from './StatusDropdown';
+import SeasonDropdown from './SeasonDropdown';
 import { getPaginationRange } from '../../utils/pagination';
 
 export default function ProductTable() {
@@ -16,6 +17,7 @@ export default function ProductTable() {
   const {
     selectedCategories,
     selectedStatus,
+    selectedSeason,
     search,
     page,
     selectedRows,
@@ -35,6 +37,9 @@ export default function ProductTable() {
   );
   const setSelectedStatus = useManagementStore(
     (state) => state.setSelectedStatus
+  );
+  const setSelectedSeason = useManagementStore(
+    (state) => state.setSelectedSeason
   );
   const setPage = useManagementStore((state) => state.setPage);
   const toggleRow = useManagementStore((state) => state.toggleRow);
@@ -135,6 +140,11 @@ export default function ProductTable() {
           <StatusDropdown
             selected={selectedStatus}
             onChange={setSelectedStatus}
+          />
+
+          <SeasonDropdown
+            selected={selectedSeason}
+            onChange={setSelectedSeason}
           />
 
           {selectedCount > 0 && (

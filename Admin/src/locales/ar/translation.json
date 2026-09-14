@@ -153,6 +153,7 @@
       "reviews": "التقييمات",
       "vouchers": "القسائم",
       "buyers": "المشترون",
+      "attributes": "السمات والخيارات",
       "adminSettings": "الإعدادات",
       "logout": "تسجيل الخروج",
       "logoutDescription": "هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟\nستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى لوحة التحكم.",
@@ -299,7 +300,8 @@
       "basePriceRequired": "السعر الأساسي مطلوب",
       "comparePriceRequired": "السعر قبل الخصم مطلوب",
       "skuRequired": "رمز المنتج مطلوب",
-      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0"
+      "priceMinValue": "السعر يجب أن يكون أكبر من أو يساوي 0",
+      "categoryRequired": "الفئة مطلوبة"
     },
     "mobile": {
       "addProduct": "إضافة منتج",
@@ -317,7 +319,19 @@
       "productAddedSuccessfully": "تمت إضافة المنتج بنجاح",
       "productAddedMessage": "تمت إضافة منتجك بنجاح.",
       "done": "تم"
-    }
+    },
+    "category": "الفئة",
+    "selectCategory": "اختر فئة",
+    "loadingCategories": "جاري تحميل الفئات...",
+    "department": "القسم",
+    "selectDepartment": "اختر قسمًا",
+    "noCategoriesInDepartment": "لا توجد فئات في هذا القسم بعد",
+    "subCategory": "فئة فرعية",
+    "selectSubCategoryOptional": "بدون (استخدام الفئة الرئيسية)",
+    "season": "الموسم",
+    "seasonAll": "كل المواسم",
+    "seasonSummer": "صيفي",
+    "seasonWinter": "شتوي"
   },
   "ordersPage": {
     "notifications": {
@@ -897,8 +911,8 @@
       "activateVendor": "تفعيل المورد",
       "editProfile": "تعديل الملف",
       "joined": "انضم",
-      "contactInfo": "معلومات الاتصال",
-      "phone": "الهاتف",
+      "contactInfo": "معلومات التواصل",
+      "phone": "رقم الهاتف",
       "email": "البريد الإلكتروني",
       "location": "الموقع",
       "taxId": "الرقم الضريبي",
@@ -933,8 +947,6 @@
       "suspended": "معلق",
       "suspend": "تعليق",
       "activate": "تفعيل",
-      "suspendVendor": "تعليق المورد",
-      "activateVendor": "تفعيل المورد",
       "statusCompleted": "مكتمل",
       "statusAccepted": "مقبول",
       "statusPending": "معلق",
@@ -950,11 +962,7 @@
       "amountLabel": "المبلغ",
       "categoryLabel": "التصنيف",
       "priceLabel": "السعر",
-      "contactInfo": "معلومات التواصل",
       "owner": "المالك",
-      "phone": "رقم الهاتف",
-      "email": "البريد الإلكتروني",
-      "location": "الموقع",
       "commercialRegister": "السجل التجاري"
     },
     "modals": {
@@ -1139,7 +1147,16 @@
       "save": "حفظ الفئة",
       "cancel": "إلغاء",
       "nameLengthError": "يجب أن يكون اسم الفئة بين 2 و 50 حرفاً",
-      "duplicateError": "اسم الفئة موجود مسبقا يرجى اختيار اسم مختلف"
+      "duplicateError": "اسم الفئة موجود مسبقا يرجى اختيار اسم مختلف",
+      "addSubCategory": "إضافة فئة فرعية",
+      "editDepartment": "تعديل القسم",
+      "editSubCategory": "تعديل فئة فرعية",
+      "level": "المستوى",
+      "parentDepartment": "القسم الرئيسي",
+      "parentCategory": "الفئة الرئيسية",
+      "selectParentDepartment": "اختر القسم",
+      "selectParentCategory": "اختر الفئة",
+      "parentRequiredError": "يرجى اختيار القسم/الفئة الرئيسية قبل الحفظ."
     },
     "statusModal": {
       "title": "تغيير الحالة",
@@ -1171,7 +1188,8 @@
     },
     "filter": {
       "all": "الفئة: الكل",
-      "search": "البحث في الفئات..."
+      "search": "البحث في الفئات...",
+      "allDepartments": "القسم: الكل"
     },
     "pagination": {
       "showing": "عرض {{start}}–{{end}} من {{total}} فئات"
@@ -1199,6 +1217,18 @@
     "mobile": {
       "slug": "الرابط",
       "productsCount": "عدد المنتجات"
+    },
+    "tree": {
+      "department": "قسم",
+      "category": "فئة",
+      "subCategory": "فئة فرعية",
+      "expand": "توسيع",
+      "collapse": "طي",
+      "addCategory": "إضافة فئة",
+      "addSubCategory": "إضافة فئة فرعية",
+      "emptyDepartment": "لا توجد فئات في هذا القسم بعد.",
+      "emptyCategory": "لا توجد فئات فرعية بعد.",
+      "unassignedNotice": "هذه الفئات موجودة لكنها غير مرتبطة بأي قسم بعد، لذلك لن تظهر في شجرة الفئات بالمتجر. عدّل الفئة واختر قسمًا رئيسيًا لربطها."
     }
   },
   "productsListing": {
@@ -1635,7 +1665,9 @@
     "addNewBanner": "إضافة بانر جديد",
     "noBanners": "لم يتم إضافة بانرات حتى الآن.",
     "delete": "حذف البانر",
-    "edit": "تعديل البانر",
+    "edit": {
+      "title": "تعديل البانر"
+    },
     "refreshBanners": "تحديث البانرات",
     "dragToReorder": "سحب لإعادة الترتيب",
     "noImage": "لا توجد صورة",
@@ -1664,9 +1696,6 @@
     },
     "add": {
       "title": "إضافة بانر جديد"
-    },
-    "edit": {
-      "title": "تعديل البانر"
     },
     "breadcrumb": {
       "settings": "الإعدادات",
@@ -1973,7 +2002,6 @@
     "tableDate": "تاريخ الإرسال",
     "madeByAdmin": "أدمن",
     "tokensUnit": "جهاز",
-
     "noCampaigns": "لا توجد حملات إشعارات حالياً",
     "sendModalTitle": "إرسال إشعار دفع جديد",
     "sendModalSubtitle": "بث حملة إشعارات جديدة للمستخدمين",
@@ -1996,5 +2024,87 @@
     "sending": "جارٍ الإرسال...",
     "sendSuccess": "تم إرسال الإشعار بنجاح",
     "sendError": "فشل إرسال الإشعار"
+  },
+  "attributes": {
+    "title": "السمات والخيارات",
+    "subtitle": "قم بإعداد السمات والخيارات القابلة لإعادة الاستخدام لمنتجاتك.",
+    "createBtn": "إضافة سمة",
+    "searchPlaceholder": "ابحث عن السمات أو الخيارات...",
+    "error": {
+      "title": "فشل في تحميل السمات",
+      "description": "حدث خطأ غير متوقع أثناء جلب السمات.",
+      "retry": "إعادة المحاولة"
+    },
+    "emptySearch": {
+      "title": "لا توجد سمات مطابقة",
+      "description": "لم يتم العثور على سمات تطابق \"{{query}}\". حاول البحث باسم آخر.",
+      "clear": "مسح البحث"
+    },
+    "empty": {
+      "title": "لا توجد سمات حتى الآن",
+      "description": "قم بإنشاء سمات قابلة لإعادة الاستخدام مثل المقاسات أو الألوان مع خياراتها لتتمكن من تعيينها بسهولة عند إضافة المنتجات.",
+      "action": "إنشاء أول سمة"
+    },
+    "card": {
+      "sortOrder": "ترتيب الفرز",
+      "editAttribute": "تعديل السمة",
+      "deleteAttribute": "حذف السمة",
+      "valuesCount": "الخيارات ({{count}})",
+      "addValue": "إضافة خيار",
+      "noValues": "لا توجد خيارات بعد. اضغط على \"إضافة خيار\" لتعريف الخيارات.",
+      "editValue": "تعديل الخيار",
+      "deleteValue": "حذف الخيار"
+    },
+    "form": {
+      "editTitle": "تعديل السمة",
+      "createTitle": "إنشاء سمة جديدة",
+      "nameEnLabel": "اسم السمة (باللغة الإنجليزية)",
+      "nameEnRequired": "اسم السمة باللغة الإنجليزية مطلوب",
+      "nameArLabel": "اسم السمة (باللغة العربية)",
+      "nameArRequired": "اسم السمة باللغة العربية مطلوب",
+      "sortOrderLabel": "ترتيب الفرز",
+      "sortOrderHint": "الأرقام الأقل تظهر أولاً في محددات خيارات المنتج.",
+      "initialValuesLabel": "الخيارات المبدئية (اختياري)",
+      "cancel": "إلغاء",
+      "saving": "جارٍ الحفظ...",
+      "updateBtn": "حفظ التغييرات",
+      "createBtn": "إنشاء السمة"
+    },
+    "valueModal": {
+      "editTitle": "تعديل الخيار",
+      "addTitle": "إضافة خيار جديد",
+      "parentAttribute": "السمة: {{name}}",
+      "valueEnLabel": "الخيار (باللغة الإنجليزية)",
+      "valueEnRequired": "الخيار باللغة الإنجليزية مطلوب",
+      "valueArLabel": "الخيار (باللغة العربية)",
+      "valueArRequired": "الخيار باللغة العربية مطلوب",
+      "sortOrderLabel": "ترتيب الفرز",
+      "sortOrderHint": "يحدد موضع هذا الخيار في القوائم المنسدلة للمنتجات.",
+      "updateBtn": "حفظ الخيار",
+      "createBtn": "إضافة الخيار"
+    },
+    "deleteModal": {
+      "attributeTitle": "حذف السمة",
+      "valueTitle": "حذف الخيار",
+      "parentAttr": "من السمة: {{name}}",
+      "attributeWarning": "سيتم حذف هذه السمة نهائياً. ستفشل عملية الحذف إذا كانت هذه السمة مرتبطة بأي منتج حالياً.",
+      "valueWarning": "سيتم إزالة هذا الخيار. ستفشل عملية الحذف إذا كان أي منتج يستخدم هذا الخيار حالياً.",
+      "deleting": "جارٍ الحذف...",
+      "confirmBtn": "نعم، احذف"
+    },
+    "toasts": {
+      "createSuccess": "تم إنشاء السمة بنجاح",
+      "createError": "فشل في إنشاء السمة",
+      "updateSuccess": "تم تحديث السمة بنجاح",
+      "updateError": "فشل في تحديث السمة",
+      "deleteSuccess": "تم حذف السمة بنجاح",
+      "deleteError": "فشل في حذف السمة. قد تكون قيد الاستخدام في بعض المنتجات.",
+      "addValueSuccess": "تم إضافة الخيار بنجاح",
+      "addValueError": "فشل في إضافة الخيار",
+      "updateValueSuccess": "تم تحديث الخيار بنجاح",
+      "updateValueError": "فشل في تحديث الخيار",
+      "deleteValueSuccess": "تمت إزالة الخيار بنجاح",
+      "deleteValueError": "فشل في إزالة الخيار. قد يكون قيد الاستخدام."
+    }
   }
 }

@@ -251,7 +251,7 @@ const ProductDetails = () => {
                 {isAr ? "المنتجات" : "Products"}
               </Link>
               <ChevronIcon size={12} className="text-gray-400" />
-              <span className="text-gray-900 font-semibold truncate max-w-[200px]">
+              <span className="text-gray-900 font-semibold truncate max-w-50">
                 {productName}
               </span>
             </nav>

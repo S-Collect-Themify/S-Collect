@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useCategories } from '../../hooks/useCategories';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import PortalDropdown from '../../components/ui/PortalDropdown';
-import type { Category } from '../../services/products';
+import { getCategoriesTree } from '../../services/products';
+import { buildCategoryTree, findNode, type CategoryTreeNode } from '../../utils/categoryTree';
 
 const DD_ITEM =
   'flex items-center gap-2.5 px-3.5 py-2.5 text-sm cursor-pointer hover:bg-gray-50';
@@ -15,32 +16,49 @@ interface CategoryDropdownProps {
 function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
-  const { categories, isLoading } = useCategories();
 
+  const { data: tree = [], isLoading } = useQuery({
+    queryKey: ['category-tree'],
+    queryFn: async () => buildCategoryTree(await getCategoriesTree()),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const label = (node: CategoryTreeNode) => (isAr ? node.nameAr || node.name : node.name);
   const allSelected = selected.length === 0;
 
-  let label = t('managementTable.category');
+  let dropdownLabel = t('managementTable.category');
   if (selected.length === 1) {
-    const selectedCat = (categories as Category[]).find(
-      (c: Category) => c.id === selected[0]
-    );
-    if (selectedCat) {
-      label = isAr ? selectedCat.nameAr : selectedCat.name;
-    }
+    const node = findNode(tree, selected[0]);
+    if (node) dropdownLabel = label(node);
   } else if (selected.length > 1) {
-    label = t('managementTable.categoriesCount', { count: selected.length });
+    dropdownLabel = t('managementTable.categoriesCount', { count: selected.length });
   }
 
-  const toggle = (catId: string) =>
-    onChange(
-      selected.includes(catId)
-        ? selected.filter((c: string) => c !== catId)
-        : [...selected, catId]
-    );
+  const toggle = (id: string) =>
+    onChange(selected.includes(id) ? selected.filter((c) => c !== id) : [...selected, id]);
+
+  const renderNode = (node: CategoryTreeNode) => (
+    <div key={node.id}>
+      <div
+        className={DD_ITEM}
+        style={{ paddingInlineStart: `${14 + node.depth * 16}px` }}
+        onClick={() => toggle(node.id)}
+      >
+        <input
+          type="checkbox"
+          readOnly
+          checked={selected.includes(node.id)}
+          className="accent-black w-3.5 h-3.5 cursor-pointer shrink-0"
+        />
+        <span className={node.depth === 0 ? 'font-semibold' : ''}>{label(node)}</span>
+      </div>
+      {node.children.map(renderNode)}
+    </div>
+  );
 
   return (
     <PortalDropdown
-      minWidth={200}
+      minWidth={220}
       animate={false}
       menuClassName="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden"
       trigger={({ isOpen, toggle: toggleOpen }) => (
@@ -49,7 +67,7 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
           onClick={toggleOpen}
           disabled={isLoading}
         >
-          {label}
+          {dropdownLabel}
           <ChevronDown
             color="black"
             size={15}
@@ -59,7 +77,7 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
       )}
     >
       {({ close }) => (
-        <>
+        <div className="max-h-80 overflow-y-auto">
           <div
             className={DD_ITEM}
             onClick={() => {
@@ -76,25 +94,8 @@ function CategoryDropdown({ selected, onChange }: CategoryDropdownProps) {
             <span>{t('managementTable.allCategories')}</span>
           </div>
           <div className="h-px bg-gray-100 my-1" />
-          {(categories as Category[]).map((cat: Category) => {
-            const catName = isAr ? cat.nameAr : cat.name;
-            return (
-              <div
-                key={cat.id}
-                className={DD_ITEM}
-                onClick={() => toggle(cat.id)}
-              >
-                <input
-                  type="checkbox"
-                  readOnly
-                  checked={selected.includes(cat.id)}
-                  className="accent-black w-3.5 h-3.5 cursor-pointer"
-                />
-                <span>{catName}</span>
-              </div>
-            );
-          })}
-        </>
+          {tree.map(renderNode)}
+        </div>
       )}
     </PortalDropdown>
   );

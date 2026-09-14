@@ -46,6 +46,7 @@ export interface UpdateProductPayload {
   name?: string;
   nameAr?: string;
   categoryId?: string;
+  season?: 'summer' | 'winter' | 'all';
   description?: string;
   descriptionAr?: string;
 }
@@ -61,12 +62,14 @@ export const updateProductFull = async (
       const name = payload.get('name') || payload.get('nameEn');
       const nameAr = payload.get('nameAr');
       const categoryId = payload.get('categoryId');
+      const season = payload.get('season');
       const description = payload.get('description');
       const descriptionAr = payload.get('descriptionAr');
 
       if (name) jsonBody.name = String(name);
       if (nameAr) jsonBody.nameAr = String(nameAr);
       if (categoryId) jsonBody.categoryId = String(categoryId);
+      if (season) jsonBody.season = String(season);
       if (description !== null && description !== undefined)
         jsonBody.description = String(description);
       if (descriptionAr !== null && descriptionAr !== undefined)
@@ -151,6 +154,32 @@ export const getCategories = async (): Promise<Category[]> => {
     return data;
   } catch (err) {
     throw handleServiceError(err, 'Failed to fetch categories');
+  }
+};
+
+export interface CategoryTreeApiNode {
+  id: string;
+  name: string;
+  nameAr?: string;
+  slug?: string;
+  depth?: number;
+  image?: string | null;
+  isActive?: boolean;
+  // Departments nest their children under `categories`, categories nest
+  // theirs under `children` — /buyer/categories/tree's per-level shape.
+  categories?: CategoryTreeApiNode[];
+  children?: CategoryTreeApiNode[];
+}
+
+// There is no vendor-scoped tree endpoint, so vendors pick from the same
+// public (active-only) Department → Category → Sub-Category tree buyers see.
+export const getCategoriesTree = async (): Promise<CategoryTreeApiNode[]> => {
+  try {
+    const { data } = await api.get('/buyer/categories/tree');
+    const body = data && typeof data === 'object' && 'data' in data ? (data as any).data : data;
+    return Array.isArray(body) ? body : [];
+  } catch (err) {
+    throw handleServiceError(err, 'Failed to fetch category tree');
   }
 };
 
@@ -383,6 +412,9 @@ export const searchVendorProducts = async (query: {
   pageSize?: number;
   search?: string;
   categoryId?: string;
+  departmentId?: string;
+  subCategoryId?: string;
+  season?: 'summer' | 'winter' | 'all';
   isActive?: boolean;
   inStockOrAbove?: number;
 }) => {

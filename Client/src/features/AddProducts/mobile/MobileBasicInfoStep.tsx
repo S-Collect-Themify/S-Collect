@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import type { ProductFormData } from '../types';
 import BasicInfoFields from '../BasicInfoFields';
 import CategorySelect from '../CategorySelect';
+import SeasonSelect from '../SeasonSelect';
 import { useMobileAddProductStore } from './mobileAddProductStore';
 
 const MobileBasicInfoStep = () => {
@@ -26,6 +27,7 @@ const MobileBasicInfoStep = () => {
     <div className="flex flex-col md:gap-5 gap-3">
       <BasicInfoFields />
       <CategorySelect />
+      <SeasonSelect />
 
       {/* Navigation buttons */}
       <div className="flex gap-3 mt-2">

@@ -1,10 +1,6 @@
-import { useMemo, useEffect } from 'react';
-import { Tag } from 'lucide-react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AnimatePresence } from 'motion/react';
-import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
-  ITEMS_PER_PAGE,
   useCategoryStore,
   useCategoriesData,
   CategoryHeader,
@@ -13,27 +9,23 @@ import {
   DeleteModal,
   StatusConfirmModal,
   CannotDeleteModal,
-  CategoryTable,
+  CategoryTree,
   CategorySkeleton,
-  MobileCard,
-  Pagination,
   BulkNavbar,
+  filterCategoryTree,
   type Category,
 } from '../features/categories';
 import { BulkDiscountModal, type BulkDiscountFormData } from '../features/products';
 
 // ─── Main Categories Page ──────────────────────────────────────────────────────
 const Categories = () => {
-  const { t, i18n } = useTranslation();
-  const { isMobile } = useBreakpoint();
-
-  useEffect(() => {
-    useCategoryStore.getState().setCurrentPage(1);
-  }, []);
+  const { i18n } = useTranslation();
 
   // ── React Query Hook (Data Fetching & Mutations) ──
   const {
+    tree,
     categories,
+    orphans,
     isLoading,
     createCategoryMutation,
     updateCategoryMutation,
@@ -45,9 +37,9 @@ const Categories = () => {
 
   // ── Store State (UI & Modals) ──
   const search = useCategoryStore((s) => s.search);
-  const categoryFilter = useCategoryStore((s) => s.categoryFilter);
-  const currentPage = useCategoryStore((s) => s.currentPage);
+  const departmentFilter = useCategoryStore((s) => s.departmentFilter);
   const selectedIds = useCategoryStore((s) => s.selectedIds);
+  const expandedIds = useCategoryStore((s) => s.expandedIds);
 
   const formModal = useCategoryStore((s) => s.formModal);
   const deleteModal = useCategoryStore((s) => s.deleteModal);
@@ -56,11 +48,12 @@ const Categories = () => {
   const discountModal = useCategoryStore((s) => s.discountModal);
 
   // ── Store Actions ──
-  const setCurrentPage = useCategoryStore((s) => s.setCurrentPage);
   const handleSelectOne = useCategoryStore((s) => s.handleSelectOne);
-  const handleSelectAll = useCategoryStore((s) => s.handleSelectAll);
   const clearSelection = useCategoryStore((s) => s.clearSelection);
+  const toggleExpanded = useCategoryStore((s) => s.toggleExpanded);
+  const expandIds = useCategoryStore((s) => s.expandIds);
 
+  const openAdd = useCategoryStore((s) => s.openAdd);
   const openEdit = useCategoryStore((s) => s.openEdit);
   const openDelete = useCategoryStore((s) => s.openDelete);
   const openBulkDelete = useCategoryStore((s) => s.openBulkDelete);
@@ -72,6 +65,15 @@ const Categories = () => {
   const closeCannotDeleteModal = useCategoryStore((s) => s.closeCannotDeleteModal);
   const openCannotDeleteModal = useCategoryStore((s) => s.openCannotDeleteModal);
   const handleToggleActiveRequest = useCategoryStore((s) => s.handleToggleActiveRequest);
+
+  // ── Expand all Departments by default once the tree first loads ──
+  const didInitExpand = useRef(false);
+  useEffect(() => {
+    if (!didInitExpand.current && tree.length > 0) {
+      expandIds(tree.map((d) => d.id));
+      didInitExpand.current = true;
+    }
+  }, [tree, expandIds]);
 
   // ── Mutation Action Handlers ──
   const handleSave = async (data: Omit<Category, 'id' | 'productsCount' | 'image'> & { image?: string | File | null }) => {
@@ -171,31 +173,23 @@ const Categories = () => {
     clearSelection();
   };
 
-  // ── Filtering & Pagination ──
-  const filtered = useMemo(() => {
-    let result = categories;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          (c.nameEn && c.nameEn.toLowerCase().includes(q)) ||
-          (c.nameAr && c.nameAr.toLowerCase().includes(q)) ||
-          (c.name && c.name.toLowerCase().includes(q)) ||
-          (c.slug && c.slug.toLowerCase().includes(q))
-      );
-    }
-    if (categoryFilter !== 'all') {
-      result = result.filter((c) => c.id === categoryFilter);
-    }
-    return result;
-  }, [categories, search, categoryFilter]);
+  // ── Filtering (Department + Search) ──
+  const visibleTree = useMemo(() => {
+    const byDepartment =
+      departmentFilter === 'all' ? tree : tree.filter((d) => d.id === departmentFilter);
+    return filterCategoryTree(byDepartment, search);
+  }, [tree, departmentFilter, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-
-  const paginated = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, currentPage]);
+  // Orphans have no department, so they're only affected by search (and hidden
+  // entirely when a specific department is selected, since they can't match one).
+  const visibleOrphans = useMemo(() => {
+    if (departmentFilter !== 'all') return [];
+    const q = search.trim().toLowerCase();
+    if (!q) return orphans;
+    return orphans.filter(
+      (c) => c.nameEn.toLowerCase().includes(q) || c.nameAr.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q)
+    );
+  }, [orphans, departmentFilter, search]);
 
   const isSubmitting = createCategoryMutation.isPending || updateCategoryMutation.isPending;
 
@@ -214,63 +208,23 @@ const Categories = () => {
 
         {/* Content */}
         {isLoading ? (
-          <CategorySkeleton isMobile={isMobile} />
-        ) : isMobile ? (
-          <div className="space-y-3">
-            <AnimatePresence>
-              {paginated.map((cat) => (
-                <MobileCard
-                  key={cat.id}
-                  category={cat}
-                  selected={selectedIds.has(cat.id)}
-                  onSelect={() => handleSelectOne(cat.id)}
-                  onEdit={openEdit}
-                  onDelete={openDelete}
-                  onToggleActive={handleToggleActiveRequest}
-                />
-              ))}
-            </AnimatePresence>
-
-            {paginated.length === 0 && (
-              <div className="py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-xs">
-                <Tag size={36} className="mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-500 text-sm">{t('categories.emptyState')}</p>
-              </div>
-            )}
-
-            {filtered.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden mt-3">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalItems={filtered.length}
-                  itemsPerPage={ITEMS_PER_PAGE}
-                  onPageChange={setCurrentPage}
-                />
-              </div>
-            )}
-          </div>
+          <CategorySkeleton isMobile={false} />
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
-            <CategoryTable
-              categories={paginated}
+            <CategoryTree
+              tree={visibleTree}
+              orphans={visibleOrphans}
               selectedIds={selectedIds}
+              expandedIds={expandedIds}
+              forceExpandAll={search.trim().length > 0}
+              onToggleExpand={toggleExpanded}
               onSelectOne={handleSelectOne}
-              onSelectAll={() => handleSelectAll(paginated.map((c) => c.id))}
               onEdit={openEdit}
               onDelete={openDelete}
               onToggleActive={handleToggleActiveRequest}
+              onAddCategory={(departmentId) => openAdd({ level: 1, parentId: departmentId })}
+              onAddSubCategory={(categoryId) => openAdd({ level: 2, parentId: categoryId })}
             />
-
-            {filtered.length > 0 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={filtered.length}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
-            )}
           </div>
         )}
 
@@ -299,11 +253,13 @@ const Categories = () => {
 
         {/* Add / Edit Modal */}
         <CategoryFormModal
-          key={formModal.open ? (formModal.category?.id ?? 'add-new') : 'closed'}
+          key={formModal.open ? (formModal.category?.id ?? `add-${formModal.level}-${formModal.parentId ?? ''}`) : 'closed'}
           isOpen={formModal.open}
           mode={formModal.mode}
           category={formModal.category}
           categories={categories}
+          initialLevel={formModal.level}
+          initialParentId={formModal.parentId}
           isSubmitting={isSubmitting}
           onClose={closeForm}
           onSave={handleSave}

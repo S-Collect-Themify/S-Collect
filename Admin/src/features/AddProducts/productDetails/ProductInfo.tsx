@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Pencil, CheckCircle, XCircle, Award, Flame } from "lucide-react";
+import { Star, Pencil, CheckCircle, XCircle, Award, Flame, Sun, Snowflake } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SingleAdminProductDetail } from "../../../services/products";
 import ProductVariantsTable from "./ProductVariantsTable";
@@ -218,6 +218,20 @@ export default function ProductInfo({
                 <span className="text-gray-400">{t("productDetails.productInfo.sku", { defaultValue: "SKU:" })}</span>
                 <span className="font-bold text-gray-700">{primarySku}</span>
               </div>
+              {productDetail?.season && productDetail.season !== 'all' && (
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    productDetail.season === 'summer'
+                      ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                      : 'bg-sky-50 text-sky-700 border border-sky-200'
+                  }`}
+                >
+                  {productDetail.season === 'summer' ? <Sun size={12} /> : <Snowflake size={12} />}
+                  {productDetail.season === 'summer'
+                    ? (isAr ? 'صيفي' : 'Summer')
+                    : (isAr ? 'شتوي' : 'Winter')}
+                </span>
+              )}
             </div>
 
             <div className="my-4 lg:my-6 flex flex-col gap-2 sm:flex-row items-baseline sm:gap-4">

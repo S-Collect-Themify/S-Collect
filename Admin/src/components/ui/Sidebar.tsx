@@ -16,6 +16,7 @@ import {
   Ticket,
   Boxes,
   Bell,
+  Tags,
 } from 'lucide-react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -34,7 +35,6 @@ import { useVendorStore } from '../../features/vendors/store/vendorStore';
 import { useBuyerStore } from '../../features/buyers/store/buyerStore';
 import { useProductStore } from '../../features/products/productStore';
 import { useTransactionStore } from '../../store/transactionStore';
-import { useCategoryStore } from '../../store/categoryStore';
 import { useReviewStore } from '../../features/reviews/reviewStore';
 import { useVoucherStore } from '../../features/vouchers/voucherStore';
 import { useManagementStore } from '../../features/mangement/managementStore';
@@ -76,7 +76,6 @@ const resetPageForRoute = (path?: string) => {
   else if (path === '/buyers') useBuyerStore.getState().setPage(1);
   else if (path === '/products') useProductStore.getState().setCurrentPage(1);
   else if (path === '/transactions') useTransactionStore.getState().setPage(1);
-  else if (path === '/categories') useCategoryStore.getState().setCurrentPage(1);
   else if (path === '/reviews') useReviewStore.getState().setCurrentPage(1);
   else if (path === '/vouchers') useVoucherStore.getState().setCurrentPage(1);
   else if (path === '/management') useManagementStore.getState().setPage(1);
@@ -279,7 +278,7 @@ const NavItem = (props: NavItemProps) => {
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{t(labelKey)}</span>
         {badge !== undefined && badge !== null && Number(badge) > 0 && (
-          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
             {badge}
           </span>
         )}
@@ -455,6 +454,11 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
         icon: <Ticket size={18} />,
         labelKey: 'sidebar.items.vouchers',
         to: '/vouchers',
+      },
+      {
+        icon: <Tags size={18} />,
+        labelKey: 'sidebar.items.attributes',
+        to: '/attributes',
       },
     ],
   },
