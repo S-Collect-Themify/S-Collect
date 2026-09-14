@@ -8,6 +8,13 @@
   "header": {
     "greeting": "Hello, {{name}} 👋"
   },
+  "notifications": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications right now",
+    "markAsRead": "Mark as read"
+  },
   "dashboard": "Dashboard",
   "dashboardOverview": {
     "hello": "Hello, Ahmed 👋",
@@ -135,6 +142,8 @@
       "accountSettings": "Account Settings",
       "returns": "Return Requests",
       "orders": "Orders",
+      "refunds": "Refunds",
+      "notifications": "Notifications",
       "vendors": "Vendors",
       "vendorReports": "Vendor Reports",
       "commissionRates": "Commission Rates",
@@ -145,6 +154,7 @@
       "reviews": "Reviews",
       "vouchers": "Vouchers",
       "buyers": "Buyers",
+      "attributes": "Attributes",
       "adminSettings": "Settings",
       "logout": "Logout",
       "logoutDescription": "Are you sure you want to sign out of your account?\nYou will need to sign in again to access your dashboard.",
@@ -291,7 +301,8 @@
       "basePriceRequired": "Base price is required",
       "comparePriceRequired": "Compare-at price is required",
       "skuRequired": "SKU is required",
-      "priceMinValue": "Price must be greater than or equal to 0"
+      "priceMinValue": "Price must be greater than or equal to 0",
+      "categoryRequired": "Category is required"
     },
     "mobile": {
       "addProduct": "Add Product",
@@ -309,7 +320,19 @@
       "productAddedSuccessfully": "Product Added Successfully",
       "productAddedMessage": "Your product has been added successfully.",
       "done": "Done"
-    }
+    },
+    "category": "Category",
+    "selectCategory": "Select a category",
+    "loadingCategories": "Loading categories...",
+    "department": "Department",
+    "selectDepartment": "Select a department",
+    "noCategoriesInDepartment": "No categories in this department yet",
+    "subCategory": "Sub-Category",
+    "selectSubCategoryOptional": "None (use Category)",
+    "season": "Season",
+    "seasonAll": "All Seasons",
+    "seasonSummer": "Summer",
+    "seasonWinter": "Winter"
   },
   "ordersPage": {
     "notifications": {
@@ -597,17 +620,36 @@
     "inStock": "In Stock",
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock",
+    "colVendor": "Vendor",
     "colProductName": "Product Name",
     "colSku": "SKU",
     "colVariant": "Variant",
     "colCurrentStock": "Current Stock",
     "colStatus": "Status",
     "colLastUpdated": "Last Updated",
+    "allVendors": "All Vendors",
+    "searchVendorPlaceholder": "Search vendor...",
+    "noVendorsFound": "No vendors found",
+    "loadingVendors": "Loading...",
     "noProducts": "No products found.",
     "showing": "Showing",
     "of": "of",
     "results": "results",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "saveSuccess": "Changes saved successfully!",
+    "saveFailed": "Failed to save changes.",
+    "noChanges": "No changes to save.",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "exportSuccess": "Inventory exported successfully!",
+    "exportFailed": "Failed to export inventory.",
+    "import": "Import",
+    "importing": "Importing...",
+    "importSuccess": "Inventory updated from file!",
+    "importFailed": "Failed to import file.",
+    "importFailedRows": "row(s) could not be imported.",
+    "importInvalidType": "Please choose an Excel or CSV file.",
+    "updated": "Updated"
   },
   "managementTable": {
     "publish": "Publish",
@@ -805,6 +847,13 @@
       "status": "Status",
       "assign": "Assign",
       "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDeleteTitle": "Delete Vendor",
+      "confirmDeleteMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+      "confirmDeleteBulkMessage": "Are you sure you want to delete {{count}} vendor(s)? This action cannot be undone.",
+      "confirmDeleteBtn": "Delete",
+      "deleteSelected": "Delete",
       "allCategories": "All Categories",
       "filterBy": "Filter By",
       "allColumns": "All",
@@ -902,8 +951,6 @@
       "suspended": "Suspended",
       "suspend": "Suspend",
       "activate": "Activate",
-      "suspendVendor": "Suspend Vendor",
-      "activateVendor": "Activate Vendor",
       "statusCompleted": "Completed",
       "statusAccepted": "Accepted",
       "statusPending": "Pending",
@@ -919,11 +966,7 @@
       "amountLabel": "Amount",
       "categoryLabel": "Category",
       "priceLabel": "Price",
-      "contactInfo": "Contact Information",
       "owner": "Owner",
-      "phone": "Phone",
-      "email": "Email",
-      "location": "Location",
       "commercialRegister": "Commercial Register"
     },
     "modals": {
@@ -958,10 +1001,44 @@
       "deactivateError": "Failed to deactivate vendor",
       "reactivateSuccess": "Vendor reactivated successfully",
       "reactivateError": "Failed to reactivate vendor",
+      "deleteSuccess": "Vendor deleted successfully",
+      "deleteError": "Failed to delete vendor",
+      "updateSuccess": "Vendor updated successfully",
+      "updateError": "Failed to update vendor",
+      "createSuccess": "Vendor created successfully",
+      "createError": "Failed to create vendor",
       "featureSuccess": "Vendor marked as featured",
       "featureError": "Failed to feature vendor",
       "unfeatureSuccess": "Vendor unmarked as featured",
       "unfeatureError": "Failed to unfeature vendor"
+    },
+    "add": {
+      "title": "Add Vendor",
+      "button": "Add Vendor",
+      "submit": "Create Vendor"
+    },
+    "edit": {
+      "title": "Edit Vendor",
+      "loading": "Loading vendor data...",
+      "basicInfo": "Basic Information",
+      "contactInfo": "Contact Information",
+      "storeInfo": "Store Information",
+      "inventoryShipping": "Inventory & Shipping",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "phoneNumber": "Phone Number",
+      "publicEmail": "Public Email",
+      "publicPhoneNumber": "Public Phone Number",
+      "storeName": "Store Name",
+      "storeNameAr": "Store Name (Arabic)",
+      "storeDescription": "Store Description",
+      "commercialRegisterNumber": "Commercial Register Number",
+      "lowStockThreshold": "Low Stock Threshold",
+      "flatShippingRate": "Flat Shipping Rate",
+      "save": "Save Changes",
+      "cancel": "Cancel"
     },
     "ordersLog": {
       "pageTitle": "Vendor Management",
@@ -1074,7 +1151,16 @@
       "save": "Save Category",
       "cancel": "Cancel",
       "nameLengthError": "Category name must be between 2 and 50 characters.",
-      "duplicateError": "Category name already exists. Please choose a different name."
+      "duplicateError": "Category name already exists. Please choose a different name.",
+      "addSubCategory": "Add Sub-Category",
+      "editDepartment": "Edit Department",
+      "editSubCategory": "Edit Sub-Category",
+      "level": "Level",
+      "parentDepartment": "Parent Department",
+      "parentCategory": "Parent Category",
+      "selectParentDepartment": "Select a department",
+      "selectParentCategory": "Select a category",
+      "parentRequiredError": "Please select a parent before saving."
     },
     "statusModal": {
       "title": "Change Status",
@@ -1106,7 +1192,8 @@
     },
     "filter": {
       "all": "Category: All",
-      "search": "Search categories..."
+      "search": "Search categories...",
+      "allDepartments": "Department: All"
     },
     "pagination": {
       "showing": "Showing {{start}}–{{end}} of {{total}} categories"
@@ -1134,6 +1221,18 @@
     "mobile": {
       "slug": "slug",
       "productsCount": "Products Count"
+    },
+    "tree": {
+      "department": "Department",
+      "category": "Category",
+      "subCategory": "Sub-Category",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "addCategory": "Add Category",
+      "addSubCategory": "Add Sub-Category",
+      "emptyDepartment": "No categories in this department yet.",
+      "emptyCategory": "No sub-categories yet.",
+      "unassignedNotice": "These categories exist but are not linked to a Department yet, so they will not appear in the storefront category tree. Edit one and choose a Parent Department to link it in."
     }
   },
   "productsListing": {
@@ -1148,6 +1247,8 @@
     "allStatuses": "All Statuses",
     "active": "Active",
     "disabled": "Disabled",
+    "export": "Export",
+    "exporting": "Exporting...",
     "table": {
       "productName": "Product Name",
       "vendor": "Vendor",
@@ -1233,10 +1334,40 @@
   "buyers": {
     "notifications": {
       "updateSuccess": "Buyer status updated successfully",
-      "updateError": "Failed to update buyer status"
+      "updateError": "Failed to update buyer status",
+      "editSuccess": "Buyer updated successfully",
+      "editError": "Failed to update buyer",
+      "deleteSuccess": "Buyer deleted successfully",
+      "deleteError": "Failed to delete buyer",
+      "createSuccess": "Buyer created successfully",
+      "createError": "Failed to create buyer",
+      "verifySuccess": "Buyer activated successfully",
+      "verifyError": "Failed to activate buyer"
     },
     "title": "Buyers",
     "description": "Manage buyer accounts and information.",
+    "add": {
+      "title": "Add Buyer",
+      "button": "Add Buyer",
+      "submit": "Create Buyer"
+    },
+    "edit": {
+      "title": "Edit Buyer",
+      "breadcrumbParent": "Buyers",
+      "loading": "Loading buyer data...",
+      "notFound": "Buyer not found",
+      "back": "Back to Buyers",
+      "basicInfo": "Basic Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "phoneNumber": "Phone Number",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    },
     "table": {
       "fullName": "Full Name",
       "email": "Email",
@@ -1245,6 +1376,9 @@
       "status": "Status",
       "activate": "Activate",
       "action": "Action",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activateBtn": "Activate",
       "search": "Search name or email...",
       "statusAll": "Status: All",
       "statusActive": "Active",
@@ -1261,8 +1395,7 @@
       "selected": "{{count}} selected",
       "activateSelected": "Activate Selected",
       "suspendSelected": "Suspend Selected",
-      "clearSelection": "Clear selection",
-      "statusFilter": "Status"
+      "clearSelection": "Clear selection"
     },
     "details": {
       "breadcrumbParent": "Buyers",
@@ -1298,6 +1431,10 @@
       "reasonPlaceholder": "Provide detailed reason...",
       "suspendBtn": "Suspend Buyer",
       "cancel": "Cancel",
+      "deleteTitle": "Delete Buyer",
+      "deletingName": "Deleting {{name}}",
+      "deleteMessage": "This will permanently remove the buyer account. This action cannot be undone.",
+      "deleteBtn": "Delete Buyer",
       "bulkActivateTitle": "Activate Buyers",
       "bulkSuspendTitle": "Suspend Buyers",
       "bulkActivateMsg": "Are you sure you want to activate {{count}} selected buyer(s)?",
@@ -1532,7 +1669,9 @@
     "addNewBanner": "Add New Banner",
     "noBanners": "No banners added yet.",
     "delete": "Delete Banner",
-    "edit": "Edit Banner",
+    "edit": {
+      "title": "Edit Banner"
+    },
     "refreshBanners": "Refresh banners",
     "dragToReorder": "Drag to reorder",
     "noImage": "No Image",
@@ -1561,9 +1700,6 @@
     },
     "add": {
       "title": "Add New Banner"
-    },
-    "edit": {
-      "title": "Edit Banner"
     },
     "breadcrumb": {
       "settings": "Settings",
@@ -1622,15 +1758,16 @@
   "shippingZones": {
     "title": "Shipping Zones",
     "registeredVendors": "{{count}} Registered Vendors",
-    "disableZoneTitle": "Disable Zone",
-    "disableZoneDesc": "This zone has active shipping orders. Disabling will only affect new orders placed after this change. Do you want to continue?",
-    "disableZoneBtn": "Disable Zone",
     "zoneEnabledSuccess": "Zone enabled successfully",
     "zoneDisabledSuccess": "Zone disabled successfully",
+    "saveChanges": "Save Changes",
+    "unsavedPrices": "{{count}} unsaved price change(s)",
+    "invalidPrice": "Some prices are invalid. Enter a valid amount (0 or more).",
     "ratesTitle": "Vendor Shipping Rates",
     "table": {
       "zoneName": "Zone Name",
       "vendorsCount": "Vendors Count",
+      "zonePrice": "Zone Price (SAR)",
       "status": "Status",
       "actions": "Actions",
       "viewReport": "View Report",
@@ -1855,5 +1992,123 @@
     "noImages": "No photos attached with this refund request",
     "photoCount": "{{count}} photo(s) submitted by customer",
     "zoomImage": "View full"
+  },
+  "notificationsPage": {
+    "title": "Push Notifications",
+    "subtitle": "Broadcast push notifications and review past push campaigns",
+    "sendButton": "Send Notification",
+    "vendorFilterLabel": "Filter by Vendor",
+    "totalCampaigns": "Total Campaigns",
+    "tableTitle": "Campaign Title",
+    "tableMessage": "Message Content",
+    "tableImage": "Image",
+    "tableMadeBy": "Created By",
+    "tableDate": "Sent Date",
+    "madeByAdmin": "Admin",
+    "tokensUnit": "devices",
+    "noCampaigns": "No push campaigns found",
+    "sendModalTitle": "Send Push Notification",
+    "sendModalSubtitle": "Broadcast a new push campaign to users",
+    "titleEnLabel": "Title (English)",
+    "titleEnPlaceholder": "e.g. Special Offer!",
+    "titleArLabel": "Title (Arabic)",
+    "titleArPlaceholder": "e.g. عرض خاص!",
+    "bodyEnLabel": "Message Body (English)",
+    "bodyEnPlaceholder": "e.g. 30% off on all products for a limited time",
+    "bodyArLabel": "Message Body (Arabic)",
+    "bodyArPlaceholder": "e.g. خصم 30% على كل المنتجات لفترة محدودة",
+    "imageUrlLabel": "Image URL",
+    "imageUrlPlaceholder": "https://example.com/image.jpg",
+    "photoUploadLabel": "Notification Image",
+    "optionalLabel": "(Optional)",
+    "uploadPrompt": "Click to upload image or drag and drop",
+    "uploadedPhoto": "Photo uploaded from device",
+    "imageUrlPhoto": "Photo from URL",
+    "requiredField": "This field is required",
+    "sending": "Sending...",
+    "sendSuccess": "Push notification sent successfully",
+    "sendError": "Failed to send push notification"
+  },
+  "attributes": {
+    "title": "Attributes",
+    "subtitle": "Configure reusable option attributes and values for your products.",
+    "createBtn": "Add Attribute",
+    "searchPlaceholder": "Search attributes or values...",
+    "error": {
+      "title": "Failed to load attributes",
+      "description": "An unexpected error occurred while fetching attributes.",
+      "retry": "Retry"
+    },
+    "emptySearch": {
+      "title": "No matching attributes",
+      "description": "No attributes found matching \"{{query}}\". Try searching for another name.",
+      "clear": "Clear search"
+    },
+    "empty": {
+      "title": "No attributes yet",
+      "description": "Create reusable attributes like Sizes, Colors, or Materials with their values so you can easily assign them when adding products.",
+      "action": "Create First Attribute"
+    },
+    "card": {
+      "sortOrder": "Sort order",
+      "editAttribute": "Edit attribute",
+      "deleteAttribute": "Delete attribute",
+      "valuesCount": "Values ({{count}})",
+      "addValue": "Add Value",
+      "noValues": "No values yet. Click \"Add Value\" to define options.",
+      "editValue": "Edit value",
+      "deleteValue": "Delete value"
+    },
+    "form": {
+      "editTitle": "Edit Attribute",
+      "createTitle": "Create New Attribute",
+      "nameEnLabel": "Attribute Name (English)",
+      "nameEnRequired": "English attribute name is required",
+      "nameArLabel": "Attribute Name (Arabic)",
+      "nameArRequired": "Arabic attribute name is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Lower numbers appear first in product option selectors.",
+      "initialValuesLabel": "Initial Values (Optional)",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "updateBtn": "Save Changes",
+      "createBtn": "Create Attribute"
+    },
+    "valueModal": {
+      "editTitle": "Edit Attribute Value",
+      "addTitle": "Add New Value",
+      "parentAttribute": "Attribute: {{name}}",
+      "valueEnLabel": "Value (English)",
+      "valueEnRequired": "English value is required",
+      "valueArLabel": "Value (Arabic)",
+      "valueArRequired": "Arabic value is required",
+      "sortOrderLabel": "Sort Order",
+      "sortOrderHint": "Determines the position of this value in product dropdowns.",
+      "updateBtn": "Save Value",
+      "createBtn": "Add Value"
+    },
+    "deleteModal": {
+      "attributeTitle": "Delete Attribute",
+      "valueTitle": "Remove Attribute Value",
+      "parentAttr": "From attribute: {{name}}",
+      "attributeWarning": "This attribute will be permanently removed. The deletion will fail if this attribute is actively attached to any product.",
+      "valueWarning": "This value will be removed. The deletion will fail if any product variant is actively using this value.",
+      "deleting": "Deleting...",
+      "confirmBtn": "Yes, Delete"
+    },
+    "toasts": {
+      "createSuccess": "Attribute created successfully",
+      "createError": "Failed to create attribute",
+      "updateSuccess": "Attribute updated successfully",
+      "updateError": "Failed to update attribute",
+      "deleteSuccess": "Attribute deleted successfully",
+      "deleteError": "Failed to delete attribute. It may be in use by products.",
+      "addValueSuccess": "Value added successfully",
+      "addValueError": "Failed to add value",
+      "updateValueSuccess": "Value updated successfully",
+      "updateValueError": "Failed to update value",
+      "deleteValueSuccess": "Value removed successfully",
+      "deleteValueError": "Failed to remove value. It may be in use by product variants."
+    }
   }
 }

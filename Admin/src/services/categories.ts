@@ -14,6 +14,12 @@ export interface ApiCategoryItem {
   createdAt?: string;
   productCount?: number;
   productsCount?: number;
+  // 0 = Department, 1 = Category, 2 = Sub-Category
+  depth?: number;
+  // Nested children as returned by /categories/tree — departments carry theirs
+  // under `categories`, categories carry theirs under `children`.
+  categories?: ApiCategoryItem[];
+  children?: ApiCategoryItem[];
 }
 
 export interface CreateCategoryPayload {
@@ -70,6 +76,12 @@ export const getAdminCategories = async (params?: { pageNum?: number; pageSize?:
       pageSize: params?.pageSize ?? 100,
     },
   });
+  return extractCategoriesArray(data);
+};
+
+// Full Department → Category → Sub-Category tree (all categories, including inactive).
+export const getAdminCategoriesTree = async (): Promise<ApiCategoryItem[]> => {
+  const { data } = await api.get('/admin/categories/tree');
   return extractCategoriesArray(data);
 };
 

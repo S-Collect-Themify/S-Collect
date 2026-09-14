@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { SquarePen, Trash2, Loader2 } from 'lucide-react';
 import type { Buyer } from '../types/buyers';
 import { getInitials } from '../utils/buyerUtils';
 
@@ -12,6 +13,9 @@ interface BuyerDesktopTableProps {
   selectedRows: string[];
   toggleRow: (id: string) => void;
   onToggleStatus: (buyer: Buyer) => void;
+  onDelete: (buyer: Buyer) => void;
+  onVerify: (buyer: Buyer) => void;
+  verifyingId?: string | null;
 }
 
 export default function BuyerDesktopTable({
@@ -22,21 +26,39 @@ export default function BuyerDesktopTable({
   selectedRows,
   toggleRow,
   onToggleStatus,
+  onDelete,
+  onVerify,
+  verifyingId,
 }: BuyerDesktopTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const renderStatusBadge = (status: string) => {
-    const s = (status || '').toUpperCase();
+  const renderStatusCell = (buyer: Buyer) => {
+    const s = (buyer.status || '').toUpperCase();
+
+    // Pending verification → clickable "Activate" button that pushes an
+    // activation action to the backend (endpoint wired in BuyerTable).
+    if (s === 'PENDING_VERIFICATION') {
+      const isVerifying = verifyingId === buyer.id;
+      return (
+        <button
+          type="button"
+          onClick={() => onVerify(buyer)}
+          disabled={isVerifying}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors cursor-pointer disabled:opacity-60"
+        >
+          {isVerifying && <Loader2 size={13} className="animate-spin" />}
+          {t('buyers.table.activateBtn', 'Activate')}
+        </button>
+      );
+    }
+
     let badgeClass = 'bg-gray-100 text-gray-600';
-    let label = status || '---';
+    let label = buyer.status || '---';
 
     if (s === 'ACTIVE') {
       badgeClass = 'bg-green-100 text-green-700';
       label = t('buyers.table.statusActive', 'Active');
-    } else if (s === 'PENDING_VERIFICATION') {
-      badgeClass = 'bg-amber-100 text-amber-700';
-      label = t('buyers.table.statusPendingVerification', 'Pending Verification');
     } else if (s === 'LOCKED') {
       badgeClass = 'bg-orange-100 text-orange-700';
       label = t('buyers.table.statusLocked', 'Locked');
@@ -131,12 +153,16 @@ export default function BuyerDesktopTable({
               return (
                 <tr
                   key={buyer.id}
-                  className={`border-b border-gray-100 transition-colors ${
+                  onClick={() => navigate(`/buyers/${buyer.id}`)}
+                  className={`border-b border-gray-100 transition-colors cursor-pointer ${
                     isSelected ? 'bg-indigo-50/40' : 'bg-white hover:bg-gray-50/50'
                   }`}
                 >
                   {/* Checkbox column */}
-                  <td className="w-9 px-3 py-3.5">
+                  <td
+                    className="w-9 px-3 py-3.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -174,12 +200,12 @@ export default function BuyerDesktopTable({
                   </td>
 
                   {/* Status */}
-                  <td className="px-4 py-3.5">
-                    {renderStatusBadge(buyer.status)}
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    {renderStatusCell(buyer)}
                   </td>
 
                   {/* Activate toggle */}
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       role="switch"
@@ -199,13 +225,27 @@ export default function BuyerDesktopTable({
                   </td>
 
                   {/* Action */}
-                  <td className="px-4 py-3.5">
-                    <button
-                      onClick={() => navigate(`/buyers/${buyer.id}`)}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer"
-                    >
-                      {t('buyers.table.viewDetails', 'View details')}
-                    </button>
+                  <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/buyers/${buyer.id}/edit`)}
+                        title={t('buyers.table.edit', 'Edit')}
+                        aria-label={t('buyers.table.edit', 'Edit')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <SquarePen size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(buyer)}
+                        title={t('buyers.table.delete', 'Delete')}
+                        aria-label={t('buyers.table.delete', 'Delete')}
+                        className="w-8 h-8 rounded-full bg-gray-100 text-red-500 hover:bg-red-50 inline-flex items-center justify-center transition-all cursor-pointer active:scale-90"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

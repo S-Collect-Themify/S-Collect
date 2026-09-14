@@ -16,20 +16,20 @@ function getVoucherStatusBadge(v: BackendVoucherItem, t: any) {
 
   if (isLimitReached) {
     return {
-      badgeClass: 'bg-amber-100/80 text-amber-700',
+      badgeClass: 'bg-amber-100 text-amber-800',
       label: t('dashboardOverview.tableHeaders.limitReached', 'Limit Reached'),
     };
   }
 
   if (v.isActive === false || v.status === 'INACTIVE' || isExpired) {
     return {
-      badgeClass: 'bg-rose-100/80 text-rose-600',
+      badgeClass: 'bg-rose-100 text-rose-700',
       label: t('dashboardOverview.tableHeaders.expired', 'Expired'),
     };
   }
 
   return {
-    badgeClass: 'bg-emerald-100/80 text-emerald-700',
+    badgeClass: 'bg-emerald-100 text-emerald-800',
     label: t('dashboardOverview.tableHeaders.active', 'Active'),
   };
 }
@@ -103,14 +103,14 @@ export default function VoucherOverviewSection() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {/* Active Vouchers */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs flex flex-col justify-between h-full">
-          <div className="flex items-center gap-2 text-emerald-600 text-xs sm:text-sm font-semibold mb-3">
+          <div className="flex items-center gap-2 text-emerald-700 text-xs sm:text-sm font-semibold mb-3">
             <Package size={18} className="shrink-0" />
             <span>{t('dashboardOverview.activeVouchers', 'Active Vouchers')}</span>
           </div>
           <div className="flex items-end justify-between">
             <span className="text-2xl sm:text-3xl font-bold text-gray-900 leading-none">
               {isLoadingStats ? (
-                <Loader2 className="animate-spin text-gray-400" size={20} />
+                <Loader2 className="animate-spin text-gray-500" size={20} />
               ) : (
                 activeVouchersCount
               )}
@@ -120,7 +120,7 @@ export default function VoucherOverviewSection() {
 
         {/* Total Voucher Costs */}
         <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs flex flex-col justify-between h-full">
-          <div className="flex items-center gap-2 text-blue-600 text-xs sm:text-sm font-semibold mb-3">
+          <div className="flex items-center gap-2 text-blue-700 text-xs sm:text-sm font-semibold mb-3">
             <TrendingUp size={18} className="shrink-0" />
             <span>{t('dashboardOverview.totalVoucherCosts', 'Total Voucher Costs')}</span>
           </div>
@@ -131,7 +131,7 @@ export default function VoucherOverviewSection() {
               </span>
               <span className="text-[10px] font-bold text-gray-600">{isAr ? '﷼' : 'SAR'}</span>
             </div>
-            <span className="text-[10px] sm:text-[11px] text-gray-400 font-medium">
+            <span className="text-[10px] sm:text-[11px] text-gray-600 font-medium">
               {t('dashboardOverview.platformMarketingExpense', 'Platform Marketing Expense')}
             </span>
           </div>
@@ -139,14 +139,14 @@ export default function VoucherOverviewSection() {
 
         {/* Redemptions This Month */}
         <div className="col-span-2 md:col-span-1 bg-white rounded-2xl border border-gray-100 p-4 shadow-2xs flex flex-col justify-between h-full">
-          <div className="flex items-center gap-2 text-emerald-600 text-xs sm:text-sm font-semibold mb-3">
+          <div className="flex items-center gap-2 text-emerald-700 text-xs sm:text-sm font-semibold mb-3">
             <Package size={18} className="shrink-0" />
             <span>{t('dashboardOverview.redemptionsThisMonth', 'Redemptions This Month')}</span>
           </div>
           <div className="flex items-end justify-between">
             <span className="text-2xl sm:text-3xl font-bold text-gray-900 leading-none">
               {isLoadingStats ? (
-                <Loader2 className="animate-spin text-gray-400" size={20} />
+                <Loader2 className="animate-spin text-gray-500" size={20} />
               ) : (
                 redemptionsThisMonth
               )}
@@ -168,7 +168,7 @@ export default function VoucherOverviewSection() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-400 text-[11px]">
+                  <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-600 text-[11px]">
                     <th className="w-[40%] px-6 py-4 text-start font-semibold uppercase tracking-wider">
                       {t('dashboardOverview.tableHeaders.code', 'Code')}
                     </th>
@@ -209,16 +209,16 @@ export default function VoucherOverviewSection() {
                           <td className="px-6 py-4 font-bold text-gray-900 text-xs text-start tracking-wide">
                             {v.code || '--'}
                           </td>
-                          <td className="px-6 py-4 text-gray-500 font-normal text-xs text-end">
+                          <td className="px-6 py-4 text-gray-600 font-normal text-xs text-end">
                             {getVoucherTypeLabel(v.type, t)}
                           </td>
                           <td className="px-6 py-4 font-bold text-gray-900 text-xs text-end">
                             {discountStr}
                           </td>
-                          <td className="px-6 py-4 text-gray-400 font-normal text-xs text-end">
+                          <td className="px-6 py-4 text-gray-600 font-normal text-xs text-end">
                             {usageStr}
                           </td>
-                          <td className="px-6 py-4 text-gray-400 font-normal text-xs text-end">
+                          <td className="px-6 py-4 text-gray-600 font-normal text-xs text-end">
                             {expiryStr}
                           </td>
                           <td className="px-6 py-4 text-end">
@@ -268,7 +268,7 @@ export default function VoucherOverviewSection() {
 
                       <div className="border-t border-gray-100/80 pt-2 grid grid-cols-3 gap-2">
                         <div>
-                          <p className="text-[11px] text-gray-400 font-normal">
+                          <p className="text-[11px] text-gray-600 font-normal">
                             {t('dashboardOverview.tableHeaders.discountType', 'Discount Type')}
                           </p>
                           <p className="text-xs font-semibold text-gray-700 mt-0.5">
@@ -276,7 +276,7 @@ export default function VoucherOverviewSection() {
                           </p>
                         </div>
                         <div>
-                          <p className="text-[11px] text-gray-400 font-normal">
+                          <p className="text-[11px] text-gray-600 font-normal">
                             {t('dashboardOverview.tableHeaders.discount', 'Discount')}
                           </p>
                           <p className="text-xs font-bold text-gray-900 mt-0.5">
@@ -284,7 +284,7 @@ export default function VoucherOverviewSection() {
                           </p>
                         </div>
                         <div>
-                          <p className="text-[11px] text-gray-400 font-normal">
+                          <p className="text-[11px] text-gray-600 font-normal">
                             {t('dashboardOverview.tableHeaders.usageExpiry', 'Usage / Expiry')}
                           </p>
                           <p className="text-xs font-medium text-gray-600 mt-0.5 truncate">

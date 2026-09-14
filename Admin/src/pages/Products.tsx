@@ -24,7 +24,7 @@ const Products = () => {
   const isAr = i18n.language === 'ar';
 
   // ── Query & Mutation Hook ──
-  const { productsQuery, statusMutation, bulkDiscountMutation } = useProductsData();
+  const { productsQuery, statusMutation, bulkDiscountMutation, exportMutation } = useProductsData();
 
   // ── Store State ──
   const products = useProductStore((s) => s.products);
@@ -32,6 +32,7 @@ const Products = () => {
   const vendorFilter = useProductStore((s) => s.vendorFilter);
   const categoryFilter = useProductStore((s) => s.categoryFilter);
   const statusFilter = useProductStore((s) => s.statusFilter);
+  const seasonFilter = useProductStore((s) => s.seasonFilter);
   const currentPage = useProductStore((s) => s.currentPage);
   const modal = useProductStore((s) => s.modal);
   const selectedProductIds = useProductStore((s) => s.selectedProductIds);
@@ -43,6 +44,16 @@ const Products = () => {
   const openDisableModal = useProductStore((s) => s.openDisableModal);
   const closeDisableModal = useProductStore((s) => s.closeDisableModal);
   const closeBulkDiscountModal = useProductStore((s) => s.closeBulkDiscountModal);
+
+  // ── Export Handler ──
+  const handleExport = () => {
+    const isDisabled = statusFilter === 'all' ? undefined : statusFilter === 'disabled';
+    exportMutation.mutate({
+      vendorId: vendorFilter !== 'all' ? vendorFilter : undefined,
+      categoryId: categoryFilter !== 'all' ? categoryFilter : undefined,
+      isDisabled,
+    });
+  };
 
   // ── Reset Page on Mount ──
   useEffect(() => {
@@ -131,9 +142,14 @@ const Products = () => {
         return false;
       }
 
+      // Season Filter
+      if (seasonFilter !== 'all' && (item.season || 'all') !== seasonFilter) {
+        return false;
+      }
+
       return true;
     });
-  }, [products, search, vendorFilter, categoryFilter, statusFilter]);
+  }, [products, search, vendorFilter, categoryFilter, statusFilter, seasonFilter]);
 
   // ── Pagination Calculation ──
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
@@ -172,6 +188,8 @@ const Products = () => {
         <ProductFilterBar
           availableVendors={availableVendors}
           availableCategories={availableCategories}
+          onExport={handleExport}
+          isExporting={exportMutation.isPending}
         />
 
         {/* Product List Content */}

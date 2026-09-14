@@ -71,6 +71,8 @@ export interface GetAdminRefundsParams {
   dateFrom?: string;
   dateTo?: string;
   dateFilter?: string;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC' | 'asc' | 'desc';
 }
 
 /**
@@ -87,6 +89,10 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
     limit: pageSize,
     perPage: pageSize,
     per_page: pageSize,
+    sortBy: params?.sortBy ?? 'createdAt',
+    sortOrder: params?.sortOrder ?? 'DESC',
+    sort: 'createdAt:desc',
+    order: 'DESC',
   };
 
   if (params?.status && params.status !== 'ALL' && params.status !== 'All' && params.status !== 'all') {
@@ -138,6 +144,18 @@ export async function getAdminRefunds(params?: GetAdminRefundsParams): Promise<A
     } else if (Array.isArray(resData)) {
       items = resData;
     }
+
+    // Sort items newest first (createdAt DESC)
+    items.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (timeA !== timeB) {
+        return timeB - timeA;
+      }
+      const numA = (a as any).refundNumber ?? a.id ?? '';
+      const numB = (b as any).refundNumber ?? b.id ?? '';
+      return String(numB).localeCompare(String(numA), undefined, { numeric: true });
+    });
 
     const p = d.pagination || resData.pagination;
     if (p && typeof p === 'object' && ('totalItems' in p || 'total' in p || 'totalCount' in p || 'totalPages' in p)) {

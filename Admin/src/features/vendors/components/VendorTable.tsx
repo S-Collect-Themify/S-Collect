@@ -8,10 +8,10 @@ import {
   useRejectVendor,
   useDeactivateVendor,
   useReactivateVendor,
+  useDeleteVendor,
   useFeatureVendor,
   useUnfeatureVendor,
 } from '../hooks/useVendors';
-import VendorCategoryDropdown from './VendorCategoryDropdown';
 import VendorConfirmModal from '../modals/VendorConfirmModal';
 import RejectVendorModal from '../modals/RejectVendorModal';
 import DeactivateVendorModal from '../modals/DeactivateVendorModal';
@@ -28,11 +28,9 @@ export default function VendorTable() {
 
   const activeTab = useVendorStore((s) => s.activeTab);
   const search = useVendorStore((s) => s.search);
-  const selectedCategory = useVendorStore((s) => s.selectedCategory);
   const activeFilter = useVendorStore((s) => s.activeFilter);
   const setActiveTab = useVendorStore((s) => s.setActiveTab);
   const setSearch = useVendorStore((s) => s.setSearch);
-  const setSelectedCategory = useVendorStore((s) => s.setSelectedCategory);
   const setActiveFilter = useVendorStore((s) => s.setActiveFilter);
   const setPage = useVendorStore((s) => s.setPage);
   const toggleRow = useVendorStore((s) => s.toggleRow);
@@ -58,6 +56,7 @@ export default function VendorTable() {
   const rejectMutation = useRejectVendor();
   const deactivateMutation = useDeactivateVendor();
   const reactivateMutation = useReactivateVendor();
+  const deleteMutation = useDeleteVendor();
   const featureMutation = useFeatureVendor();
   const unfeatureMutation = useUnfeatureVendor();
 
@@ -93,7 +92,7 @@ export default function VendorTable() {
     paginatedIds,
   } = useVendorTable(fetchedVendors);
 
-  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature';
+  type ModalType = 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature' | 'delete';
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: ModalType;
@@ -131,9 +130,10 @@ export default function VendorTable() {
     t('vendors.table.owner'),
     t('vendors.table.email'),
     t('vendors.table.submittedDate'),
-    t('vendors.table.category'),
     t('vendors.table.actions'),
   ];
+  
+  // t('vendors.table.category'),
 
   const allVendorHeaders = [
     t('vendors.table.vendorName'),
@@ -144,6 +144,7 @@ export default function VendorTable() {
     t('vendors.table.orders'),
     t('vendors.table.status'),
     t('vendors.table.assign', 'Assign'),
+    t('vendors.table.actions'),
   ];
 
   const tableHeaders = isAllTab ? allVendorHeaders : pendingSuspendedHeaders;
@@ -249,6 +250,11 @@ export default function VendorTable() {
         unfeatureMutation.mutate(id);
       });
       clearSelection();
+    } else if (type === 'delete') {
+      ids.forEach((id) => {
+        deleteMutation.mutate(id);
+      });
+      clearSelection();
     }
     setConfirmModal({ isOpen: false, type: 'approve', ids: [] });
   };
@@ -301,12 +307,12 @@ export default function VendorTable() {
         </div>
 
         {/* Category filter — only for non-all tabs */}
-        {!isAllTab && (
+        {/* {!isAllTab && (
           <VendorCategoryDropdown
             selected={selectedCategory}
             onChange={setSelectedCategory}
           />
-        )}
+        )} */}
 
         {/* Status filter — only for All Vendors tab */}
         {isAllTab && (

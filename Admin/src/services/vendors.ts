@@ -21,13 +21,17 @@ export interface BackendVendorDetail {
   email?: string | Record<string, unknown> | null;
   publicEmail?: string | Record<string, unknown> | null;
   publicPhoneNumber?: string | Record<string, unknown> | null;
+  phoneNumber?: string | Record<string, unknown> | null;
   logoUrl?: string | Record<string, unknown> | null;
   commissionRate?: number | string | Record<string, unknown> | null;
   firstName?: string;
   lastName?: string;
   storeName?: string;
+  storeNameAr?: string;
   storeDescription?: string | Record<string, unknown> | null;
   commercialRegisterNumber?: string;
+  lowStockThreshold?: number | string | null;
+  flatShippingRate?: number | string | null;
   status: 'PENDING_APPROVAL' | 'ACTIVE' | 'REJECTED' | 'DEACTIVATED';
   isFeatured?: boolean;
   approvedAt?: string | null;
@@ -37,6 +41,25 @@ export interface BackendVendorDetail {
   submittedDate?: string;
   totalRevenue?: number;
   totalOrders?: number;
+}
+
+export interface UpdateVendorPayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  storeName?: string;
+  storeNameAr?: string;
+  storeDescription?: string | Record<string, unknown>;
+  publicEmail?: string;
+  publicPhoneNumber?: string;
+  commercialRegisterNumber?: string;
+  lowStockThreshold?: number;
+  flatShippingRate?: number;
+}
+
+export interface CreateVendorPayload extends UpdateVendorPayload {
+  password: string;
 }
 
 export interface GetVendorsParams {
@@ -177,6 +200,42 @@ export async function deactivateVendor(
  */
 export async function reactivateVendor(id: string): Promise<void> {
   await api.post(`/admin/vendors/${id}/reactivate`);
+}
+
+/**
+ * Delete a vendor DELETE /api/v1/admin/vendors/{id}
+ */
+export async function deleteVendor(id: string): Promise<void> {
+  await api.delete(`/admin/vendors/${id}`);
+}
+
+/**
+ * Update a vendor PUT /api/v1/admin/vendors/{id}
+ */
+export async function updateVendor(
+  id: string,
+  payload: UpdateVendorPayload
+): Promise<BackendVendorDetail> {
+  const response = await api.put(`/admin/vendors/${id}`, payload);
+  const resData = response.data;
+  if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+    return resData.data as BackendVendorDetail;
+  }
+  return resData as BackendVendorDetail;
+}
+
+/**
+ * Create a vendor POST /api/v1/admin/vendors
+ */
+export async function createVendor(
+  payload: CreateVendorPayload
+): Promise<BackendVendorDetail> {
+  const response = await api.post('/admin/vendors', payload);
+  const resData = response.data;
+  if (resData && typeof resData === 'object' && 'data' in resData && resData.data) {
+    return resData.data as BackendVendorDetail;
+  }
+  return resData as BackendVendorDetail;
 }
 
 export interface GetVendorPayoutsParams {

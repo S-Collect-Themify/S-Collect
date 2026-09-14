@@ -221,12 +221,10 @@
     "title": "إضافة منتج",
     "editTitle": "تعديل المنتج",
     "subtitle": "أضف منتجًا جديدًا إلى المخزون الخاص بك",
-
     "productInformation": "معلومات المنتج",
     "productMedia": "صور المنتج",
     "productStatus": "حالة المنتج",
     "pricingRules": "قواعد التسعير",
-
     "nameAr": "اسم المنتج (بالعربية)",
     "nameEn": "اسم المنتج (بالإنجليزية)",
     "description": "الوصف",
@@ -234,7 +232,6 @@
     "descriptionEnPlaceholder": "الوصف (بالإنجليزية)",
     "descriptionAr": "الوصف (بالعربية)",
     "descriptionEn": "الوصف (بالإنجليزية)",
-
     "categories": "التصنيفات",
     "category": "التصنيف",
     "selectCategory": "اختر التصنيف",
@@ -275,36 +272,28 @@
     "variantsCount": "خيارات",
     "applyToLastRow": "تطبيق على الصف الحالي",
     "actions": "إجراءات",
-
     "addCategory": "إضافة تصنيف",
     "addSize": "إضافة مقاس",
     "addColor": "إضافة لون",
-
     "enterCategory": "أدخل اسم التصنيف",
     "enterSize": "أدخل المقاس",
     "enterColor": "أدخل اللون",
-
     "add": "إضافة",
-
     "nameArPlaceholder": "أدخل اسم المنتج بالعربية",
     "nameEnPlaceholder": "أدخل اسم المنتج بالإنجليزية",
     "descriptionPlaceholder": "أدخل وصف المنتج",
-
     "basePrice": "السعر الأساسي",
     "comparePrice": "السعر قبل الخصم",
     "sku": "رمز المنتج",
-
     "visibility": "الظهور",
     "homepage": "الصفحة الرئيسية",
     "promotions": "العروض",
     "searchResults": "نتائج البحث",
-
     "save": "حفظ التغييرات",
     "cancel": "إلغاء",
     "continue": "متابعة",
     "publish": "نشر",
     "previous": "السابق",
-
     "uploadImage": "رفع صورة",
     "dragImage": "اسحب الصورة هنا أو اضغط للرفع",
     "imageUploaded": "تم رفع الصورة بنجاح",
@@ -312,7 +301,6 @@
     "imageDeleted": "تم حذف الصورة بنجاح",
     "imageDeleteFailed": "فشل حذف الصورة",
     "maxImagesExceeded": "لا يمكنك إضافة أكثر من 6 صور للمنتج.",
-
     "sizeChart": "جدول المقاسات / صورة جدول القياسات",
     "sizeChartDesc": "ارفع صور جدول المقاسات أو دليل القياسات لهذا المنتج.",
     "uploadSizeChart": "إضافة جدول مقاسات",
@@ -322,14 +310,12 @@
     "sizeChartDeleted": "تم حذف صورة جدول المقاسات بنجاح",
     "sizeChartDeleteFailed": "فشل حذف صورة جدول المقاسات",
     "viewSizeChart": "عرض جدول المقاسات",
-
     "active": "نشط",
     "inactive": "غير نشط",
     "thumbnail": "الصورة المصغرة",
     "updated": "تم التحديث",
     "published": "تم النشر",
     "publishing": "جاري النشر...",
-
     "preview": {
       "productName": "اسم المنتج",
       "uncategorized": "غير مصنف",
@@ -356,10 +342,8 @@
       "inventory": "المخزون",
       "review": "المراجعة"
     },
-
     "addingProduct": "جاري إضافة المنتج...",
     "addingProductMessage": "يرجى الانتظار بينما نقوم بإضافة منتجك.",
-
     "productAddedSuccessfully": "تمت إضافة المنتج بنجاح",
     "productAddedMessage": "تمت إضافة منتجك بنجاح.",
     "productUpdatedSuccessfully": "تم تحديث المنتج بنجاح",
@@ -394,7 +378,16 @@
       "productAddedSuccessfully": "تمت إضافة المنتج بنجاح",
       "productAddedMessage": "تمت إضافة منتجك بنجاح.",
       "done": "تم"
-    }
+    },
+    "department": "القسم",
+    "selectDepartment": "اختر قسمًا",
+    "noCategoriesInDepartment": "لا توجد فئات في هذا القسم بعد",
+    "subCategory": "فئة فرعية",
+    "selectSubCategoryOptional": "بدون (استخدام الفئة الرئيسية)",
+    "season": "الموسم",
+    "seasonAll": "كل المواسم",
+    "seasonSummer": "صيفي",
+    "seasonWinter": "شتوي"
   },
   "ordersPage": {
     "title": "الطلبات الواردة",
@@ -404,34 +397,26 @@
     "shipped": "تم الشحن",
     "delivered": "تم التسليم",
     "cancelled": "ملغي",
-
     "sortBy": "ترتيب حسب",
     "newestFirst": "الأحدث أولاً",
     "oldestFirst": "الأقدم أولاً",
-
     "orderId": "رقم الطلب",
     "orderDate": "تاريخ الطلب",
     "customerName": "اسم العميل",
     "totalAmount": "إجمالي المبلغ",
     "orderStatus": "حالة الطلب",
     "actions": "الإجراءات",
-
     "viewDetails": "عرض التفاصيل",
-
     "showing": "عرض",
     "of": "من",
     "results": "نتيجة",
-
     "noOrders": "لا توجد طلبات بعد",
     "noOrdersDesc": "ستظهر الطلبات هنا بمجرد استلام أول طلب",
-
     "save": "حفظ",
     "cancel": "إلغاء",
-
     "addTrackingNumber": "إضافة رقم تتبع",
     "trackingDescription": "الرجاء إدخال رقم التتبع لمساعدة العميل على متابعة الشحنة",
     "trackingPlaceholder": "أدخل رقم التتبع",
-
     "orderDetails": "تفاصيل الطلب",
     "orderItems": "عناصر الطلب",
     "orderTimeline": "سجل الطلب",
@@ -440,25 +425,20 @@
     "customerInformation": "معلومات العميل",
     "shippingAddress": "عنوان الشحن",
     "orderSummary": "ملخص الطلب",
-
     "paymentStatus": "حالة الدفع",
     "trackingNumber": "رقم التتبع",
-
     "name": "الاسم",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
-
     "subtotal": "المجموع الفرعي",
     "shippingFee": "رسوم الشحن",
     "discount": "الخصم",
     "tax": "الضريبة",
     "grandTotal": "الإجمالي النهائي",
-
     "updateOrderStatus": "تحديث حالة الطلب",
     "updateOrderStatusDesc": "لا يمكن التراجع عن تغيير الحالة بعد الحفظ",
     "trackingOptional": "رقم التتبع (اختياري)",
     "updateButton": "تحديث حالة الطلب",
-
     "updatedSuccessfully": "تم تحديث الطلب بنجاح",
     "pendingLabel": "بانتظار التنفيذ",
     "paid": "مدفوع",
@@ -784,7 +764,8 @@
       "In Stock": "متوفر",
       "Low Stock": "مخزون منخفض",
       "Out Of Stock": "نفد المخزون"
-    }
+    },
+    "season": "الموسم"
   },
   "recentOrders": {
     "title": "الطلبات الأخيرة",
@@ -844,12 +825,12 @@
     },
     "reviews": {
       "filters": {
-        "all": "كل المراجعات",
-        "5": "5 نجوم",
-        "4": "4 نجوم",
-        "3": "3 نجوم",
-        "2": "2 نجوم",
         "1": "نجمة واحدة",
+        "2": "2 نجوم",
+        "3": "3 نجوم",
+        "4": "4 نجوم",
+        "5": "5 نجوم",
+        "all": "كل المراجعات",
         "photos": "بصور",
         "newest": "الأحدث",
         "highest": "أعلى تقييم",
@@ -862,7 +843,6 @@
       "showingRange": "عرض {{start}}–{{end}} من {{total}} مراجعة"
     }
   },
-
   "receivables": {
     "title": "المستحقات",
     "description": "تتبع الأرباح والعمولات وسجل الدفع والتحويلات.",
@@ -912,7 +892,6 @@
       "cancelled": "ملغي"
     }
   },
-
   "dateFilter": {
     "allDates": "كل التواريخ",
     "last7Days": "آخر 7 أيام",
@@ -930,9 +909,7 @@
     "clear": "مسح",
     "invalidDateRange": "تاريخ البداية يجب أن يكون قبل أو يطابق تاريخ النهاية"
   },
-
   "Add Product": "إضافة منتج",
-
   "returnsPage": {
     "title": "طلبات الإرجاع",
     "breadcrumb": "تفاصيل طلب الإرجاع",
@@ -1187,4 +1164,3 @@
     }
   }
 }
-

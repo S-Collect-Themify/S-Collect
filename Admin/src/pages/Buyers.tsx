@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { BuyerTable } from '../features/buyers';
@@ -24,6 +26,7 @@ const itemVariants: Variants = {
 
 const Buyers = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     useBuyerStore.getState().setPage(1);
@@ -39,6 +42,14 @@ const Buyers = () => {
               {t('buyers.title', 'Buyers')}
             </h1>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate('/buyers/new')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors cursor-pointer shrink-0"
+          >
+            <Plus size={16} />
+            {t('buyers.add.button', 'Add Buyer')}
+          </button>
         </div>
       </div>
 

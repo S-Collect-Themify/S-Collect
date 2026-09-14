@@ -7,6 +7,7 @@ export const mapFormToMultipartFormData = (formData: ProductFormData): FormData 
   multipart.append('name', formData.nameEn || formData.nameAr || '');
   multipart.append('nameAr', formData.nameAr || formData.nameEn || '');
   multipart.append('categoryId', formData.categoryId || '');
+  multipart.append('season', formData.season || 'all');
 
   // 2. Optional description fields
   multipart.append('description', formData.description || '');

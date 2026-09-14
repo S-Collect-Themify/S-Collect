@@ -157,27 +157,35 @@ export const AdminAccountsModal: React.FC<AdminAccountsModalProps> = ({ open, on
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {admins.map((admin) => (
-                <tr key={admin.id} className="hover:bg-gray-50/50">
-                  <td className="py-3 px-4 font-semibold text-gray-900">{admin.name}</td>
-                  <td className="py-3 px-4 text-gray-500">{admin.email}</td>
-                  <td className="py-3 px-4">
-                    <span className="bg-gray-100 text-gray-700 font-medium px-2 py-0.5 rounded-full">
-                      {admin.role}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right rtl:text-left">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAdmin(admin.id)}
-                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                      title="Remove Account"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {admins.map((admin) => {
+                const r = (admin.role || '').toUpperCase();
+                const isSuperAdminRow =
+                  admin.role === 'Super Admin' || r === 'SUPER_ADMIN' || r === 'SUPERADMIN' || r === 'SUPER ADMIN' || r.includes('SUPER');
+
+                return (
+                  <tr key={admin.id} className="hover:bg-gray-50/50">
+                    <td className="py-3 px-4 font-semibold text-gray-900">{admin.name}</td>
+                    <td className="py-3 px-4 text-gray-500">{admin.email}</td>
+                    <td className="py-3 px-4">
+                      <span className="bg-gray-100 text-gray-700 font-medium px-2 py-0.5 rounded-full">
+                        {admin.role}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right rtl:text-left">
+                      {!isSuperAdminRow && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteAdmin(admin.id)}
+                          className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                          title="Remove Account"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

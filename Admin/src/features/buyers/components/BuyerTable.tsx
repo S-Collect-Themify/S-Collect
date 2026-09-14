@@ -2,7 +2,12 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Search } from 'lucide-react';
 import { useBuyerStore } from '../store/buyerStore';
-import { useAdminBuyers, useUpdateBuyerStatus } from '../hooks/useBuyers';
+import {
+  useAdminBuyers,
+  useUpdateBuyerStatus,
+  useDeleteBuyer,
+  useVerifyBuyer,
+} from '../hooks/useBuyers';
 import { updateBuyerStatus } from '../../../services/buyers';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -13,6 +18,7 @@ import BuyerBulkActionBar from './BuyerBulkActionBar';
 import ActivateBuyerModal from '../modals/ActivateBuyerModal';
 import SuspendBuyerModal from '../modals/SuspendBuyerModal';
 import BuyerConfirmModal from '../modals/BuyerConfirmModal';
+import DeleteBuyerModal from '../modals/DeleteBuyerModal';
 import PortalDropdown from '../../../components/ui/PortalDropdown';
 import type { Buyer } from '../types/buyers';
 
@@ -79,6 +85,11 @@ export default function BuyerTable() {
     buyer: Buyer | null;
   }>({ isOpen: false, buyer: null });
 
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    buyer: Buyer | null;
+  }>({ isOpen: false, buyer: null });
+
   // ── Bulk confirm modal ───────────────────────────────────────────────────
   const [bulkConfirmModal, setBulkConfirmModal] = useState<{
     isOpen: boolean;
@@ -88,6 +99,8 @@ export default function BuyerTable() {
 
   const queryClient = useQueryClient();
   const updateStatusMutation = useUpdateBuyerStatus();
+  const deleteBuyerMutation = useDeleteBuyer();
+  const verifyBuyerMutation = useVerifyBuyer();
 
   const toggleAll = (e: ChangeEvent<HTMLInputElement>) =>
     setSelectedRows(e.target.checked ? paginatedIds : []);
@@ -124,6 +137,24 @@ export default function BuyerTable() {
       } catch {
         // Error toast handled by mutation hook
       }
+    }
+  };
+
+  const handleDelete = (buyer: Buyer) => {
+    setDeleteModal({ isOpen: true, buyer });
+  };
+
+  const handleVerify = (buyer: Buyer) => {
+    verifyBuyerMutation.mutate(buyer.id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.buyer) return;
+    try {
+      await deleteBuyerMutation.mutateAsync(deleteModal.buyer.id);
+      setDeleteModal({ isOpen: false, buyer: null });
+    } catch {
+      // Error toast handled by mutation hook
     }
   };
 
@@ -246,6 +277,9 @@ export default function BuyerTable() {
         selectedRows={selectedRows}
         toggleRow={toggleRow}
         onToggleStatus={handleToggleStatus}
+        onDelete={handleDelete}
+        onVerify={handleVerify}
+        verifyingId={verifyBuyerMutation.isPending ? verifyBuyerMutation.variables : null}
       />
 
       {/* Mobile List */}
@@ -300,6 +334,15 @@ export default function BuyerTable() {
         isPending={updateStatusMutation.isPending}
         onConfirm={handleSuspendConfirm}
         onCancel={() => setSuspendModal({ isOpen: false, buyer: null })}
+      />
+
+      {/* Delete Modal */}
+      <DeleteBuyerModal
+        isOpen={deleteModal.isOpen}
+        buyerName={deleteModal.buyer?.name ?? ''}
+        isPending={deleteBuyerMutation.isPending}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteModal({ isOpen: false, buyer: null })}
       />
 
       {/* Bulk Confirm Modal */}

@@ -9,6 +9,7 @@ import {
 } from '../useManagementHooks';
 import CategoryDropdown from '../CategoryDropdown';
 import StatusDropdown from '../StatusDropdown';
+import SeasonDropdown from '../SeasonDropdown';
 import { getPaginationRange } from '../../../utils/pagination';
 
 export default function MobileManagementTable() {
@@ -18,6 +19,7 @@ export default function MobileManagementTable() {
   const {
     selectedCategories,
     selectedStatus,
+    selectedSeason,
     search,
     page,
     paginatedProducts,
@@ -33,6 +35,9 @@ export default function MobileManagementTable() {
   );
   const setSelectedStatus = useManagementStore(
     (state) => state.setSelectedStatus
+  );
+  const setSelectedSeason = useManagementStore(
+    (state) => state.setSelectedSeason
   );
   const setPage = useManagementStore((state) => state.setPage);
 
@@ -64,6 +69,10 @@ export default function MobileManagementTable() {
             <StatusDropdown
               selected={selectedStatus}
               onChange={setSelectedStatus}
+            />
+            <SeasonDropdown
+              selected={selectedSeason}
+              onChange={setSelectedSeason}
             />
           </div>
           <button

@@ -9,6 +9,7 @@ import ProductStatus from '../components/ui/ProductStatus';
 import ReviewPage from '../features/AddProducts/ReviewPage';
 import BasicInfoFields from '../features/AddProducts/BasicInfoFields';
 import CategorySelect from '../features/AddProducts/CategorySelect';
+import SeasonSelect from '../features/AddProducts/SeasonSelect';
 import SuccessPopup from '../features/AddProducts/SuccessPopup';
 import MobileAddProduct from '../features/AddProducts/mobile/MobileAddProduct';
 import { useAddProductPage } from '../features/AddProducts/useAddProductPage';
@@ -521,6 +522,9 @@ const AddProduct = () => {
 
                   {/* Category Dropdown */}
                   <CategorySelect />
+
+                  {/* Season */}
+                  <SeasonSelect />
 
                   {/* Options & Variants Section */}
                   <div className="space-y-3">

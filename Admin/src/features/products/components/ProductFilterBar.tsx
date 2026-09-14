@@ -1,7 +1,7 @@
-import { Search, ChevronDown, Tag } from 'lucide-react';
+import { Search, ChevronDown, Tag, Download, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProductStore } from '../productStore';
-import type { StatusFilter } from '../types';
+import type { StatusFilter, SeasonFilter } from '../types';
 
 export interface CategoryFilterOption {
   key: string;
@@ -11,11 +11,15 @@ export interface CategoryFilterOption {
 interface ProductFilterBarProps {
   availableVendors?: string[];
   availableCategories?: (string | CategoryFilterOption)[];
+  onExport?: () => void;
+  isExporting?: boolean;
 }
 
 export const ProductFilterBar = ({
   availableVendors = [],
   availableCategories = [],
+  onExport,
+  isExporting = false,
 }: ProductFilterBarProps) => {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
@@ -24,12 +28,14 @@ export const ProductFilterBar = ({
   const vendorFilter = useProductStore((s) => s.vendorFilter);
   const categoryFilter = useProductStore((s) => s.categoryFilter);
   const statusFilter = useProductStore((s) => s.statusFilter);
+  const seasonFilter = useProductStore((s) => s.seasonFilter);
   const selectedProductIds = useProductStore((s) => s.selectedProductIds);
 
   const setSearch = useProductStore((s) => s.setSearch);
   const setVendorFilter = useProductStore((s) => s.setVendorFilter);
   const setCategoryFilter = useProductStore((s) => s.setCategoryFilter);
   const setStatusFilter = useProductStore((s) => s.setStatusFilter);
+  const setSeasonFilter = useProductStore((s) => s.setSeasonFilter);
   const openBulkDiscountModal = useProductStore((s) => s.openBulkDiscountModal);
 
   const selectedCount = selectedProductIds.length;
@@ -52,7 +58,7 @@ export const ProductFilterBar = ({
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
+        <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5">
           {/* Vendor Dropdown */}
           <div className="relative w-full sm:w-auto sm:inline-block">
             <select
@@ -116,20 +122,55 @@ export const ProductFilterBar = ({
               className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:right-auto rtl:left-2 sm:rtl:left-3"
             />
           </div>
+
+          {/* Season Dropdown */}
+          <div className="relative w-full sm:w-auto sm:inline-block">
+            <select
+              value={seasonFilter}
+              onChange={(e) => setSeasonFilter(e.target.value as SeasonFilter)}
+              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 sm:px-4 py-2 p-0.5 pr-7 sm:pr-9 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-400 cursor-pointer rtl:pl-7 sm:rtl:pl-9 rtl:pr-3 sm:rtl:pr-4 truncate"
+            >
+              <option value="all">{t('addProduct.season', 'Season')}</option>
+              <option value="summer">{t('addProduct.seasonSummer', 'Summer')}</option>
+              <option value="winter">{t('addProduct.seasonWinter', 'Winter')}</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rtl:right-auto rtl:left-2 sm:rtl:left-3"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Bulk Discount Action Button */}
-      {selectedCount > 0 && (
-        <button
-          type="button"
-          onClick={openBulkDiscountModal}
-          className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer shrink-0 animate-fade-in"
-        >
-          <Tag size={16} />
-          <span>{isAr ? `خصم جماعي (${selectedCount})` : `Bulk Discount (${selectedCount})`}</span>
-        </button>
-      )}
+      {/* Action Buttons (Export & Bulk Discount) */}
+      <div className="flex items-center gap-2 shrink-0">
+        {onExport && (
+          <button
+            type="button"
+            disabled={isExporting}
+            onClick={onExport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+          >
+            {isExporting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Download size={16} />
+            )}
+            <span>{isExporting ? t('productsListing.exporting') : t('productsListing.export')}</span>
+          </button>
+        )}
+
+        {selectedCount > 0 && (
+          <button
+            type="button"
+            onClick={openBulkDiscountModal}
+            className="flex items-center gap-2 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer animate-fade-in"
+          >
+            <Tag size={16} />
+            <span>{isAr ? `خصم جماعي (${selectedCount})` : `Bulk Discount (${selectedCount})`}</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

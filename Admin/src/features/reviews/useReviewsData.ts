@@ -6,15 +6,29 @@ import { getAdminProducts, getAdminVendors } from '../../services/products';
 import { useReviewStore } from './reviewStore';
 import type { ReviewItem } from './types';
 
-const getVendorDisplayName = (vendorObj: any): string => {
-  if (!vendorObj) return '—';
-  if (typeof vendorObj === 'string') return vendorObj;
-  if (vendorObj.storeName) return vendorObj.storeName;
-  if (vendorObj.name) return vendorObj.name;
-  if (vendorObj.firstName || vendorObj.lastName) {
-    return `${vendorObj.firstName || ''} ${vendorObj.lastName || ''}`.trim();
+const getVendorDisplayName = (vendorObj: any, isAr: boolean = false): string | null => {
+  if (!vendorObj) return null;
+  if (typeof vendorObj === 'string' && vendorObj.trim() && vendorObj !== '—') {
+    return vendorObj.trim();
   }
-  return String(vendorObj.id || '—');
+  if (typeof vendorObj === 'object') {
+    if (isAr && vendorObj.storeNameAr) return vendorObj.storeNameAr;
+    if (vendorObj.storeName) return vendorObj.storeName;
+    if (isAr && vendorObj.vendorStoreNameAr) return vendorObj.vendorStoreNameAr;
+    if (vendorObj.vendorStoreName) return vendorObj.vendorStoreName;
+    if (isAr && vendorObj.businessNameAr) return vendorObj.businessNameAr;
+    if (vendorObj.businessName) return vendorObj.businessName;
+    if (isAr && vendorObj.nameAr) return vendorObj.nameAr;
+    if (vendorObj.name) return vendorObj.name;
+    if (isAr && vendorObj.vendorNameAr) return vendorObj.vendorNameAr;
+    if (vendorObj.vendorName) return vendorObj.vendorName;
+    if (vendorObj.owner) return vendorObj.owner;
+    if (vendorObj.firstName || vendorObj.lastName) {
+      const full = `${vendorObj.firstName || ''} ${vendorObj.lastName || ''}`.trim();
+      if (full) return full;
+    }
+  }
+  return null;
 };
 
 export const mapBackendReviewToFrontend = (
@@ -23,6 +37,7 @@ export const mapBackendReviewToFrontend = (
   vendorsList: any[] = [],
   language: string = 'en'
 ): ReviewItem | null => {
+  const isAr = language === 'ar';
   const rawDate = r.createdAt || r.updatedAt;
   const formattedDate = rawDate ? String(rawDate).split('T')[0] : '—';
 
@@ -32,10 +47,9 @@ export const mapBackendReviewToFrontend = (
   const targetProdId =
     r.productId ||
     (r as any).product_id ||
-    (typeof (r as any).product === 'string' ? (r as any).product : (r as any).product?.id);
+    (typeof (r as any).product === 'string' ? (r as any).product : (r as any).product?.id || (r as any).product?._id);
 
   let productName = '';
-  let productVendorId: string | null = null;
 
   const matchedProd = productsList.find((p: any) => {
     const pId = p.id || p._id || p.productId;
@@ -49,44 +63,88 @@ export const mapBackendReviewToFrontend = (
   const rawProduct = (r as any).product;
 
   if (matchedProd) {
-    productName =
-      language === 'ar'
-        ? matchedProd.nameAr || matchedProd.name || matchedProd.titleAr || matchedProd.title
-        : matchedProd.name || matchedProd.nameAr || matchedProd.title || matchedProd.titleAr;
-    productVendorId = matchedProd.vendorId || matchedProd.vendor?.id || null;
+    productName = isAr
+      ? matchedProd.nameAr || matchedProd.name || matchedProd.titleAr || matchedProd.title
+      : matchedProd.name || matchedProd.nameAr || matchedProd.title || matchedProd.titleAr;
   } else if (
     rawProduct &&
     typeof rawProduct === 'object' &&
     (rawProduct.name || rawProduct.nameAr || rawProduct.title || rawProduct.titleAr)
   ) {
-    productName =
-      language === 'ar'
-        ? rawProduct.nameAr || rawProduct.name || rawProduct.titleAr || rawProduct.title
-        : rawProduct.name || rawProduct.nameAr || rawProduct.title || rawProduct.titleAr;
-    productVendorId = rawProduct.vendorId || rawProduct.vendor?.id || null;
+    productName = isAr
+      ? rawProduct.nameAr || rawProduct.name || rawProduct.titleAr || rawProduct.title
+      : rawProduct.name || rawProduct.nameAr || rawProduct.title || rawProduct.titleAr;
   } else if ((r as any).productName) {
     productName = (r as any).productName;
   }
 
-  // If the product was deleted / does not exist anywhere, exclude this review row from the table
+  // If the product name was not found but targetProdId exists, use fallback title instead of dropping row
   if (!productName || !productName.trim() || productName === '—') {
-    return null;
+    if (targetProdId) {
+      productName = `Product (${String(targetProdId).slice(0, 8)})`;
+    } else {
+      return null;
+    }
   }
 
-  // ── Lookup Vendor by vendorId in vendorsList ──
-  let vendorName = '—';
+  // ── Lookup Vendor by vendorId in vendorsList or embedded in review/product ──
+  let vendorName: string | null = null;
 
-  if (productVendorId) {
-    const matchedVendor = vendorsList.find(
-      (v: any) => String(v.id || v._id).toLowerCase() === String(productVendorId).toLowerCase()
-    );
-    vendorName = matchedVendor
-      ? getVendorDisplayName(matchedVendor)
-      : '—';
-  } else if ((r as any).vendor) {
-    vendorName = getVendorDisplayName((r as any).vendor);
+  // 1. Check matched product for vendor object or store name
+  if (matchedProd) {
+    if (isAr && matchedProd.vendorStoreNameAr) vendorName = matchedProd.vendorStoreNameAr;
+    else if (matchedProd.vendorStoreName) vendorName = matchedProd.vendorStoreName;
+    else if (isAr && matchedProd.vendorNameAr) vendorName = matchedProd.vendorNameAr;
+    else if (matchedProd.vendorName) vendorName = matchedProd.vendorName;
+    else if (matchedProd.vendor) vendorName = getVendorDisplayName(matchedProd.vendor, isAr);
   }
 
+  // 2. Check embedded rawProduct on review
+  if (!vendorName && rawProduct && typeof rawProduct === 'object') {
+    if (isAr && rawProduct.vendorStoreNameAr) vendorName = rawProduct.vendorStoreNameAr;
+    else if (rawProduct.vendorStoreName) vendorName = rawProduct.vendorStoreName;
+    else if (isAr && rawProduct.vendorNameAr) vendorName = rawProduct.vendorNameAr;
+    else if (rawProduct.vendorName) vendorName = rawProduct.vendorName;
+    else if (rawProduct.vendor) vendorName = getVendorDisplayName(rawProduct.vendor, isAr);
+  }
+
+  // 3. Check review item direct properties
+  if (!vendorName && (r as any).vendor) {
+    vendorName = getVendorDisplayName((r as any).vendor, isAr);
+  }
+  if (!vendorName && ((r as any).vendorStoreName || (r as any).vendorName)) {
+    vendorName = isAr
+      ? (r as any).vendorStoreNameAr || (r as any).vendorNameAr || (r as any).vendorStoreName || (r as any).vendorName
+      : (r as any).vendorStoreName || (r as any).vendorName;
+  }
+
+  // 4. Lookup in vendorsList by vendorId
+  const possibleVendorId =
+    matchedProd?.vendorId ||
+    matchedProd?.vendor_id ||
+    matchedProd?.vendor?.id ||
+    matchedProd?.vendor?._id ||
+    rawProduct?.vendorId ||
+    rawProduct?.vendor_id ||
+    rawProduct?.vendor?.id ||
+    rawProduct?.vendor?._id ||
+    (r as any).vendorId ||
+    (r as any).vendor_id ||
+    (typeof (r as any).vendor === 'string' ? (r as any).vendor : null);
+
+  if (!vendorName && possibleVendorId && vendorsList.length > 0) {
+    const targetVId = String(possibleVendorId).trim().toLowerCase();
+    const matchedVendor = vendorsList.find((v: any) => {
+      const candidateId = v.id || v._id || v.vendorId;
+      return candidateId && String(candidateId).trim().toLowerCase() === targetVId;
+    });
+
+    if (matchedVendor) {
+      vendorName = getVendorDisplayName(matchedVendor, isAr);
+    }
+  }
+
+  const finalVendorName = vendorName && vendorName.trim() && vendorName !== '—' ? vendorName.trim() : '—';
   const buyer = `${r.buyer?.firstName || ''} ${r.buyer?.lastName || ''}`.trim() || '—';
 
   return {
@@ -96,7 +154,7 @@ export const mapBackendReviewToFrontend = (
     productId: targetProdId || r.productId,
     buyerName: buyer,
     buyerAccountId: r.buyer?.id,
-    vendor: vendorName,
+    vendor: finalVendorName,
     rating: Number(r.rating) || 0,
     comment: r.comment || '',
     date: formattedDate,
@@ -162,9 +220,10 @@ export const useReviewsData = () => {
     queryKey: ['admin-reviews', i18n.language],
     queryFn: async () => {
       try {
+        const fetchParams = { pageSize: 100, pageNum: 1, page: 1, limit: 100 };
         const [reviewsRes, productsRes, vendorsRes] = await Promise.allSettled([
-          getReviewsList(),
-          getAdminProducts(),
+          getReviewsList(fetchParams),
+          getAdminProducts(fetchParams),
           getAdminVendors(),
         ]);
 

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Trash, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ReviewItem } from '../types';
@@ -10,9 +11,16 @@ interface ReviewTableProps {
 }
 
 export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const sortBy = useReviewStore((s) => s.sortBy);
   const setSortBy = useReviewStore((s) => s.setSortBy);
+
+  const handleRowClick = (productId?: string) => {
+    if (productId) {
+      navigate(`/products/${productId}`);
+    }
+  };
 
   const handleRatingSortClick = () => {
     if (sortBy === 'rating-desc') {
@@ -82,7 +90,10 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
           {reviews.map((review) => (
             <tr
               key={review.id}
-              className="hover:bg-gray-50/60 transition-colors"
+              onClick={() => handleRowClick(review.productId)}
+              className={`group transition-colors ${
+                review.productId ? 'cursor-pointer hover:bg-gray-50/80' : 'hover:bg-gray-50/60'
+              }`}
             >
               {/* Review ID */}
               <td className="py-4 px-6 font-semibold text-gray-900">
@@ -91,7 +102,9 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
 
               {/* Product Name */}
               <td className="py-4 px-6 font-medium text-gray-900 max-w-xs">
-                <div>{review.product}</div>
+                <div className={review.productId ? 'group-hover:text-blue-600 transition-colors' : ''}>
+                  {review.product}
+                </div>
               </td>
 
               {/* Buyer Name */}
@@ -112,7 +125,10 @@ export const ReviewTable = ({ reviews, onDeleteClick }: ReviewTableProps) => {
               <td className="py-4 px-6 text-center">
                 <button
                   type="button"
-                  onClick={() => onDeleteClick(review)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteClick(review);
+                  }}
                   className="p-4 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full bg-gray-100 cursor-pointer transition-colors inline-flex items-center justify-center"
                   aria-label="Delete review"
                 >

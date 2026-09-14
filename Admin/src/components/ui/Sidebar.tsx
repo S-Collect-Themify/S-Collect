@@ -14,13 +14,17 @@ import {
   Settings,
   LogOut,
   Ticket,
+  Boxes,
+  Undo2,
+  Bell,
+  Tags,
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import Logo from '../ui/Logo';
 import LogoutModal from '../auth/LogoutModal';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Globe, Check } from 'lucide-react';
 import i18n from '../../i18n';
@@ -32,11 +36,11 @@ import { useVendorStore } from '../../features/vendors/store/vendorStore';
 import { useBuyerStore } from '../../features/buyers/store/buyerStore';
 import { useProductStore } from '../../features/products/productStore';
 import { useTransactionStore } from '../../store/transactionStore';
-import { useCategoryStore } from '../../store/categoryStore';
 import { useReviewStore } from '../../features/reviews/reviewStore';
 import { useVoucherStore } from '../../features/vouchers/voucherStore';
 import { useManagementStore } from '../../features/mangement/managementStore';
 import { useAdminSettingsStore } from '../../features/adminSettings/store';
+import { useVendors } from '../../features/vendors/hooks/useVendors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NavItemProps {
@@ -46,6 +50,7 @@ interface NavItemProps {
   danger?: boolean;
   onClick?: () => void;
   isLogout?: boolean;
+  badge?: number | string;
 }
 
 interface NavSectionProps {
@@ -65,7 +70,6 @@ const resetPageForRoute = (path?: string) => {
   else if (path === '/buyers') useBuyerStore.getState().setPage(1);
   else if (path === '/products') useProductStore.getState().setCurrentPage(1);
   else if (path === '/transactions') useTransactionStore.getState().setPage(1);
-  else if (path === '/categories') useCategoryStore.getState().setCurrentPage(1);
   else if (path === '/reviews') useReviewStore.getState().setCurrentPage(1);
   else if (path === '/vouchers') useVoucherStore.getState().setCurrentPage(1);
   else if (path === '/management') useManagementStore.getState().setPage(1);
@@ -155,6 +159,7 @@ const NavItem = ({
   to,
   danger = false,
   onClick,
+  badge,
 }: NavItemProps) => {
   const { t } = useTranslation();
 
@@ -180,6 +185,11 @@ const NavItem = ({
       >
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{t(labelKey)}</span>
+        {badge !== undefined && badge !== null && Number(badge) > 0 && (
+          <span className="ms-auto shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700 transition-all duration-200">
+            {badge}
+          </span>
+        )}
       </NavLink>
     </div>
   );
@@ -257,8 +267,8 @@ const NavSection = ({ titleKey, items, onItemClick }: NavSectionProps) => {
   );
 };
 
-// ─── Navigation Data ──────────────────────────────────────────────────────────
-const NAV_SECTIONS: NavSectionProps[] = [
+// ─── Navigation Data Helper ────────────────────────────────────────────────────
+const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
   {
     titleKey: 'sidebar.sections.main',
     items: [
@@ -276,6 +286,7 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <PackageOpen size={18} />,
         labelKey: 'sidebar.items.vendors',
         to: '/vendors',
+        badge: pendingVendorsCount,
       },
       {
         icon: <FileChartColumn size={18} />,
@@ -313,6 +324,11 @@ const NAV_SECTIONS: NavSectionProps[] = [
         to: '/products',
       },
       {
+        icon: <Boxes size={18} />,
+        labelKey: 'sidebar.items.inventory',
+        to: '/inventory',
+      },
+      {
         icon: <Star size={18} />,
         labelKey: 'sidebar.items.reviews',
         to: '/reviews',
@@ -323,6 +339,16 @@ const NAV_SECTIONS: NavSectionProps[] = [
         to: '/orders',
       },
       {
+        icon: <Undo2 size={18} />,
+        labelKey: 'sidebar.items.refunds',
+        to: '/refunds',
+      },
+      {
+        icon: <Bell size={18} />,
+        labelKey: 'sidebar.items.notifications',
+        to: '/notifications',
+      },
+      {
         icon: <Handbag size={18} />,
         labelKey: 'sidebar.items.buyers',
         to: '/buyers',
@@ -331,6 +357,11 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <Ticket size={18} />,
         labelKey: 'sidebar.items.vouchers',
         to: '/vouchers',
+      },
+      {
+        icon: <Tags size={18} />,
+        labelKey: 'sidebar.items.attributes',
+        to: '/attributes',
       },
     ],
   },
@@ -353,6 +384,16 @@ const NAV_SECTIONS: NavSectionProps[] = [
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { data: pendingVendorsData } = useVendors({ status: 'PENDING_APPROVAL' });
+  const pendingVendorsCount =
+    pendingVendorsData?.pagination?.totalItems ??
+    (Array.isArray(pendingVendorsData?.items) ? pendingVendorsData.items.length : Array.isArray(pendingVendorsData) ? pendingVendorsData.length : 0);
+
+  const navSections = useMemo(
+    () => getNavSections(pendingVendorsCount),
+    [pendingVendorsCount]
+  );
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -382,7 +423,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-800">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <NavSection
             key={section.titleKey}
             {...section}

@@ -1,4 +1,4 @@
-import type { PlatformSettings, AdminAccount, ShippingZoneItem } from './types';
+import type { PlatformSettings, AdminAccount } from './types';
 
 export const INITIAL_PLATFORM_SETTINGS: PlatformSettings = {
   defaultLanguage:
@@ -17,8 +17,4 @@ export const INITIAL_ADMINS: AdminAccount[] = [
     dateAdded: '--',
     phoneNumber: '--',
   }
-];
-
-export const INITIAL_SHIPPING_ZONES: ShippingZoneItem[] = [
-  { id: '1', name: '--', vendorsCount: 0, isActive: false }
 ];

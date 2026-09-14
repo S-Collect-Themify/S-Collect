@@ -26,6 +26,7 @@ const defaultFormValues: ProductFormData = {
   optionsMeta: [],
   variantsMeta: [],
   categoryId: '',
+  season: 'all',
   enabled: true,
   quantity: 0,
   categories: [],

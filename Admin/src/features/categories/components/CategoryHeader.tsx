@@ -22,7 +22,7 @@ export const CategoryHeader = () => {
       </div>
       <button
         type="button"
-        onClick={openAdd}
+        onClick={() => openAdd()}
         className={`inline-flex items-center gap-2 rounded-xl font-semibold transition-all active:scale-95 cursor-pointer shadow-sm ${
           isMobile
             ? 'h-10 w-10 justify-center bg-gray-950 text-white'

@@ -1,3 +1,5 @@
+export type ProductSeason = 'summer' | 'winter' | 'all';
+
 export interface ProductItem {
   id: string | number;
   name: string;
@@ -6,14 +8,16 @@ export interface ProductItem {
   vendorId?: string;
   category: string;
   categoryAr?: string;
+  season?: ProductSeason;
   price: number;
-  stock?: number | string;
+  totalStock: number;
   isActive: boolean;
   image: string;
   discountPercent?: number;
 }
 
 export type StatusFilter = 'all' | 'active' | 'disabled';
+export type SeasonFilter = 'all' | 'summer' | 'winter';
 
 export interface DisableModalState {
   open: boolean;

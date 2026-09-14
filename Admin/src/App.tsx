@@ -16,10 +16,13 @@ const AddProduct = lazy(() => import('./pages/AddProduct'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
 const Orders = lazy(() => import('./pages/Orders'));
 const OrderDetails = lazy(() => import('./pages/OrderDetails'));
-const ReturnRequests = lazy(() => import('./pages/ReturnRequests'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const Refunds = lazy(() => import('./pages/Refunds'));
 const ReturnRequestDetails = lazy(() => import('./pages/ReturnRequestDetails'));
 const Vendors = lazy(() => import('./pages/Vendors'));
 const VendorDetails = lazy(() => import('./pages/VendorDetails'));
+const EditVendor = lazy(() => import('./pages/EditVendor'));
+const AddVendor = lazy(() => import('./pages/AddVendor'));
 const VendorPayoutsPage = lazy(() => import('./pages/VendorPayoutsPage'));
 const VendorOrdersPage = lazy(() => import('./pages/VendorOrdersPage'));
 const VendorProductsPage = lazy(() => import('./pages/VendorProductsPage'));
@@ -29,13 +32,17 @@ const Payouts = lazy(() => import('./pages/Payouts'));
 const Transactions = lazy(() => import('./pages/Transactions'));
 const Categories = lazy(() => import('./pages/Categories'));
 const Products = lazy(() => import('./pages/Products'));
+const Inventory = lazy(() => import('./pages/Inventory'));
 const Reviews = lazy(() => import('./pages/Reviews'));
 const Vouchers = lazy(() => import('./pages/Vouchers'));
 const CreateVoucher = lazy(() => import('./pages/CreateVoucher'));
 const Buyers = lazy(() => import('./pages/Buyers'));
 const BuyerDetails = lazy(() => import('./pages/BuyerDetails'));
+const EditBuyer = lazy(() => import('./pages/EditBuyer'));
+const AddBuyer = lazy(() => import('./pages/AddBuyer'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Attributes = lazy(() => import('./pages/Attributes'));
 
 function PageLoader() {
   return (
@@ -90,11 +97,15 @@ function App() {
             <Route path="/product-details/:id" element={<ProductDetails />} />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/incoming-orders" element={<Orders />} />
-            <Route path="/returns" element={<ReturnRequests />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/refunds" element={<Refunds />} />
+            <Route path="/returns" element={<Refunds />} />
             <Route path="/returns/:id" element={<ReturnRequestDetails />} />
             <Route path="/incoming-orders/:id" element={<OrderDetails />} />
             <Route path="/vendors" element={<Vendors />} />
+            <Route path="/vendors/new" element={<AddVendor />} />
             <Route path="/vendors/:id" element={<VendorDetails />} />
+            <Route path="/vendors/:id/edit" element={<EditVendor />} />
             <Route path="/vendors/:id/payouts" element={<VendorPayoutsPage />} />
             <Route path="/vendors/:id/orders" element={<VendorOrdersPage />} />
             <Route path="/vendors/:id/products" element={<VendorProductsPage />} />
@@ -104,6 +115,7 @@ function App() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/inventory" element={<Inventory />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/vouchers" element={<Vouchers />} />
             <Route path="/vouchers/create" element={<CreateVoucher />} />
@@ -111,8 +123,11 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path="/buyers" element={<Buyers />} />
+            <Route path="/buyers/new" element={<AddBuyer />} />
             <Route path="/buyers/:id" element={<BuyerDetails />} />
+            <Route path="/buyers/:id/edit" element={<EditBuyer />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
+            <Route path="/attributes" element={<Attributes />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

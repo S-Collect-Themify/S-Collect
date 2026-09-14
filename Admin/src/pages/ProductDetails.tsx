@@ -202,6 +202,10 @@ const ProductDetails = () => {
   const handleToggleStatus = (pDetail: SingleAdminProductDetail) => {
     const isActive = Boolean(pDetail.isActive && !pDetail.isDisabled);
     if (isActive) {
+      const computedStock = pDetail.variants?.length
+        ? pDetail.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+        : 0;
+
       openDisableModal({
         id: pDetail.id,
         name: pDetail.name,
@@ -209,6 +213,7 @@ const ProductDetails = () => {
         vendor: pDetail.vendor?.storeName || '',
         category: pDetail.category?.name || '',
         price: pDetail.variants?.[0]?.price || 0,
+        totalStock: computedStock,
         isActive: true,
         image: pDetail.images?.[0]?.url || '',
       });
@@ -246,7 +251,7 @@ const ProductDetails = () => {
                 {isAr ? "المنتجات" : "Products"}
               </Link>
               <ChevronIcon size={12} className="text-gray-400" />
-              <span className="text-gray-900 font-semibold truncate max-w-[200px]">
+              <span className="text-gray-900 font-semibold truncate max-w-50">
                 {productName}
               </span>
             </nav>

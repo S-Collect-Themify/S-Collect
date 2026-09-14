@@ -54,7 +54,7 @@ export default function VendorProductsPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50/80 min-h-screen">
+    <div className="flex-1 overflow-y-auto bg-gray-50/80">
       <VendorHeader
         vendor={vendor}
         onSuspend={() => setShowSuspend(true)}

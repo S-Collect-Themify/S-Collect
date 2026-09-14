@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { AlertTriangle, CheckCircle, PowerOff, Star } from 'lucide-react';
+import { AlertTriangle, CheckCircle, PowerOff, Star, Trash2 } from 'lucide-react';
 
 interface VendorConfirmModalProps {
   isOpen: boolean;
-  type: 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature';
+  type: 'approve' | 'reject' | 'deactivate' | 'reactivate' | 'feature' | 'unfeature' | 'delete';
   count: number;
   vendorName?: string;
   onConfirm: (reason?: string) => void;
@@ -105,6 +105,18 @@ export default function VendorConfirmModal({
       btnLabel: isSingle
         ? t('vendors.table.confirmUnfeatureBtn', 'Unmark as Featured')
         : t('vendors.table.unfeatureSelected', 'Unfeature Selected'),
+    },
+    delete: {
+      title: t('vendors.table.confirmDeleteTitle', 'Delete Vendor'),
+      message: isSingle
+        ? t('vendors.table.confirmDeleteMessage', { name: vendorName, defaultValue: `Are you sure you want to delete ${vendorName}? This action cannot be undone.` })
+        : t('vendors.table.confirmDeleteBulkMessage', { count, defaultValue: `Are you sure you want to delete ${count} vendors? This action cannot be undone.` }),
+      icon: <Trash2 size={28} className="text-red-500" strokeWidth={2} />,
+      iconBg: 'bg-red-50',
+      btnClass: 'bg-red-600 hover:bg-red-700',
+      btnLabel: isSingle
+        ? t('vendors.table.confirmDeleteBtn', 'Delete')
+        : t('vendors.table.deleteSelected', 'Delete Selected'),
     },
   };
 

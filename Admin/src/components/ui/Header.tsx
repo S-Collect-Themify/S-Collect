@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom';
-import { Menu, User } from 'lucide-react';
-import InputSearch from './InputSearch';
+// import { Link } from 'react-router-dom';
+import { Menu } from 'lucide-react';
+// import InputSearch from './InputSearch';
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import i18n from '../../i18n';
 import PortalDropdown from './PortalDropdown';
 import { useAdminProfile } from '../../hooks/useAdminProfile';
+import { NotificationDropdown } from '../../features/notifications';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -121,17 +122,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <Menu size={24} />
             </button>
           </div>
-          <div className="flex items-center">
-            <div className="sidebar:hidden block">
-              <InputSearch />
-            </div>
-            <Link
-              to="/login"
-              className="inline-flex h-11 w-11 items-center justify-center text-gray-50 transition-colors"
-              aria-label="Account"
-            >
-              <User size={24} />
-            </Link>
+
+          <div className="flex items-center gap-3">
+            <NotificationDropdown />
+            <LanguageDropdown />
           </div>
         </div>
 
@@ -145,21 +139,22 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         </div>
 
         <div className="items-center gap-3 sidebar:gap-4 sidebar:flex hidden">
-          <div className="flex-1 sidebar:flex-none sidebar:block hidden">
+          {/* <div className="flex-1 sidebar:flex-none sidebar:block hidden">
             <InputSearch />
-          </div>
+          </div> */}
 
-          <div className="hidden sidebar:flex">
+          <div className="hidden sidebar:flex items-center gap-3">
+            <NotificationDropdown />
             <LanguageDropdown />
           </div>
 
-          <Link
+          {/* <Link
             to="/login"
             className="hidden text-2xl hover:text-gray-300 sidebar:block"
             aria-label="Account"
           >
             <User />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </header>

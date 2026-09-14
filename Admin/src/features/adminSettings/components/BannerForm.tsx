@@ -81,9 +81,15 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
 
   const { data: vendorsData } = useQuery({
     queryKey: ['admin-vendors-banner-options'],
-    queryFn: () => getVendors(),
+    queryFn: () => getVendors({ pageSize: 100 }),
   });
-  const vendors = Array.isArray(vendorsData) ? vendorsData : [];
+  const vendors = Array.isArray(vendorsData)
+    ? vendorsData
+    : Array.isArray((vendorsData as any)?.items)
+    ? (vendorsData as any).items
+    : Array.isArray((vendorsData as any)?.data)
+    ? (vendorsData as any).data
+    : [];
 
   // ── React Hook Form ──
   const {
@@ -538,7 +544,11 @@ export const BannerForm: React.FC<BannerFormProps> = ({ mode }) => {
                     {t('banners.form.selectVendorPlaceholder', { defaultValue: '-- Select Vendor --' })}
                   </option>
                   {vendors.map((vend: any) => {
-                    const vendorName = vend.storeName || `${vend.firstName || ''} ${vend.lastName || ''}`.trim() || vend.id;
+                    const vendorName =
+                      (isArabic && vend.storeNameAr ? vend.storeNameAr : vend.storeName) ||
+                      (isArabic && vend.nameAr ? vend.nameAr : vend.name) ||
+                      `${vend.firstName || ''} ${vend.lastName || ''}`.trim() ||
+                      vend.id;
                     return (
                       <option key={vend.id} value={vend.id}>
                         {vendorName}

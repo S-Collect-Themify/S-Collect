@@ -36,7 +36,7 @@ export default function AccountSettingsPage({
   );
 
   return (
-    <div className="settings-page-enter min-h-screen bg-gray-100">
+    <div className="settings-page-enter flex-1 bg-gray-100">
       {toast && <SuccessToast message={toast} onClose={() => setToast(null)} />}
 
       <div className="bg-white border-b border-gray-200 p-4 md:px-8 md:py-3">

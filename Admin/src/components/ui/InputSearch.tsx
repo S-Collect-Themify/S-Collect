@@ -18,7 +18,7 @@ const InputSearch = () => {
   return (
     <>
       {/* Desktop Search */}
-      <div className="hidden md:block relative w-full">
+      <div className="hidden relative w-full">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
 
         <input
