@@ -17,6 +17,7 @@ import {
   Boxes,
   Bell,
   Tags,
+  FileText,
 } from 'lucide-react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -459,6 +460,11 @@ const getNavSections = (pendingVendorsCount: number): NavSectionProps[] => [
         icon: <Tags size={18} />,
         labelKey: 'sidebar.items.attributes',
         to: '/attributes',
+      },
+      {
+        icon: <FileText size={18} />,
+        labelKey: 'sidebar.items.staticPages',
+        to: '/static-pages',
       },
     ],
   },

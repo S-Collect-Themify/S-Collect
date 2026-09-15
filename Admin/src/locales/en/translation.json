@@ -155,6 +155,7 @@
       "vouchers": "Vouchers",
       "buyers": "Buyers",
       "attributes": "Attributes",
+      "staticPages": "Static Pages",
       "adminSettings": "Settings",
       "logout": "Logout",
       "logoutDescription": "Are you sure you want to sign out of your account?\nYou will need to sign in again to access your dashboard.",
@@ -1787,10 +1788,85 @@
     "active": "Active",
     "inactive": "Inactive",
     "cancel": "Cancel",
+    "delete": "Delete",
+    "required": "This field is required",
     "tryAgain": "Try Again",
     "understood": "Understood",
     "title": "Settings",
     "description": "Configure admin account and application preferences."
+  },
+  "staticPages": {
+    "title": "Static Pages",
+    "subtitle": "Manage the content shown on Contact Us, FAQ, Return Policy, Terms & Conditions and Privacy Policy pages.",
+    "breadcrumb": {
+      "dashboard": "Dashboard",
+      "staticPages": "Static Pages"
+    },
+    "tabs": {
+      "contact": "Contact Us",
+      "faq": "FAQ",
+      "return": "Return Policy",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy"
+    },
+    "language": {
+      "en": "English",
+      "ar": "العربية"
+    },
+    "contact": {
+      "directDetails": "Direct Contact Details",
+      "email": "Support Email",
+      "phone": "Phone Number",
+      "whatsapp": "WhatsApp Number",
+      "addressAndHours": "Address & Working Hours",
+      "addressEn": "Address (English)",
+      "addressAr": "Address (Arabic)",
+      "workingHoursEn": "Working Hours (English)",
+      "workingHoursAr": "Working Hours (Arabic)",
+      "socialLinks": "Social Media Links",
+      "facebook": "Facebook URL",
+      "instagram": "Instagram URL",
+      "x": "X (Twitter) URL",
+      "tiktok": "TikTok URL",
+      "mapUrl": "Google Maps Embed / Link",
+      "save": "Save Contact Info"
+    },
+    "faq": {
+      "description": "Organize frequently asked questions into categories shown on the storefront FAQ page.",
+      "addCategoryButton": "Add Category",
+      "addCategoryTitle": "Add FAQ Category",
+      "editCategoryTitle": "Edit FAQ Category",
+      "saveCategoryButton": "Save Changes",
+      "categoryNameEn": "Category Name (English)",
+      "categoryNameAr": "Category Name (Arabic)",
+      "deleteCategoryTitle": "Delete Category",
+      "deleteCategoryMessage": "Are you sure you want to delete \"{{name}}\"? All its questions will be removed too.",
+      "noCategories": "No FAQ categories yet. Add your first category to get started.",
+      "noQuestions": "No questions in this category yet.",
+      "questionsCount": "questions",
+      "addItemButton": "Add Question",
+      "addItemTitle": "Add Question",
+      "editItemTitle": "Edit Question",
+      "saveItemButton": "Save Changes",
+      "questionEn": "Question (English)",
+      "questionAr": "Question (Arabic)",
+      "answerEn": "Answer (English)",
+      "answerAr": "Answer (Arabic)",
+      "deleteItemTitle": "Delete Question",
+      "deleteItemMessage": "Are you sure you want to delete this question? This action cannot be undone."
+    },
+    "legal": {
+      "returnDefaultTitle": "Return Policy",
+      "termsDefaultTitle": "Terms & Conditions",
+      "privacyDefaultTitle": "Privacy Policy",
+      "lastUpdated": "Last updated",
+      "pageTitleEn": "Page Title (English)",
+      "pageTitleAr": "Page Title (Arabic)",
+      "pageBodyEn": "Page Content (English)",
+      "pageBodyAr": "Page Content (Arabic)",
+      "bodyPlaceholder": "Write the page content here. Separate paragraphs with a blank line.",
+      "save": "Save Page"
+    }
   },
   "vendorReports": {
     "title": "Vendor Sales Report",
