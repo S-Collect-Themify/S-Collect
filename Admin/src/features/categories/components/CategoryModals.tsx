@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, AlertTriangle, Trash2, PackageX, Loader2, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,14 @@ export const StatusConfirmModal = ({
   onConfirm,
 }: StatusConfirmModalProps) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -112,6 +120,14 @@ export interface DeleteModalProps {
 
 export const DeleteModal = ({ isOpen, categoryName, count, onClose, onConfirm }: DeleteModalProps) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -229,6 +245,7 @@ export const CategoryFormModal = ({
   const [image, setImage] = useState(category?.image ?? '');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -236,6 +253,16 @@ export const CategoryFormModal = ({
   const [touchedAr, setTouchedAr] = useState(false);
   const [level, setLevel] = useState<1 | 2>(initialLevel);
   const [parentId, setParentId] = useState(initialParentId ?? '');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isSubmitting, onClose]);
 
   const departments = categories.filter((c) => c.depth === 0);
   const parentCategories = categories.filter((c) => c.depth === 1);
@@ -273,10 +300,7 @@ export const CategoryFormModal = ({
     setSlugManuallyEdited(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processImageFile = (file: File) => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
     const MAX_SIZE = 3 * 1024 * 1024; // 3MB
 
@@ -293,6 +317,31 @@ export const CategoryFormModal = ({
       setImage(event.target?.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processImageFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processImageFile(file);
   };
 
   const handleRemoveImage = () => {
@@ -495,18 +544,23 @@ export const CategoryFormModal = ({
                   <div className="space-y-2">
                     <div
                       onClick={() => fileInputRef.current?.click()}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
                       className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
-                        imageError
-                          ? 'border-red-400 bg-red-50/30'
-                          : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
+                        isDragging
+                          ? 'border-gray-900 bg-gray-100/80 scale-[1.01]'
+                          : imageError
+                            ? 'border-red-400 bg-red-50/30'
+                            : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
                       }`}
                     >
                       <div className="flex flex-col items-center gap-1">
-                        <div className="p-2 rounded-full bg-gray-100 text-gray-500">
+                        <div className={`p-2 rounded-full transition-colors ${isDragging ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'}`}>
                           <Upload size={18} />
                         </div>
                         <span className="text-body-sm font-medium text-gray-700">
-                          {t('categories.modal.uploadImage')}
+                          {isDragging ? t('categories.modal.dropImageHere', { defaultValue: 'Drop image file here' }) : t('categories.modal.uploadImage')}
                         </span>
                         <span className="text-xs text-gray-400">
                           {t('categories.modal.imageHint')}
