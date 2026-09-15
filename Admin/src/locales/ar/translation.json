@@ -154,6 +154,7 @@
       "vouchers": "القسائم",
       "buyers": "المشترون",
       "attributes": "السمات والخيارات",
+      "staticPages": "الصفحات الثابتة",
       "adminSettings": "الإعدادات",
       "logout": "تسجيل الخروج",
       "logoutDescription": "هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟\nستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى لوحة التحكم.",
@@ -1783,10 +1784,85 @@
     "active": "نشط",
     "inactive": "غير نشط",
     "cancel": "إلغاء",
+    "delete": "حذف",
+    "required": "هذا الحقل مطلوب",
     "tryAgain": "حاول مرة أخرى",
     "understood": "فهمت",
     "title": "الإعدادات",
     "description": "ضبط حساب الأدمن وتفضيلات التطبيق."
+  },
+  "staticPages": {
+    "title": "الصفحات الثابتة",
+    "subtitle": "إدارة المحتوى الظاهر في صفحات تواصل معنا، الأسئلة الشائعة، سياسة الاسترجاع، الشروط والأحكام، وسياسة الخصوصية.",
+    "breadcrumb": {
+      "dashboard": "لوحة التحكم",
+      "staticPages": "الصفحات الثابتة"
+    },
+    "tabs": {
+      "contact": "تواصل معنا",
+      "faq": "الأسئلة الشائعة",
+      "return": "سياسة الاسترجاع",
+      "terms": "الشروط والأحكام",
+      "privacy": "سياسة الخصوصية"
+    },
+    "language": {
+      "en": "English",
+      "ar": "العربية"
+    },
+    "contact": {
+      "directDetails": "بيانات التواصل المباشر",
+      "email": "البريد الإلكتروني للدعم",
+      "phone": "رقم الهاتف",
+      "whatsapp": "رقم واتساب",
+      "addressAndHours": "العنوان وساعات العمل",
+      "addressEn": "العنوان (إنجليزي)",
+      "addressAr": "العنوان (عربي)",
+      "workingHoursEn": "ساعات العمل (إنجليزي)",
+      "workingHoursAr": "ساعات العمل (عربي)",
+      "socialLinks": "روابط مواقع التواصل الاجتماعي",
+      "facebook": "رابط فيسبوك",
+      "instagram": "رابط انستجرام",
+      "x": "رابط X (تويتر)",
+      "tiktok": "رابط تيك توك",
+      "mapUrl": "رابط/تضمين خرائط جوجل",
+      "save": "حفظ بيانات التواصل"
+    },
+    "faq": {
+      "description": "قم بتنظيم الأسئلة الشائعة في تصنيفات تظهر في صفحة الأسئلة الشائعة بالمتجر.",
+      "addCategoryButton": "إضافة تصنيف",
+      "addCategoryTitle": "إضافة تصنيف للأسئلة الشائعة",
+      "editCategoryTitle": "تعديل تصنيف الأسئلة الشائعة",
+      "saveCategoryButton": "حفظ التغييرات",
+      "categoryNameEn": "اسم التصنيف (إنجليزي)",
+      "categoryNameAr": "اسم التصنيف (عربي)",
+      "deleteCategoryTitle": "حذف التصنيف",
+      "deleteCategoryMessage": "هل أنت متأكد من حذف \"{{name}}\"؟ سيتم حذف جميع أسئلته أيضًا.",
+      "noCategories": "لا توجد تصنيفات أسئلة شائعة بعد. أضف أول تصنيف للبدء.",
+      "noQuestions": "لا توجد أسئلة في هذا التصنيف بعد.",
+      "questionsCount": "سؤال",
+      "addItemButton": "إضافة سؤال",
+      "addItemTitle": "إضافة سؤال",
+      "editItemTitle": "تعديل سؤال",
+      "saveItemButton": "حفظ التغييرات",
+      "questionEn": "السؤال (إنجليزي)",
+      "questionAr": "السؤال (عربي)",
+      "answerEn": "الإجابة (إنجليزي)",
+      "answerAr": "الإجابة (عربي)",
+      "deleteItemTitle": "حذف السؤال",
+      "deleteItemMessage": "هل أنت متأكد من حذف هذا السؤال؟ لا يمكن التراجع عن هذا الإجراء."
+    },
+    "legal": {
+      "returnDefaultTitle": "سياسة الاسترجاع",
+      "termsDefaultTitle": "الشروط والأحكام",
+      "privacyDefaultTitle": "سياسة الخصوصية",
+      "lastUpdated": "آخر تحديث",
+      "pageTitleEn": "عنوان الصفحة (إنجليزي)",
+      "pageTitleAr": "عنوان الصفحة (عربي)",
+      "pageBodyEn": "محتوى الصفحة (إنجليزي)",
+      "pageBodyAr": "محتوى الصفحة (عربي)",
+      "bodyPlaceholder": "اكتب محتوى الصفحة هنا. اترك سطرًا فارغًا بين الفقرات.",
+      "save": "حفظ الصفحة"
+    }
   },
   "vendorReports": {
     "title": "تقرير مبيعات البائعين",

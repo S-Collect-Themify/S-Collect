@@ -43,6 +43,7 @@ const AddBuyer = lazy(() => import('./pages/AddBuyer'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Attributes = lazy(() => import('./pages/Attributes'));
+const StaticPages = lazy(() => import('./pages/StaticPages'));
 
 function PageLoader() {
   return (
@@ -129,6 +130,7 @@ function App() {
             <Route path="/buyers/:id/edit" element={<EditBuyer />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="/attributes" element={<Attributes />} />
+            <Route path="/static-pages" element={<StaticPages />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
