@@ -199,7 +199,7 @@ export const AutoGenerateVariantsModal = ({
     setIncludedAttributeIds((prev) => prev.filter((id) => id !== attrId));
   };
 
-  // Toggle a value selection for a given attribute
+  // Toggle a value selection for a given attribute (multi-select)
   const toggleValue = (attrId: string, val: string) => {
     setSelectedValuesByAttr((prev) => {
       const current = prev[attrId] || [];
@@ -211,6 +211,14 @@ export const AutoGenerateVariantsModal = ({
         : [...current, val];
       return { ...prev, [attrId]: updated };
     });
+  };
+
+  // Select a single value for an attribute (single-select radio)
+  const selectSingleValue = (attrId: string, val: string) => {
+    setSelectedValuesByAttr((prev) => ({
+      ...prev,
+      [attrId]: [val],
+    }));
   };
 
   // Select all or Deselect all for a given attribute
@@ -229,29 +237,40 @@ export const AutoGenerateVariantsModal = ({
     const input = (customInputByAttr[attr.id] || '').trim();
     if (!input) return;
 
-    const currentSelected = selectedValuesByAttr[attr.id] || [];
-    const exists = currentSelected.some(
-      (c) => c.toLowerCase() === input.toLowerCase()
-    );
+    const isColor = isColorAttribute(attr);
 
-    if (!exists) {
+    if (isColor) {
       setSelectedValuesByAttr((prev) => ({
         ...prev,
-        [attr.id]: [...(prev[attr.id] || []), input],
+        [attr.id]: [input],
       }));
+    } else {
+      setSelectedValuesByAttr((prev) => {
+        const currentSelected = prev[attr.id] || [];
+        const exists = currentSelected.some(
+          (c) => c.toLowerCase() === input.toLowerCase()
+        );
+        return exists ? prev : { ...prev, [attr.id]: [...currentSelected, input] };
+      });
+    }
 
-      const isColor = isColorAttribute(attr);
-      setCustomValuesByAttr((prev) => ({
+    setCustomValuesByAttr((prev) => {
+      const current = prev[attr.id] || [];
+      const exists = current.some(
+        (c) => c.value.toLowerCase() === input.toLowerCase()
+      );
+      if (exists) return prev;
+      return {
         ...prev,
         [attr.id]: [
-          ...(prev[attr.id] || []),
+          ...current,
           {
             value: input,
             hex: isColor ? resolveColorHex(input) : undefined,
           },
         ],
-      }));
-    }
+      };
+    });
 
     setCustomInputByAttr((prev) => ({ ...prev, [attr.id]: '' }));
   };
@@ -572,27 +591,35 @@ export const AutoGenerateVariantsModal = ({
                           )}
                         </div>
                         <span className="text-[11px] text-gray-500 font-medium">
-                          {selectedValues.length} {isArabic ? 'محدد' : 'selected'}
+                          {isColor
+                            ? selectedValues[0]
+                              ? `${isArabic ? 'اللون المحدد:' : 'Selected:'} ${selectedValues[0]}`
+                              : isArabic
+                              ? 'لم يتم تحديد لون'
+                              : 'No color selected'
+                            : `${selectedValues.length} ${isArabic ? 'محدد' : 'selected'}`}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleSelectAllForAttr(attr.id, allValueStrings)
-                        }
-                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
-                      >
-                        <CheckCheck size={13} />
-                        <span>
-                          {selectedValues.length === allValueStrings.length &&
-                          allValueStrings.length > 0
-                            ? t('addProduct.deselectAll', 'Deselect All')
-                            : t('addProduct.selectAll', 'Select All')}
-                        </span>
-                      </button>
+                      {!isColor && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleSelectAllForAttr(attr.id, allValueStrings)
+                          }
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
+                        >
+                          <CheckCheck size={13} />
+                          <span>
+                            {selectedValues.length === allValueStrings.length &&
+                            allValueStrings.length > 0
+                              ? t('addProduct.deselectAll', 'Deselect All')
+                              : t('addProduct.selectAll', 'Select All')}
+                          </span>
+                        </button>
+                      )}
 
                       {includedAttributes.length > 1 && (
                         <button
@@ -613,9 +640,13 @@ export const AutoGenerateVariantsModal = ({
 
                   {/* Value Selection Area */}
                   {isColor ? (
-                    // Color Swatches Grid
+                    // Color Radio Options Grid (Single Select)
                     <div className="space-y-2">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-44 overflow-y-auto p-1.5 border border-gray-100 rounded-xl bg-gray-50/40 scrollbar-thin">
+                      <div
+                        role="radiogroup"
+                        aria-label={titleName}
+                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-44 overflow-y-auto p-1.5 border border-gray-100 rounded-xl bg-gray-50/40 scrollbar-thin"
+                      >
                         {(
                           displayValues as {
                             name: string;
@@ -632,16 +663,22 @@ export const AutoGenerateVariantsModal = ({
                               : c.name;
 
                           return (
-                            <button
+                            <label
                               key={c.name}
-                              type="button"
-                              onClick={() => toggleValue(attr.id, c.name)}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer border text-start ${
+                              className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer border text-start select-none ${
                                 isSelected
-                                  ? 'bg-gray-950 text-white border-gray-950 shadow-xs'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-200'
+                                  ? 'bg-indigo-50/80 border-indigo-500 text-indigo-950 font-semibold shadow-2xs ring-1 ring-indigo-500/20'
+                                  : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
                               }`}
                             >
+                              <input
+                                type="radio"
+                                name={`color-radio-${attr.id}`}
+                                value={c.name}
+                                checked={isSelected}
+                                onChange={() => selectSingleValue(attr.id, c.name)}
+                                className="h-3.5 w-3.5 text-indigo-600 border-gray-300 focus:ring-indigo-500 cursor-pointer shrink-0 accent-indigo-600"
+                              />
                               {c.hex ? (
                                 <span
                                   className="h-3.5 w-3.5 rounded-full shrink-0 border border-gray-300 shadow-2xs"
@@ -651,13 +688,7 @@ export const AutoGenerateVariantsModal = ({
                                 <span className="h-3.5 w-3.5 rounded-full shrink-0 bg-gray-300 border border-gray-400" />
                               )}
                               <span className="truncate flex-1">{label}</span>
-                              {isSelected && (
-                                <Check
-                                  size={12}
-                                  className="shrink-0 text-white"
-                                />
-                              )}
-                            </button>
+                            </label>
                           );
                         })}
                       </div>

@@ -8,6 +8,7 @@ import {
   SquareUserRoundIcon,
   RotateCcw,
   SlidersHorizontal,
+  Megaphone,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import type { ReactNode } from 'react';
@@ -227,6 +228,11 @@ const NAV_SECTIONS: NavSectionProps[] = [
         icon: <RotateCcw size={18} />,
         labelKey: 'sidebar.items.returns',
         to: '/returns',
+      },
+      {
+        icon: <Megaphone size={18} />,
+        labelKey: 'sidebar.items.campaigns',
+        to: '/campaigns',
       },
     ],
   },

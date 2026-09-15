@@ -629,7 +629,6 @@ const AddProduct = () => {
 
                         <Link
                           to="/attributes"
-                          target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline px-1.5 py-1 shrink-0"
                         >
