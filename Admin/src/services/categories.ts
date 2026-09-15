@@ -70,13 +70,26 @@ function extractCategoriesArray(resData: any): ApiCategoryItem[] {
 }
 
 export const getAdminCategories = async (params?: { pageNum?: number; pageSize?: number }): Promise<ApiCategoryItem[]> => {
-  const { data } = await api.get('/admin/categories', {
-    params: {
-      pageNum: params?.pageNum ?? 1,
-      pageSize: params?.pageSize ?? 100,
-    },
-  });
-  return extractCategoriesArray(data);
+  try {
+    const queryParams: Record<string, any> = {};
+    if (params?.pageNum !== undefined) queryParams.pageNum = params.pageNum;
+    if (params?.pageSize !== undefined) queryParams.pageSize = params.pageSize;
+
+    const { data } = await api.get('/admin/categories', {
+      params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+    });
+    return extractCategoriesArray(data);
+  } catch (err: any) {
+    if (err?.response?.status === 500 || err?.response?.status === 400) {
+      try {
+        const { data } = await api.get('/admin/categories');
+        return extractCategoriesArray(data);
+      } catch {
+        return [];
+      }
+    }
+    throw err;
+  }
 };
 
 // Full Department → Category → Sub-Category tree (all categories, including inactive).
