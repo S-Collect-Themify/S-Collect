@@ -59,7 +59,6 @@ export const SubOrderCard = ({
   const [reasonModalOpen, setReasonModalOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [reasonText, setReasonText] = useState(defaultReason);
-  const [reasonError, setReasonError] = useState(false);
 
   const statusOptions = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
@@ -90,7 +89,6 @@ export const SubOrderCard = ({
     }
     if (st === subOrder.status) return;
     setPendingStatus(st);
-    setReasonError(false);
     setReasonModalOpen(true);
   };
 
@@ -100,16 +98,11 @@ export const SubOrderCard = ({
       return;
     }
     if (!pendingStatus) return;
-    if (!reasonText.trim()) {
-      setReasonError(true);
-      return;
-    }
     setReasonModalOpen(false);
-    setReasonError(false);
     await onUpdateStatus({
       status: pendingStatus,
       trackingNumber,
-      reason: reasonText.trim(),
+      reason: reasonText.trim() || undefined,
     });
     setPendingStatus(null);
   };
@@ -377,32 +370,20 @@ export const SubOrderCard = ({
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   {t('ordersPage.modal.reasonLabel', 'Reason for Status Override')}{' '}
-                  <span className="text-rose-500">*</span>
+                  <span className="text-gray-400 font-normal">
+                    ({t('ordersPage.modal.optional', 'Optional')})
+                  </span>
                 </label>
                 <textarea
                   rows={3}
                   value={reasonText}
-                  onChange={(e) => {
-                    setReasonText(e.target.value);
-                    if (reasonError && e.target.value.trim()) {
-                      setReasonError(false);
-                    }
-                  }}
+                  onChange={(e) => setReasonText(e.target.value)}
                   placeholder={t(
                     'ordersPage.modal.reasonPlaceholder',
                     'e.g. Vendor unresponsive after 5 business days'
                   )}
-                  className={`w-full p-3 rounded-lg border text-xs focus:outline-none resize-none transition-colors ${
-                    reasonError
-                      ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 bg-rose-50/20'
-                      : 'border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
-                  }`}
+                  className="w-full p-3 rounded-lg border border-gray-200 text-xs focus:outline-none resize-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
                 />
-                {reasonError && (
-                  <p className="text-rose-500 text-[11px] font-medium mt-1">
-                    {t('ordersPage.modal.reasonRequiredError', 'Reason is required')}
-                  </p>
-                )}
               </div>
 
               {/* Quick suggestions */}
@@ -419,7 +400,6 @@ export const SubOrderCard = ({
                         type="button"
                         onClick={() => {
                           setReasonText(text);
-                          setReasonError(false);
                         }}
                         className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] rounded-lg transition-colors cursor-pointer"
                       >
@@ -436,7 +416,6 @@ export const SubOrderCard = ({
                   onClick={() => {
                     setReasonModalOpen(false);
                     setPendingStatus(null);
-                    setReasonError(false);
                   }}
                   className="px-4 py-2 rounded-lg text-gray-600 bg-gray-100 hover:bg-gray-200 font-semibold cursor-pointer"
                 >
