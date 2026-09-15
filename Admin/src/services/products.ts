@@ -54,9 +54,7 @@ export interface Category {
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
-    const { data } = await api.get('/admin/categories', {
-      params: { pageSize: 100 },
-    });
+    const { data } = await api.get('/admin/categories');
     if (Array.isArray(data)) return data;
     if (Array.isArray(data?.items)) return data.items;
     if (Array.isArray(data?.categories)) return data.categories;

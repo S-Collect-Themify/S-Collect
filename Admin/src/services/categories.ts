@@ -70,13 +70,26 @@ function extractCategoriesArray(resData: any): ApiCategoryItem[] {
 }
 
 export const getAdminCategories = async (params?: { pageNum?: number; pageSize?: number }): Promise<ApiCategoryItem[]> => {
-  const { data } = await api.get('/admin/categories', {
-    params: {
-      pageNum: params?.pageNum ?? 1,
-      pageSize: params?.pageSize ?? 100,
-    },
-  });
-  return extractCategoriesArray(data);
+  try {
+    const queryParams: Record<string, any> = {};
+    if (params?.pageNum !== undefined) queryParams.pageNum = params.pageNum;
+    if (params?.pageSize !== undefined) queryParams.pageSize = params.pageSize;
+
+    const { data } = await api.get('/admin/categories', {
+      params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+    });
+    return extractCategoriesArray(data);
+  } catch (err: any) {
+    if (err?.response?.status === 500 || err?.response?.status === 400) {
+      try {
+        const { data } = await api.get('/admin/categories');
+        return extractCategoriesArray(data);
+      } catch {
+        return [];
+      }
+    }
+    throw err;
+  }
 };
 
 // Full Department → Category → Sub-Category tree (all categories, including inactive).
@@ -90,8 +103,14 @@ export const createAdminCategory = async (payload: CreateCategoryPayload): Promi
   if (payload.image instanceof File) {
     fileToUpload = payload.image;
   } else if (typeof payload.image === 'string' && payload.image.startsWith('data:')) {
-    fileToUpload = dataURLtoFile(payload.image, 'category-image.png');
+    try {
+      fileToUpload = dataURLtoFile(payload.image, 'category-image.png');
+    } catch {
+      fileToUpload = null;
+    }
   }
+
+  let createdCategory: ApiCategoryItem;
 
   if (fileToUpload) {
     const formData = new FormData();
@@ -102,27 +121,69 @@ export const createAdminCategory = async (payload: CreateCategoryPayload): Promi
     if (payload.parentCategoryId) formData.append('parentCategoryId', payload.parentCategoryId);
     formData.append('image', fileToUpload);
 
-    const { data } = await api.post('/admin/categories', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return data;
+    try {
+      const { data } = await api.post('/admin/categories', formData, {
+        headers: {
+          'Content-Type': undefined,
+        },
+      });
+      createdCategory = data;
+    } catch (err: any) {
+      // Fallback: If server rejects multipart/form-data on POST, send standard JSON
+      if (err?.response?.status === 400 || err?.response?.status === 415 || err?.response?.status === 422) {
+        const body: Record<string, any> = {
+          name: payload.name,
+          nameAr: payload.nameAr,
+          slug: payload.slug,
+        };
+        if (payload.description) body.description = payload.description;
+        if (payload.parentCategoryId) body.parentCategoryId = payload.parentCategoryId;
+        if (typeof payload.image === 'string') body.image = payload.image;
+
+        const { data } = await api.post('/admin/categories', body);
+        createdCategory = data;
+      } else {
+        throw err;
+      }
+    }
+  } else {
+    const body: Record<string, any> = {
+      name: payload.name,
+      nameAr: payload.nameAr,
+      slug: payload.slug,
+    };
+    if (payload.description) body.description = payload.description;
+    if (payload.parentCategoryId) body.parentCategoryId = payload.parentCategoryId;
+    if (payload.image !== undefined && payload.image !== null) {
+      body.image = payload.image;
+    }
+
+    const { data } = await api.post('/admin/categories', body);
+    createdCategory = data;
   }
 
-  const body: Record<string, any> = {
-    name: payload.name,
-    nameAr: payload.nameAr,
-    slug: payload.slug,
-  };
-  if (payload.description) body.description = payload.description;
-  if (payload.parentCategoryId) body.parentCategoryId = payload.parentCategoryId;
-  if (payload.image !== undefined && payload.image !== null) {
-    body.image = payload.image;
+  // Extract ID of newly created category
+  const catId = createdCategory?.id || (createdCategory as any)?.data?.id || (createdCategory as any)?.category?.id;
+  const hasImageInResponse = Boolean(
+    createdCategory?.image ||
+      createdCategory?.imageUrl ||
+      (createdCategory as any)?.data?.image ||
+      (createdCategory as any)?.data?.imageUrl
+  );
+
+  // If an image was supplied during creation but POST endpoint did not attach/save it,
+  // automatically call updateAdminCategory (PATCH /admin/categories/:id) which persists the image.
+  if (catId && payload.image && !hasImageInResponse) {
+    try {
+      const updatedCategory = await updateAdminCategory(String(catId), { image: payload.image });
+      return updatedCategory || createdCategory;
+    } catch (updateErr) {
+      console.warn('Post-creation image upload via PATCH failed:', updateErr);
+      return createdCategory;
+    }
   }
 
-  const { data } = await api.post('/admin/categories', body);
-  return data;
+  return createdCategory;
 };
 
 export const updateAdminCategory = async (
@@ -133,7 +194,11 @@ export const updateAdminCategory = async (
   if (payload.image instanceof File) {
     fileToUpload = payload.image;
   } else if (typeof payload.image === 'string' && payload.image.startsWith('data:')) {
-    fileToUpload = dataURLtoFile(payload.image, 'category-image.png');
+    try {
+      fileToUpload = dataURLtoFile(payload.image, 'category-image.png');
+    } catch {
+      fileToUpload = null;
+    }
   }
 
   if (fileToUpload) {
@@ -146,12 +211,29 @@ export const updateAdminCategory = async (
     if (payload.isActive !== undefined) formData.append('isActive', String(payload.isActive));
     formData.append('image', fileToUpload);
 
-    const { data } = await api.patch(`/admin/categories/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return data;
+    try {
+      const { data } = await api.patch(`/admin/categories/${id}`, formData, {
+        headers: {
+          'Content-Type': undefined,
+        },
+      });
+      return data;
+    } catch (err: any) {
+      if (err?.response?.status === 400 || err?.response?.status === 415 || err?.response?.status === 422) {
+        const body: Record<string, any> = {};
+        if (payload.name !== undefined) body.name = payload.name;
+        if (payload.nameAr !== undefined) body.nameAr = payload.nameAr;
+        if (payload.slug !== undefined) body.slug = payload.slug;
+        if (payload.description !== undefined) body.description = payload.description;
+        if (payload.parentCategoryId !== undefined) body.parentCategoryId = payload.parentCategoryId;
+        if (payload.isActive !== undefined) body.isActive = payload.isActive;
+        if (payload.image !== undefined) body.image = payload.image ? payload.image : null;
+
+        const { data } = await api.patch(`/admin/categories/${id}`, body);
+        return data;
+      }
+      throw err;
+    }
   }
 
   const body: Record<string, any> = {};

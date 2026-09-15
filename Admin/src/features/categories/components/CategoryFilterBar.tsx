@@ -1,4 +1,4 @@
-import { Search, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCategoryStore } from '../../../store/categoryStore';
 import { useCategoriesData } from '../useCategoriesData';
@@ -25,8 +25,18 @@ export const CategoryFilterBar = () => {
           onChange={(e) => setSearch(e.target.value)}
           aria-label={t('categories.filter.search')}
           placeholder={t('categories.filter.search')}
-          className="w-full pl-10 pr-4 rtl:pl-4 rtl:pr-10 py-2.5 p-[2px] rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white"
+          className="w-full pl-10 pr-9 rtl:pl-9 rtl:pr-10 py-2.5 rounded-xl border border-gray-200 text-body-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition-all bg-white"
         />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch('')}
+            aria-label="Clear search"
+            className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       <div className="relative w-full sm:w-auto shrink-0">

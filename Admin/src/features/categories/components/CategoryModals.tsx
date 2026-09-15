@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, AlertTriangle, Trash2, PackageX, Loader2, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,14 @@ export const StatusConfirmModal = ({
   onConfirm,
 }: StatusConfirmModalProps) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -112,6 +120,14 @@ export interface DeleteModalProps {
 
 export const DeleteModal = ({ isOpen, categoryName, count, onClose, onConfirm }: DeleteModalProps) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -229,6 +245,7 @@ export const CategoryFormModal = ({
   const [image, setImage] = useState(category?.image ?? '');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
@@ -236,6 +253,16 @@ export const CategoryFormModal = ({
   const [touchedAr, setTouchedAr] = useState(false);
   const [level, setLevel] = useState<1 | 2>(initialLevel);
   const [parentId, setParentId] = useState(initialParentId ?? '');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isSubmitting) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isSubmitting, onClose]);
 
   const departments = categories.filter((c) => c.depth === 0);
   const parentCategories = categories.filter((c) => c.depth === 1);
@@ -273,10 +300,7 @@ export const CategoryFormModal = ({
     setSlugManuallyEdited(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processImageFile = (file: File) => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
     const MAX_SIZE = 3 * 1024 * 1024; // 3MB
 
@@ -295,9 +319,41 @@ export const CategoryFormModal = ({
     reader.readAsDataURL(file);
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processImageFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processImageFile(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImage('');
+    setImageFile(null);
+    setImageError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleSave = () => {
     if (!isValid) return;
-    const finalImage = mode === 'edit' ? (imageFile ? imageFile : (image.trim() ? image.trim() : null)) : undefined;
+    const finalImage = imageFile ? imageFile : image.trim() ? image.trim() : null;
     onSave({
       nameEn: nameEn.trim(),
       nameAr: nameAr.trim(),
@@ -418,51 +474,61 @@ export const CategoryFormModal = ({
                 </>
               )}
 
-              {/* Category Image - Edit Mode Only */}
-              {mode === 'edit' && (
-                <div>
-                  <label htmlFor="cat-file-input" className="block text-body-sm font-medium text-gray-700 mb-1.5">
-                    {t('categories.modal.image')}
-                  </label>
-                  <input
-                    id="cat-file-input"
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageChange}
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className="hidden"
-                  />
+              {/* Category Image */}
+              <div>
+                <label htmlFor="cat-file-input" className="block text-body-sm font-medium text-gray-700 mb-1.5">
+                  {t('categories.modal.image')}
+                </label>
+                <input
+                  id="cat-file-input"
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className="hidden"
+                />
 
-                  {image ? (
-                    <div className="space-y-2">
-                      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center">
-                            <img
-                              src={image}
-                              alt="Category preview"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-gray-800 truncate">
-                              {t('categories.modal.image')}
-                            </p>
-                            <p className="text-[11px] text-gray-400">
-                              {t('categories.modal.imageHint')}
-                            </p>
-                          </div>
+                {image ? (
+                  <div className="space-y-2">
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center">
+                          <img
+                            src={image}
+                            alt="Category preview"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 truncate">
+                            {t('categories.modal.image')}
+                          </p>
+                          <p className="text-[11px] text-gray-400">
+                            {t('categories.modal.imageHint')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer shrink-0 shadow-2xs"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all cursor-pointer shadow-2xs"
                         >
                           {t('categories.modal.replaceImage', { defaultValue: 'Replace Image' })}
                         </button>
+                        {mode === 'add' && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveImage}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-red-light text-red hover:bg-red-light/80 transition-all cursor-pointer"
+                          >
+                            {t('common.remove', { defaultValue: 'Remove' })}
+                          </button>
+                        )}
                       </div>
+                    </div>
 
-                      {/* Informative notice: only replace allowed, cannot delete once set */}
+                    {mode === 'edit' && (
                       <div className="flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5">
                         <AlertTriangle size={14} className="text-amber-600 mt-0.5 shrink-0" />
                         <p className="text-[11px] text-amber-800 leading-relaxed">
@@ -472,30 +538,37 @@ export const CategoryFormModal = ({
                           })}
                         </p>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div
-                        onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
-                          imageError
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
+                        isDragging
+                          ? 'border-gray-900 bg-gray-100/80 scale-[1.01]'
+                          : imageError
                             ? 'border-red-400 bg-red-50/30'
                             : 'border-gray-200 bg-gray-50/40 hover:bg-gray-50 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="p-2 rounded-full bg-gray-100 text-gray-500">
-                            <Upload size={18} />
-                          </div>
-                          <span className="text-body-sm font-medium text-gray-700">
-                            {t('categories.modal.uploadImage')}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            {t('categories.modal.imageHint')}
-                          </span>
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-1">
+                        <div className={`p-2 rounded-full transition-colors ${isDragging ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                          <Upload size={18} />
                         </div>
+                        <span className="text-body-sm font-medium text-gray-700">
+                          {isDragging ? t('categories.modal.dropImageHere', { defaultValue: 'Drop image file here' }) : t('categories.modal.uploadImage')}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {t('categories.modal.imageHint')}
+                        </span>
                       </div>
+                    </div>
 
+                    {mode === 'edit' && (
                       <div className="flex items-start gap-2 bg-amber-50/80 border border-amber-200/60 rounded-xl p-2.5">
                         <AlertTriangle size={14} className="text-amber-600 mt-0.5 shrink-0" />
                         <p className="text-[11px] text-amber-800 leading-relaxed">
@@ -505,13 +578,13 @@ export const CategoryFormModal = ({
                           })}
                         </p>
                       </div>
-                    </div>
-                  )}
-                  {imageError && (
-                    <p className="text-xs text-red mt-1.5">{imageError}</p>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+                {imageError && (
+                  <p className="text-xs text-red mt-1.5">{imageError}</p>
+                )}
+              </div>
 
               {/* Category Name EN */}
               <div>
