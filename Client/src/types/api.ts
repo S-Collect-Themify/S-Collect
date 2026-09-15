@@ -54,6 +54,29 @@ export function getErrorMessage(
     const responseData = axiosError.response?.data;
 
     if (responseData) {
+      const validationList =
+        (responseData.error && typeof responseData.error === 'object'
+          ? (responseData.error as any).validation || (responseData.error as any).details
+          : null) ||
+        responseData.validation ||
+        responseData.details ||
+        (responseData.error && typeof responseData.error === 'object' && Array.isArray((responseData.error as any).errors)
+          ? (responseData.error as any).errors
+          : null) ||
+        responseData.errors;
+
+      if (Array.isArray(validationList) && validationList.length > 0) {
+        const messages = validationList
+          .map((v: any) => {
+            if (typeof v === 'string') return v;
+            return v.message || v.msg || v.issue || v.error || (v.property ? `${v.property}: invalid` : '');
+          })
+          .filter(Boolean);
+        if (messages.length > 0) {
+          return messages.join('; ');
+        }
+      }
+
       if (Array.isArray(responseData.message)) {
         return responseData.message.filter(Boolean).join(', ');
       }

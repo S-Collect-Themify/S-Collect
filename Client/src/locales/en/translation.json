@@ -1145,6 +1145,10 @@
       "bodyArRequired": "Arabic notification message is required",
       "imageUrl": "Banner Image URL (Optional)",
       "imageUrlHint": "Optional banner image displayed in rich push notifications",
+      "photoUploadLabel": "Notification Image",
+      "optionalLabel": "(Optional)",
+      "uploadPrompt": "Click to upload image or drag and drop",
+      "orDirectUrl": "or enter image URL directly",
       "dispatchNotice": "Submitting this will immediately broadcast the push notification to all registered buyer devices.",
       "sending": "Sending Notification...",
       "sendNow": "Send Push Campaign"

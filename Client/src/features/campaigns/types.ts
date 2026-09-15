@@ -19,6 +19,7 @@ export interface CreatePushCampaignDto {
   body: string;
   bodyAr?: string;
   imageUrl?: string;
+  imageFile?: File | null;
 }
 
 export interface PushCampaignsPagination {
