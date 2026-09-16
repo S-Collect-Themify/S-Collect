@@ -2,13 +2,15 @@ import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import type { AddProductStep, ProductFormData } from './types';
 import { getProductThumbnail, mapFormToMultipartFormData } from './utils';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useCategories } from '../../hooks/useCategories';
 import { useProduct } from './useProduct';
 import { useSaveProduct } from './useSaveProduct';
-import { deleteProductOptionValue } from '../../services/products';
+import { deleteProductOptionValue, getCategoriesTree } from '../../services/products';
+import { buildCategoryTree, getCategoryPathNodes } from '../../utils/categoryTree';
 import toast from 'react-hot-toast';
 
 const defaultFormValues: ProductFormData = {
@@ -109,6 +111,12 @@ export const useAddProductPage = () => {
   const colors = methods.watch('colors') ?? [];
   const categoryId = methods.watch('categoryId') ?? '';
 
+  const { data: tree = [] } = useQuery({
+    queryKey: ['category-tree'],
+    queryFn: async () => buildCategoryTree(await getCategoriesTree()),
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Derived category label memoized for performance (Requirement 7)
   const selectedCategory = useMemo(() => {
     return Array.isArray(categoriesList)
@@ -116,10 +124,18 @@ export const useAddProductPage = () => {
       : undefined;
   }, [categoriesList, categoryId]);
 
+  const categoryPathNodes = useMemo(() => {
+    if (!categoryId || tree.length === 0) return [];
+    return getCategoryPathNodes(tree, categoryId);
+  }, [tree, categoryId]);
+
   const categories = useMemo(() => {
+    if (categoryPathNodes.length > 0) {
+      return categoryPathNodes.map((n) => (isArabic ? n.nameAr || n.name : n.name));
+    }
     if (!selectedCategory) return [];
     return [isArabic ? selectedCategory.nameAr : selectedCategory.name];
-  }, [selectedCategory, isArabic]);
+  }, [categoryPathNodes, selectedCategory, isArabic]);
 
   // Helper creators for array fields
   const makeAdder =

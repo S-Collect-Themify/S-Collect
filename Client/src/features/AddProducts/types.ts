@@ -98,7 +98,9 @@ export interface RawProductResponse {
   description?: string;
   descriptionAr?: string;
   categoryId?: string;
+  department?: { id?: string; name?: string; nameAr?: string };
   category?: { id?: string; name?: string; nameAr?: string };
+  subCategory?: { id?: string; name?: string; nameAr?: string };
   season?: ProductSeason;
   enabled?: boolean;
   isActive?: boolean;

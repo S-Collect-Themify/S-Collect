@@ -26,10 +26,11 @@ const CategorySelect = () => {
 
   const [departmentId, setDepartmentId] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [subCategoryId, setSubCategoryId] = useState('');
   const resolvedForValue = useRef<string | null>(null);
   const currentValue = watch('categoryId');
 
-  // Preselect Department/Category once the tree loads for an existing value (edit mode).
+  // Preselect Department/Category/SubCategory once the tree loads for an existing value (edit mode).
   useEffect(() => {
     if (!currentValue || tree.length === 0 || resolvedForValue.current === currentValue) return;
     resolvedForValue.current = currentValue;
@@ -37,6 +38,7 @@ const CategorySelect = () => {
     if (ancestry) {
       setDepartmentId(ancestry.departmentId);
       setCategoryId(ancestry.categoryId);
+      setSubCategoryId(ancestry.subCategoryId);
     }
   }, [tree, currentValue]);
 
@@ -60,7 +62,9 @@ const CategorySelect = () => {
       rules={{ required: t('addProduct.errors.categoryRequired', 'Category is required') }}
       render={({ field }) => {
         const finalId = field.value || '';
-        const subCategoryValue = subCategories.some((s) => s.id === finalId) ? finalId : '';
+        const subCategoryValue = subCategories.some((s) => s.id === finalId)
+          ? finalId
+          : subCategoryId;
 
         return (
           <div className="space-y-4">
@@ -73,7 +77,8 @@ const CategorySelect = () => {
                 onChange={(val) => {
                   setDepartmentId(val);
                   setCategoryId('');
-                  field.onChange('');
+                  setSubCategoryId('');
+                  field.onChange(val);
                 }}
                 options={departmentOptions}
                 placeholder={isLoading ? t('addProduct.loadingCategories', 'Loading categories...') : t('addProduct.selectDepartment', 'Select a department')}
@@ -92,7 +97,8 @@ const CategorySelect = () => {
                   value={categoryId}
                   onChange={(val) => {
                     setCategoryId(val);
-                    field.onChange(val);
+                    setSubCategoryId('');
+                    field.onChange(val || departmentId);
                   }}
                   options={categoryOptions}
                   placeholder={
@@ -113,7 +119,10 @@ const CategorySelect = () => {
                 <label className={labelCls}>{t('addProduct.subCategory', 'Sub-Category')}</label>
                 <ModernSelect
                   value={subCategoryValue}
-                  onChange={(val) => field.onChange(val || categoryId)}
+                  onChange={(val) => {
+                    setSubCategoryId(val);
+                    field.onChange(val || categoryId || departmentId);
+                  }}
                   options={subCategoryOptions}
                   placeholder={t('addProduct.selectSubCategoryOptional', 'None (use Category)')}
                   size={isMobile ? 'sm' : 'md'}

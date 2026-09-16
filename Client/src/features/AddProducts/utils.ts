@@ -232,7 +232,12 @@ export const mapProductToFormData = async (
     existingSizeChartImages,
     optionsMeta,
     variantsMeta,
-    categoryId: raw.categoryId || raw.category?.id || '',
+    categoryId:
+      raw.subCategory?.id ||
+      raw.categoryId ||
+      raw.category?.id ||
+      raw.department?.id ||
+      '',
     season: raw.season || 'all',
     enabled: raw.enabled ?? (raw.isDisabled ? false : (raw.isActive ?? true)),
     quantity,
@@ -758,6 +763,10 @@ export const buildProductVariantMutations = (
   });
 };
 
+const isValidUuid = (id?: string): boolean =>
+  typeof id === 'string' &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id.trim());
+
 export const mapFormToMultipartFormData = (
   formData: ProductFormData
 ): FormData => {
@@ -809,12 +818,6 @@ export const mapFormToMultipartFormData = (
     formData.descriptionAr || formData.description || ''
   );
 
-  // Helper: find real option meta by name
-  const findOptionMeta = (name: string) =>
-    formData.optionsMeta?.find(
-      (o) => o.name.toLowerCase() === name.toLowerCase()
-    );
-
   // Helper: find real value ID for a given option meta and value string
   const findValueId = (
     meta: { values: { id: string; value: string; valueAr?: string }[] },
@@ -841,7 +844,7 @@ export const mapFormToMultipartFormData = (
     return matched?.id || '';
   };
 
-  // 3. Options structure (JSON-encoded array of options) — preserve real IDs
+  // 3. Options structure (JSON-encoded array matching backend schema)
   const options: any[] = [];
   const activeMetaList =
     formData.optionsMeta && formData.optionsMeta.length > 0
@@ -892,35 +895,27 @@ export const mapFormToMultipartFormData = (
         (metaIdx === 0 ? 'Size' : metaIdx === 1 ? 'Color' : `Option ${metaIdx + 1}`);
       const optionNameAr = meta.nameAr || optionName;
 
-      const valueIds = uniqueValues
-        .map((val) => findValueId(meta, val))
-        .filter(Boolean);
-
-      options.push({
-        ...(meta.id ? { id: meta.id, vendorAttributeId: meta.id } : {}),
+      const optObj: Record<string, any> = {
         name: optionName,
         nameAr: optionNameAr,
-        valueIds,
         values: uniqueValues.map((val) => {
-          const valueId = findValueId(meta, val);
           const matchedVal = meta.values?.find(
             (v) => normalizeOptionText(v.value) === normalizeOptionText(val)
           );
           return {
-            ...(valueId
-              ? { id: valueId, vendorAttributeValueId: valueId }
-              : {}),
             value: val,
             valueAr: matchedVal?.valueAr || val,
           };
         }),
-      });
+      };
+
+      options.push(optObj);
     }
   });
 
   multipart.append('options', JSON.stringify(options));
 
-  // 4. Variants structure (JSON-encoded array of variants) — preserve real IDs
+  // 4. Variants structure (JSON-encoded array matching backend schema)
   const variants = cards.map((card) => {
     const optionValues: any[] = [];
     const valueIds: string[] = [];
@@ -950,19 +945,13 @@ export const mapFormToMultipartFormData = (
         const matchedVal = opt.values?.find(
           (v: any) => normalizeOptionText(v.value) === normalizeOptionText(cardVal)
         );
-        optionValues.push({
-          ...(opt.id ? { optionId: opt.id, vendorAttributeId: opt.id } : {}),
+        const ovObj: Record<string, any> = {
           optionName: opt.name,
           optionNameAr: opt.nameAr,
-          ...(matchedVal?.id
-            ? { valueId: matchedVal.id, vendorAttributeValueId: matchedVal.id }
-            : {}),
           value: cardVal,
           valueAr: matchedVal?.valueAr || cardVal,
-        });
-        if (matchedVal?.id) {
-          valueIds.push(matchedVal.id);
-        }
+        };
+        optionValues.push(ovObj);
       }
     });
 
@@ -975,7 +964,7 @@ export const mapFormToMultipartFormData = (
         : undefined;
 
     const existingVariantId =
-      card.id && !card.id.match(/^\d{13}$/) ? card.id : findVariantId(valueIds);
+      card.id && isValidUuid(card.id) ? card.id : findVariantId(valueIds);
 
     const extraAttrVals = card.attributes
       ? Object.values(card.attributes).filter(Boolean)
@@ -988,17 +977,22 @@ export const mapFormToMultipartFormData = (
     ].filter(Boolean);
     const sku = card.sku || skuParts.join('-') || `SKU-${Date.now()}`;
 
-    return {
-      ...(existingVariantId ? { id: existingVariantId } : {}),
-      optionValueIds: valueIds,
+    const variantObj: Record<string, any> = {
       sku,
       price: cardPrice,
-      compareAtPrice:
-        cardComparePrice && cardComparePrice > 0 ? cardComparePrice : undefined,
       stock: Number(card.stock) || 0,
       isActive: true,
       optionValues,
     };
+
+    if (isValidUuid(existingVariantId)) {
+      variantObj.id = existingVariantId;
+    }
+    if (cardComparePrice && !isNaN(cardComparePrice) && cardComparePrice > 0) {
+      variantObj.compareAtPrice = cardComparePrice;
+    }
+
+    return variantObj;
   });
 
   multipart.append('variants', JSON.stringify(variants));

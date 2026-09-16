@@ -171,15 +171,26 @@ export interface CategoryTreeApiNode {
   children?: CategoryTreeApiNode[];
 }
 
-// There is no vendor-scoped tree endpoint, so vendors pick from the same
-// public (active-only) Department → Category → Sub-Category tree buyers see.
 export const getCategoriesTree = async (): Promise<CategoryTreeApiNode[]> => {
   try {
-    const { data } = await api.get('/buyer/categories/tree');
+    const { data } = await api.get('/vendor/categories');
     const body = data && typeof data === 'object' && 'data' in data ? (data as any).data : data;
-    return Array.isArray(body) ? body : [];
+    if (Array.isArray(body) && body.length > 0) return body;
+
+    const buyerRes = await api.get('/buyer/categories/tree');
+    const buyerBody =
+      buyerRes.data && typeof buyerRes.data === 'object' && 'data' in buyerRes.data
+        ? buyerRes.data.data
+        : buyerRes.data;
+    return Array.isArray(buyerBody) ? buyerBody : [];
   } catch (err) {
-    throw handleServiceError(err, 'Failed to fetch category tree');
+    try {
+      const { data } = await api.get('/buyer/categories/tree');
+      const body = data && typeof data === 'object' && 'data' in data ? (data as any).data : data;
+      return Array.isArray(body) ? body : [];
+    } catch {
+      throw handleServiceError(err, 'Failed to fetch category tree');
+    }
   }
 };
 
