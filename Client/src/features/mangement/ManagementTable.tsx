@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+<<<<<<< HEAD
 import { X, Check, Minus, ChevronLeft, ChevronRight, Tag, Download, Loader2 } from 'lucide-react';
+=======
+import { X, Check, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
 import ProductRow from './ProductRow';
 import { showDeleteConfirmation } from './deleteConfirmation';
 import { useManagementStore } from './managementStore';
@@ -45,15 +49,11 @@ export default function ProductTable() {
   const toggleRow = useManagementStore((state) => state.toggleRow);
   const toggleSelectPage = useManagementStore((state) => state.toggleSelectPage);
   const clearSelection = useManagementStore((state) => state.clearSelection);
-  const openBulkDiscountModal = useManagementStore(
-    (state) => state.openBulkDiscountModal
-  );
 
   const {
     publishSelected,
     unpublishSelected,
     toggleSingle,
-    deleteSingle,
     isPending,
   } = useManagementActions();
 
@@ -168,6 +168,7 @@ export default function ProductTable() {
           )}
         </div>
 
+<<<<<<< HEAD
         {/* Action Button: Export */}
         <div className="lg:hidden flex items-center gap-2 shrink-0">
           <button
@@ -188,6 +189,17 @@ export default function ProductTable() {
             </span>
           </button>
         </div>
+=======
+        <CategoryDropdown
+          selected={selectedCategories}
+          onChange={setSelectedCategories}
+        />
+
+        <StatusDropdown
+          selected={selectedStatus}
+          onChange={setSelectedStatus}
+        />
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
       </div>
 
       <div className="flex-1 overflow-x-auto select-none bg-white rounded-xl border border-gray-100">
@@ -272,7 +284,6 @@ export default function ProductTable() {
                   )}
                   onSelect={() => toggleRow(product.id)}
                   onToggle={() => toggleSingle(product.id, product.enabled)}
-                  onDelete={() => deleteSingle(product.id)}
                 />
               ))
             )}
@@ -351,16 +362,6 @@ export default function ProductTable() {
           <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
             {t('managementTable.selectedProducts', { count: selectedCount })}
           </span>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={openBulkDiscountModal}
-            className="flex px-3.5 py-1.5 items-center gap-1.5 justify-center rounded-lg bg-black text-white hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow active:scale-[0.97] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            aria-label={t('managementTable.bulkDiscount', 'Bulk Discount')}
-          >
-            <Tag size={14} />
-            <span>{isArabic ? 'خصم جماعي' : t('managementTable.bulkDiscount', 'Bulk Discount')}</span>
-          </button>
           <button
             type="button"
             disabled={isPending}

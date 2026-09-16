@@ -7,13 +7,15 @@ import type { Product, ProductStatus } from './mangement';
 import {
   searchVendorProducts,
   bulkUpdateProductStatus,
-  deleteProduct,
   downloadProductImportTemplate,
   importProducts,
+<<<<<<< HEAD
   applyVendorBulkDiscount,
   exportProducts,
   getCategoriesTree,
   type VendorBulkDiscountPayload,
+=======
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
   type ProductImportResponse,
   type ExportProductsParams,
 } from '../../services/products';
@@ -423,28 +425,6 @@ export function useManagementActions() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (productId: string) => deleteProduct(productId),
-    onSuccess: (_, productId) => {
-      toast.success('Product deleted successfully');
-      clearSelection();
-      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['product'] });
-      queryClient.invalidateQueries({ queryKey: ['product-details'] });
-      queryClient.invalidateQueries({ queryKey: ['inventory'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardTopSellingProducts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryAlerts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardInventoryProductsMap'] });
-      queryClient.invalidateQueries({ queryKey: ['header-search-products'] });
-      queryClient.invalidateQueries({ queryKey: ['product', productId] });
-      queryClient.invalidateQueries({ queryKey: ['product-details', productId] });
-    },
-    onError: (err) => {
-      toast.error(getErrorMessage(err, 'Failed to delete product'));
-    },
-  });
-
   const safeMutate = (params: {
     productIds: string[];
     status: 'PUBLISH' | 'UNPUBLISH';
@@ -456,8 +436,6 @@ export function useManagementActions() {
     lastClickRef.current = now;
     bulkStatusMutation.mutate(params);
   };
-
-  const bulkDiscountMutation = useBulkDiscount();
 
   return {
     publishSelected: () =>
@@ -475,115 +453,9 @@ export function useManagementActions() {
         productIds: [String(id)],
         status: currentEnabled ? 'UNPUBLISH' : 'PUBLISH',
       }),
-    deleteSingle: (id: string | number) => deleteMutation.mutate(String(id)),
-    bulkDiscountMutation,
-    isPending:
-      bulkStatusMutation.isPending ||
-      deleteMutation.isPending ||
-      bulkDiscountMutation.isPending,
-    isDeleting: deleteMutation.isPending,
+    isPending: bulkStatusMutation.isPending,
   };
 }
-
-export function useBulkDiscount() {
-  const queryClient = useQueryClient();
-  const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === 'ar';
-  const clearSelection = useManagementStore((s) => s.clearSelection);
-  const closeBulkDiscountModal = useManagementStore(
-    (s) => s.closeBulkDiscountModal
-  );
-
-  return useMutation({
-    mutationFn: (payload: VendorBulkDiscountPayload) =>
-      applyVendorBulkDiscount(payload),
-    onSuccess: (_, variables) => {
-      toast.success(
-        isArabic
-          ? 'تم تطبيق الخصم الجماعي بنجاح'
-          : t(
-              'managementTable.bulkDiscountSuccess',
-              'Bulk discount applied successfully'
-            )
-      );
-      clearSelection();
-      closeBulkDiscountModal();
-
-      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['product'] });
-      queryClient.invalidateQueries({ queryKey: ['product-details'] });
-      queryClient.invalidateQueries({ queryKey: ['inventory'] });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardTopSellingProducts'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardInventoryAlerts'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardInventoryProductsMap'],
-      });
-
-      variables.productIds.forEach((id) => {
-        queryClient.invalidateQueries({ queryKey: ['product', id] });
-        queryClient.invalidateQueries({ queryKey: ['product-details', id] });
-      });
-    },
-    onError: (err: any) => {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        (isArabic
-          ? 'فشل تطبيق الخصم الجماعي'
-          : t(
-              'managementTable.bulkDiscountError',
-              'Failed to apply bulk discount'
-            ));
-      toast.error(msg);
-    },
-  });
-}
-
-export function useDeleteProduct() {
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
-
-  return useMutation({
-    mutationFn: (productId: string) => deleteProduct(productId),
-    onSuccess: (_, productId) => {
-      toast.success(
-        t('managementTable.deleteSuccess', 'Product deleted successfully')
-      );
-      queryClient.invalidateQueries({ queryKey: ['products-manage'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['product'] });
-      queryClient.invalidateQueries({ queryKey: ['product-details'] });
-      queryClient.invalidateQueries({ queryKey: ['inventory'] });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardTopSellingProducts'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardInventoryAlerts'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['dashboardInventoryProductsMap'],
-      });
-      queryClient.invalidateQueries({ queryKey: ['product', productId] });
-      queryClient.invalidateQueries({
-        queryKey: ['product-details', productId],
-      });
-    },
-    onError: (err) => {
-      toast.error(
-        getErrorMessage(
-          err,
-          t('managementTable.deleteError', 'Failed to delete product')
-        )
-      );
-    },
-  });
-}
-
 
 export function useDownloadImportTemplate() {
   const { t } = useTranslation();

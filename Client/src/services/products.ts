@@ -455,6 +455,7 @@ export const bulkUpdateProductStatus = async (params: {
   }
 };
 
+<<<<<<< HEAD
 export interface VendorBulkDiscountPayload {
   productIds: string[];
   discountType: 'PERCENT' | 'FIXED';
@@ -475,6 +476,8 @@ export const applyVendorBulkDiscount = async (
 
 export const applyBulkDiscountApi = applyVendorBulkDiscount;
 
+=======
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
 export const activateProduct = async (productId: string) => {
   try {
     const { data } = await api.post(`/vendor/products/${productId}/activate`);
@@ -504,15 +507,6 @@ export const deactivateProduct = async (productId: string) => {
       return data;
     }
     throw serviceErr;
-  }
-};
-
-export const deleteProduct = async (productId: string) => {
-  try {
-    const { data } = await api.delete(`/vendor/products/${productId}`);
-    return data;
-  } catch (err) {
-    throw handleServiceError(err, `Failed to delete product ${productId}`);
   }
 };
 

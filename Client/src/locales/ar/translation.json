@@ -467,6 +467,7 @@
     "storeProfile": "ملف المتجر",
     "accountSettings": "إعدادات الحساب",
     "bankAccount": "الحساب البنكي",
+    "shipping": "الشحن",
     "storePreview": "معاينة المتجر",
     "storeName": "اسم المتجر",
     "storeNameEn": "اسم المتجر (بالإنجليزية)",
@@ -531,6 +532,7 @@
       "accountSettingsSaved": "تم تحديث إعدادات الحساب بنجاح.",
       "stockUpdated": "تم تحديث حد المخزون بنجاح.",
       "bankAccountSaved": "تم تحديث الحساب البنكي بنجاح.",
+      "shippingSaved": "تم تحديث إعدادات الشحن بنجاح.",
       "details": "تم حفظ التغييرات وستظهر في المتجر خلال دقيقتين.",
       "close": "إغلاق"
     },
@@ -565,6 +567,32 @@
       "accountHolderHint": "أدخل الاسم كما هو مسجل في البنك تماماً.",
       "resetChanges": "إعادة التعيين",
       "save": "حفظ الحساب البنكي"
+    },
+    "shippingForm": {
+      "title": "إعدادات الشحن",
+      "description": "قم بإعداد أسعار الشحن في جميع أنحاء المملكة العربية السعودية.",
+      "warning": "لا يمكن لمتجرك استلام طلبات جديدة حتى يتم ضبط إعدادات الشحن.",
+      "flatRate": "السعر الثابت",
+      "flatRateHint": "يتم تطبيق هذا السعر تلقائياً على أي منطقة ليس لها سعر شحن مخصص.",
+      "regionalShipping": "الشحن الإقليمي",
+      "infoBanner": "المناطق التي ليس لها سعر شحن مخصص تستخدم السعر الثابت الافتراضي تلقائياً.",
+      "save": "حفظ إعدادات الشحن",
+      "saving": "جارٍ الحفظ...",
+      "regions": {
+        "riyadh": "الرياض",
+        "makkah": "مكة المكرمة",
+        "madinah": "المدينة المنورة",
+        "eastern-province": "المنطقة الشرقية",
+        "qassim": "القصيم",
+        "asir": "عسير",
+        "tabuk": "تبوك",
+        "hail": "حائل",
+        "northern-borders": "الحدود الشمالية",
+        "jazan": "جازان",
+        "najran": "نجران",
+        "al-bahah": "الباحة",
+        "al-jouf": "الجوف"
+      }
     }
   },
   "inventoryPage": {
@@ -632,6 +660,7 @@
     }
   },
   "managementTable": {
+<<<<<<< HEAD
     "export": "تصدير",
     "exportProducts": "تصدير المنتجات",
     "exporting": "جاري التصدير...",
@@ -652,6 +681,8 @@
     "discountValueMin": "يجب أن تكون القيمة أكبر من 0",
     "expiryDateOptional": "تاريخ انتهاء الخصم (اختياري)",
     "applying": "جاري الحفظ...",
+=======
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
     "importProducts": "استيراد منتجات",
     "importModal": {
       "title": "استيراد المنتجات عبر إكسيل",
@@ -801,8 +832,6 @@
   "productDetails": {
     "title": "تفاصيل المنتج",
     "breadcrumb": "تفاصيل المنتج",
-    "backToManagement": "العودة إلى إدارة المنتجات",
-    "notFound": "المنتج غير موجود",
     "productInfo": {
       "editProduct": "تعديل المنتج",
       "category": "الفئة:",

@@ -468,6 +468,7 @@
     "storeProfile": "Store Profile",
     "accountSettings": "Account Settings",
     "bankAccount": "Bank Account",
+    "shipping": "Shipping",
     "storePreview": "Store Preview",
     "storeName": "Store Name",
     "storeNameEn": "Store Name (English)",
@@ -532,6 +533,7 @@
       "accountSettingsSaved": "Account Settings updated successfully.",
       "stockUpdated": "Stock threshold updated successfully.",
       "bankAccountSaved": "Bank Account updated successfully.",
+      "shippingSaved": "Shipping Settings updated successfully.",
       "details": "Changes have been saved and will be reflected in the marketplace within 2 minutes.",
       "close": "Close"
     },
@@ -566,6 +568,32 @@
       "accountHolderHint": "Enter the name exactly as registered with your bank.",
       "resetChanges": "Reset Changes",
       "save": "Save Bank Account"
+    },
+    "shippingForm": {
+      "title": "Shipping Settings",
+      "description": "Configure your shipping prices across Saudi Arabia.",
+      "warning": "Your store cannot receive new orders until shipping settings are configured.",
+      "flatRate": "Flat Rate",
+      "flatRateHint": "This rate is automatically applied to any region without a custom shipping price.",
+      "regionalShipping": "Regional Shipping",
+      "infoBanner": "Regions without a custom shipping price automatically use the Default Flat Rate.",
+      "save": "Save Shipping Settings",
+      "saving": "Saving...",
+      "regions": {
+        "riyadh": "Riyadh",
+        "makkah": "Makkah",
+        "madinah": "Madinah",
+        "eastern-province": "Eastern Province",
+        "qassim": "Qassim",
+        "asir": "Asir",
+        "tabuk": "Tabuk",
+        "hail": "Hail",
+        "northern-borders": "Northern Borders",
+        "jazan": "Jazan",
+        "najran": "Najran",
+        "al-bahah": "Al Bahah",
+        "al-jouf": "Al Jouf"
+      }
     }
   },
   "inventoryPage": {
@@ -633,6 +661,7 @@
     }
   },
   "managementTable": {
+<<<<<<< HEAD
     "export": "Export",
     "exportProducts": "Export Products",
     "exporting": "Exporting...",
@@ -653,6 +682,8 @@
     "discountValueMin": "Value must be greater than 0",
     "expiryDateOptional": "Discount Expiry Date (Optional)",
     "applying": "Applying...",
+=======
+>>>>>>> 05e2a1e43aad313e46190c479c69939913c472ae
     "importProducts": "Import Products",
     "importModal": {
       "title": "Import Products via Excel",
@@ -805,8 +836,6 @@
   "productDetails": {
     "title": "Product Details",
     "breadcrumb": "Product Details",
-    "backToManagement": "Back to Management",
-    "notFound": "Product not found",
     "productInfo": {
       "editProduct": "Edit product",
       "category": "Category:",
