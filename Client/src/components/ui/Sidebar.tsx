@@ -343,9 +343,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   return (
     <>
       <aside
-        className={`hidden sidebar:flex w-64 h-dvh bg-(--gray-950) flex-col sticky top-0 z-70 ${
-          isArabic ? 'right-0' : 'left-0'
-        }`}
+        className="hidden sidebar:flex w-64 shrink-0 h-dvh bg-(--gray-950) flex-col sticky top-0 z-70"
       >
         {SidebarContent}
       </aside>

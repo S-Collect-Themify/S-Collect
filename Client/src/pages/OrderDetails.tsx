@@ -63,7 +63,7 @@ export const OrderDetails = ({
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_470px] gap-5 mt-5">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_470px] gap-5 mt-5">
         {/* Left column */}
         <motion.div
           variants={itemVariants}
