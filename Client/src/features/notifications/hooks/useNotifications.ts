@@ -18,9 +18,9 @@ export const useVendorNotifications = (params?: GetNotificationsParams) => {
   return useQuery<PaginatedVendorNotifications>({
     queryKey: [...NOTIFICATIONS_QUERY_KEY, pageNum, pageSize],
     queryFn: () => getVendorNotifications({ pageNum, pageSize }),
-    refetchInterval: 30000, // 30-second polling for fresh alerts
+    refetchInterval: 15 * 60 * 1000, // 15-minute polling interval
     refetchOnWindowFocus: true,
-    staleTime: 10000,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
