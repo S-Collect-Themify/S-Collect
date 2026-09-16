@@ -35,7 +35,9 @@ export interface ProductInfoProps {
   name?: string;
   description?: string;
   descriptionAr?: string;
+  department?: string;
   category?: string;
+  subCategory?: string;
   season?: string;
   brand?: string;
   sku?: string;
@@ -61,7 +63,9 @@ export default function ProductInfo({
   name,
   description,
   descriptionAr,
+  department,
   category,
+  subCategory,
   season,
   brand,
   sku,
@@ -263,6 +267,33 @@ export default function ProductInfo({
 
         {/* Details */}
         <div className="flex flex-1 flex-col">
+          {/* Category Hierarchy Breadcrumb */}
+          {(department || category || subCategory) && (
+            <nav aria-label="Category hierarchy" className="mb-2 flex items-center gap-1.5 text-xs font-medium text-gray-500 flex-wrap">
+              {department && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-700 font-medium">
+                  {department}
+                </span>
+              )}
+              {department && (category || subCategory) && (
+                <span className="text-gray-300 rtl:rotate-180">/</span>
+              )}
+              {category && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-700 font-medium">
+                  {category}
+                </span>
+              )}
+              {category && subCategory && (
+                <span className="text-gray-300 rtl:rotate-180">/</span>
+              )}
+              {subCategory && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                  {subCategory}
+                </span>
+              )}
+            </nav>
+          )}
+
           <div className="flex items-start justify-between pb-2">
             <h2 className="text-lg font-semibold text-gray-900 lg:text-2xl">
               {name}
@@ -290,15 +321,33 @@ export default function ProductInfo({
           </div>
 
           <div className="mt-1 flex flex-col gap-4 text-sm sm:flex-row sm:flex-wrap">
+            {department && (
+              <div className="flex gap-0.5 sm:flex-row sm:gap-2">
+                <span className="text-gray-400">
+                  {t('productDetails.productInfo.department', isArabic ? 'القسم' : 'Department')}:
+                </span>
+                <span className="font-bold text-gray-700">{department}</span>
+              </div>
+            )}
+            {category && (
+              <div className="flex gap-0.5 sm:flex-row sm:gap-2">
+                <span className="text-gray-400">
+                  {t('productDetails.productInfo.category', isArabic ? 'الفئة' : 'Category')}:
+                </span>
+                <span className="font-bold text-gray-700">{category}</span>
+              </div>
+            )}
+            {subCategory && (
+              <div className="flex gap-0.5 sm:flex-row sm:gap-2">
+                <span className="text-gray-400">
+                  {t('productDetails.productInfo.subCategory', isArabic ? 'الفئة الفرعية' : 'Sub-Category')}:
+                </span>
+                <span className="font-bold text-gray-700">{subCategory}</span>
+              </div>
+            )}
             <div className="flex gap-0.5 sm:flex-row sm:gap-2">
               <span className="text-gray-400">
-                {t('productDetails.productInfo.category')}
-              </span>
-              <span className="font-bold text-gray-700">{category}</span>
-            </div>
-            <div className="flex gap-0.5 sm:flex-row sm:gap-2">
-              <span className="text-gray-400">
-                {t('productDetails.productInfo.sku')}
+                {t('productDetails.productInfo.sku', 'SKU')}:
               </span>
               <span className="font-bold text-gray-700">{sku}</span>
             </div>

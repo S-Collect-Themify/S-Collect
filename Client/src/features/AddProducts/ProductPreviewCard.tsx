@@ -58,8 +58,20 @@ const ProductPreviewCard = ({
       ? formData.nameAr || formData.nameEn
       : formData.nameEn || formData.nameAr) ||
     t('addProduct.preview.productName', 'Product Name');
+  const departmentName =
+    (isArabic ? formData.department?.nameAr : formData.department?.name) ||
+    formData.department?.name ||
+    formData.department?.nameAr;
   const categoryName =
-    categories[0] || t('addProduct.preview.uncategorized', 'Uncategorized');
+    (isArabic ? formData.category?.nameAr : formData.category?.name) ||
+    formData.category?.name ||
+    formData.category?.nameAr ||
+    categories[0] ||
+    t('addProduct.preview.uncategorized', 'Uncategorized');
+  const subCategoryName =
+    (isArabic ? formData.subCategory?.nameAr : formData.subCategory?.name) ||
+    formData.subCategory?.name ||
+    formData.subCategory?.nameAr;
   const price = formData.basePrice ? `${formData.basePrice} SAR` : '0.00 SAR';
   const discountPrice = formData.comparePrice
     ? `${formData.comparePrice} SAR`
@@ -100,9 +112,31 @@ const ProductPreviewCard = ({
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 truncate leading-snug">
             {productName}
           </h2>
-          <p className="mt-1 text-sm font-medium text-gray-400">
-            {categoryName}
-          </p>
+          {(departmentName || categoryName || subCategoryName) && (
+            <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-gray-500 flex-wrap">
+              {departmentName && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 font-medium">
+                  {departmentName}
+                </span>
+              )}
+              {departmentName && (categoryName || subCategoryName) && (
+                <span className="text-gray-300 rtl:rotate-180">/</span>
+              )}
+              {categoryName && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 font-medium">
+                  {categoryName}
+                </span>
+              )}
+              {categoryName && subCategoryName && (
+                <span className="text-gray-300 rtl:rotate-180">/</span>
+              )}
+              {subCategoryName && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100 font-semibold">
+                  {subCategoryName}
+                </span>
+              )}
+            </div>
+          )}
           <p className="mt-3 text-lg md:text-xl font-bold text-gray-900">
             {price}
           </p>

@@ -18,9 +18,12 @@ import ProductDetailsSkeleton from '../features/AddProducts/productDetails/Produ
 import { useProductDetails } from '../features/AddProducts/productDetails/useProductDetails';
 import { useCategories } from '../hooks/useCategories';
 import { getVendorReviews, getProductRatingSummary } from '../services/reviews';
+import { getCategoriesTree } from '../services/products';
+import { buildCategoryTree, findCategoryAncestry } from '../utils/categoryTree';
 
 const ProductDetails = () => {
   const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const { id: rawId = '' } = useParams();
   const id = useMemo(() => {
     const decoded = decodeURIComponent(rawId || '').trim();
@@ -45,6 +48,12 @@ const ProductDetails = () => {
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useCategories();
+
+  const { data: tree = [] } = useQuery({
+    queryKey: ['category-tree'],
+    queryFn: async () => buildCategoryTree(await getCategoriesTree()),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const { data: summaryData } = useQuery({
     queryKey: ['product-rating-summary', id],
@@ -193,21 +202,91 @@ const ProductDetails = () => {
   const variant = Array.isArray(product.variants)
     ? product.variants[0]
     : undefined;
+
+  const parseCategoryRef = (item: any) => {
+    if (!item) return undefined;
+    let parsed = item;
+    if (typeof item === 'string') {
+      try {
+        parsed = JSON.parse(item);
+      } catch {
+        return undefined;
+      }
+    }
+    if (parsed && typeof parsed === 'object') {
+      return parsed;
+    }
+    return undefined;
+  };
+
+  const departmentObj = parseCategoryRef(product.department);
+  const categoryObj = parseCategoryRef(product.category);
+  const subCategoryObj = parseCategoryRef(product.subCategory);
+
+  const targetId =
+    product.subCategoryId ||
+    subCategoryObj?.id ||
+    product.categoryId ||
+    categoryObj?.id ||
+    product.departmentId ||
+    departmentObj?.id;
+
+  const resolvedAncestry =
+    targetId && tree.length > 0 ? findCategoryAncestry(tree, targetId) : null;
+
+  const deptId =
+    product.departmentId || departmentObj?.id || resolvedAncestry?.departmentId;
+  const departmentNode = deptId
+    ? tree.find((d) => d.id === deptId) || null
+    : null;
+
+  const catId =
+    product.categoryId || categoryObj?.id || resolvedAncestry?.categoryId;
+  const categoryNode = catId
+    ? departmentNode?.children.find((c) => c.id === catId) ||
+      tree.flatMap((d) => d.children).find((c) => c.id === catId) ||
+      null
+    : null;
+
+  const subId =
+    product.subCategoryId || subCategoryObj?.id || resolvedAncestry?.subCategoryId;
+  const subCategoryNode = subId
+    ? categoryNode?.children.find((s) => s.id === subId) ||
+      tree
+        .flatMap((d) => d.children)
+        .flatMap((c) => c.children)
+        .find((s) => s.id === subId) ||
+      null
+    : null;
+
   const categoryList = Array.isArray(categories) ? categories : [];
-  const category = categoryList.find(
-    (c: any) => c && c.id === product.categoryId
+  const categoryFallback = categoryList.find(
+    (c: any) => c && c.id === (product.categoryId || categoryObj?.id || resolvedAncestry?.categoryId)
   );
 
   const productName =
-    (i18n.language === 'ar' ? product.nameAr : product.name) ||
+    (isArabic ? product.nameAr : product.name) ||
     product.name ||
     product.nameAr ||
     'Product';
+
+  const departmentName =
+    (isArabic ? departmentObj?.nameAr || departmentObj?.name : departmentObj?.name || departmentObj?.nameAr) ||
+    (isArabic ? departmentNode?.nameAr || departmentNode?.name : departmentNode?.name || departmentNode?.nameAr) ||
+    undefined;
+
   const categoryName =
-    (i18n.language === 'ar' ? category?.nameAr : category?.name) ||
-    category?.name ||
-    category?.nameAr ||
-    '-';
+    (isArabic ? categoryObj?.nameAr || categoryObj?.name : categoryObj?.name || categoryObj?.nameAr) ||
+    (isArabic ? categoryNode?.nameAr || categoryNode?.name : categoryNode?.name || categoryNode?.nameAr) ||
+    (isArabic ? categoryFallback?.nameAr : categoryFallback?.name) ||
+    categoryFallback?.name ||
+    categoryFallback?.nameAr ||
+    undefined;
+
+  const subCategoryName =
+    (isArabic ? subCategoryObj?.nameAr || subCategoryObj?.name : subCategoryObj?.name || subCategoryObj?.nameAr) ||
+    (isArabic ? subCategoryNode?.nameAr || subCategoryNode?.name : subCategoryNode?.name || subCategoryNode?.nameAr) ||
+    undefined;
 
   const reviewsCount = reviewsList.length;
 
@@ -262,7 +341,6 @@ const ProductDetails = () => {
           ? product.stockCount
           : (variant?.stock ?? 0);
 
-  const isArabic = i18n.language === 'ar';
   const ChevronIcon = isArabic ? ChevronsLeft : ChevronsRight;
 
   return (
@@ -272,7 +350,7 @@ const ProductDetails = () => {
           {t('productDetails.title', 'Product Details')}
         </h1>
 
-        <nav aria-label="Breadcrumb" className="mt-3 flex items-center gap-1.5 text-sm">
+        <nav aria-label="Breadcrumb" className="mt-3 flex items-center gap-1.5 text-sm flex-wrap">
           <Link
             to="/management"
             className="text-gray-500 hover:text-gray-900 transition-colors font-medium"
@@ -280,9 +358,42 @@ const ProductDetails = () => {
             {t('sidebar.items.management', 'Management')}
           </Link>
 
-          <span className="text-gray-400 flex items-center">
+          <span className="text-gray-400 flex items-center rtl:rotate-180">
             <ChevronIcon size={16} />
           </span>
+
+          {departmentName && (
+            <>
+              <span className="text-gray-500 font-medium">
+                {departmentName}
+              </span>
+              <span className="text-gray-400 flex items-center rtl:rotate-180">
+                <ChevronIcon size={16} />
+              </span>
+            </>
+          )}
+
+          {categoryName && (
+            <>
+              <span className="text-gray-500 font-medium">
+                {categoryName}
+              </span>
+              <span className="text-gray-400 flex items-center rtl:rotate-180">
+                <ChevronIcon size={16} />
+              </span>
+            </>
+          )}
+
+          {subCategoryName && (
+            <>
+              <span className="text-gray-500 font-medium">
+                {subCategoryName}
+              </span>
+              <span className="text-gray-400 flex items-center rtl:rotate-180">
+                <ChevronIcon size={16} />
+              </span>
+            </>
+          )}
 
           <span className="text-gray-900 font-semibold truncate max-w-md" aria-current="page">
             {productName || t('productDetails.breadcrumb', 'Product Details')}
@@ -312,7 +423,9 @@ const ProductDetails = () => {
           name={productName}
           description={product.description}
           descriptionAr={product.descriptionAr}
-          category={categoryName ?? '-'}
+          department={departmentName}
+          category={categoryName}
+          subCategory={subCategoryName}
           season={product.season}
           brand="-"
           sku={variant?.sku ?? product.sku ?? '-'}
