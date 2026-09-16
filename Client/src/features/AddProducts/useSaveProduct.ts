@@ -58,6 +58,11 @@ export function useSaveProduct({ isEdit, productId }: UseSaveProductOptions) {
           name: enrichedFormData.nameEn || enrichedFormData.nameAr || '',
           nameAr: enrichedFormData.nameAr || enrichedFormData.nameEn || '',
           categoryId: enrichedFormData.categoryId || '',
+          departmentId: enrichedFormData.departmentId,
+          subCategoryId: enrichedFormData.subCategoryId,
+          department: enrichedFormData.department,
+          category: enrichedFormData.category,
+          subCategory: enrichedFormData.subCategory,
           season: enrichedFormData.season || 'all',
           description: enrichedFormData.description || '',
           descriptionAr:

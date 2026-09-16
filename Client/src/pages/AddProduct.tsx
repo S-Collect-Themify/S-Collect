@@ -506,9 +506,9 @@ const AddProduct = () => {
           animate="show"
         >
           <div className="rounded-2xl shadow-sm py-4 md:shadow-none">
-            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_400px] xl:gap-10">
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-8 2xl:gap-10">
               {/* Left Column: Fields */}
-              <motion.div variants={itemVariants}>
+              <motion.div variants={itemVariants} className="min-w-0">
                 <h5 className="mb-6 font-semibold">
                   {t('addProduct.productInformation')}
                 </h5>
@@ -530,13 +530,13 @@ const AddProduct = () => {
                   <div className="space-y-3">
                     {/* Header Bar: Title & Attribute Controls */}
                     <div className="flex flex-wrap items-center justify-between gap-3 bg-gray-50/80 border border-gray-200/80 rounded-2xl p-3.5 shadow-2xs">
-                      {/* Title & Badge (shrink-0 ensures it NEVER squishes) */}
-                      <div className="flex items-center gap-2.5 shrink-0">
+                      {/* Title & Badge */}
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <span className="p-2 rounded-xl bg-blue-50 text-blue-600 shrink-0">
                           <SlidersHorizontal size={16} />
                         </span>
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h6 className="text-sm font-bold text-gray-900 whitespace-nowrap">
                               {t('addProduct.inventory', 'Inventory & Variances')}
                             </h6>
@@ -547,7 +547,7 @@ const AddProduct = () => {
                                 : t('addProduct.variantsCount', 'variants')}
                             </span>
                           </div>
-                          <p className="text-[11px] text-gray-500 whitespace-nowrap hidden md:block">
+                          <p className="text-[11px] text-gray-500 truncate hidden md:block">
                             {activeAttributes.length > 0
                               ? t(
                                   'addProduct.optionsLoadedFromAttributes',
@@ -562,7 +562,7 @@ const AddProduct = () => {
                       </div>
 
                       {/* Active attribute pills, + Add Option picker, and Manage link */}
-                      <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      <div className="flex flex-wrap items-center gap-2">
                         {activeAttributes.map((attr, idx) => {
                           const selectableOptions = [
                             {
@@ -656,7 +656,7 @@ const AddProduct = () => {
               </motion.div>
 
               {/* Right Column: Media & Status */}
-              <motion.div variants={itemVariants}>
+              <motion.div variants={itemVariants} className="min-w-0">
                 <ProductMedia />
                 <ProductSizeChart />
                 {isEdit && (

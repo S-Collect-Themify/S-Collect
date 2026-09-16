@@ -42,10 +42,21 @@ export const getProductById = async (productId: string) => {
   }
 };
 
+export interface CategoryRef {
+  id: string;
+  name: string;
+  nameAr: string;
+}
+
 export interface UpdateProductPayload {
   name?: string;
   nameAr?: string;
   categoryId?: string;
+  subCategoryId?: string;
+  departmentId?: string;
+  category?: CategoryRef;
+  subCategory?: CategoryRef;
+  department?: CategoryRef;
   season?: 'summer' | 'winter' | 'all';
   description?: string;
   descriptionAr?: string;
@@ -62,6 +73,11 @@ export const updateProductFull = async (
       const name = payload.get('name') || payload.get('nameEn');
       const nameAr = payload.get('nameAr');
       const categoryId = payload.get('categoryId');
+      const subCategoryId = payload.get('subCategoryId');
+      const departmentId = payload.get('departmentId');
+      const department = payload.get('department');
+      const category = payload.get('category');
+      const subCategory = payload.get('subCategory');
       const season = payload.get('season');
       const description = payload.get('description');
       const descriptionAr = payload.get('descriptionAr');
@@ -69,6 +85,36 @@ export const updateProductFull = async (
       if (name) jsonBody.name = String(name);
       if (nameAr) jsonBody.nameAr = String(nameAr);
       if (categoryId) jsonBody.categoryId = String(categoryId);
+      if (subCategoryId) jsonBody.subCategoryId = String(subCategoryId);
+      if (departmentId) jsonBody.departmentId = String(departmentId);
+      if (department) {
+        try {
+          jsonBody.department =
+            typeof department === 'string'
+              ? JSON.parse(department)
+              : department;
+        } catch {
+          jsonBody.department = department;
+        }
+      }
+      if (category) {
+        try {
+          jsonBody.category =
+            typeof category === 'string' ? JSON.parse(category) : category;
+        } catch {
+          jsonBody.category = category;
+        }
+      }
+      if (subCategory) {
+        try {
+          jsonBody.subCategory =
+            typeof subCategory === 'string'
+              ? JSON.parse(subCategory)
+              : subCategory;
+        } catch {
+          jsonBody.subCategory = subCategory;
+        }
+      }
       if (season) jsonBody.season = String(season);
       if (description !== null && description !== undefined)
         jsonBody.description = String(description);

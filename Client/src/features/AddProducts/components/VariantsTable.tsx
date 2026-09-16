@@ -58,7 +58,7 @@ export const VariantsTable = ({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full min-w-[760px] border-collapse text-start text-xs">
           <thead>
             <tr className="border-b border-gray-200/80 bg-gray-50/80 text-gray-600 font-semibold select-none">

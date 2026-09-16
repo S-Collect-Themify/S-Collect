@@ -128,7 +128,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   );
 
   return (
-    <header className="bg-(--gray-950) shadow-md p-4 text-white sticky inset-0 z-50">
+    <header className="bg-(--gray-950) shadow-md p-4 text-white sticky top-0 z-50">
       <div className="container mx-auto flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
         <div className="flex items-center justify-between gap-4 md:hidden">
           <div className="flex items-center gap-3">

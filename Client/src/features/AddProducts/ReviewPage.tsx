@@ -73,8 +73,8 @@ const ReviewPage = ({
         animate="show"
       >
         <div className="py-2">
-          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1fr_360px] xl:gap-8 items-start">
-            <motion.div variants={itemVariants}>
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-8 items-start">
+            <motion.div variants={itemVariants} className="min-w-0">
               <ProductPreviewCard
                 formData={formData}
                 categories={categories}
@@ -84,7 +84,7 @@ const ReviewPage = ({
                 varianceCards={varianceCards}
               />
             </motion.div>
-            <motion.div variants={itemVariants} className="h-full">
+            <motion.div variants={itemVariants} className="h-full min-w-0">
               <StepSummary
                 onPrevious={onPrevious}
                 onPublish={onPublish}

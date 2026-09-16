@@ -7,7 +7,34 @@ import type {
   VariantMeta,
   VarianceCardData,
   ExistingImage,
+  CategoryRef,
 } from './types';
+
+const parseCategoryRef = (item: unknown): CategoryRef | undefined => {
+  if (!item) return undefined;
+  let parsed = item;
+  if (typeof item === 'string') {
+    try {
+      parsed = JSON.parse(item);
+    } catch {
+      return undefined;
+    }
+  }
+  if (
+    parsed &&
+    typeof parsed === 'object' &&
+    'id' in parsed &&
+    (parsed as { id?: unknown }).id
+  ) {
+    const obj = parsed as { id: unknown; name?: unknown; nameAr?: unknown };
+    return {
+      id: String(obj.id),
+      name: String(obj.name || ''),
+      nameAr: String(obj.nameAr || obj.name || ''),
+    };
+  }
+  return undefined;
+};
 import {
   addProductOptionValue,
   createProductOption,
@@ -215,33 +242,46 @@ export const mapProductToFormData = async (
     });
   }
 
-  return {
-    nameAr: raw.nameAr || raw.name || '',
-    nameEn: raw.nameEn || raw.name || '',
-    description: raw.description || '',
-    descriptionAr: raw.descriptionAr || raw.description || '',
-    basePrice:
-      firstVariant?.price?.toString() ?? (varianceCards[0]?.basePrice || ''),
-    comparePrice:
-      firstVariant?.compareAtPrice?.toString() ??
-      (varianceCards[0]?.comparePrice || ''),
-    sku: firstVariant?.sku ?? (varianceCards[0]?.sku || ''),
-    images: [],
-    existingImages,
-    sizeChartImages: [],
-    existingSizeChartImages,
-    optionsMeta,
-    variantsMeta,
-    categoryId: raw.categoryId || raw.category?.id || '',
-    season: raw.season || 'all',
-    enabled: raw.enabled ?? (raw.isDisabled ? false : (raw.isActive ?? true)),
-    quantity,
-    categories: [],
-    sizes,
-    colors,
-    varianceCards,
+    const departmentObj = parseCategoryRef(raw.department);
+    const categoryObj = parseCategoryRef(raw.category);
+    const subCategoryObj = parseCategoryRef(raw.subCategory);
+
+    const departmentId = raw.departmentId || departmentObj?.id || undefined;
+    const categoryId = raw.categoryId || categoryObj?.id || '';
+    const subCategoryId = raw.subCategoryId || subCategoryObj?.id || undefined;
+
+    return {
+      nameAr: raw.nameAr || raw.name || '',
+      nameEn: raw.nameEn || raw.name || '',
+      description: raw.description || '',
+      descriptionAr: raw.descriptionAr || raw.description || '',
+      basePrice:
+        firstVariant?.price?.toString() ?? (varianceCards[0]?.basePrice || ''),
+      comparePrice:
+        firstVariant?.compareAtPrice?.toString() ??
+        (varianceCards[0]?.comparePrice || ''),
+      sku: firstVariant?.sku ?? (varianceCards[0]?.sku || ''),
+      images: [],
+      existingImages,
+      sizeChartImages: [],
+      existingSizeChartImages,
+      optionsMeta,
+      variantsMeta,
+      categoryId,
+      departmentId,
+      subCategoryId,
+      department: departmentObj,
+      category: categoryObj,
+      subCategory: subCategoryObj,
+      season: raw.season || 'all',
+      enabled: raw.enabled ?? (raw.isDisabled ? false : (raw.isActive ?? true)),
+      quantity,
+      categories: [],
+      sizes,
+      colors,
+      varianceCards,
+    };
   };
-};
 
 export interface ProductVariantMutation {
   id?: string;
@@ -767,6 +807,21 @@ export const mapFormToMultipartFormData = (
   multipart.append('name', formData.nameEn || formData.nameAr || '');
   multipart.append('nameAr', formData.nameAr || formData.nameEn || '');
   multipart.append('categoryId', formData.categoryId || '');
+  if (formData.departmentId) {
+    multipart.append('departmentId', formData.departmentId);
+  }
+  if (formData.subCategoryId) {
+    multipart.append('subCategoryId', formData.subCategoryId);
+  }
+  if (formData.department) {
+    multipart.append('department', JSON.stringify(formData.department));
+  }
+  if (formData.category) {
+    multipart.append('category', JSON.stringify(formData.category));
+  }
+  if (formData.subCategory) {
+    multipart.append('subCategory', JSON.stringify(formData.subCategory));
+  }
   multipart.append('season', formData.season || 'all');
 
   // Calculate total stock from cards

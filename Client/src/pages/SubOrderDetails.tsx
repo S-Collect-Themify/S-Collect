@@ -87,9 +87,9 @@ const SubOrderDetails = () => {
       </motion.div>
 
       {/* ── Two-column grid ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-5 mt-5">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_400px] gap-5 mt-5">
         {/* ══ LEFT ════════════════════════════════════════════════════════ */}
-        <div className="flex flex-col md:gap-5 gap-3">
+        <div className="flex flex-col md:gap-5 gap-3 min-w-0">
           <motion.div variants={cardVariants}>
             <SubOrderItems items={order.items} />
           </motion.div>
