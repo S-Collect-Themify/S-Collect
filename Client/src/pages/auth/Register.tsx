@@ -18,7 +18,6 @@ interface RegisterFormData {
   email: string;
   phone: string;
   storeName: string;
-  category: string;
   website: string;
   description: string;
   password: string;
@@ -292,25 +291,12 @@ const Step1 = () => {
 
 // ─── Step 2: Store Info ───────────────────────────────────────────────────────
 
-const CATEGORY_KEYS = [
-  'electronics',
-  'fashion',
-  'homeGarden',
-  'sports',
-  'books',
-  'beauty',
-  'food',
-  'other',
-] as const;
-
 const Step2 = () => {
   const { t } = useTranslation();
   const {
     register,
-    watch,
     formState: { errors },
   } = useFormContext<RegisterFormData>();
-  const category = watch('category');
 
   return (
     <div className="flex flex-col gap-4">
@@ -345,36 +331,6 @@ const Step2 = () => {
         {errors.description && (
           <p className="text-red text-caption-sm mt-1">
             {errors.description.message}
-          </p>
-        )}
-      </div>
-
-      {/* Category select */}
-      <div>
-        <label className="block text-label-sm text-gray-700 mb-1.5">
-          {t('register.categoryLabel')}
-          <span className="text-red ml-0.5">*</span>
-        </label>
-        <select
-          {...register('category', {
-            required: t('register.errors.categoryRequired'),
-          })}
-          className={`w-full px-3 py-2.5 border rounded-lg text-body-md outline-none transition-colors cursor-pointer focus:border-gray-900 ${
-            errors.category
-              ? 'border-red bg-red-light text-gray-900'
-              : 'border-gray-300 bg-gray-50'
-          } ${!category ? 'text-gray-400' : 'text-gray-900'}`}
-        >
-          <option value="">{t('register.categoryPlaceholder')}</option>
-          {CATEGORY_KEYS.map((key) => (
-            <option key={key} value={key}>
-              {t(`register.categories.${key}`)}
-            </option>
-          ))}
-        </select>
-        {errors.category && (
-          <p className="text-red text-caption-sm mt-1">
-            {errors.category.message}
           </p>
         )}
       </div>
@@ -671,7 +627,7 @@ const ApplicationSubmitted = ({
 
 const STEP_FIELDS: Record<number, (keyof RegisterFormData)[]> = {
   0: ['firstName', 'lastName', 'email', 'phone'],
-  1: ['storeName', 'category', 'description', 'website'],
+  1: ['storeName', 'description', 'website'],
   2: ['password', 'confirmPassword'],
 };
 
@@ -690,7 +646,6 @@ const Register = () => {
       email: '',
       phone: '',
       storeName: '',
-      category: '',
       website: '',
       description: '',
       password: '',
@@ -729,7 +684,7 @@ const Register = () => {
     }
 
     if (
-      ['storeName', 'category', 'description', 'website'].some(
+      ['storeName', 'description', 'website'].some(
         (f) => formErrors[f as keyof RegisterFormData]
       )
     ) {
@@ -750,7 +705,6 @@ const Register = () => {
         email: { en: 'Email Address', ar: 'البريد الإلكتروني' },
         phone: { en: 'Phone Number', ar: 'رقم الهاتف' },
         storeName: { en: 'Store Name', ar: 'اسم المتجر' },
-        category: { en: 'Category', ar: 'الفئة' },
         website: { en: 'Commercial Registration Number', ar: 'رقم السجل التجاري' },
         description: { en: 'Store Description', ar: 'وصف المتجر' },
         password: { en: 'Password', ar: 'كلمة المرور' },

@@ -13,7 +13,6 @@ export interface RegisterFormData {
   email: string;
   phone: string;
   storeName: string;
-  category: string;
   website: string;
   description: string;
   password: string;
@@ -51,7 +50,6 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
           email: { en: 'Email Address', ar: 'البريد الإلكتروني' },
           phone: { en: 'Phone Number', ar: 'رقم الهاتف' },
           storeName: { en: 'Store Name', ar: 'اسم المتجر' },
-          category: { en: 'Category', ar: 'الفئة' },
           website: { en: 'Commercial Registration Number', ar: 'رقم السجل التجاري' },
           description: { en: 'Store Description', ar: 'وصف المتجر' },
           password: { en: 'Password', ar: 'كلمة المرور' },
@@ -75,7 +73,6 @@ export const useRegister = (setError?: UseFormSetError<RegisterFormData>) => {
             return 'description';
           if (lower === 'commercialregisternumber' || lower === 'website' || lower === 'crnumber' || lower === 'cr_number')
             return 'website';
-          if (lower === 'category') return 'category';
           if (lower === 'password') return 'password';
           if (lower === 'confirmpassword' || lower === 'confirm_password') return 'confirmPassword';
           return undefined;
