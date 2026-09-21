@@ -20,13 +20,13 @@ const getBreakpoint = (width: number): Breakpoint | 'xs' => {
 };
 
 export const useBreakpoint = () => {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint | 'xs'>(
-    typeof window !== 'undefined' ? getBreakpoint(window.innerWidth) : 'xs'
+  const [windowWidth, setWindowWidth] = useState<number>(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
   );
 
   useEffect(() => {
     const handleResize = () => {
-      setBreakpoint(getBreakpoint(window.innerWidth));
+      setWindowWidth(window.innerWidth);
     };
 
     window.addEventListener('resize', handleResize);
@@ -36,10 +36,12 @@ export const useBreakpoint = () => {
     };
   }, []);
 
+  const breakpoint = getBreakpoint(windowWidth);
+
   return {
     breakpoint,
-    isMobile: breakpoint === 'xs' || breakpoint === 'sm',
-    isTablet: breakpoint === 'md',
-    isDesktop: ['lg', 'xl', '2xl'].includes(breakpoint),
+    isMobile: windowWidth < 768,
+    isTablet: windowWidth >= 768 && windowWidth <= 1024,
+    isDesktop: windowWidth > 1024,
   };
 };

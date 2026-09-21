@@ -164,8 +164,8 @@ const InputSearch = () => {
 
   return (
     <>
-      {/* Desktop Search Container */}
-      <div ref={containerRef} className="hidden md:block relative w-64 lg:w-80 xl:w-96">
+      {/* Desktop & Tablet Search Container */}
+      <div ref={containerRef} className="hidden md:block relative w-40 sm:w-52 md:w-60 lg:w-80 xl:w-96 transition-all duration-200">
         <div className="relative flex items-center">
           <Search className={`absolute ${isArabic ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none`} />
 
@@ -181,8 +181,8 @@ const InputSearch = () => {
             placeholder={t('search.products')}
             aria-label={t('search.products')}
             className={`w-full bg-white/10 hover:bg-white/15 focus:bg-white text-white focus:text-gray-900 ${
-              isArabic ? 'pr-9 pl-9' : 'pl-9 pr-9'
-            } py-2 rounded-xl text-sm outline-none border border-white/10 focus:border-gray-300 transition-all placeholder:text-gray-300 focus:placeholder:text-gray-400`}
+              isArabic ? 'pr-8 pl-8 sm:pr-9 sm:pl-9' : 'pl-8 pr-8 sm:pl-9 sm:pr-9'
+            } py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm outline-none border border-white/10 focus:border-gray-300 transition-all placeholder:text-gray-300 focus:placeholder:text-gray-400`}
           />
 
           {query && (
@@ -198,12 +198,12 @@ const InputSearch = () => {
           )}
         </div>
 
-        {/* Desktop Live Results Dropdown */}
+        {/* Desktop & Tablet Live Results Dropdown */}
         {showDropdown && (
           <div
             className={`absolute top-full mt-2 ${
               isArabic ? 'right-0' : 'left-0'
-            } w-full bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fadeIn`}
+            } w-full min-w-[280px] bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fadeIn`}
             dir={isArabic ? 'rtl' : 'ltr'}
           >
             <div className="p-3 border-b border-gray-100 flex items-center justify-between">
@@ -250,7 +250,7 @@ const InputSearch = () => {
       <button
         type="button"
         onClick={() => setOpenMobile(true)}
-        className="md:hidden flex items-center justify-center h-10 w-10 rounded-lg hover:bg-white/10 text-white cursor-pointer"
+        className="md:hidden flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-white/10 text-white cursor-pointer"
         aria-label="Open search"
       >
         <Search className="w-5 h-5 text-gray-100" />
