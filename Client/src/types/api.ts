@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import i18n from '../i18n';
 
 /**
  * Standard structure for validation error items from backend APIs.
@@ -31,6 +32,43 @@ export interface ApiErrorResponseBody {
 export type ApiAxiosError = AxiosError<ApiErrorResponseBody>;
 
 /**
+ * Normalizes technical error keys into localized user-friendly messages.
+ */
+export function normalizeErrorMessage(msg: string): string {
+  if (!msg) return msg;
+
+  const trimmed = msg.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (
+    trimmed === 'common.UNAUTHORIZED' ||
+    trimmed === 'UNAUTHORIZED' ||
+    trimmed === 'common.FORBIDDEN' ||
+    trimmed === 'FORBIDDEN' ||
+    trimmed === 'ACCOUNT_DEACTIVATED' ||
+    trimmed === 'DEACTIVATED' ||
+    trimmed === 'VENDOR_DEACTIVATED' ||
+    trimmed === 'common.DEACTIVATED' ||
+    lower.includes('unauthorized') ||
+    lower.includes('account_deactivated') ||
+    lower.includes('vendor_deactivated')
+  ) {
+    if (i18n.exists('common.UNAUTHORIZED')) {
+      return i18n.t('common.UNAUTHORIZED');
+    }
+    return i18n.language === 'ar'
+      ? 'تم إلغاء تفعيل حسابك.'
+      : 'Your account has been deactivated.';
+  }
+
+  if (i18n.exists(trimmed)) {
+    return i18n.t(trimmed);
+  }
+
+  return trimmed;
+}
+
+/**
  * Safely extracts a user-friendly error message from any caught error (unknown/AxiosError/Error).
  */
 export function getErrorMessage(
@@ -48,6 +86,8 @@ export function getErrorMessage(
   ) {
     targetError = (error as any).originalError;
   }
+
+  let extractedMsg: string | null = null;
 
   if (axios.isAxiosError(targetError)) {
     const axiosError = targetError as ApiAxiosError;
@@ -73,47 +113,48 @@ export function getErrorMessage(
           })
           .filter(Boolean);
         if (messages.length > 0) {
-          return messages.join('; ');
+          extractedMsg = messages.join('; ');
         }
       }
 
-      if (Array.isArray(responseData.message)) {
-        return responseData.message.filter(Boolean).join(', ');
-      }
-      if (
-        typeof responseData.message === 'string' &&
-        responseData.message.trim()
-      ) {
-        return responseData.message;
-      }
-      if (typeof responseData.error === 'string' && responseData.error.trim()) {
-        return responseData.error;
-      }
-      if (
-        typeof responseData.error === 'object' &&
-        responseData.error?.message
-      ) {
-        if (Array.isArray(responseData.error.message)) {
-          return responseData.error.message.filter(Boolean).join(', ');
+      if (!extractedMsg) {
+        if (Array.isArray(responseData.message)) {
+          extractedMsg = responseData.message.filter(Boolean).join(', ');
+        } else if (
+          typeof responseData.message === 'string' &&
+          responseData.message.trim()
+        ) {
+          extractedMsg = responseData.message;
+        } else if (typeof responseData.error === 'string' && responseData.error.trim()) {
+          extractedMsg = responseData.error;
+        } else if (
+          typeof responseData.error === 'object' &&
+          responseData.error?.message
+        ) {
+          if (Array.isArray(responseData.error.message)) {
+            extractedMsg = responseData.error.message.filter(Boolean).join(', ');
+          } else {
+            extractedMsg = responseData.error.message;
+          }
         }
-        return responseData.error.message;
       }
     }
 
-    if (axiosError.message) {
-      return axiosError.message;
+    if (!extractedMsg && axiosError.message) {
+      extractedMsg = axiosError.message;
     }
   }
 
-  if (error instanceof Error && error.message) {
-    return error.message;
+  if (!extractedMsg && error instanceof Error && error.message) {
+    extractedMsg = error.message;
   }
 
-  if (typeof error === 'string') {
-    return error;
+  if (!extractedMsg && typeof error === 'string') {
+    extractedMsg = error;
   }
 
-  return defaultMessage;
+  const result = extractedMsg || defaultMessage;
+  return normalizeErrorMessage(result);
 }
 
 /**
