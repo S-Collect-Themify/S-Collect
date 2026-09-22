@@ -128,77 +128,44 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   );
 
   return (
-    <header className="bg-(--gray-950) shadow-md p-4 text-white sticky top-0 z-50">
-      <div className="container mx-auto flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
-        <div className="flex items-center justify-between gap-4 md:hidden">
-          <div className="flex items-center gap-3">
-            <a href="/">
-              <img src="/mobLogo.png" alt="Logo" className="h-10 w-10" />
+    <header className="bg-(--gray-950) shadow-md px-4 py-3 sm:px-6 text-white sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className="flex items-center gap-2 sidebar:hidden shrink-0">
+            <a href="/" className="shrink-0">
+              <img src="/mobLogo.png" alt="Logo" className="h-9 w-9 object-contain" />
             </a>
             <button
               type="button"
               onClick={onMenuClick}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-gray-50 transition-colors cursor-pointer"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-gray-100 hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Open sidebar"
             >
-              <Menu size={24} />
+              <Menu size={22} />
             </button>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="md:hidden block">
-              <InputSearch />
-            </div>
-            <NotificationBell />
-            <div
-              aria-label={t('header.account')}
-              className="inline-flex h-11 w-11 items-center justify-center text-gray-50"
-            >
-              {isProfileLoading ? (
-                <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
-              ) : logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt="Store Logo"
-                  className="h-8 w-8 rounded-full object-cover border border-white/20"
-                />
-              ) : (
-                <div className="h-8 w-8 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shadow-sm">
-                  <Store size={18} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
 
-        <div className="hidden items-center justify-between gap-4 md:flex">
-          <div>
+          <div className="min-w-0">
             {isLoading ? (
-              <div className="h-7 w-48 bg-white/20 rounded-md animate-pulse my-1" />
+              <div className="h-6 sm:h-7 w-32 sm:w-44 bg-white/20 rounded-md animate-pulse my-1" />
             ) : (
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold truncate tracking-tight">
                 {isArabic
                   ? `مرحباً, ${displayName}`
                   : `Hello, ${displayName}`}
               </h1>
             )}
-            <p className="text-sm text-gray-200">{today}</p>
+            <p className="text-xs sm:text-sm text-gray-300 truncate hidden sm:block">{today}</p>
           </div>
         </div>
 
-        <div className="items-center gap-3 md:gap-4 md:flex hidden">
-          <div className="flex-1 md:flex-none md:block hidden">
-            <InputSearch />
-          </div>
-
-          <div className="hidden md:flex">
-            <LanguageDropdown />
-          </div>
-
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
+          <InputSearch />
+          <LanguageDropdown />
           <NotificationBell />
-
           <div
             aria-label={t('header.account')}
-            className="hidden text-2xl md:block"
+            className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center text-gray-50 shrink-0"
           >
             {isProfileLoading ? (
               <div className="h-8 w-8 rounded-full bg-white/20 animate-pulse" />
@@ -206,10 +173,10 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <img
                 src={logoUrl}
                 alt="Store Logo"
-                className="h-8 w-8 rounded-full object-cover border border-white/20"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border border-white/20"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shadow-sm">
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center shadow-sm">
                 <Store size={18} />
               </div>
             )}

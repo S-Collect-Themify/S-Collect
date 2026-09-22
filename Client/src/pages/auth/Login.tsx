@@ -48,7 +48,7 @@ interface LoginProps {
 }
 
 const Login = ({ onGoToRegister }: LoginProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [remainingTime, setRemainingTime] = useState<number>(14 * 60);
@@ -75,7 +75,12 @@ const Login = ({ onGoToRegister }: LoginProps) => {
   } = useAuthStore();
 
   const { login: executeLogin, isPending, error, reset } = useLogin();
-  const loginError = error?.message;
+  const rawLoginError = error?.message;
+  const loginError = rawLoginError
+    ? i18n.exists(rawLoginError)
+      ? t(rawLoginError)
+      : rawLoginError
+    : null;
 
   const isLocked = loginState === 'locked';
   const isExpired = loginState === 'expired';

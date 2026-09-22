@@ -108,8 +108,15 @@
     "errors": {
       "emailRequired": "البريد الإلكتروني مطلوب",
       "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
-      "passwordRequired": "كلمة المرور مطلوبة"
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "accountDeactivated": "تم إلغاء تفعيل حسابك."
     }
+  },
+  "common": {
+    "UNAUTHORIZED": "تم إلغاء تفعيل حسابك.",
+    "FORBIDDEN": "تم إلغاء تفعيل حسابك.",
+    "DEACTIVATED": "تم إلغاء تفعيل حسابك.",
+    "ACCOUNT_DEACTIVATED": "تم إلغاء تفعيل حسابك."
   },
   "forgetPass": {
     "title": "تغيير كلمة المرور",

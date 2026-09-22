@@ -207,8 +207,8 @@ const AddProduct = () => {
       color: '',
       attributes: {},
       stock: 1,
-      basePrice: '',
-      comparePrice: '',
+      basePrice: '0',
+      comparePrice: '0',
       sku: '',
     },
   ]);
@@ -289,8 +289,8 @@ const AddProduct = () => {
         color: activeAttributes[1]?.values?.[0]?.value || '',
         attributes: initialAttrs,
         stock: 1,
-        basePrice: prev[0]?.basePrice || '',
-        comparePrice: prev[0]?.comparePrice || '',
+        basePrice: '0',
+        comparePrice: '0',
         sku: '',
       },
     ]);
@@ -419,7 +419,7 @@ const AddProduct = () => {
             attributes: cardAttrs,
             stock: 1,
             basePrice: '0',
-            comparePrice: '',
+            comparePrice: '0',
             sku: generateRandomSku(color, size),
           });
           index++;

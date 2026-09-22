@@ -31,11 +31,7 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
   setError: UseFormSetError<TFieldValues>,
   fieldMap?: Record<string, Path<TFieldValues>>
 ) {
-  if (!(error instanceof ServiceError) || !error.details) {
-    return;
-  }
-
-  const details = error.details;
+  if (!error) return;
 
   const getMappedFieldName = (key: string): Path<TFieldValues> => {
     if (fieldMap && fieldMap[key]) {
@@ -43,6 +39,30 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
     }
     return key as Path<TFieldValues>;
   };
+
+  let details: unknown = null;
+  if (error instanceof ServiceError && error.details) {
+    details = error.details;
+  } else if (typeof error === 'object' && error !== null) {
+    const errObj = error as any;
+    if (errObj.details) {
+      details = errObj.details;
+    } else {
+      const original = errObj.originalError;
+      if (original?.response?.data) {
+        const data = original.response.data;
+        details =
+          data.details ||
+          data.validation ||
+          data.errors ||
+          data.error?.details ||
+          data.error?.validation ||
+          data.error?.errors;
+      }
+    }
+  }
+
+  if (!details) return;
 
   if (Array.isArray(details)) {
     details.forEach((err: unknown) => {
@@ -55,8 +75,15 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
             ? errObj.field
             : typeof errObj.key === 'string'
               ? errObj.key
-              : null;
-      const msg = errObj.message || errObj.msg || errObj.error;
+              : typeof errObj.param === 'string'
+                ? errObj.param
+                : null;
+      const msg =
+        errObj.message ||
+        errObj.msg ||
+        errObj.issue ||
+        errObj.error ||
+        errObj.detail;
 
       if (key && msg) {
         const fieldName = getMappedFieldName(key);
@@ -75,7 +102,9 @@ export function mapServiceErrorsToForm<TFieldValues extends FieldValues>(
       const fieldName = getMappedFieldName(key);
       const messages = Array.isArray(val) ? val : [val];
       const cleanMessages = messages.map((m) =>
-        typeof m === 'object' ? JSON.stringify(m) : String(m)
+        typeof m === 'object'
+          ? (m as any).message || (m as any).issue || (m as any).msg || JSON.stringify(m)
+          : String(m)
       );
       const messageStr = cleanMessages.join(', ');
 

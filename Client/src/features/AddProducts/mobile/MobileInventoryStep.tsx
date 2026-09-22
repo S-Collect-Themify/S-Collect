@@ -151,8 +151,8 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
             size: 'XS',
             color: '',
             stock: 1,
-            basePrice: basePriceForm || '',
-            comparePrice: comparePriceForm || '',
+            basePrice: basePriceForm || '0',
+            comparePrice: comparePriceForm || '0',
             sku: skuForm || '',
           },
         ];
@@ -209,8 +209,8 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
         color: activeAttributes[1]?.values?.[0]?.value || '',
         attributes: initialAttrs,
         stock: 1,
-        basePrice: varianceCards[0]?.basePrice || basePriceForm || '',
-        comparePrice: varianceCards[0]?.comparePrice || comparePriceForm || '',
+        basePrice: '0',
+        comparePrice: '0',
         sku: '',
       },
     ];
@@ -342,7 +342,7 @@ const MobileInventoryStep = ({ isEdit }: MobileInventoryStepProps) => {
             attributes: cardAttrs,
             stock: 1,
             basePrice: '0',
-            comparePrice: '',
+            comparePrice: '0',
             sku: generateRandomSku(color, size),
           });
           index++;

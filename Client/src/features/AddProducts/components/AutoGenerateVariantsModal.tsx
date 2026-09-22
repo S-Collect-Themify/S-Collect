@@ -443,7 +443,7 @@ export const AutoGenerateVariantsModal = ({
         attributes: cardAttrs,
         stock: 1, // Quantity is 1
         basePrice: '0', // Price is 0
-        comparePrice: '',
+        comparePrice: '0', // Compare at price is 0
         sku,
       };
     });
